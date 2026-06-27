@@ -3,7 +3,7 @@ import { Sparkles } from "lucide-react";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SommelierForm } from "@/components/sommelier/sommelier-form";
-import { getAllWineries } from "@/lib/queries";
+import { getAllWineries, getWinesForSommelier } from "@/lib/queries";
 
 export const revalidate = 3600;
 
@@ -55,7 +55,10 @@ const jsonLd = {
 };
 
 export default async function AiSommelierPage() {
-  const wineries = await getAllWineries();
+  const [wineries, wines] = await Promise.all([
+    getAllWineries(),
+    getWinesForSommelier(),
+  ]);
 
   return (
     <>
@@ -88,7 +91,7 @@ export default async function AiSommelierPage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
-          <SommelierForm wineries={wineries} />
+          <SommelierForm wineries={wineries} wines={wines} />
         </section>
       </main>
       <SiteFooter />

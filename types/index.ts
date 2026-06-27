@@ -54,6 +54,19 @@ export interface WineryListItem extends Winery {
 export type {
   AffiliateLink,
   AvailabilityEntry,
+  ExpertNotes,
   FoodPairing,
   GrapeVarietyShare,
 } from "@/lib/schema";
+
+export interface ExpertRecommendationDisplay {
+  wineSlug: string;
+  rank: number;
+  matchScore: number;
+  whyThisWine: string;
+  thingsYouShouldKnow: string[];
+  pairingScience: string;
+  servingAndStorage: string;
+  wine: WineWithRelations;
+  budgetFit: "under" | "ideal" | "over";
+}

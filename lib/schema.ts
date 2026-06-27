@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  blob,
   index,
   integer,
   real,
@@ -35,6 +36,18 @@ export interface AffiliateLink {
   retailer: string;
   url: string;
   priceRon?: number;
+}
+
+/** Pre-computed sommelier knowledge per wine (generated once via LLM). */
+export interface ExpertNotes {
+  history: string;
+  terroirSecrets: string;
+  vintageQuirks: string;
+  pairingScience: string;
+  commonMistakes: string;
+  agingPotential: string;
+  valueInsight: string;
+  thingsYouShouldKnow: string[];
 }
 
 const timestamps = {
@@ -184,6 +197,13 @@ export const wines = sqliteTable(
     imageUrl: text("image_url"),
     ratingAvg: real("rating_avg"),
     ratingCount: integer("rating_count").notNull().default(0),
+
+    expertNotes: text("expert_notes", { mode: "json" })
+      .$type<ExpertNotes | null>()
+      .default(sql`'null'`),
+
+    /** F32_BLOB(384) vector for all-MiniLM-L6-v2 semantic search. Stored as Buffer. */
+    embedding: blob("embedding", { mode: "buffer" }),
 
     ...timestamps,
   },

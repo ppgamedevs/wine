@@ -8,5 +8,6 @@ const authToken = process.env.TURSO_AUTH_TOKEN;
 const client = createClient({ url, authToken });
 
 export const db = drizzle(client, { schema });
+export { client as libsqlClient };
 
 export { schema };

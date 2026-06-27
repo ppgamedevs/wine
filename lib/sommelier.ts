@@ -1,7 +1,8 @@
-import type { WineType, WineSweetness, WineWithRelations } from "@/types";
+import type { ExpertRecommendationOutput } from "@/lib/ai/schemas";
+import type { WineWithRelations } from "@/types";
 
 export type ColorPreference = "any" | "red" | "white" | "rose" | "sparkling";
-export type SweetnessPreference = "any" | WineSweetness;
+export type SweetnessPreference = "any" | "sec" | "demisec" | "demidulce" | "dulce";
 
 export interface SommelierInput {
   budgetMin: number;
@@ -27,17 +28,9 @@ interface OccasionConfig {
   id: OccasionId;
   label: string;
   description: string;
-  /** Weight applied to each score dimension (0-1). */
-  weights: {
-    value: number;
-    gift: number;
-    food: number;
-  };
-  /** Wine types that fit this occasion particularly well. */
-  preferredTypes: WineType[];
-  /** Dish keywords that boost a wine when present in its pairings. */
+  weights: { value: number; gift: number; food: number };
+  preferredTypes: WineWithRelations["type"][];
   dishKeywords: string[];
-  /** Short rationale fragment used in explanations. */
   rationale: string;
 }
 
@@ -102,7 +95,7 @@ export const OCCASIONS: OccasionConfig[] = [
     description: "Pentru carne la gratar si mici",
     weights: { value: 0.45, gift: 0.05, food: 0.5 },
     preferredTypes: ["red", "rose"],
-    dishKeywords: ["gratar", "mici", "mititei", "burger", "porc", "vita"],
+    dishKeywords: ["gratar", "mici", "mititei", "burger", "porc", "vita", "tochitura"],
     rationale: "merge excelent cu gratarul si micii",
   },
   {
@@ -129,10 +122,17 @@ export function getOccasion(id: OccasionId): OccasionConfig {
   return OCCASIONS.find((o) => o.id === id) ?? OCCASIONS[0];
 }
 
+/** Legacy rule-based recommendation (fallback when RAG unavailable). */
 export interface Recommendation {
   wine: WineWithRelations;
   matchScore: number;
   reasons: string[];
+  budgetFit: "under" | "ideal" | "over";
+}
+
+/** Expert AI recommendation enriched with wine data for UI. */
+export interface ExpertRecommendation extends ExpertRecommendationOutput {
+  wine: WineWithRelations;
   budgetFit: "under" | "ideal" | "over";
 }
 
@@ -143,14 +143,10 @@ interface ScoredWine {
   budgetFit: Recommendation["budgetFit"];
 }
 
-/**
- * Best achievable raw score for a given request, used to normalize the
- * displayed match percentage so results spread meaningfully.
- */
 function maxAchievableScore(input: SommelierInput): number {
   const occasion = getOccasion(input.occasion);
-  let max = 100; // weighted dimensions all at 100
-  max += 8; // ideal budget fit
+  let max = 100;
+  max += 8;
   if (input.color !== "any") max += 14;
   if (input.sweetness !== "any") max += 10;
   if (occasion.preferredTypes.length > 0) max += 10;
@@ -159,7 +155,7 @@ function maxAchievableScore(input: SommelierInput): number {
   return max;
 }
 
-const COLOR_TO_TYPES: Record<ColorPreference, WineType[]> = {
+const COLOR_TO_TYPES: Record<ColorPreference, WineWithRelations["type"][]> = {
   any: [],
   red: ["red"],
   white: ["white"],
@@ -200,13 +196,9 @@ function scoreWineRaw(
     } else if (price < input.budgetMin) {
       score += 4;
       budgetFit = "under";
-      reasons.push(
-        `Sub bugetul tau, la doar ${Math.round(price)} RON, deci pui mai putin si primesti valoare buna.`,
-      );
     } else {
       score += 8;
       budgetFit = "ideal";
-      reasons.push(`Se incadreaza perfect in bugetul tau (${Math.round(price)} RON).`);
     }
   }
 
@@ -222,7 +214,6 @@ function scoreWineRaw(
   if (input.sweetness !== "any") {
     if (wine.sweetness === input.sweetness) {
       score += 10;
-      reasons.push(`Este ${input.sweetness}, exact tipul preferat de tine.`);
     } else if (wine.sweetness) {
       score -= 14;
     }
@@ -230,9 +221,6 @@ function scoreWineRaw(
 
   if (occasion.preferredTypes.includes(wine.type)) {
     score += 10;
-    reasons.push(
-      `Tip ${wine.type === "red" ? "rosu" : wine.type === "white" ? "alb" : wine.type}, potrivit pentru ${occasion.label.toLowerCase()}.`,
-    );
   }
 
   if (occasion.dishKeywords.length > 0) {
@@ -245,12 +233,7 @@ function scoreWineRaw(
     );
     if (matchedKeyword) {
       score += 12;
-      const matchedDish = wine.foodPairings.find((p) =>
-        `${p.dish} ${p.note ?? ""}`.toLowerCase().includes(matchedKeyword),
-      );
-      reasons.push(
-        `Recomandat special pentru ${matchedDish?.dish ?? matchedKeyword}.`,
-      );
+      reasons.push(`Potrivit pentru ${matchedKeyword}.`);
     }
   }
 
@@ -259,31 +242,10 @@ function scoreWineRaw(
     input.preferredWinerySlugs.includes(wine.winery.slug)
   ) {
     score += 18;
-    reasons.push(`Din ${wine.winery.name}, una dintre cramele tale preferate.`);
+    reasons.push(`Din ${wine.winery.name}, crama preferata.`);
   }
 
-  if (wine.valueScore && wine.valueScore >= 88) {
-    reasons.push(
-      `Value Score ${wine.valueScore}/100, printre cele mai bune la raport calitate-pret.`,
-    );
-  } else if (occasion.weights.gift >= 0.5 && wine.giftScore && wine.giftScore >= 82) {
-    reasons.push(`Gift Score ${wine.giftScore}/100, ${occasion.rationale}.`);
-  } else {
-    reasons.push(
-      `${capitalize(occasion.rationale)} (Value ${wine.valueScore ?? "N/A"}/100).`,
-    );
-  }
-
-  if (wine.winery?.verified) {
-    reasons.push("Crama este verificata in baza noastra de date.");
-  }
-
-  return {
-    wine,
-    raw: score,
-    reasons: reasons.slice(0, 4),
-    budgetFit,
-  };
+  return { wine, raw: score, reasons, budgetFit };
 }
 
 export function recommendWines(
@@ -308,6 +270,77 @@ export function recommendWines(
   }));
 }
 
-function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
+/** Serialize wine + expert_notes for LLM context window. */
+export function buildWineContextBlock(wine: WineWithRelations): string {
+  const grapes = wine.grapeVarieties
+    .map((g) => `${g.name}${g.percentage ? ` (${g.percentage}%)` : ""}`)
+    .join(", ");
+  const pairings = wine.foodPairings
+    .map((p) => `${p.dish}${p.note ? `: ${p.note}` : ""}`)
+    .join("; ");
+
+  const expert = wine.expertNotes
+    ? `
+EXPERT_NOTES:
+- Istorie: ${wine.expertNotes.history}
+- Terroir: ${wine.expertNotes.terroirSecrets}
+- Vintage: ${wine.expertNotes.vintageQuirks}
+- Pairing science: ${wine.expertNotes.pairingScience}
+- Greseli comune: ${wine.expertNotes.commonMistakes}
+- Aging: ${wine.expertNotes.agingPotential}
+- Value insight: ${wine.expertNotes.valueInsight}
+- Things you should know: ${wine.expertNotes.thingsYouShouldKnow.join(" | ")}`
+    : "(expert_notes negenerate inca)";
+
+  return `---
+slug: ${wine.slug}
+Nume: ${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}
+Crama: ${wine.winery?.name ?? "N/A"} | Regiune: ${wine.region?.name ?? "N/A"}
+Tip: ${wine.type} | Dulceata: ${wine.sweetness ?? "N/A"} | ${wine.priceAvg ?? "?"} RON
+Soiuri: ${grapes}
+Scoruri: Value ${wine.valueScore ?? "N/A"}, Gift ${wine.giftScore ?? "N/A"}, Food ${wine.foodMatchScore ?? "N/A"}
+Note: ${wine.tastingNotes ?? "N/A"}
+Pairing-uri: ${pairings}
+${expert}
+---`;
+}
+
+export function buildWineContextForLLM(wines: WineWithRelations[]): string {
+  return wines.map(buildWineContextBlock).join("\n");
+}
+
+export function computeBudgetFit(
+  price: number | null,
+  budgetMin: number,
+  budgetMax: number,
+): Recommendation["budgetFit"] {
+  if (price === null) return "ideal";
+  if (price > budgetMax) return "over";
+  if (price < budgetMin) return "under";
+  return "ideal";
+}
+
+export function enrichExpertRecommendations(
+  outputs: ExpertRecommendationOutput[],
+  candidates: WineWithRelations[],
+  input: SommelierInput,
+): ExpertRecommendation[] {
+  const bySlug = new Map(candidates.map((w) => [w.slug, w]));
+
+  return outputs
+    .map((rec) => {
+      const wine = bySlug.get(rec.wineSlug);
+      if (!wine) return null;
+      return {
+        ...rec,
+        wine,
+        budgetFit: computeBudgetFit(
+          wine.priceAvg,
+          input.budgetMin,
+          input.budgetMax,
+        ),
+      };
+    })
+    .filter((r): r is ExpertRecommendation => r !== null)
+    .sort((a, b) => a.rank - b.rank);
 }
