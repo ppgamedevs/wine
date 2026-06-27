@@ -73,6 +73,13 @@ async function main() {
   const allWines = await loadWines();
   console.log(`Generating expert_notes for ${allWines.length} wines...`);
 
+  if (allWines.length === 0) {
+    console.log(
+      "Baza de date este goala. Ruleaza mai intai: npm run db:seed",
+    );
+    return;
+  }
+
   let done = 0;
   for (const wine of allWines) {
     if (wine.expertNotes) {

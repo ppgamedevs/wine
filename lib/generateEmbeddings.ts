@@ -1,5 +1,4 @@
 import "./load-env";
-import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   buildWineDocumentText,
@@ -7,7 +6,6 @@ import {
   ensureVectorIndex,
   saveWineEmbedding,
 } from "@/lib/embeddings";
-import { wines } from "@/lib/schema";
 import type { WineWithRelations } from "@/types";
 
 async function main() {
@@ -18,6 +16,13 @@ async function main() {
   });
 
   console.log(`Generating embeddings for ${rows.length} wines...`);
+
+  if (rows.length === 0) {
+    console.log(
+      "Baza de date este goala. Ruleaza mai intai: npm run db:seed",
+    );
+    return;
+  }
 
   let done = 0;
   for (const wine of rows as WineWithRelations[]) {

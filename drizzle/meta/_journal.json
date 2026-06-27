@@ -15,6 +15,13 @@
       "when": 1782600000000,
       "tag": "0001_expert_rag",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1782600100000,
+      "tag": "0002_embedding_f32",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,3 @@
-import "server-only";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { HfInference } from "@huggingface/inference";
 import { db, libsqlClient } from "@/lib/db";
@@ -193,14 +192,22 @@ export async function saveWineEmbedding(
   });
 }
 
-/** Ensure vector index exists (idempotent, Turso only). */
+/** Create vector index after column is F32_BLOB (Turso only). */
 export async function ensureVectorIndex(): Promise<void> {
   try {
     await libsqlClient.execute(
-      "CREATE INDEX IF NOT EXISTS wines_embedding_idx ON wines (libsql_vector_idx(embedding, 'cosine'))",
+      "CREATE INDEX IF NOT EXISTS wines_embedding_idx ON wines (libsql_vector_idx(embedding, 'metric=cosine'))",
     );
+    console.log("Vector index ready.");
   } catch (error) {
-    console.warn("ensureVectorIndex skipped (local SQLite may not support)", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    if (msg.includes("unexpected vector column type")) {
+      console.warn(
+        "Vector index skipped: embedding column must be F32_BLOB(384). Run: npm run db:migrate",
+      );
+      return;
+    }
+    console.warn("ensureVectorIndex skipped:", msg);
   }
 }
 
