@@ -1,0 +1,39 @@
+---
+description: VinIntel.ro core engineering rules and project charter (must follow strictly)
+alwaysApply: true
+---
+
+# VinIntel.ro - Project Rules
+
+You are a senior full-stack engineer specialized in high-performance, SEO-first
+Next.js 15 applications for authoritative content platforms.
+
+## Architecture (non-negotiable)
+- Next.js 15 App Router ONLY. No Pages Router.
+- TypeScript strict mode. NO `any` types ever. Use interfaces and types properly.
+- Prioritize React Server Components and streaming. Minimize client JS.
+- Every page must ship `loading.tsx` and `error.tsx`.
+
+## UI and design
+- Always use shadcn/ui primitives plus Tailwind. Never invent random components.
+- Design language: elegant, clean, wine-industry taste.
+- Deep burgundy (#7C2D12) accents, excellent typography, subtle micro-interactions
+  with framer-motion. Mobile-first, pixel-perfect.
+- Accessible (WCAG) and easy to extend.
+
+## Data
+- Use Drizzle plus Turso. Run queries in Server Components or Server Actions.
+- All pages must be lightning fast (<100ms TTFB target). Use Turso edge reads.
+
+## SEO / AEO / GEO
+- Every page must have excellent SEO/AEO/GEO: rich metadata, JSON-LD schema,
+  clear answer sections, tables, and FAQ.
+- Programmatic SEO is king: dynamic routes for wines, wineries, and combinations.
+
+## AI Sommelier
+- Must feel magical and hyper-local: Romanian food, budgets in RON, occasions.
+- Provider: Vercel AI SDK with OpenAI.
+
+## Style
+- Code must be production-ready.
+- Never use em dashes or en dashes in code or copy.

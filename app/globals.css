@@ -1,26 +1,122 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-wine: var(--wine);
+  --color-wine-foreground: var(--wine-foreground);
+  --color-gold: var(--gold);
+  --color-cream: var(--cream);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(0.992 0.004 85);
+  --foreground: oklch(0.225 0.012 45);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.225 0.012 45);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.225 0.012 45);
+
+  --primary: #7c2d12;
+  --primary-foreground: oklch(0.98 0.01 70);
+
+  --secondary: oklch(0.965 0.008 70);
+  --secondary-foreground: oklch(0.3 0.03 40);
+
+  --muted: oklch(0.965 0.008 70);
+  --muted-foreground: oklch(0.52 0.02 45);
+
+  --accent: oklch(0.95 0.018 60);
+  --accent-foreground: #7c2d12;
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: oklch(0.91 0.01 65);
+  --input: oklch(0.91 0.01 65);
+  --ring: #7c2d12;
+
+  --wine: #7c2d12;
+  --wine-foreground: oklch(0.98 0.01 70);
+  --gold: oklch(0.72 0.11 75);
+  --cream: oklch(0.97 0.015 80);
+}
+
+.dark {
+  --background: oklch(0.18 0.012 40);
+  --foreground: oklch(0.96 0.008 70);
+
+  --card: oklch(0.21 0.014 40);
+  --card-foreground: oklch(0.96 0.008 70);
+  --popover: oklch(0.21 0.014 40);
+  --popover-foreground: oklch(0.96 0.008 70);
+
+  --primary: oklch(0.62 0.16 32);
+  --primary-foreground: oklch(0.99 0.005 70);
+
+  --secondary: oklch(0.27 0.016 40);
+  --secondary-foreground: oklch(0.96 0.008 70);
+
+  --muted: oklch(0.27 0.016 40);
+  --muted-foreground: oklch(0.72 0.015 60);
+
+  --accent: oklch(0.3 0.03 35);
+  --accent-foreground: oklch(0.96 0.008 70);
+
+  --destructive: oklch(0.704 0.191 22.216);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.62 0.16 32);
+
+  --wine: oklch(0.62 0.16 32);
+  --wine-foreground: oklch(0.99 0.005 70);
+  --gold: oklch(0.76 0.12 78);
+  --cream: oklch(0.27 0.016 40);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "liga" 1, "calt" 1;
+  }
+  html {
+    @apply font-sans antialiased;
+    scroll-behavior: smooth;
+  }
 }

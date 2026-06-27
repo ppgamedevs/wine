@@ -1,0 +1,59 @@
+import type {
+  grapeVarieties,
+  ratings,
+  regions,
+  scoresHistory,
+  users,
+  wineries,
+  wines,
+} from "@/lib/schema";
+
+export type Region = typeof regions.$inferSelect;
+export type NewRegion = typeof regions.$inferInsert;
+
+export type GrapeVariety = typeof grapeVarieties.$inferSelect;
+export type NewGrapeVariety = typeof grapeVarieties.$inferInsert;
+
+export type Winery = typeof wineries.$inferSelect;
+export type NewWinery = typeof wineries.$inferInsert;
+
+export type Wine = typeof wines.$inferSelect;
+export type NewWine = typeof wines.$inferInsert;
+
+export type ScoreSnapshot = typeof scoresHistory.$inferSelect;
+export type NewScoreSnapshot = typeof scoresHistory.$inferInsert;
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+
+export type Rating = typeof ratings.$inferSelect;
+export type NewRating = typeof ratings.$inferInsert;
+
+export type WineType = Wine["type"];
+export type WineSweetness = NonNullable<Wine["sweetness"]>;
+export type GrapeColor = GrapeVariety["color"];
+export type OverpricedRisk = NonNullable<Wine["overpricedRisk"]>;
+
+export interface WineWithRelations extends Wine {
+  winery: Winery | null;
+  region: Region | null;
+}
+
+export interface WineryWithWines extends Winery {
+  region: Region | null;
+  wines: WineWithRelations[];
+}
+
+export interface WineryListItem extends Winery {
+  region: Region | null;
+  wineCount: number;
+  avgValueScore: number | null;
+  priceRange: { min: number; max: number } | null;
+}
+
+export type {
+  AffiliateLink,
+  AvailabilityEntry,
+  FoodPairing,
+  GrapeVarietyShare,
+} from "@/lib/schema";
