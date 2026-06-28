@@ -1,39 +1,6 @@
 import type { WineType } from "@/types";
 
-/** Curated Unsplash URLs (free, hotlink OK) grouped by wine style. */
-const IMAGES_BY_TYPE: Record<WineType, readonly string[]> = {
-  red: [
-    "https://images.unsplash.com/photo-1510817813129-b0f04dbdf3de?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1506377247377-261ccd763eb0?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1553361371-873245b0d3f1?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1584910459009-feeca1480ed2?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1569529465841-df137b257a00?w=800&h=600&fit=crop&q=80",
-  ],
-  white: [
-    "https://images.unsplash.com/photo-1566756240265-fdfb0a4d4f28?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1547595628-c58a4e45a2a9?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1587774259457-e2a3aa5a9f78?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=600&fit=crop&q=80",
-  ],
-  rose: [
-    "https://images.unsplash.com/photo-1558644705-70f746f5c8c2?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1569529465841-df137b257a00?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1587774259457-e2a3aa5a9f78?w=800&h=600&fit=crop&q=80",
-  ],
-  sparkling: [
-    "https://images.unsplash.com/photo-1547595628-c58a4e45a2a9?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1558644705-70f746f5c8c2?w=800&h=600&fit=crop&q=80",
-  ],
-  dessert: [
-    "https://images.unsplash.com/photo-1584910459009-feeca1480ed2?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1566756240265-fdfb0a4d4f28?w=800&h=600&fit=crop&q=80",
-  ],
-  orange: [
-    "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=600&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1558644705-70f746f5c8c2?w=800&h=600&fit=crop&q=80",
-  ],
-};
+const PLACEHOLDER_HOSTS = ["images.unsplash.com", "picsum.photos"] as const;
 
 const TYPE_LABELS: Record<WineType, string> = {
   red: "rosu",
@@ -44,18 +11,17 @@ const TYPE_LABELS: Record<WineType, string> = {
   orange: "orange",
 };
 
-function hashSlug(slug: string): number {
-  let hash = 0;
-  for (let i = 0; i < slug.length; i += 1) {
-    hash = (hash * 31 + slug.charCodeAt(i)) >>> 0;
+/** Temporary stock URLs from early seed; treat as missing until real bottle photos exist. */
+export function isPlaceholderImageUrl(url: string | null | undefined): boolean {
+  if (!url?.trim()) return true;
+  try {
+    const hostname = new URL(url).hostname;
+    return PLACEHOLDER_HOSTS.some(
+      (host) => hostname === host || hostname.endsWith(`.${host}`),
+    );
+  } catch {
+    return true;
   }
-  return hash;
-}
-
-/** Deterministic image URL for seed data (same slug always gets same photo). */
-export function getSeedImageUrl(type: WineType, slug: string): string {
-  const pool = IMAGES_BY_TYPE[type];
-  return pool[hashSlug(slug) % pool.length];
 }
 
 export function buildWineImageAlt(input: {
@@ -79,7 +45,7 @@ export function resolveWineImage(wine: {
   vintage?: number | null;
   type: WineType;
   winery?: { name: string } | null;
-}): { src: string; alt: string } {
+}): { src: string | null; alt: string } {
   const alt =
     wine.imageAlt?.trim() ||
     buildWineImageAlt({
@@ -89,8 +55,8 @@ export function resolveWineImage(wine: {
       type: wine.type,
     });
 
-  const src =
-    wine.imageUrl?.trim() || getSeedImageUrl(wine.type, wine.slug);
+  const raw = wine.imageUrl?.trim();
+  const src = raw && !isPlaceholderImageUrl(raw) ? raw : null;
 
   return { src, alt };
 }

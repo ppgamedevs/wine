@@ -20,11 +20,15 @@ export function buildWineJsonLd(
     name: wine.name,
     description: wine.tastingNotes ?? `${wine.name} din ${regionName ?? "Romania"}.`,
     url,
-    image: {
-      "@type": "ImageObject",
-      url: imageUrl,
-      caption: imageAlt,
-    },
+    ...(imageUrl
+      ? {
+          image: {
+            "@type": "ImageObject",
+            url: imageUrl,
+            caption: imageAlt,
+          },
+        }
+      : {}),
     alcoholContent: wine.alcohol ? `${wine.alcohol}%` : undefined,
     vintage: wine.vintage ? String(wine.vintage) : undefined,
     color: wine.type,
@@ -62,7 +66,7 @@ export function buildWineJsonLd(
     name: wine.name,
     description: wine.tastingNotes ?? `Vin romanesc ${wine.name}.`,
     url,
-    image: imageUrl,
+    ...(imageUrl ? { image: imageUrl } : {}),
     brand: wineryName
       ? { "@type": "Brand", name: wineryName }
       : undefined,

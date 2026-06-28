@@ -1,16 +1,11 @@
 import { Building2, CheckCircle2, ChevronRight, MapPin } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { WineImage } from "@/components/wines/wine-image";
 import { Badge } from "@/components/ui/badge";
 import { formatRon, wineTypeLabel } from "@/lib/format";
-import { resolveWineImage } from "@/lib/wine-images";
 import type { WineWithRelations } from "@/types";
 
 export function WineHero({ wine }: { wine: WineWithRelations }) {
-  const { src, alt } = resolveWineImage(wine);
-
-  return (
     <section className="border-b border-border/60 bg-secondary/20">
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-12 lg:py-14">
         <div className="space-y-3">
@@ -28,18 +23,6 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
               aspectClassName="relative h-full w-full overflow-hidden"
               imageClassName="object-cover object-center"
             />
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 border-wine ring-2 ring-wine/20">
-              <Image
-                src={src}
-                alt={alt}
-                fill
-                sizes="64px"
-                className="object-cover"
-              />
-            </div>
           </div>
         </div>
 

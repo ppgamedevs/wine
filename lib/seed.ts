@@ -10,7 +10,7 @@ import {
   type FoodPairing,
   type GrapeVarietyShare,
 } from "./schema";
-import { buildWineImageAlt, getSeedImageUrl } from "./wine-images";
+import { buildWineImageAlt } from "./wine-images";
 
 interface WineSeed {
   slug: string;
@@ -2087,7 +2087,7 @@ async function main() {
       foodPairings: w.foodPairings,
       availability: availabilityFor(w.priceAvg),
       affiliateLinks: affiliatesFor(w.priceAvg),
-      imageUrl: w.imageUrl ?? getSeedImageUrl(w.type, w.slug),
+      imageUrl: w.imageUrl ?? null,
       imageAlt:
         w.imageAlt ??
         buildWineImageAlt({

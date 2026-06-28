@@ -1,11 +1,10 @@
-import { ArrowRight, Check, Sparkles, Wine as WineIcon } from "lucide-react";
-import Image from "next/image";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { WineImage } from "@/components/wines/wine-image";
 import { Button } from "@/components/ui/button";
 import {
   formatRon,
   valueScoreTone,
-  wineTypeGradient,
   wineTypeLabel,
 } from "@/lib/format";
 import type { Recommendation } from "@/lib/sommelier";
@@ -25,35 +24,20 @@ export function RecommendationCard({
   rank: number;
 }) {
   const { wine, matchScore, reasons, budgetFit } = recommendation;
-  const lightLabel = wine.type !== "red";
 
   return (
     <article className="group relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-border/70 bg-card p-5 transition-all duration-300 hover:border-wine/30 hover:shadow-lg sm:flex-row sm:p-6">
       <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-xl sm:h-auto sm:w-40">
-        {wine.imageUrl ? (
-          <Image
-            src={wine.imageUrl}
-            alt={wine.name}
-            fill
-            sizes="(max-width: 640px) 100vw, 160px"
-            className="object-cover"
-          />
-        ) : (
-          <div
-            className={cn(
-              "flex h-full min-h-44 w-full items-center justify-center bg-gradient-to-br",
-              wineTypeGradient[wine.type],
-            )}
-          >
-            <WineIcon
-              className={cn(
-                "h-12 w-12",
-                lightLabel ? "text-wine/35" : "text-wine-foreground/70",
-              )}
-              aria-hidden="true"
-            />
-          </div>
-        )}
+        <WineImage
+          slug={wine.slug}
+          name={wine.name}
+          type={wine.type}
+          imageUrl={wine.imageUrl}
+          vintage={wine.vintage}
+          wineryName={wine.winery?.name}
+          sizes="(max-width: 640px) 100vw, 160px"
+          aspectClassName="relative h-full min-h-44 w-full overflow-hidden"
+        />
         <span className="absolute left-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-wine text-sm font-bold text-wine-foreground shadow">
           {rank}
         </span>

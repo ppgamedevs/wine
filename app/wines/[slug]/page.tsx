@@ -46,6 +46,9 @@ export async function generateMetadata({
   const description = buildWineMetadataDescription(wine);
   const url = `https://vinintel.ro/wines/${wine.slug}`;
   const { src: imageUrl, alt: imageAlt } = resolveWineImage(wine);
+  const ogImages = imageUrl
+    ? [{ url: imageUrl, width: 800, height: 600, alt: imageAlt }]
+    : undefined;
 
   return {
     title,
@@ -66,13 +69,13 @@ export async function generateMetadata({
       title: `${title} | VinIntel`,
       description,
       siteName: "VinIntel",
-      images: [{ url: imageUrl, width: 800, height: 600, alt: imageAlt }],
+      ...(ogImages ? { images: ogImages } : {}),
     },
     twitter: {
-      card: "summary_large_image",
+      card: imageUrl ? "summary_large_image" : "summary",
       title: `${title} | VinIntel`,
       description,
-      images: [imageUrl],
+      ...(imageUrl ? { images: [imageUrl] } : {}),
     },
     alternates: { canonical: url },
   };
