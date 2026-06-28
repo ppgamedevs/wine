@@ -1,6 +1,6 @@
-import { groq } from "@ai-sdk/groq";
 import { streamObject } from "ai";
 import { z } from "zod";
+import { getSommelierModel } from "@/lib/ai/model";
 import {
   buildSommelierUserPrompt,
   SOMMELIER_SYSTEM_PROMPT,
@@ -27,11 +27,8 @@ const requestSchema = z.object({
   preferredWinerySlugs: z.array(z.string()).default([]),
 });
 
-function getGroqModel() {
-  if (!process.env.GROQ_API_KEY) {
-    throw new Error("GROQ_API_KEY lipseste din variabilele de mediu.");
-  }
-  return groq("llama-3.3-70b-versatile");
+function getModel() {
+  return getSommelierModel();
 }
 
 export async function POST(req: Request) {
@@ -85,7 +82,7 @@ export async function POST(req: Request) {
     );
 
     const result = streamObject({
-      model: getGroqModel(),
+      model: getModel(),
       schema: sommelierResponseSchema,
       system: SOMMELIER_SYSTEM_PROMPT,
       prompt,

@@ -1,8 +1,8 @@
 import "./load-env";
 import { generateObject } from "ai";
-import { groq } from "@ai-sdk/groq";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { getSommelierModel } from "@/lib/ai/model";
 import {
   buildExpertNotesUserPrompt,
   EXPERT_NOTES_SYSTEM_PROMPT,
@@ -22,10 +22,7 @@ const expertNotesSchema = z.object({
 });
 
 function getModel() {
-  if (!process.env.GROQ_API_KEY) {
-    throw new Error("GROQ_API_KEY lipseste. Adauga cheia in .env.local");
-  }
-  return groq("llama-3.3-70b-versatile");
+  return getSommelierModel();
 }
 
 async function generateNotesForWine(

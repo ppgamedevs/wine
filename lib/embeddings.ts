@@ -10,7 +10,11 @@ export const EMBEDDING_DIMENSIONS = 384;
 const EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2";
 
 function getHfClient(): HfInference | null {
-  const token = process.env.HF_TOKEN ?? process.env.HUGGINGFACE_API_KEY;
+  const token = (
+    process.env.HF_TOKEN ??
+    process.env.HUGGINGFACE_API_KEY ??
+    ""
+  ).trim();
   if (!token) return null;
   return new HfInference(token);
 }
@@ -81,7 +85,7 @@ export async function embedText(text: string): Promise<number[]> {
   const hf = getHfClient();
   if (!hf) {
     throw new Error(
-      "HF_TOKEN lipseste. Adauga HF_TOKEN in .env pentru embeddings.",
+      "HF_TOKEN lipseste sau este gol. Adauga token Hugging Face in Vercel si ruleaza: vercel env pull .env.local --environment=production",
     );
   }
 

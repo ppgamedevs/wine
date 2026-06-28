@@ -17,8 +17,8 @@
     "db:embeddings": "tsx lib/generateEmbeddings.ts"
   },
   "dependencies": {
-    "@ai-sdk/groq": "^4.0.1",
     "@ai-sdk/react": "^4.0.5",
+    "@ai-sdk/xai": "^4.0.2",
     "@huggingface/inference": "^4.13.20",
     "@libsql/client": "^0.17.4",
     "ai": "^7.0.4",

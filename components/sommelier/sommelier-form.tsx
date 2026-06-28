@@ -318,7 +318,7 @@ export function SommelierForm({
               className="flex min-h-[200px] items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/5 px-8 text-center text-sm text-muted-foreground"
             >
               {error.message ||
-                "A aparut o eroare. Verifica GROQ_API_KEY si incearca din nou."}
+                "A aparut o eroare. Verifica XAI_API_KEY si incearca din nou."}
             </motion.div>
           ) : null}
 
