@@ -11,6 +11,33 @@ export function formatRon(value: number | null | undefined): string {
   return ronFormatter.format(value);
 }
 
+const longDateFormatter = new Intl.DateTimeFormat("ro-RO", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
+export function formatLongDate(
+  value: string | Date | null | undefined,
+): string | undefined {
+  if (!value) return undefined;
+  const date = typeof value === "string" ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return undefined;
+  return longDateFormatter.format(date);
+}
+
+const shortDateFormatter = new Intl.DateTimeFormat("ro-RO", {
+  month: "short",
+  year: "numeric",
+});
+
+export function formatShortDate(value: string | Date | null | undefined): string | undefined {
+  if (!value) return undefined;
+  const date = typeof value === "string" ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return undefined;
+  return shortDateFormatter.format(date);
+}
+
 export const wineTypeLabel: Record<WineType, string> = {
   red: "Rosu",
   white: "Alb",

@@ -38,6 +38,16 @@ export interface AffiliateLink {
   priceRon?: number;
 }
 
+/** Editorial pairing notes (VinIntel analysis, distinct from factual food_pairings). */
+export interface EditorialFoodPairingNote {
+  dish: string;
+  note: string;
+  score?: number;
+}
+
+export const DEFAULT_WINE_SOURCE_BADGE =
+  "Date factuale preluate din surse publice. Analiza si scorurile apartin VinIntel.ro";
+
 /** Pre-computed sommelier knowledge per wine (generated once via LLM). */
 export interface ExpertNotes {
   history: string;
@@ -180,6 +190,25 @@ export const wines = sqliteTable(
     }),
 
     tastingNotes: text("tasting_notes"),
+
+    descriptionEditorial: text("description_editorial"),
+    valueExplanation: text("value_explanation"),
+    thingsYouShouldKnow: text("things_you_should_know", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    foodPairingNotes: text("food_pairing_notes", { mode: "json" })
+      .$type<EditorialFoodPairingNote[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    tasteProfile: text("taste_profile"),
+    recommendedOccasions: text("recommended_occasions", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    sourceBadge: text("source_badge")
+      .notNull()
+      .default(DEFAULT_WINE_SOURCE_BADGE),
 
     foodPairings: text("food_pairings", { mode: "json" })
       .$type<FoodPairing[]>()

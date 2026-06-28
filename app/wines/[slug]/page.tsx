@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WineAvailability } from "@/components/wines/wine-availability";
 import { WineFaq } from "@/components/wines/wine-faq";
+import { WineEditorial } from "@/components/wines/wine-editorial";
 import { WineHero } from "@/components/wines/wine-hero";
 import { WinePairings } from "@/components/wines/wine-pairings";
 import { WineRelatedSections } from "@/components/wines/wine-related-sections";
@@ -110,6 +111,7 @@ export default async function WinePage({ params }: WinePageProps) {
         <WineHero wine={wine} />
 
         <div className="mx-auto max-w-6xl space-y-16 px-6 py-14">
+          <WineEditorial wine={wine} />
           <WineScoreCards wine={wine} />
           <WineWorthIt wine={wine} />
           <WineSpecsTable wine={wine} />

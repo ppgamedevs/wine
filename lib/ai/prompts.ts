@@ -82,3 +82,65 @@ ${wineContext}
 Alege 3-5 vinuri din lista de mai sus si genereaza recomandari ranked.
 Fiecare wineSlug TREBUIE sa fie exact un slug din context.`;
 }
+
+export const EDITORIAL_SYSTEM_PROMPT = `Esti un somelier roman de top, expert in vinuri autohtone, cu un stil clar, onest, util si usor de inteles.
+Scrierea ta este eleganta, dar accesibila: eviti jargonul pretentios si vorbesti direct cu cititorul.
+
+Generezi continut editorial original in romana, in stilul VinIntel.ro.
+Foloseste doar informatiile factuale din context + cunostinte generale despre soi, regiune si stil.
+
+Reguli importante:
+- Fii onest. Daca vinul e mediu, spune-o.
+- Foloseste context romanesc: mancare traditionala, preturi in lei, ocazii locale.
+- Nu copia text de pe site-ul producatorului.
+- Insight-urile din thingsYouShouldKnow trebuie sa fie interesante si utile, nu clisee.
+- Ton: prietenos, dar profesionist.
+- Scorurile valueScore, giftScore, foodMatchScore sunt intregi de la 1 la 100 (standard VinIntel).`;
+
+export function buildEditorialUserPrompt(wine: {
+  name: string;
+  vintage: number | null;
+  type: string;
+  sweetness: string | null;
+  wineryName: string | null;
+  regionName: string | null;
+  grapeVarieties: string;
+  tastingNotes: string | null;
+  foodPairings: string;
+  priceAvg: number | null;
+  alcohol: number | null;
+  sugar: number | null;
+  acidity: number | null;
+  beginnerFriendly: boolean;
+  cellarPotential: number | null;
+  overpricedRisk: string | null;
+  ratingAvg: number | null;
+  ratingCount: number;
+}): string {
+  return `Genereaza continut editorial JSON pentru vinul de mai jos.
+
+Datele vinului:
+Nume: ${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}
+Producator: ${wine.wineryName ?? "N/A"}
+An: ${wine.vintage ?? "N/A"}
+Pret mediu: ${wine.priceAvg ?? "N/A"} RON
+Soiuri: ${wine.grapeVarieties}
+Regiune: ${wine.regionName ?? "N/A"}
+Tip: ${wine.type}, Dulceata: ${wine.sweetness ?? "N/A"}
+Alcool: ${wine.alcohol ?? "N/A"}%, Zahar: ${wine.sugar ?? "N/A"} g/l, Aciditate: ${wine.acidity ?? "N/A"}
+Note degustare (factuale): ${wine.tastingNotes ?? "N/A"}
+Pairing-uri existente: ${wine.foodPairings || "N/A"}
+Pentru incepatori: ${wine.beginnerFriendly ? "da" : "nu"}
+Potential la pivnita: ${wine.cellarPotential ?? "N/A"} ani
+Risc supraevaluare: ${wine.overpricedRisk ?? "N/A"}
+Rating: ${wine.ratingAvg ?? "N/A"}/5 (${wine.ratingCount} recenzii)
+
+Returneaza JSON cu:
+- descriptionEditorial (80-120 cuvinte)
+- valueExplanation (2-3 propozitii)
+- thingsYouShouldKnow (3 insight-uri)
+- tasteProfile (scurt)
+- foodPairingNotes (array: dish, note, score optional 60-100)
+- recommendedOccasions (2-4 ocazii)
+- valueScore, giftScore, foodMatchScore (1-100)`;
+}

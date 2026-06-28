@@ -50,7 +50,10 @@ export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
         <ScoreCard
           label="Value Score"
           score={wine.valueScore}
-          description="Cat de bun este vinul raportat la pretul cerut. Peste 85 inseamna excelent raport calitate-pret."
+          description={
+            wine.valueExplanation?.trim() ??
+            "Cat de bun este vinul raportat la pretul cerut. Peste 85 inseamna excelent raport calitate-pret."
+          }
           icon={Gauge}
         />
         <ScoreCard

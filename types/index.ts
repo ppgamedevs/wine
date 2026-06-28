@@ -54,10 +54,13 @@ export interface WineryListItem extends Winery {
 export type {
   AffiliateLink,
   AvailabilityEntry,
+  EditorialFoodPairingNote,
   ExpertNotes,
   FoodPairing,
   GrapeVarietyShare,
 } from "@/lib/schema";
+
+export { DEFAULT_WINE_SOURCE_BADGE } from "@/lib/schema";
 
 export interface ExpertRecommendationDisplay {
   wineSlug: string;
