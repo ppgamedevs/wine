@@ -195,6 +195,7 @@ export const wines = sqliteTable(
       .default(sql`'[]'`),
 
     imageUrl: text("image_url"),
+    imageAlt: text("image_alt"),
     ratingAvg: real("rating_avg"),
     ratingCount: integer("rating_count").notNull().default(0),
 

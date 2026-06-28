@@ -18,10 +18,8 @@ import {
   getWineBySlug,
 } from "@/lib/queries";
 import { buildWineFaq } from "@/lib/wine-analysis";
-import {
-  buildWineJsonLd,
-  buildWineMetadataDescription,
-} from "@/lib/wine-json-ld";
+import { buildWineJsonLd, buildWineMetadataDescription } from "@/lib/wine-json-ld";
+import { resolveWineImage } from "@/lib/wine-images";
 
 export const revalidate = 3600;
 
@@ -47,6 +45,7 @@ export async function generateMetadata({
   const title = `${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}`;
   const description = buildWineMetadataDescription(wine);
   const url = `https://vinintel.ro/wines/${wine.slug}`;
+  const { src: imageUrl, alt: imageAlt } = resolveWineImage(wine);
 
   return {
     title,
@@ -67,11 +66,13 @@ export async function generateMetadata({
       title: `${title} | VinIntel`,
       description,
       siteName: "VinIntel",
+      images: [{ url: imageUrl, width: 800, height: 600, alt: imageAlt }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${title} | VinIntel`,
       description,
+      images: [imageUrl],
     },
     alternates: { canonical: url },
   };

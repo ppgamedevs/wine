@@ -1,4 +1,5 @@
 import { formatRon } from "@/lib/format";
+import { resolveWineImage } from "@/lib/wine-images";
 import type { WineFaqItem } from "@/lib/wine-analysis";
 import type { WineWithRelations } from "@/types";
 
@@ -11,6 +12,7 @@ export function buildWineJsonLd(
   const url = `${siteUrl}/wines/${wine.slug}`;
   const wineryName = wine.winery?.name;
   const regionName = wine.region?.name;
+  const { src: imageUrl, alt: imageAlt } = resolveWineImage(wine);
 
   const wineSchema = {
     "@context": "https://schema.org",
@@ -18,7 +20,11 @@ export function buildWineJsonLd(
     name: wine.name,
     description: wine.tastingNotes ?? `${wine.name} din ${regionName ?? "Romania"}.`,
     url,
-    image: wine.imageUrl ?? undefined,
+    image: {
+      "@type": "ImageObject",
+      url: imageUrl,
+      caption: imageAlt,
+    },
     alcoholContent: wine.alcohol ? `${wine.alcohol}%` : undefined,
     vintage: wine.vintage ? String(wine.vintage) : undefined,
     color: wine.type,
@@ -56,7 +62,7 @@ export function buildWineJsonLd(
     name: wine.name,
     description: wine.tastingNotes ?? `Vin romanesc ${wine.name}.`,
     url,
-    image: wine.imageUrl ?? undefined,
+    image: imageUrl,
     brand: wineryName
       ? { "@type": "Brand", name: wineryName }
       : undefined,

@@ -22,6 +22,13 @@
       "when": 1782600100000,
       "tag": "0002_embedding_f32",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1782600200000,
+      "tag": "0003_wine_image_alt",
+      "breakpoints": true
     }
   ]
 }

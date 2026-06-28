@@ -1,56 +1,53 @@
-import { ArrowRight, MapPin, Wine as WineIcon } from "lucide-react";
-import Image from "next/image";
+"use client";
+
+import { motion } from "framer-motion";
+import { ArrowRight, MapPin } from "lucide-react";
 import Link from "next/link";
+import { WineImage } from "@/components/wines/wine-image";
 import { Button } from "@/components/ui/button";
-import {
-  formatRon,
-  valueScoreTone,
-  wineTypeGradient,
-  wineTypeLabel,
-} from "@/lib/format";
+import { formatRon, valueScoreTone, wineTypeLabel } from "@/lib/format";
+import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
 
-export function WineCard({ wine }: { wine: WineWithRelations }) {
-  const lightLabel = wine.type !== "red";
-
+export function WineCard({
+  wine,
+  priority = false,
+}: {
+  wine: WineWithRelations;
+  priority?: boolean;
+}) {
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-wine/30 hover:shadow-xl">
-      <div className="relative aspect-[4/3] overflow-hidden">
-        {wine.imageUrl ? (
-          <Image
-            src={wine.imageUrl}
-            alt={wine.name}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div
-            className={cn(
-              "flex h-full w-full items-center justify-center bg-gradient-to-br transition-transform duration-500 group-hover:scale-105",
-              wineTypeGradient[wine.type],
-            )}
-          >
-            <WineIcon
-              className={cn(
-                "h-14 w-14",
-                lightLabel ? "text-wine/40" : "text-wine-foreground/80",
-              )}
-              aria-hidden="true"
-            />
-          </div>
-        )}
+    <motion.article
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.45, ease: EASE_OUT }}
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-wine/30 hover:shadow-xl"
+    >
+      <div className="relative">
+        <WineImage
+          slug={wine.slug}
+          name={wine.name}
+          type={wine.type}
+          imageUrl={wine.imageUrl}
+          imageAlt={wine.imageAlt}
+          vintage={wine.vintage}
+          wineryName={wine.winery?.name}
+          priority={priority}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+          aspectClassName="relative aspect-[4/3] overflow-hidden bg-secondary/30"
+        />
 
-        <span className="absolute left-3 top-3 rounded-full bg-background/85 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur">
+        <span className="absolute left-3 top-3 z-10 rounded-full bg-background/85 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur">
           {wineTypeLabel[wine.type]}
           {wine.vintage ? ` ${wine.vintage}` : ""}
         </span>
 
-        {wine.valueScore !== null && wine.valueScore !== undefined && (
+        {wine.valueScore !== null && wine.valueScore !== undefined ? (
           <span
             className={cn(
-              "absolute right-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm",
+              "absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm",
               valueScoreTone(wine.valueScore),
             )}
             title="Value Score"
@@ -58,7 +55,7 @@ export function WineCard({ wine }: { wine: WineWithRelations }) {
             {wine.valueScore}
             <span className="opacity-70">/100</span>
           </span>
-        )}
+        ) : null}
       </div>
 
       <div className="flex flex-1 flex-col p-5">
@@ -101,6 +98,6 @@ export function WineCard({ wine }: { wine: WineWithRelations }) {
           </Button>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }

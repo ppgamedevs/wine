@@ -1,57 +1,53 @@
-import {
-  Building2,
-  CheckCircle2,
-  ChevronRight,
-  MapPin,
-  Wine as WineIcon,
-} from "lucide-react";
+import { Building2, CheckCircle2, ChevronRight, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { WineImage } from "@/components/wines/wine-image";
 import { Badge } from "@/components/ui/badge";
-import {
-  formatRon,
-  wineTypeGradient,
-  wineTypeLabel,
-} from "@/lib/format";
-import { cn } from "@/lib/utils";
+import { formatRon, wineTypeLabel } from "@/lib/format";
+import { resolveWineImage } from "@/lib/wine-images";
 import type { WineWithRelations } from "@/types";
 
 export function WineHero({ wine }: { wine: WineWithRelations }) {
-  const lightLabel = wine.type !== "red";
+  const { src, alt } = resolveWineImage(wine);
 
   return (
     <section className="border-b border-border/60 bg-secondary/20">
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-12 lg:py-14">
-        <div className="relative aspect-[4/5] max-h-[520px] overflow-hidden rounded-3xl border border-border/70 shadow-lg lg:max-h-none">
-          {wine.imageUrl ? (
-            <Image
-              src={wine.imageUrl}
-              alt={wine.name}
-              fill
+        <div className="space-y-3">
+          <div className="group relative aspect-[4/5] max-h-[520px] overflow-hidden rounded-3xl border border-border/70 shadow-lg lg:max-h-none">
+            <WineImage
+              slug={wine.slug}
+              name={wine.name}
+              type={wine.type}
+              imageUrl={wine.imageUrl}
+              imageAlt={wine.imageAlt}
+              vintage={wine.vintage}
+              wineryName={wine.winery?.name}
               priority
               sizes="(max-width: 1024px) 100vw, 45vw"
-              className="object-cover"
+              aspectClassName="relative h-full w-full overflow-hidden"
+              imageClassName="object-cover object-center"
             />
-          ) : (
-            <div
-              className={cn(
-                "flex h-full w-full items-center justify-center bg-gradient-to-br",
-                wineTypeGradient[wine.type],
-              )}
-            >
-              <WineIcon
-                className={cn(
-                  "h-24 w-24",
-                  lightLabel ? "text-wine/35" : "text-wine-foreground/70",
-                )}
-                aria-hidden="true"
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 border-wine ring-2 ring-wine/20">
+              <Image
+                src={src}
+                alt={alt}
+                fill
+                sizes="64px"
+                className="object-cover"
               />
             </div>
-          )}
+          </div>
         </div>
 
         <div className="flex flex-col justify-center">
-          <nav aria-label="Breadcrumb" className="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+          <nav
+            aria-label="Breadcrumb"
+            className="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
+          >
             <Link href="/" className="hover:text-wine">
               Acasa
             </Link>
@@ -121,7 +117,9 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
             <span className="text-3xl font-bold text-foreground">
               {formatRon(wine.priceAvg)}
             </span>
-            <span className="text-sm text-muted-foreground">pret mediu in Romania</span>
+            <span className="text-sm text-muted-foreground">
+              pret mediu in Romania
+            </span>
           </div>
         </div>
       </div>

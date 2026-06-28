@@ -70,7 +70,7 @@ export async function FeaturedWines() {
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((wine, index) => (
             <Reveal key={wine.id} delay={(index % 4) * 0.06} className="h-full">
-              <WineCard wine={wine} />
+              <WineCard wine={wine} priority={index < 4} />
             </Reveal>
           ))}
         </div>

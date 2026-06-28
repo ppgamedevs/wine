@@ -10,6 +10,7 @@ import {
   type FoodPairing,
   type GrapeVarietyShare,
 } from "./schema";
+import { buildWineImageAlt, getSeedImageUrl } from "./wine-images";
 
 interface WineSeed {
   slug: string;
@@ -34,6 +35,8 @@ interface WineSeed {
   foodPairings: FoodPairing[];
   ratingAvg: number;
   ratingCount: number;
+  imageUrl?: string;
+  imageAlt?: string;
 }
 
 const regionSeed = [
@@ -2058,6 +2061,8 @@ async function main() {
   };
 
   console.log("Inserare vinuri...");
+  const wineryNameBySlug = new Map(winerySeed.map((w) => [w.slug, w.name]));
+
   await db.insert(wines).values(
     wineSeed.map((w) => ({
       slug: w.slug,
@@ -2082,6 +2087,15 @@ async function main() {
       foodPairings: w.foodPairings,
       availability: availabilityFor(w.priceAvg),
       affiliateLinks: affiliatesFor(w.priceAvg),
+      imageUrl: w.imageUrl ?? getSeedImageUrl(w.type, w.slug),
+      imageAlt:
+        w.imageAlt ??
+        buildWineImageAlt({
+          name: w.name,
+          vintage: w.vintage,
+          type: w.type,
+          wineryName: wineryNameBySlug.get(w.winerySlug),
+        }),
       ratingAvg: w.ratingAvg,
       ratingCount: w.ratingCount,
     })),
