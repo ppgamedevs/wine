@@ -1,14 +1,20 @@
 import { config } from "dotenv";
+import { getTursoConfig, sanitizeEnv } from "./lib/env";
+
 config({ path: ".env.local" });
-config();
+config({ path: ".env" });
+sanitizeEnv();
+
 import { defineConfig } from "drizzle-kit";
+
+const { url, authToken } = getTursoConfig();
 
 export default defineConfig({
   schema: "./lib/schema.ts",
   out: "./drizzle",
   dialect: "turso",
   dbCredentials: {
-    url: process.env.TURSO_DATABASE_URL ?? "file:local.db",
-    authToken: process.env.TURSO_AUTH_TOKEN,
+    url,
+    authToken,
   },
 });
