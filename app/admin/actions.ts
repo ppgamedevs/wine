@@ -12,6 +12,11 @@ import {
 import { reanalyzeAndUpdateWine } from "@/lib/analyze-wine-service";
 import { db } from "@/lib/db";
 import {
+  hasMinimumFactualDataForEditorial,
+  loadWineForEditorial,
+  regenerateWineEditorialContent,
+} from "@/lib/regenerate-wine-editorial";
+import {
   DEFAULT_WINE_SOURCE_BADGE,
   wineReports,
   wines,
@@ -141,6 +146,49 @@ export async function resolveWineReportsAction(wineId: number) {
     .where(eq(wines.id, wineId));
   revalidateAdmin();
   return { ok: true as const };
+}
+
+export async function generateEditorialContentAction(wineId: number) {
+  await assertAdmin();
+
+  const wine = await loadWineForEditorial(wineId);
+  if (!wine) {
+    return { ok: false as const, error: "Vin negasit." };
+  }
+
+  if (!hasMinimumFactualDataForEditorial(wine)) {
+    return {
+      ok: false as const,
+      error:
+        "Date factuale insuficiente. Adauga producator, regiune, pret sau soiuri.",
+    };
+  }
+
+  try {
+    const { slug, editorial } = await regenerateWineEditorialContent(wineId);
+    revalidateWine(slug);
+    revalidateAdmin();
+
+    return {
+      ok: true as const,
+      message: "Descriere editoriala generata cu succes.",
+      editorial: {
+        descriptionEditorial: editorial.descriptionEditorial,
+        valueExplanation: editorial.valueExplanation,
+        tasteProfile: editorial.tasteProfile,
+        thingsYouShouldKnow: editorial.thingsYouShouldKnow,
+      },
+    };
+  } catch (error) {
+    console.error("[admin generate editorial]", error);
+    return {
+      ok: false as const,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Generarea editoriala a esuat. Incearca din nou.",
+    };
+  }
 }
 
 export async function reanalyzeWineAction(wineId: number) {

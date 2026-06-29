@@ -76,6 +76,16 @@ export const wineEditorialSchema = z.object({
 
 export type WineEditorialOutput = z.infer<typeof wineEditorialSchema>;
 
+export const wineEditorialContentSchema = wineEditorialSchema.omit({
+  valueScore: true,
+  giftScore: true,
+  foodMatchScore: true,
+});
+
+export type WineEditorialContentOutput = z.infer<
+  typeof wineEditorialContentSchema
+>;
+
 const linkPairingSchema = z.union([
   z.string(),
   z.array(

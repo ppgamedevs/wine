@@ -145,6 +145,75 @@ Returneaza JSON cu:
 - valueScore, giftScore, foodMatchScore (1-100)`;
 }
 
+export const REGENERATE_EDITORIAL_PROMPT = `Esti un somelier roman de top, expert in vinuri autohtone. Regenerezi continut editorial pentru VinIntel.ro.
+
+Primesti date factuale deja validate despre un vin. Nu extragi date din link-uri si nu inventezi fapte noi despre producator, regiune sau soiuri.
+
+Sarcina ta: rescrie continut editorial original, clar, onest si util, in romana.
+
+Reguli:
+- Foloseste doar datele factuale din context.
+- Nu copia text existent word-for-word; imbunatateste calitatea, claritatea si utilitatea.
+- Fii onest daca vinul pare mediu sau supraevaluat.
+- thingsYouShouldKnow: insight-uri concrete, nu clisee.
+- foodPairingNotes: preparate romanesti reale (sarmale, mici, peste, branza, etc.).
+- recommendedOccasions: ocazii locale relevante.
+- Nu genera scoruri numerice; doar continut editorial.`;
+
+export function buildRegenerateEditorialUserPrompt(wine: {
+  name: string;
+  vintage: number | null;
+  type: string;
+  sweetness: string | null;
+  wineryName: string | null;
+  regionName: string | null;
+  grapeVarieties: string;
+  tastingNotes: string | null;
+  foodPairings: string;
+  priceAvg: number | null;
+  alcohol: number | null;
+  sugar: number | null;
+  acidity: number | null;
+  beginnerFriendly: boolean;
+  cellarPotential: number | null;
+  overpricedRisk: string | null;
+  valueScore: number | null;
+  giftScore: number | null;
+  foodMatchScore: number | null;
+  descriptionEditorial: string | null;
+  tasteProfile: string | null;
+}): string {
+  return `Regenereaza continut editorial JSON pentru vinul de mai jos.
+
+Date factuale (nu modifica):
+Nume: ${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}
+Producator: ${wine.wineryName ?? "N/A"}
+An: ${wine.vintage ?? "N/A"}
+Pret mediu: ${wine.priceAvg ?? "N/A"} RON
+Soiuri: ${wine.grapeVarieties || "N/A"}
+Regiune: ${wine.regionName ?? "N/A"}
+Tip: ${wine.type}, Dulceata: ${wine.sweetness ?? "N/A"}
+Alcool: ${wine.alcohol ?? "N/A"}%, Zahar: ${wine.sugar ?? "N/A"} g/l, Aciditate: ${wine.acidity ?? "N/A"}
+Note degustare: ${wine.tastingNotes ?? "N/A"}
+Pairing-uri existente: ${wine.foodPairings || "N/A"}
+Pentru incepatori: ${wine.beginnerFriendly ? "da" : "nu"}
+Potential pivnita: ${wine.cellarPotential ?? "N/A"} ani
+Risc supraevaluare: ${wine.overpricedRisk ?? "N/A"}
+Scoruri actuale (referinta, nu le regenerezi): Value ${wine.valueScore ?? "N/A"}, Gift ${wine.giftScore ?? "N/A"}, Food ${wine.foodMatchScore ?? "N/A"}
+
+Continut editorial existent (optional, imbunatateste-l):
+Descriere: ${wine.descriptionEditorial ?? "N/A"}
+Profil gustativ: ${wine.tasteProfile ?? "N/A"}
+
+Returneaza JSON cu:
+- descriptionEditorial (80-120 cuvinte)
+- valueExplanation (2-3 propozitii)
+- thingsYouShouldKnow (3 insight-uri)
+- tasteProfile (scurt)
+- foodPairingNotes (array: dish, note, score optional 60-100)
+- recommendedOccasions (2-4 ocazii)`;
+}
+
 export const ANALYZE_WINE_LINK_SYSTEM_PROMPT = `Esti un expert somelier roman specializat in vinuri autohtone. Analizezi pagini de vinuri de pe site-uri romanesti.
 
 Primesti un link si continut extras din pagina. Sarcina ta:

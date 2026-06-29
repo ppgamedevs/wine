@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import {
   approveWineAction,
   rejectWineAction,
-  resolveWineReportsAction,
+  generateEditorialContentAction,
   reanalyzeWineAction,
+  resolveWineReportsAction,
   updateWineEditorialAction,
   updateWineImageAction,
   adminLogoutAction,
@@ -61,6 +63,15 @@ const statusBadgeClass: Record<WineSubmissionStatus, string> = {
   rejected: "bg-destructive/10 text-destructive",
 };
 
+function canGenerateEditorial(wine: AdminWineRow): boolean {
+  return Boolean(
+    wine.wineryName?.trim() ||
+      wine.regionName?.trim() ||
+      wine.vintage != null ||
+      wine.valueScore != null,
+  );
+}
+
 interface WineAdminPanelProps {
   wines: AdminWineRow[];
   winesWithReports: AdminWineRow[];
@@ -89,6 +100,10 @@ export function WineAdminPanel({
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [editWine, setEditWine] = useState<AdminWineRow | null>(null);
+  const [editFormRevision, setEditFormRevision] = useState(0);
+  const [dialogAiLoading, setDialogAiLoading] = useState<
+    "editorial" | "full" | null
+  >(null);
   const [imageWine, setImageWine] = useState<AdminWineRow | null>(null);
   const [reportsWine, setReportsWine] = useState<AdminWineRow | null>(null);
   const [imageUrl, setImageUrl] = useState("");
@@ -150,6 +165,64 @@ export function WineAdminPanel({
       }
       router.refresh();
     });
+  }
+
+  async function handleGenerateEditorial(wineId: number) {
+    setDialogAiLoading("editorial");
+    setFeedback(null);
+    const result = await generateEditorialContentAction(wineId);
+    setDialogAiLoading(null);
+
+    if (!result.ok) {
+      setFeedback({
+        type: "error",
+        text: result.error ?? "Generarea editoriala a esuat.",
+      });
+      return;
+    }
+
+    if (result.editorial) {
+      setEditWine((prev) =>
+        prev && prev.id === wineId
+          ? {
+              ...prev,
+              descriptionEditorial: result.editorial!.descriptionEditorial,
+              valueExplanation: result.editorial!.valueExplanation,
+              tasteProfile: result.editorial!.tasteProfile,
+              thingsYouShouldKnow: result.editorial!.thingsYouShouldKnow,
+            }
+          : prev,
+      );
+      setEditFormRevision((revision) => revision + 1);
+    }
+
+    setFeedback({
+      type: "success",
+      text: result.message ?? "Descriere editoriala generata cu succes.",
+    });
+    router.refresh();
+  }
+
+  async function handleReanalyzeFromDialog(wineId: number) {
+    setDialogAiLoading("full");
+    setFeedback(null);
+    const result = await reanalyzeWineAction(wineId);
+    setDialogAiLoading(null);
+
+    if (!result.ok) {
+      setFeedback({
+        type: "error",
+        text: result.error ?? "Re-analiza a esuat.",
+      });
+      return;
+    }
+
+    setFeedback({
+      type: "success",
+      text: result.message ?? "Vin re-analizat cu succes.",
+    });
+    setEditWine(null);
+    router.refresh();
   }
 
   return (
@@ -299,9 +372,23 @@ export function WineAdminPanel({
 
       <EditWineDialog
         wine={editWine}
+        formRevision={editFormRevision}
         open={Boolean(editWine)}
-        onOpenChange={(open) => !open && setEditWine(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditWine(null);
+            setDialogAiLoading(null);
+          }
+        }}
         pending={pending}
+        aiLoading={dialogAiLoading}
+        canGenerateEditorial={editWine ? canGenerateEditorial(editWine) : false}
+        onGenerateEditorial={() => {
+          if (editWine) void handleGenerateEditorial(editWine.id);
+        }}
+        onReanalyzeFull={() => {
+          if (editWine) void handleReanalyzeFromDialog(editWine.id);
+        }}
         onSave={(payload) =>
           runAction(() => updateWineEditorialAction(payload))
         }
@@ -682,15 +769,25 @@ function StatCard({ label, value }: { label: string; value: number }) {
 
 function EditWineDialog({
   wine,
+  formRevision,
   open,
   onOpenChange,
   pending,
+  aiLoading,
+  canGenerateEditorial,
+  onGenerateEditorial,
+  onReanalyzeFull,
   onSave,
 }: {
   wine: AdminWineRow | null;
+  formRevision: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pending: boolean;
+  aiLoading: "editorial" | "full" | null;
+  canGenerateEditorial: boolean;
+  onGenerateEditorial: () => void;
+  onReanalyzeFull: () => void;
   onSave: (payload: {
     wineId: number;
     descriptionEditorial?: string;
@@ -704,6 +801,9 @@ function EditWineDialog({
 }) {
   if (!wine) return null;
 
+  const aiBusy = aiLoading !== null;
+  const hasSourceUrl = Boolean(wine.sourceUrl?.trim());
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
@@ -711,6 +811,7 @@ function EditWineDialog({
           <DialogTitle>Editeaza: {wine.name}</DialogTitle>
         </DialogHeader>
         <form
+          key={`${wine.id}-${formRevision}`}
           className="space-y-4"
           onSubmit={(event) => {
             event.preventDefault();
@@ -734,6 +835,40 @@ function EditWineDialog({
             onOpenChange(false);
           }}
         >
+          <div className="flex flex-wrap gap-2 rounded-xl border border-border/70 bg-muted/30 p-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!canGenerateEditorial || aiBusy || pending}
+              onClick={onGenerateEditorial}
+            >
+              {aiLoading === "editorial" ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : null}
+              Genereaza descriere cu AI
+            </Button>
+            {hasSourceUrl ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={aiBusy || pending}
+                onClick={onReanalyzeFull}
+              >
+                {aiLoading === "full" ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : null}
+                Regenereaza analiza completa
+              </Button>
+            ) : null}
+          </div>
+          {!canGenerateEditorial ? (
+            <p className="text-xs text-muted-foreground">
+              AI editorial necesita date factuale: producator, regiune, pret sau
+              soiuri.
+            </p>
+          ) : null}
           <div className="grid gap-4 sm:grid-cols-3">
             <ScoreField
               label="Value Score"
@@ -776,12 +911,17 @@ function EditWineDialog({
             rows={4}
           />
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={aiBusy}
+              onClick={() => onOpenChange(false)}
+            >
               Anuleaza
             </Button>
             <Button
               type="submit"
-              disabled={pending}
+              disabled={pending || aiBusy}
               className="bg-wine text-wine-foreground hover:bg-wine/90"
             >
               Salveaza

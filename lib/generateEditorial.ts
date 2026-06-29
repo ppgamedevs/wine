@@ -1,16 +1,12 @@
 import "./load-env";
-import { generateObject } from "ai";
 import { eq } from "drizzle-orm";
-import { getSommelierModel } from "@/lib/ai/model";
 import {
-  buildEditorialUserPrompt,
-  EDITORIAL_SYSTEM_PROMPT,
-} from "@/lib/ai/prompts";
-import { wineEditorialSchema } from "@/lib/ai/schemas";
+  applyFullEditorialToWine,
+  generateFullEditorialForWine,
+  loadWineForEditorial,
+} from "@/lib/regenerate-wine-editorial";
 import { db } from "@/lib/db";
 import { wines } from "@/lib/schema";
-
-type WineRow = Awaited<ReturnType<typeof loadWines>>[number];
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -22,10 +18,14 @@ function parseArgs() {
 
 async function loadWines(slug?: string) {
   if (slug) {
-    const wine = await db.query.wines.findFirst({
-      where: eq(wines.slug, slug),
-      with: { winery: true, region: true },
-    });
+    const wine = await loadWineForEditorial(
+      (
+        await db.query.wines.findFirst({
+          where: eq(wines.slug, slug),
+          columns: { id: true },
+        })
+      )?.id ?? -1,
+    );
     return wine ? [wine] : [];
   }
   return db.query.wines.findMany({
@@ -33,48 +33,12 @@ async function loadWines(slug?: string) {
   });
 }
 
-function hasEditorial(wine: WineRow): boolean {
+function hasEditorial(wine: Awaited<ReturnType<typeof loadWines>>[number]): boolean {
   return Boolean(
     wine.descriptionEditorial?.trim() ||
       wine.valueExplanation?.trim() ||
       wine.thingsYouShouldKnow.length > 0,
   );
-}
-
-async function generateEditorialForWine(wine: WineRow) {
-  const grapeVarieties = wine.grapeVarieties.map((g) => g.name).join(", ");
-  const foodPairings = wine.foodPairings
-    .map((p) => (p.note ? `${p.dish} (${p.note})` : p.dish))
-    .join("; ");
-
-  const { object } = await generateObject({
-    model: getSommelierModel(),
-    schema: wineEditorialSchema,
-    system: EDITORIAL_SYSTEM_PROMPT,
-    prompt: buildEditorialUserPrompt({
-      name: wine.name,
-      vintage: wine.vintage,
-      type: wine.type,
-      sweetness: wine.sweetness,
-      wineryName: wine.winery?.name ?? null,
-      regionName: wine.region?.name ?? null,
-      grapeVarieties,
-      tastingNotes: wine.tastingNotes,
-      foodPairings,
-      priceAvg: wine.priceAvg,
-      alcohol: wine.alcohol,
-      sugar: wine.sugar,
-      acidity: wine.acidity,
-      beginnerFriendly: wine.beginnerFriendly,
-      cellarPotential: wine.cellarPotential,
-      overpricedRisk: wine.overpricedRisk,
-      ratingAvg: wine.ratingAvg,
-      ratingCount: wine.ratingCount,
-    }),
-    temperature: 0.55,
-  });
-
-  return object;
 }
 
 async function main() {
@@ -104,22 +68,8 @@ async function main() {
 
     try {
       console.log(`Generating: ${wine.name}...`);
-      const editorial = await generateEditorialForWine(wine);
-
-      await db
-        .update(wines)
-        .set({
-          descriptionEditorial: editorial.descriptionEditorial,
-          valueExplanation: editorial.valueExplanation,
-          thingsYouShouldKnow: editorial.thingsYouShouldKnow,
-          tasteProfile: editorial.tasteProfile,
-          foodPairingNotes: editorial.foodPairingNotes,
-          recommendedOccasions: editorial.recommendedOccasions,
-          valueScore: editorial.valueScore,
-          giftScore: editorial.giftScore,
-          foodMatchScore: editorial.foodMatchScore,
-        })
-        .where(eq(wines.id, wine.id));
+      const editorial = await generateFullEditorialForWine(wine);
+      await applyFullEditorialToWine(wine.id, editorial);
 
       done += 1;
       console.log(
