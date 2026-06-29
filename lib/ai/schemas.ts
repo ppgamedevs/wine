@@ -75,3 +75,35 @@ export const wineEditorialSchema = z.object({
 });
 
 export type WineEditorialOutput = z.infer<typeof wineEditorialSchema>;
+
+const linkPairingSchema = z.union([
+  z.string(),
+  z.array(
+    z.object({
+      dish: z.string(),
+      note: z.string(),
+      score: z.number().int().min(60).max(100).optional(),
+    }),
+  ),
+]);
+
+export const wineLinkAnalysisSchema = z.object({
+  isRomanianWine: z.boolean(),
+  reasonIfNotRomanian: z.string().optional(),
+  name: z.string().min(2),
+  producer: z.string().min(2),
+  vintage: z.number().int().min(1900).max(2030).nullable(),
+  price: z.number().positive().nullable(),
+  category: z.string().optional(),
+  grapeVarieties: z.array(z.string()).default([]),
+  region: z.string().min(2),
+  sourceUrl: z.string().url(),
+  descriptionEditorial: z.string().min(40),
+  valueScore: z.number().min(1).max(10),
+  valueExplanation: z.string().min(20),
+  thingsYouShouldKnow: z.array(z.string()).min(2).max(4),
+  tasteProfile: z.string().min(10),
+  foodPairingNotes: linkPairingSchema.optional(),
+});
+
+export type WineLinkAnalysis = z.infer<typeof wineLinkAnalysisSchema>;

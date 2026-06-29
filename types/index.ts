@@ -58,9 +58,12 @@ export type {
   ExpertNotes,
   FoodPairing,
   GrapeVarietyShare,
+  WineSubmissionStatus,
 } from "@/lib/schema";
 
-export { DEFAULT_WINE_SOURCE_BADGE } from "@/lib/schema";
+export { DEFAULT_WINE_SOURCE_BADGE, COMMUNITY_SOURCE_BADGE } from "@/lib/schema";
+
+export type WineReport = typeof import("@/lib/schema").wineReports.$inferSelect;
 
 export interface ExpertRecommendationDisplay {
   wineSlug: string;

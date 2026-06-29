@@ -2098,6 +2098,7 @@ async function main() {
         }),
       ratingAvg: w.ratingAvg,
       ratingCount: w.ratingCount,
+      status: "verified" as const,
     })),
   );
 

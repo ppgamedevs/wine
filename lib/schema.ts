@@ -48,6 +48,14 @@ export interface EditorialFoodPairingNote {
 export const DEFAULT_WINE_SOURCE_BADGE =
   "Date factuale preluate din surse publice. Analiza si scorurile apartin VinIntel.ro";
 
+export type WineSubmissionStatus =
+  | "user_submitted"
+  | "verified"
+  | "rejected";
+
+export const COMMUNITY_SOURCE_BADGE =
+  "Adaugat de comunitate. Analiza generata de VinIntel.ro. In curs de verificare.";
+
 /** Pre-computed sommelier knowledge per wine (generated once via LLM). */
 export interface ExpertNotes {
   history: string;
@@ -235,10 +243,21 @@ export const wines = sqliteTable(
     /** F32_BLOB(384) vector for all-MiniLM-L6-v2 semantic search. Stored as Buffer. */
     embedding: blob("embedding", { mode: "buffer" }),
 
+    sourceUrl: text("source_url"),
+    submittedBy: text("submitted_by"),
+    status: text("status", {
+      enum: ["user_submitted", "verified", "rejected"],
+    })
+      .notNull()
+      .default("verified"),
+    reportCount: integer("report_count").notNull().default(0),
+
     ...timestamps,
   },
   (table) => [
     uniqueIndex("wines_slug_idx").on(table.slug),
+    uniqueIndex("wines_source_url_idx").on(table.sourceUrl),
+    index("wines_status_idx").on(table.status),
     index("wines_winery_idx").on(table.wineryId),
     index("wines_region_idx").on(table.regionId),
     index("wines_type_idx").on(table.type),
@@ -249,6 +268,29 @@ export const wines = sqliteTable(
     index("wines_price_idx").on(table.priceAvg),
     index("wines_beginner_idx").on(table.beginnerFriendly),
     index("wines_type_price_idx").on(table.type, table.priceAvg),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
+/*                            Community wine reports                           */
+/* -------------------------------------------------------------------------- */
+
+export const wineReports = sqliteTable(
+  "wine_reports",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    reason: text("reason"),
+    submittedBy: text("submitted_by").default("anonymous"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("wine_reports_wine_idx").on(table.wineId),
+    index("wine_reports_created_idx").on(table.createdAt),
   ],
 );
 
@@ -355,6 +397,7 @@ export const winesRelations = relations(wines, ({ one, many }) => ({
   }),
   scoresHistory: many(scoresHistory),
   ratings: many(ratings),
+  reports: many(wineReports),
 }));
 
 export const scoresHistoryRelations = relations(scoresHistory, ({ one }) => ({
@@ -375,6 +418,13 @@ export const ratingsRelations = relations(ratings, ({ one }) => ({
   }),
   wine: one(wines, {
     fields: [ratings.wineId],
+    references: [wines.id],
+  }),
+}));
+
+export const wineReportsRelations = relations(wineReports, ({ one }) => ({
+  wine: one(wines, {
+    fields: [wineReports.wineId],
     references: [wines.id],
   }),
 }));

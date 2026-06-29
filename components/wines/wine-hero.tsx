@@ -2,6 +2,7 @@ import { Building2, CheckCircle2, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
 import { WineImage } from "@/components/wines/wine-image";
 import { SourceBadge } from "@/components/wines/source-badge";
+import { CommunityBadge } from "@/components/wines/community-badge";
 import { Badge } from "@/components/ui/badge";
 import { formatRon, formatLongDate, wineTypeLabel } from "@/lib/format";
 import { resolveWineFactualSource } from "@/lib/wine-source";
@@ -63,6 +64,7 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
                 Crama verificata
               </Badge>
             ) : null}
+            <CommunityBadge status={wine.status} />
           </div>
 
           <h1 className="mt-4 font-serif text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">

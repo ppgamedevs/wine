@@ -2,6 +2,7 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { HfInference } from "@huggingface/inference";
 import { db, libsqlClient } from "@/lib/db";
 import { wines } from "@/lib/schema";
+import { andCatalog } from "@/lib/wine-catalog";
 import type { WineWithRelations } from "@/types";
 
 /** all-MiniLM-L6-v2 output dimension */
@@ -138,7 +139,10 @@ export async function searchSimilarWines(
   const limit = filters.limit ?? 12;
   const vectorArg = vectorToSqlArg(queryEmbedding);
 
-  const conditions: string[] = ["embedding IS NOT NULL"];
+  const conditions: string[] = [
+    "embedding IS NOT NULL",
+    "status != 'rejected'",
+  ];
   const args: (string | number)[] = [vectorArg];
 
   if (filters.budgetMax > 0) {
@@ -229,7 +233,10 @@ export async function loadWinesByIds(
   const byId = new Map(rows.map((r) => [r.id, r as WineWithRelations]));
   return ids
     .map((id) => byId.get(id))
-    .filter((w): w is WineWithRelations => w !== undefined);
+    .filter(
+      (w): w is WineWithRelations =>
+        w !== undefined && w.status !== "rejected",
+    );
 }
 
 /** Rule-based SQL pre-filter when vector search unavailable. */
@@ -256,7 +263,7 @@ export async function filterWinesByRules(
   }
 
   const rows = await db.query.wines.findMany({
-    where: conditions.length ? and(...conditions) : undefined,
+    where: conditions.length ? andCatalog(...conditions) : andCatalog(),
     with: { winery: true, region: true },
     limit: filters.limit ?? 20,
     orderBy: (table, { desc }) => [desc(table.valueScore)],

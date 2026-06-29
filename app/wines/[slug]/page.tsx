@@ -11,6 +11,7 @@ import { WineRelatedSections } from "@/components/wines/wine-related-sections";
 import { WineScoreCards } from "@/components/wines/wine-score-cards";
 import { WineSpecsTable } from "@/components/wines/wine-specs-table";
 import { WineWorthIt } from "@/components/wines/wine-worth-it";
+import { WineReportButton } from "@/components/wines/wine-report-button";
 import { VerificationLeadForm } from "@/components/wines/verification-lead-form";
 import {
   getAllWineSlugs,
@@ -112,6 +113,22 @@ export default async function WinePage({ params }: WinePageProps) {
 
         <div className="mx-auto max-w-6xl space-y-16 px-6 py-14">
           <WineEditorial wine={wine} />
+
+          {wine.status === "user_submitted" ? (
+            <section
+              aria-label="Feedback comunitate"
+              className="rounded-2xl border border-border/70 bg-secondary/20 px-5 py-4"
+            >
+              <p className="text-sm text-muted-foreground">
+                Acest vin a fost adaugat de comunitate si analizat automat.
+                Ajuta-ne sa il imbunatatim.
+              </p>
+              <div className="mt-3">
+                <WineReportButton wineId={wine.id} />
+              </div>
+            </section>
+          ) : null}
+
           <WineScoreCards wine={wine} />
           <WineWorthIt wine={wine} />
           <WineSpecsTable wine={wine} />

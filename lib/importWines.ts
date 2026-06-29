@@ -13,6 +13,7 @@ import {
 } from "@/lib/schema";
 import { calculateInitialScores } from "@/lib/scoring";
 import { buildWineImageAlt } from "@/lib/wine-images";
+import { buildWineSlug, slugify } from "@/lib/wine-url";
 import {
   grapeVarietiesFromCsvRow,
   mapWineCsvRowToType,
@@ -57,16 +58,6 @@ function parseArgs() {
     createMissing,
     noScores,
   };
-}
-
-function slugify(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 }
 
 function parseSweetness(
@@ -152,11 +143,11 @@ function mapValidatedRow(row: WineCsvRow): ParsedWineRow {
   const regionSlug = slugify(row.region_slug ?? row.region);
   const slug =
     row.slug?.trim() ||
-    slugify(
-      [producerSlug, slugify(row.name), String(row.vintage)]
-        .filter(Boolean)
-        .join("-"),
-    );
+    buildWineSlug({
+      producer: row.producer,
+      name: row.name,
+      vintage: row.vintage,
+    });
 
   return {
     slug,
@@ -323,6 +314,9 @@ function buildInsertValues(
     descriptionEditorial: null,
     valueExplanation: null,
     tasteProfile: null,
+    sourceUrl: parsed.sourceUrl,
+    status: "verified" as const,
+    submittedBy: null,
   };
 }
 

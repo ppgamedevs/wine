@@ -13,28 +13,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { EASE_OUT } from "@/lib/motion";
 import type { SearchSuggestion } from "@/lib/queries";
+import { isWineUrl } from "@/lib/wine-url";
 import { cn } from "@/lib/utils";
 
 interface SmartSearchProps {
   className?: string;
   placeholder?: string;
+  enableLinkAnalysis?: boolean;
 }
 
 export function SmartSearch({
   className,
-  placeholder = "Cauta un vin sau o crama...",
+  placeholder = "Cauta vin, crama sau lipeste link (https://...)",
+  enableLinkAnalysis = true,
 }: SmartSearchProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     const trimmed = query.trim();
-    if (trimmed.length < 2) {
+    if (trimmed.length < 2 || isWineUrl(trimmed)) {
       setSuggestions([]);
       setLoading(false);
       return;
@@ -79,10 +84,55 @@ export function SmartSearch({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function analyzeWineUrl(url: string) {
+    setAnalyzing(true);
+    setAnalysisError(null);
+    setOpen(false);
+
+    try {
+      const res = await fetch("/api/analyze-wine", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const data: {
+        error?: string;
+        message?: string;
+        redirectUrl?: string;
+        slug?: string;
+        status?: string;
+      } = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error ?? data.message ?? "Analiza a esuat.");
+      }
+
+      const target = data.redirectUrl ?? (data.slug ? `/wines/${data.slug}` : null);
+      if (target) {
+        router.push(target);
+        return;
+      }
+
+      throw new Error("Nu am primit un rezultat valid.");
+    } catch (error) {
+      setAnalysisError(
+        error instanceof Error ? error.message : "Analiza a esuat.",
+      );
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = query.trim();
     if (!trimmed) return;
+
+    if (enableLinkAnalysis && isWineUrl(trimmed)) {
+      await analyzeWineUrl(trimmed);
+      return;
+    }
+
     setOpen(false);
     router.push(`/cauta?q=${encodeURIComponent(trimmed)}`);
   }
@@ -93,7 +143,9 @@ export function SmartSearch({
       : `/wineries/${suggestion.slug}`;
   }
 
-  const showDropdown = open && query.trim().length >= 2;
+  const trimmed = query.trim();
+  const isUrl = enableLinkAnalysis && isWineUrl(trimmed);
+  const showDropdown = open && trimmed.length >= 2 && !isUrl;
 
   return (
     <motion.div
@@ -125,6 +177,7 @@ export function SmartSearch({
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
+            setAnalysisError(null);
             setOpen(true);
           }}
           onFocus={() => {
@@ -133,21 +186,43 @@ export function SmartSearch({
           }}
           onBlur={() => setFocused(false)}
           placeholder={placeholder}
-          aria-label="Cauta vinuri si crame"
+          aria-label="Cauta vinuri, crame sau adauga link"
           aria-expanded={showDropdown}
           aria-autocomplete="list"
           role="combobox"
           aria-controls="search-suggestions"
-          className="h-11 w-full flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground/80"
+          disabled={analyzing}
+          className="h-11 w-full flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground/80 disabled:opacity-60"
         />
         <Button
           type="submit"
           size="lg"
+          disabled={analyzing}
           className="shrink-0 rounded-xl bg-wine px-6 text-wine-foreground hover:bg-wine/90"
         >
-          Cauta
+          {analyzing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Analizez...
+            </>
+          ) : isUrl ? (
+            "Analizeaza"
+          ) : (
+            "Cauta"
+          )}
         </Button>
       </form>
+
+      {analysisError ? (
+        <p className="mt-2 text-left text-sm text-destructive">{analysisError}</p>
+      ) : null}
+
+      {isUrl && !analyzing && !analysisError ? (
+        <p className="mt-2 text-left text-xs text-muted-foreground">
+          Vin romanesc detectat. Vom extrage datele, genera scoruri si salva
+          vinul pentru comunitate.
+        </p>
+      ) : null}
 
       {showDropdown && (
         <div
@@ -164,7 +239,8 @@ export function SmartSearch({
 
           {!loading && suggestions.length === 0 && (
             <div className="px-4 py-4 text-sm text-muted-foreground">
-              Niciun rezultat. Apasa Enter pentru cautare completa.
+              Niciun rezultat. Apasa Enter pentru cautare completa sau lipeste
+              un link de vin romanesc.
             </div>
           )}
 

@@ -2,6 +2,7 @@ import "server-only";
 import { and, asc, desc, eq, like, ne, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { grapeVarieties, wineries, wines } from "@/lib/schema";
+import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
 import type {
   WineryListItem,
   WineryWithWines,
@@ -25,6 +26,7 @@ export async function getFeaturedWines(
   try {
     const rows = await db.query.wines.findMany({
       with: { winery: true, region: true },
+      where: catalogWineCondition(),
       orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
       limit,
     });
@@ -37,7 +39,10 @@ export async function getFeaturedWines(
 
 export async function getAllWineSlugs(): Promise<{ slug: string }[]> {
   try {
-    return await db.select({ slug: wines.slug }).from(wines);
+    return await db
+      .select({ slug: wines.slug })
+      .from(wines)
+      .where(catalogWineCondition());
   } catch (error) {
     console.error("getAllWineSlugs failed", error);
     return [];
@@ -50,7 +55,8 @@ export async function getWineSitemapEntries(): Promise<
   try {
     return await db
       .select({ slug: wines.slug, updatedAt: wines.updatedAt })
-      .from(wines);
+      .from(wines)
+      .where(catalogWineCondition());
   } catch (error) {
     console.error("getWineSitemapEntries failed", error);
     return [];
@@ -66,15 +72,20 @@ export async function getWineriesIndex(): Promise<WineryListItem[]> {
     const rows = await db.query.wineries.findMany({
       with: {
         region: true,
-        wines: { columns: { valueScore: true, priceAvg: true } },
+        wines: {
+          columns: { valueScore: true, priceAvg: true, status: true },
+        },
       },
       orderBy: () => [asc(wineries.name)],
     });
 
     return rows.map((row) => {
       const { wines: wineryWines, region, ...base } = row;
+      const visibleWines = wineryWines.filter(
+        (wine) => wine.status !== "rejected",
+      );
 
-      const valueScores = wineryWines
+      const valueScores = visibleWines
         .map((w) => w.valueScore)
         .filter((v): v is number => v !== null && v !== undefined);
       const avgValueScore =
@@ -84,7 +95,7 @@ export async function getWineriesIndex(): Promise<WineryListItem[]> {
             )
           : null;
 
-      const prices = wineryWines
+      const prices = visibleWines
         .map((w) => w.priceAvg)
         .filter((p): p is number => p !== null && p !== undefined);
       const priceRange =
@@ -98,7 +109,7 @@ export async function getWineriesIndex(): Promise<WineryListItem[]> {
       return {
         ...base,
         region: region ?? null,
-        wineCount: wineryWines.length,
+        wineCount: visibleWines.length,
         avgValueScore,
         priceRange,
       } satisfies WineryListItem;
@@ -152,7 +163,9 @@ export async function getWineryBySlug(
 
     // Attach the parent winery onto each wine so WineCard has full relations.
     const { wines: wineryWines, ...wineryBase } = winery;
-    const winesWithRelations = wineryWines.map((wine) => ({
+    const winesWithRelations = wineryWines
+      .filter((wine) => wine.status !== "rejected")
+      .map((wine) => ({
       ...wine,
       winery: wineryBase,
       region: wine.region ?? null,
@@ -199,6 +212,7 @@ export async function getWinesForSommelier(): Promise<WineWithRelations[]> {
   try {
     const rows = await db.query.wines.findMany({
       with: { winery: true, region: true },
+      where: catalogWineCondition(),
     });
     return rows as WineWithRelations[];
   } catch (error) {
@@ -212,7 +226,7 @@ export async function getWineBySlug(
 ): Promise<WineWithRelations | null> {
   try {
     const wine = await db.query.wines.findFirst({
-      where: eq(wines.slug, slug),
+      where: and(eq(wines.slug, slug), catalogWineCondition()),
       with: { winery: true, region: true },
     });
     return (wine as WineWithRelations | undefined) ?? null;
@@ -228,7 +242,7 @@ export async function getSimilarWines(
 ): Promise<WineWithRelations[]> {
   try {
     const rows = await db.query.wines.findMany({
-      where: and(
+      where: andCatalog(
         ne(wines.id, wine.id),
         or(
           eq(wines.wineryId, wine.wineryId ?? -1),
@@ -258,7 +272,7 @@ export async function getRecommendedWines(
     const maxPrice = wine.priceAvg ? wine.priceAvg * 1.3 : 9999;
 
     const rows = await db.query.wines.findMany({
-      where: and(ne(wines.id, wine.id)),
+      where: andCatalog(ne(wines.id, wine.id)),
       with: { winery: true, region: true },
       orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
       limit: limit + 6,
@@ -301,7 +315,7 @@ export async function getSearchSuggestions(
           vintage: wines.vintage,
         })
         .from(wines)
-        .where(or(like(wines.name, pattern)))
+        .where(and(catalogWineCondition(), like(wines.name, pattern)))
         .orderBy(desc(wines.valueScore))
         .limit(limit),
       db
