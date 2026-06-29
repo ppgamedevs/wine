@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   approveWineAction,
   rejectWineAction,
   resolveWineReportsAction,
+  reanalyzeWineAction,
   updateWineEditorialAction,
   updateWineImageAction,
   adminLogoutAction,
@@ -68,6 +69,7 @@ interface WineAdminPanelProps {
   initialStatus: AdminWineStatusFilter;
   initialSearch: string;
   initialTab: "wines" | "reports";
+  highlightWine: AdminWineRow | null;
 }
 
 export function WineAdminPanel({
@@ -78,6 +80,7 @@ export function WineAdminPanel({
   initialStatus,
   initialSearch,
   initialTab,
+  highlightWine,
 }: WineAdminPanelProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -89,7 +92,16 @@ export function WineAdminPanel({
   const [imageWine, setImageWine] = useState<AdminWineRow | null>(null);
   const [reportsWine, setReportsWine] = useState<AdminWineRow | null>(null);
   const [imageUrl, setImageUrl] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: "error" | "success";
+    text: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!highlightWine) return;
+    setActiveTab("reports");
+    setReportsWine(highlightWine);
+  }, [highlightWine]);
 
   function buildAdminUrl(options: {
     status?: AdminWineStatusFilter;
@@ -123,12 +135,20 @@ export function WineAdminPanel({
     router.refresh();
   }
 
-  function runAction(action: () => Promise<{ ok: boolean; error?: string }>) {
+  function runAction(
+    action: () => Promise<{ ok: boolean; error?: string; message?: string }>,
+  ) {
     startTransition(async () => {
-      setMessage(null);
+      setFeedback(null);
       const result = await action();
-      if (!result.ok && result.error) setMessage(result.error);
-      else router.refresh();
+      if (!result.ok && result.error) {
+        setFeedback({ type: "error", text: result.error });
+        return;
+      }
+      if (result.ok && result.message) {
+        setFeedback({ type: "success", text: result.message });
+      }
+      router.refresh();
     });
   }
 
@@ -165,9 +185,15 @@ export function WineAdminPanel({
         <StatCard label="Vinuri cu rapoarte" value={stats.winesWithReports} />
       </div>
 
-      {message ? (
-        <p className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2 text-sm text-destructive">
-          {message}
+      {feedback ? (
+        <p
+          className={
+            feedback.type === "error"
+              ? "rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2 text-sm text-destructive"
+              : "rounded-lg border border-wine/30 bg-wine/5 px-4 py-2 text-sm text-wine"
+          }
+        >
+          {feedback.text}
         </p>
       ) : null}
 
@@ -254,6 +280,7 @@ export function WineAdminPanel({
               setImageUrl(wine.imageUrl ?? "");
             }}
             onReports={setReportsWine}
+            onReanalyze={(id) => runAction(() => reanalyzeWineAction(id))}
           />
         </TabsContent>
 
@@ -374,6 +401,7 @@ function WineTable({
   onEdit,
   onImage,
   onReports,
+  onReanalyze,
 }: {
   wines: AdminWineRow[];
   pending: boolean;
@@ -382,6 +410,7 @@ function WineTable({
   onEdit: (wine: AdminWineRow) => void;
   onImage: (wine: AdminWineRow) => void;
   onReports: (wine: AdminWineRow) => void;
+  onReanalyze: (id: number) => void;
 }) {
   return (
     <div className="rounded-2xl border border-border/70 bg-card">
@@ -464,6 +493,16 @@ function WineTable({
                     >
                       Imagine
                     </Button>
+                    {wine.sourceUrl ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={pending}
+                        onClick={() => onReanalyze(wine.id)}
+                      >
+                        Re-analizeaza cu AI
+                      </Button>
+                    ) : null}
                     {wine.reportCount > 0 ? (
                       <Button
                         size="sm"

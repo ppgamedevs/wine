@@ -17,6 +17,102 @@ export interface InitialScores {
   cellarPotential: number;
 }
 
+/** LLM score suggestions on 1-10 scale (converted to 1-100 internally). */
+export interface LlmScoreSuggestions {
+  valueScore?: number | null;
+  giftScore?: number | null;
+  foodMatchScore?: number | null;
+}
+
+export interface MergedAnalysisScores extends InitialScores {
+  ruleBased: InitialScores;
+  llmSuggestions: {
+    valueScore: number | null;
+    giftScore: number | null;
+    foodMatchScore: number | null;
+  };
+  adjustments: {
+    valueScore: number;
+    giftScore: number;
+    foodMatchScore: number;
+  };
+}
+
+const MAX_LLM_NUDGE = 12;
+
+function llm1to10To100(score: number): number {
+  return toSiteScale(score);
+}
+
+function applyRuleBasedNudge(
+  ruleScore: number,
+  llm1to10: number | null | undefined,
+): number {
+  if (llm1to10 == null) return ruleScore;
+  const llm100 = llm1to10To100(llm1to10);
+  const diff = llm100 - ruleScore;
+  const nudge =
+    Math.sign(diff) * Math.min(Math.abs(diff), MAX_LLM_NUDGE) * 0.35;
+  return Math.round(Math.min(100, Math.max(10, ruleScore + nudge)));
+}
+
+/**
+ * Combines rule-based scores with optional LLM suggestions.
+ * Rule-based scores are the base; LLM can nudge slightly when it has extra context.
+ */
+export function mergeAnalysisScores(
+  ruleScores: InitialScores,
+  price: number,
+  llm: LlmScoreSuggestions = {},
+): MergedAnalysisScores {
+  const llmSuggestions = {
+    valueScore: llm.valueScore ?? null,
+    giftScore: llm.giftScore ?? null,
+    foodMatchScore: llm.foodMatchScore ?? null,
+  };
+
+  const valueScore = applyRuleBasedNudge(
+    ruleScores.valueScore,
+    llmSuggestions.valueScore,
+  );
+  const giftScore = applyRuleBasedNudge(
+    ruleScores.giftScore,
+    llmSuggestions.giftScore,
+  );
+  const foodMatchScore = applyRuleBasedNudge(
+    ruleScores.foodMatchScore,
+    llmSuggestions.foodMatchScore,
+  );
+
+  return {
+    valueScore,
+    giftScore,
+    foodMatchScore,
+    overpricedRisk: inferOverpricedRisk(price, valueScore),
+    beginnerFriendly: ruleScores.beginnerFriendly,
+    cellarPotential: ruleScores.cellarPotential,
+    ruleBased: ruleScores,
+    llmSuggestions,
+    adjustments: {
+      valueScore: valueScore - ruleScores.valueScore,
+      giftScore: giftScore - ruleScores.giftScore,
+      foodMatchScore: foodMatchScore - ruleScores.foodMatchScore,
+    },
+  };
+}
+
+export function formatScoreProvenance(merged: MergedAnalysisScores): string {
+  const fmt = (score: number | null) =>
+    score != null ? `${score}/10` : "n/a";
+
+  return [
+    "Scoruri VinIntel:",
+    `- Value: ${merged.valueScore}/100 (baza algoritm ${merged.ruleBased.valueScore}, sugestie AI ${fmt(merged.llmSuggestions.valueScore)}, ajustare ${merged.adjustments.valueScore >= 0 ? "+" : ""}${merged.adjustments.valueScore})`,
+    `- Gift: ${merged.giftScore}/100 (baza ${merged.ruleBased.giftScore}, sugestie AI ${fmt(merged.llmSuggestions.giftScore)})`,
+    `- Food Match: ${merged.foodMatchScore}/100 (baza ${merged.ruleBased.foodMatchScore}, sugestie AI ${fmt(merged.llmSuggestions.foodMatchScore)})`,
+  ].join("\n");
+}
+
 function clamp1to10(value: number): number {
   return Math.min(10, Math.max(1, value));
 }

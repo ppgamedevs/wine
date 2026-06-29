@@ -9,6 +9,7 @@ import {
   setAdminSession,
   verifyAdminSecret,
 } from "@/lib/admin-auth";
+import { reanalyzeAndUpdateWine } from "@/lib/analyze-wine-service";
 import { db } from "@/lib/db";
 import {
   DEFAULT_WINE_SOURCE_BADGE,
@@ -30,6 +31,11 @@ const updateWineSchema = z.object({
 
 function revalidateAdmin() {
   revalidatePath("/admin/wines");
+}
+
+function revalidateWine(slug: string) {
+  revalidatePath(`/wines/${slug}`);
+  revalidatePath(`/vinuri/${slug}`);
 }
 
 async function assertAdmin() {
@@ -135,4 +141,50 @@ export async function resolveWineReportsAction(wineId: number) {
     .where(eq(wines.id, wineId));
   revalidateAdmin();
   return { ok: true as const };
+}
+
+export async function reanalyzeWineAction(wineId: number) {
+  await assertAdmin();
+
+  const wine = await db.query.wines.findFirst({
+    where: eq(wines.id, wineId),
+    columns: { slug: true, sourceUrl: true },
+  });
+
+  if (!wine?.sourceUrl) {
+    return {
+      ok: false as const,
+      error: "Vinul nu are link sursa pentru re-analiza.",
+    };
+  }
+
+  try {
+    const result = await reanalyzeAndUpdateWine(wineId);
+
+    if (result.status === "rejected") {
+      return {
+        ok: false as const,
+        error: result.message ?? "Re-analiza a esuat.",
+      };
+    }
+
+    if (result.slug) {
+      revalidateWine(result.slug);
+    }
+    revalidateAdmin();
+
+    return {
+      ok: true as const,
+      message: result.message ?? "Vin re-analizat cu succes.",
+    };
+  } catch (error) {
+    console.error("[admin reanalyze]", error);
+    return {
+      ok: false as const,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Re-analiza a esuat. Incearca din nou.",
+    };
+  }
 }

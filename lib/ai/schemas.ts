@@ -100,6 +100,8 @@ export const wineLinkAnalysisSchema = z.object({
   sourceUrl: z.string().url(),
   descriptionEditorial: z.string().min(40),
   valueScore: z.number().min(1).max(10),
+  giftScore: z.number().min(1).max(10).optional(),
+  foodMatchScore: z.number().min(1).max(10).optional(),
   valueExplanation: z.string().min(20),
   thingsYouShouldKnow: z.array(z.string()).min(2).max(4),
   tasteProfile: z.string().min(10),

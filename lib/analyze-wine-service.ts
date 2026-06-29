@@ -2,10 +2,18 @@ import { generateObject } from "ai";
 import { eq, or } from "drizzle-orm";
 import { getSommelierModel } from "@/lib/ai/model";
 import { ANALYZE_WINE_LINK_SYSTEM_PROMPT } from "@/lib/ai/prompts";
-import { wineLinkAnalysisSchema } from "@/lib/ai/schemas";
+import {
+  wineLinkAnalysisSchema,
+  type WineLinkAnalysis,
+} from "@/lib/ai/schemas";
 import { db } from "@/lib/db";
 import { fetchPageText } from "@/lib/fetch-page-text";
-import { calculateInitialScores } from "@/lib/scoring";
+import {
+  calculateInitialScores,
+  formatScoreProvenance,
+  mergeAnalysisScores,
+  type MergedAnalysisScores,
+} from "@/lib/scoring";
 import {
   COMMUNITY_SOURCE_BADGE,
   regions,
@@ -20,10 +28,21 @@ import { buildWineSlug, normalizeSourceUrl, slugify } from "@/lib/wine-url";
 import type { WineType } from "@/types";
 
 export interface AnalyzeWineResult {
-  status: "existing" | "created" | "rejected";
+  status: "existing" | "created" | "updated" | "rejected";
   slug?: string;
   message?: string;
   wineId?: number;
+}
+
+interface ResolvedWineAnalysis {
+  analysis: WineLinkAnalysis;
+  category: string;
+  wineType: WineType;
+  mergedScores: MergedAnalysisScores;
+  valueExplanation: string;
+  grapeVarieties: GrapeVarietyShare[];
+  foodPairingNotes: EditorialFoodPairingNote[];
+  checkedAt: string;
 }
 
 function inferCategoryFromText(
@@ -49,6 +68,71 @@ function parseFoodPairingNotes(
 
 function toGrapeShares(names: string[]): GrapeVarietyShare[] {
   return names.map((name) => ({ name }));
+}
+
+function stripScoreProvenance(valueExplanation: string): string {
+  const marker = "\n\nScoruri VinIntel:";
+  const index = valueExplanation.indexOf(marker);
+  if (index === -1) return valueExplanation.trim();
+  return valueExplanation.slice(0, index).trim();
+}
+
+function buildValueExplanation(
+  analysis: WineLinkAnalysis,
+  mergedScores: MergedAnalysisScores,
+): string {
+  const base = stripScoreProvenance(analysis.valueExplanation);
+  return `${base}\n\n${formatScoreProvenance(mergedScores)}`;
+}
+
+function resolveMergedScores(
+  analysis: WineLinkAnalysis,
+  category: string,
+): MergedAnalysisScores {
+  const price = analysis.price ?? 0;
+  const ruleScores = calculateInitialScores({
+    price: price > 0 ? price : 50,
+    category,
+    region: analysis.region,
+    grapeVarieties: analysis.grapeVarieties,
+  });
+
+  return mergeAnalysisScores(ruleScores, price > 0 ? price : 50, {
+    valueScore: analysis.valueScore,
+    giftScore: analysis.giftScore,
+    foodMatchScore: analysis.foodMatchScore,
+  });
+}
+
+function resolveWineAnalysis(
+  analysis: WineLinkAnalysis,
+  pageText: string,
+): ResolvedWineAnalysis {
+  const category = inferCategoryFromText(analysis.category, pageText);
+  const wineType = mapCsvCategoryToWineType(category);
+  const mergedScores = resolveMergedScores(analysis, category);
+  const checkedAt = new Date().toISOString();
+
+  return {
+    analysis,
+    category,
+    wineType,
+    mergedScores,
+    valueExplanation: buildValueExplanation(analysis, mergedScores),
+    grapeVarieties: toGrapeShares(analysis.grapeVarieties),
+    foodPairingNotes: parseFoodPairingNotes(analysis.foodPairingNotes),
+    checkedAt,
+  };
+}
+
+async function runLinkAnalysis(sourceUrl: string, pageText: string) {
+  return generateObject({
+    model: getSommelierModel(),
+    schema: wineLinkAnalysisSchema,
+    system: ANALYZE_WINE_LINK_SYSTEM_PROMPT,
+    prompt: `Analizeaza vinul de la acest link:\n${sourceUrl}\n\nContinut pagina (extras):\n${pageText}`,
+    temperature: 0.35,
+  });
 }
 
 async function resolveRegionId(regionName: string): Promise<number | null> {
@@ -120,14 +204,7 @@ export async function analyzeAndSaveWineFromUrl(
   }
 
   const pageText = await fetchPageText(sourceUrl);
-
-  const { object: analysis } = await generateObject({
-    model: getSommelierModel(),
-    schema: wineLinkAnalysisSchema,
-    system: ANALYZE_WINE_LINK_SYSTEM_PROMPT,
-    prompt: `Analizeaza vinul de la acest link:\n${sourceUrl}\n\nContinut pagina (extras):\n${pageText}`,
-    temperature: 0.35,
-  });
+  const { object: analysis } = await runLinkAnalysis(sourceUrl, pageText);
 
   if (!analysis.isRomanianWine) {
     return {
@@ -138,8 +215,7 @@ export async function analyzeAndSaveWineFromUrl(
     };
   }
 
-  const category = inferCategoryFromText(analysis.category, pageText);
-  const wineType: WineType = mapCsvCategoryToWineType(category);
+  const resolved = resolveWineAnalysis(analysis, pageText);
   const slug = buildWineSlug({
     producer: analysis.producer,
     name: analysis.name,
@@ -158,29 +234,12 @@ export async function analyzeAndSaveWineFromUrl(
     };
   }
 
-  const price = analysis.price ?? 0;
-  const ruleScores = calculateInitialScores({
-    price: price > 0 ? price : 50,
-    category,
-    region: analysis.region,
-    grapeVarieties: analysis.grapeVarieties,
-  });
-
-  const valueScore =
-    analysis.valueScore != null
-      ? Math.min(100, Math.max(10, Math.round(analysis.valueScore * 10)))
-      : ruleScores.valueScore;
-
   const regionId = await resolveRegionId(analysis.region);
   const wineryId = await resolveWineryId(
     analysis.producer,
     regionId,
     new URL(sourceUrl).origin,
   );
-
-  const grapeVarieties = toGrapeShares(analysis.grapeVarieties);
-  const foodPairingNotes = parseFoodPairingNotes(analysis.foodPairingNotes);
-  const checkedAt = new Date().toISOString();
 
   const [created] = await db
     .insert(wines)
@@ -189,21 +248,21 @@ export async function analyzeAndSaveWineFromUrl(
       name: analysis.name,
       wineryId,
       regionId,
-      type: wineType,
+      type: resolved.wineType,
       vintage: analysis.vintage ?? undefined,
-      grapeVarieties,
+      grapeVarieties: resolved.grapeVarieties,
       priceAvg: analysis.price ?? undefined,
-      valueScore,
-      giftScore: ruleScores.giftScore,
-      foodMatchScore: ruleScores.foodMatchScore,
-      overpricedRisk: ruleScores.overpricedRisk,
-      beginnerFriendly: ruleScores.beginnerFriendly,
-      cellarPotential: ruleScores.cellarPotential,
+      valueScore: resolved.mergedScores.valueScore,
+      giftScore: resolved.mergedScores.giftScore,
+      foodMatchScore: resolved.mergedScores.foodMatchScore,
+      overpricedRisk: resolved.mergedScores.overpricedRisk,
+      beginnerFriendly: resolved.mergedScores.beginnerFriendly,
+      cellarPotential: resolved.mergedScores.cellarPotential,
       descriptionEditorial: analysis.descriptionEditorial,
-      valueExplanation: analysis.valueExplanation,
+      valueExplanation: resolved.valueExplanation,
       thingsYouShouldKnow: analysis.thingsYouShouldKnow,
       tasteProfile: analysis.tasteProfile,
-      foodPairingNotes,
+      foodPairingNotes: resolved.foodPairingNotes,
       sourceUrl,
       submittedBy,
       status: "user_submitted",
@@ -214,7 +273,7 @@ export async function analyzeAndSaveWineFromUrl(
           url: sourceUrl,
           priceRon: analysis.price ?? undefined,
           inStock: true,
-          lastCheckedAt: checkedAt,
+          lastCheckedAt: resolved.checkedAt,
         },
       ],
       affiliateLinks: [
@@ -227,7 +286,7 @@ export async function analyzeAndSaveWineFromUrl(
       imageAlt: buildWineImageAlt({
         name: analysis.name,
         vintage: analysis.vintage,
-        type: wineType,
+        type: resolved.wineType,
         wineryName: analysis.producer,
       }),
     })
@@ -237,5 +296,107 @@ export async function analyzeAndSaveWineFromUrl(
     status: "created",
     slug: created.slug,
     wineId: created.id,
+  };
+}
+
+export async function reanalyzeAndUpdateWine(
+  wineId: number,
+): Promise<AnalyzeWineResult> {
+  const wine = await db.query.wines.findFirst({
+    where: eq(wines.id, wineId),
+    columns: {
+      id: true,
+      slug: true,
+      sourceUrl: true,
+      imageUrl: true,
+      status: true,
+      submittedBy: true,
+      reportCount: true,
+    },
+  });
+
+  if (!wine) {
+    return { status: "rejected", message: "Vin negasit." };
+  }
+
+  if (!wine.sourceUrl) {
+    return {
+      status: "rejected",
+      message: "Acest vin nu are link sursa pentru re-analiza.",
+    };
+  }
+
+  const sourceUrl = normalizeSourceUrl(wine.sourceUrl);
+  const pageText = await fetchPageText(sourceUrl);
+  const { object: analysis } = await runLinkAnalysis(sourceUrl, pageText);
+
+  if (!analysis.isRomanianWine) {
+    return {
+      status: "rejected",
+      message:
+        analysis.reasonIfNotRomanian ??
+        "Re-analiza indica ca vinul nu este romanesc.",
+    };
+  }
+
+  const resolved = resolveWineAnalysis(analysis, pageText);
+  const regionId = await resolveRegionId(analysis.region);
+  const wineryId = await resolveWineryId(
+    analysis.producer,
+    regionId,
+    new URL(sourceUrl).origin,
+  );
+
+  await db
+    .update(wines)
+    .set({
+      name: analysis.name,
+      wineryId,
+      regionId,
+      type: resolved.wineType,
+      vintage: analysis.vintage ?? undefined,
+      grapeVarieties: resolved.grapeVarieties,
+      priceAvg: analysis.price ?? undefined,
+      valueScore: resolved.mergedScores.valueScore,
+      giftScore: resolved.mergedScores.giftScore,
+      foodMatchScore: resolved.mergedScores.foodMatchScore,
+      overpricedRisk: resolved.mergedScores.overpricedRisk,
+      beginnerFriendly: resolved.mergedScores.beginnerFriendly,
+      cellarPotential: resolved.mergedScores.cellarPotential,
+      descriptionEditorial: analysis.descriptionEditorial,
+      valueExplanation: resolved.valueExplanation,
+      thingsYouShouldKnow: analysis.thingsYouShouldKnow,
+      tasteProfile: analysis.tasteProfile,
+      foodPairingNotes: resolved.foodPairingNotes,
+      availability: [
+        {
+          retailer: analysis.producer,
+          url: sourceUrl,
+          priceRon: analysis.price ?? undefined,
+          inStock: true,
+          lastCheckedAt: resolved.checkedAt,
+        },
+      ],
+      affiliateLinks: [
+        {
+          retailer: analysis.producer,
+          url: sourceUrl,
+          priceRon: analysis.price ?? undefined,
+        },
+      ],
+      imageAlt: buildWineImageAlt({
+        name: analysis.name,
+        vintage: analysis.vintage,
+        type: resolved.wineType,
+        wineryName: analysis.producer,
+      }),
+    })
+    .where(eq(wines.id, wine.id));
+
+  return {
+    status: "updated",
+    slug: wine.slug,
+    wineId: wine.id,
+    message: "Vin re-analizat cu succes.",
   };
 }

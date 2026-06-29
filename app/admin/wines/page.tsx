@@ -3,6 +3,7 @@ import { WineAdminPanel } from "@/components/admin/wine-admin-panel";
 import { requireAdmin } from "@/lib/admin-auth";
 import {
   getAdminStats,
+  getAdminWineById,
   getAdminWines,
   getAdminWinesWithReports,
   getRecentReports,
@@ -17,11 +18,11 @@ export const metadata: Metadata = {
 export default async function AdminWinesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string; tab?: string }>;
+  searchParams: Promise<{ status?: string; q?: string; tab?: string; wineId?: string }>;
 }) {
   await requireAdmin();
 
-  const { status, q, tab } = await searchParams;
+  const { status, q, tab, wineId: wineIdParam } = await searchParams;
   const allowed: AdminWineStatusFilter[] = [
     "all",
     "user_submitted",
@@ -32,12 +33,22 @@ export default async function AdminWinesPage({
     ? (status as AdminWineStatusFilter)
     : "user_submitted";
 
-  const [wines, winesWithReports, reports, stats] = await Promise.all([
-    getAdminWines(statusFilter, q ?? ""),
-    getAdminWinesWithReports(),
-    getRecentReports(),
-    getAdminStats(),
-  ]);
+  const highlightWineId = Number(wineIdParam);
+  const parsedHighlightWineId =
+    Number.isInteger(highlightWineId) && highlightWineId > 0
+      ? highlightWineId
+      : null;
+
+  const [wines, winesWithReports, reports, stats, highlightWine] =
+    await Promise.all([
+      getAdminWines(statusFilter, q ?? ""),
+      getAdminWinesWithReports(),
+      getRecentReports(),
+      getAdminStats(),
+      parsedHighlightWineId
+        ? getAdminWineById(parsedHighlightWineId)
+        : Promise.resolve(null),
+    ]);
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
@@ -48,7 +59,10 @@ export default async function AdminWinesPage({
         stats={stats}
         initialStatus={statusFilter}
         initialSearch={q ?? ""}
-        initialTab={tab === "reports" ? "reports" : "wines"}
+        initialTab={
+          tab === "reports" || parsedHighlightWineId ? "reports" : "wines"
+        }
+        highlightWine={highlightWine}
       />
     </main>
   );

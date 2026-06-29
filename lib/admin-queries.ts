@@ -194,6 +194,51 @@ export async function getAdminWinesWithReports(): Promise<AdminWineRow[]> {
   }));
 }
 
+export async function getAdminWineById(
+  wineId: number,
+): Promise<AdminWineRow | null> {
+  const wine = await db.query.wines.findFirst({
+    where: (table, { eq: eqOp }) => eqOp(table.id, wineId),
+    with: {
+      winery: true,
+      region: true,
+      reports: {
+        orderBy: (table, { desc: orderDesc }) => [orderDesc(table.createdAt)],
+        limit: 10,
+      },
+    },
+  });
+
+  if (!wine) return null;
+
+  return {
+    id: wine.id,
+    slug: wine.slug,
+    name: wine.name,
+    vintage: wine.vintage,
+    status: wine.status,
+    reportCount: wine.reportCount,
+    createdAt: wine.createdAt,
+    sourceUrl: wine.sourceUrl,
+    imageUrl: wine.imageUrl,
+    valueScore: wine.valueScore,
+    giftScore: wine.giftScore,
+    foodMatchScore: wine.foodMatchScore,
+    descriptionEditorial: wine.descriptionEditorial,
+    valueExplanation: wine.valueExplanation,
+    tasteProfile: wine.tasteProfile,
+    thingsYouShouldKnow: wine.thingsYouShouldKnow,
+    wineryName: wine.winery?.name ?? null,
+    regionName: wine.region?.name ?? null,
+    reports: wine.reports.map((report) => ({
+      id: report.id,
+      reason: report.reason,
+      submittedBy: report.submittedBy,
+      createdAt: report.createdAt,
+    })),
+  };
+}
+
 export async function getRecentReports(limit = 20): Promise<AdminReportRow[]> {
   const rows = await db.query.wineReports.findMany({
     with: {

@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { notifyWineReport } from "@/lib/notifications";
 import { wineReports, wines } from "@/lib/schema";
 
 const requestSchema = z.object({
@@ -24,6 +25,11 @@ export async function POST(req: Request, context: RouteContext) {
     const wine = await db.query.wines.findFirst({
       where: eq(wines.id, wineId),
       columns: { id: true, name: true, slug: true, reportCount: true },
+      with: {
+        winery: {
+          columns: { name: true },
+        },
+      },
     });
 
     if (!wine) {
@@ -37,11 +43,21 @@ export async function POST(req: Request, context: RouteContext) {
       return Response.json({ error: "Date invalide." }, { status: 400 });
     }
 
-    await db.insert(wineReports).values({
-      wineId: wine.id,
-      reason: parsed.data.reason,
-      submittedBy: parsed.data.submittedBy ?? "anonymous",
-    });
+    const submittedBy = parsed.data.submittedBy ?? "anonymous";
+
+    const [insertedReport] = await db
+      .insert(wineReports)
+      .values({
+        wineId: wine.id,
+        reason: parsed.data.reason,
+        submittedBy,
+      })
+      .returning({
+        id: wineReports.id,
+        reason: wineReports.reason,
+        submittedBy: wineReports.submittedBy,
+        createdAt: wineReports.createdAt,
+      });
 
     const [updated] = await db
       .update(wines)
@@ -49,13 +65,29 @@ export async function POST(req: Request, context: RouteContext) {
       .where(eq(wines.id, wine.id))
       .returning({ reportCount: wines.reportCount });
 
-    console.info(
-      `[wine-report] wine="${wine.name}" slug=${wine.slug} reports=${updated?.reportCount ?? wine.reportCount + 1} reason=${parsed.data.reason ?? "none"}`,
-    );
+    const reportCount = updated?.reportCount ?? wine.reportCount + 1;
+
+    void notifyWineReport(
+      {
+        id: wine.id,
+        name: wine.name,
+        slug: wine.slug,
+        reportCount,
+        producer: wine.winery?.name ?? null,
+      },
+      {
+        id: insertedReport.id,
+        reason: insertedReport.reason,
+        submittedBy: insertedReport.submittedBy ?? submittedBy,
+        createdAt: insertedReport.createdAt,
+      },
+    ).catch((error) => {
+      console.error("[WINE REPORT] notification failed", error);
+    });
 
     return Response.json({
       ok: true,
-      reportCount: updated?.reportCount ?? wine.reportCount + 1,
+      reportCount,
     });
   } catch (error) {
     console.error("[wine-report]", error);
