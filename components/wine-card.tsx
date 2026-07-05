@@ -37,7 +37,8 @@ export function WineCard({
           wineryName={wine.winery?.name}
           priority={priority}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-          aspectClassName="relative aspect-[4/3] overflow-hidden bg-secondary/30"
+          aspectClassName="relative aspect-[4/3] overflow-hidden bg-secondary/20"
+          objectFit="contain"
         />
 
         <span className="absolute left-3 top-3 z-10 rounded-full bg-background/85 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur">

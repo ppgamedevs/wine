@@ -57,8 +57,60 @@ export const wineTypeGradient: Record<WineType, string> = {
 };
 
 export function valueScoreTone(score: number | null | undefined): string {
-  if (score === null || score === undefined) return "bg-muted text-muted-foreground";
-  if (score >= 88) return "bg-wine text-wine-foreground";
-  if (score >= 80) return "bg-wine/15 text-wine";
-  return "bg-secondary text-secondary-foreground";
+  return getVinScoreMeta(score).badgeClass;
+}
+
+export interface VinScoreMeta {
+  badgeClass: string;
+  ringClass: string;
+  label: string;
+}
+
+/** Color-coded score bands for VinIntel 0-100 scale. */
+export function getVinScoreMeta(score: number | null | undefined): VinScoreMeta {
+  if (score === null || score === undefined) {
+    return {
+      badgeClass: "bg-muted text-muted-foreground",
+      ringClass: "ring-muted/40",
+      label: "N/A",
+    };
+  }
+
+  if (score >= 85) {
+    return {
+      badgeClass: "bg-emerald-700 text-white shadow-sm",
+      ringClass: "ring-emerald-600/30",
+      label: "Excelent",
+    };
+  }
+
+  if (score >= 75) {
+    return {
+      badgeClass: "bg-wine text-wine-foreground shadow-sm",
+      ringClass: "ring-wine/35",
+      label: "Foarte bun",
+    };
+  }
+
+  if (score >= 65) {
+    return {
+      badgeClass: "bg-amber-500/20 text-amber-950 border border-amber-500/35",
+      ringClass: "ring-amber-500/30",
+      label: "Bun",
+    };
+  }
+
+  if (score >= 50) {
+    return {
+      badgeClass: "bg-orange-500/15 text-orange-950 border border-orange-500/30",
+      ringClass: "ring-orange-500/25",
+      label: "Mediu",
+    };
+  }
+
+  return {
+    badgeClass: "bg-red-600/10 text-red-900 border border-red-500/25",
+    ringClass: "ring-red-500/20",
+    label: "Sub asteptari",
+  };
 }

@@ -17,6 +17,7 @@ import {
   mergeAnalysisScores,
   type MergedAnalysisScores,
 } from "@/lib/scoring";
+import { sanitizeEditorialText } from "@/lib/editorial-text";
 import { buildWineImageAlt } from "@/lib/wine-images";
 import type { WineType } from "@/types";
 
@@ -71,20 +72,44 @@ export function mergeEditorialScoresForWine(
   );
 }
 
+function sanitizeEditorialOutput(
+  editorial: WineEditorialOutput,
+): WineEditorialOutput {
+  return {
+    ...editorial,
+    descriptionEditorial: sanitizeEditorialText(editorial.descriptionEditorial),
+    valueExplanation: sanitizeEditorialText(editorial.valueExplanation),
+    tasteProfile: sanitizeEditorialText(editorial.tasteProfile),
+    thingsYouShouldKnow: editorial.thingsYouShouldKnow.map((item) =>
+      sanitizeEditorialText(item),
+    ),
+    recommendedOccasions: editorial.recommendedOccasions.map((item) =>
+      sanitizeEditorialText(item),
+    ),
+    foodPairingNotes: editorial.foodPairingNotes.map((pairing) => ({
+      ...pairing,
+      dish: sanitizeEditorialText(pairing.dish),
+      note: sanitizeEditorialText(pairing.note),
+    })),
+  };
+}
+
 export async function applyEditorialAndScoresToWine(
   wineId: number,
   editorial: WineEditorialOutput,
   mergedScores: MergedAnalysisScores,
 ): Promise<void> {
+  const clean = sanitizeEditorialOutput(editorial);
+
   await db
     .update(wines)
     .set({
-      descriptionEditorial: editorial.descriptionEditorial,
-      valueExplanation: `${editorial.valueExplanation}\n\n${formatScoreProvenance(mergedScores)}`,
-      thingsYouShouldKnow: editorial.thingsYouShouldKnow,
-      tasteProfile: editorial.tasteProfile,
-      foodPairingNotes: editorial.foodPairingNotes,
-      recommendedOccasions: editorial.recommendedOccasions,
+      descriptionEditorial: clean.descriptionEditorial,
+      valueExplanation: `${clean.valueExplanation}\n\n${formatScoreProvenance(mergedScores)}`,
+      thingsYouShouldKnow: clean.thingsYouShouldKnow,
+      tasteProfile: clean.tasteProfile,
+      foodPairingNotes: clean.foodPairingNotes,
+      recommendedOccasions: clean.recommendedOccasions,
       valueScore: mergedScores.valueScore,
       giftScore: mergedScores.giftScore,
       foodMatchScore: mergedScores.foodMatchScore,

@@ -22,6 +22,8 @@ interface WineImageProps {
   className?: string;
   imageClassName?: string;
   aspectClassName?: string;
+  /** Use contain for product shots (cards); cover for hero/editorial crops. */
+  objectFit?: "cover" | "contain";
 }
 
 export function WineImage({
@@ -38,6 +40,7 @@ export function WineImage({
   className,
   imageClassName,
   aspectClassName = "relative aspect-[4/3] overflow-hidden",
+  objectFit = "cover",
 }: WineImageProps) {
   const [failed, setFailed] = useState(false);
   const { src, alt, fromExternalSource, unoptimized } = resolveWineImage({
@@ -60,7 +63,7 @@ export function WineImage({
       ) : (
         <motion.div
           className="relative h-full w-full"
-          whileHover={{ scale: 1.03 }}
+          whileHover={{ scale: objectFit === "contain" ? 1.02 : 1.03 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           <Image
@@ -72,7 +75,10 @@ export function WineImage({
             unoptimized={unoptimized}
             onError={() => setFailed(true)}
             className={cn(
-              "object-cover transition-transform duration-700",
+              "transition-transform duration-700",
+              objectFit === "contain"
+                ? "object-contain object-center p-5"
+                : "object-cover",
               imageClassName,
             )}
           />

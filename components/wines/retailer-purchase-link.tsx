@@ -1,14 +1,12 @@
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  buildRetailerPurchaseLabel,
-  detectRetailerLabel,
-} from "@/lib/retailer-links";
+import { detectRetailerLabel } from "@/lib/retailer-links";
 import { cn } from "@/lib/utils";
 
 interface RetailerPurchaseLinkProps {
   url: string;
   retailerName?: string;
+  label?: string;
   size?: "sm" | "default";
   variant?: "default" | "outline";
   showNote?: boolean;
@@ -18,12 +16,12 @@ interface RetailerPurchaseLinkProps {
 export function RetailerPurchaseLink({
   url,
   retailerName,
+  label = "Cumpara",
   size = "default",
   variant = "default",
   showNote = false,
   className,
 }: RetailerPurchaseLinkProps) {
-  const label = buildRetailerPurchaseLabel(url, retailerName);
   const retailer = detectRetailerLabel(url) ?? retailerName;
 
   if (!showNote) {

@@ -37,7 +37,8 @@ export function RecommendationCard({
           vintage={wine.vintage}
           wineryName={wine.winery?.name}
           sizes="(max-width: 640px) 100vw, 160px"
-          aspectClassName="relative h-full min-h-44 w-full overflow-hidden"
+          aspectClassName="relative h-full min-h-44 w-full overflow-hidden bg-secondary/20"
+          objectFit="contain"
         />
         <span className="absolute left-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-wine text-sm font-bold text-wine-foreground shadow">
           {rank}

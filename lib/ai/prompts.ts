@@ -93,6 +93,7 @@ Reguli importante:
 - Fii onest. Daca vinul e mediu, spune-o.
 - Foloseste context romanesc: mancare traditionala, preturi in lei, ocazii locale.
 - Nu copia text de pe site-ul producatorului.
+- Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct.
 - Insight-urile din thingsYouShouldKnow trebuie sa fie interesante si utile, nu clisee.
 - Ton: prietenos, dar profesionist.
 - Scorurile valueScore, giftScore, foodMatchScore sunt intregi de la 1 la 100 (standard VinIntel).`;
@@ -155,6 +156,7 @@ Reguli:
 - Foloseste doar datele factuale din context.
 - Nu copia text existent word-for-word; imbunatateste calitatea, claritatea si utilitatea.
 - Fii onest daca vinul pare mediu sau supraevaluat.
+- Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct.
 - thingsYouShouldKnow: insight-uri concrete, nu clisee.
 - foodPairingNotes: preparate romanesti reale (sarmale, mici, peste, branza, etc.).
 - recommendedOccasions: ocazii locale relevante.
@@ -228,6 +230,7 @@ Instructiuni importante:
 - Daca nu esti sigur de regiune, alege cea mai probabila si mentioneaza incertitudinea in tasteProfile, nu inventa detalii.
 - Nu copia text de pe site. Rescrie original in stil VinIntel.
 - Fii onest daca vinul pare mediu sau supraevaluat.
+- Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct.
 - Fii conservator cu scorurile inalte daca nu ai suficiente informatii.
 
 Scoruri (sugestii 1-10, vor fi combinate cu logica rule-based VinIntel):
