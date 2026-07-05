@@ -73,6 +73,29 @@ function pickBestPrice(candidates: number[]): number | null {
   return Math.min(...candidates);
 }
 
+function extractEmagDisplayedPriceTokens(html: string): string[] {
+  const tokens: string[] = [];
+  const blocks = html.match(
+    /<[^>]+class=["'][^"']*product-new-price[^"']*["'][^>]*>[\s\S]*?<\/[^>]+>/gi,
+  );
+
+  for (const block of blocks ?? []) {
+    const text = decodeHtmlEntities(block.replace(/<[^>]+>/g, " "));
+    const match = text.match(/(\d{1,4})\s*(?:[,.]\s*|\s+)(\d{2})\s*Lei/i);
+    if (match?.[1] && match[2]) {
+      tokens.push(`${match[1]}.${match[2]}`);
+      continue;
+    }
+
+    const integerMatch = text.match(/(\d{1,4})\s*Lei/i);
+    if (integerMatch?.[1]) {
+      tokens.push(integerMatch[1]);
+    }
+  }
+
+  return tokens;
+}
+
 function extractWithPatterns(html: string, patterns: RegExp[]): string[] {
   const matches: string[] = [];
   for (const pattern of patterns) {
@@ -230,13 +253,15 @@ function extractEmagProduct(
     brandTokens.map((token) => decodeHtmlEntities(token)).find(Boolean) ??
     extractProducerFromTitle(titleRaw);
 
-  const priceTokens = extractWithPatterns(html, [
+  const priceTokens = [
+    ...extractEmagDisplayedPriceTokens(html),
+    ...extractWithPatterns(html, [
     /<meta[^>]+property=["']product:price:amount["'][^>]+content=["']([^"']+)["']/gi,
     /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']product:price:amount["']/gi,
-    /class=["'][^"']*product-new-price[^"']*["'][^>]*>[\s\S]*?(\d{1,4}(?:[.,]\d{2})?)/gi,
     /"salePrice"\s*:\s*(\d+(?:\.\d{1,2})?)/gi,
     /"price"\s*:\s*(\d+(?:\.\d{1,2})?)/gi,
-  ]);
+    ]),
+  ];
 
   const prices = priceTokens
     .map((token) => parsePriceToken(token))

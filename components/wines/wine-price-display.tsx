@@ -1,17 +1,12 @@
 import {
   BadgeCheck,
   ExternalLink,
-  TrendingDown,
-  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatRon } from "@/lib/format";
-import {
-  buildWinePriceViewModel,
-  getPriceStatusLabel,
-} from "@/lib/wine-price";
+import { buildWinePriceViewModel } from "@/lib/wine-price";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
 
@@ -30,8 +25,6 @@ export function WinePriceDisplay({
 }: WinePriceDisplayProps) {
   const pricing = buildWinePriceViewModel(wine);
   const isCard = variant === "card";
-  const comparison = pricing.comparison;
-  const change = pricing.priceChange;
 
   if (pricing.status === "unavailable") {
     return (
@@ -42,7 +35,7 @@ export function WinePriceDisplay({
             isCard ? "text-sm" : "text-base",
           )}
         >
-          Verifica pret
+          Pret indisponibil
         </p>
         {pricing.verifyPriceUrl ? (
           <Button
@@ -65,13 +58,12 @@ export function WinePriceDisplay({
     );
   }
 
-  const priceIsHigh =
-    comparison != null &&
-    !comparison.isAtLowest &&
-    comparison.percentAboveLowest > 0;
-
-  const priceLabel = getPriceStatusLabel(pricing.status);
   const isEstimated = pricing.status === "estimated";
+  const priceLabel = isCard
+    ? "Pret:"
+    : isEstimated
+      ? "Pret aproximativ:"
+      : "Pret actual:";
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -95,102 +87,30 @@ export function WinePriceDisplay({
         <div>
           <p
             className={cn(
-              isEstimated ? "text-amber-800/80" : "text-muted-foreground",
-              isCard ? "text-xs" : "text-sm",
-            )}
-          >
-            {priceLabel}
-          </p>
-          <p
-            className={cn(
               "font-bold leading-none",
               isCard ? "text-lg" : "text-3xl",
-              pricing.isVerifiedRecent && priceIsHigh
-                ? "text-red-700"
-                : pricing.isVerifiedRecent
-                  ? "text-foreground"
-                  : "text-amber-900",
+              pricing.isVerifiedRecent ? "text-foreground" : "text-amber-900",
             )}
           >
+            <span
+              className={cn(
+                "mr-1 font-medium",
+                isEstimated ? "text-amber-800/80" : "text-muted-foreground",
+                isCard ? "text-sm" : "text-base",
+              )}
+            >
+              {priceLabel}
+            </span>
             {formatRon(pricing.displayPrice)}
           </p>
         </div>
-
-        {change && change.direction === "up" ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 font-medium text-red-600",
-              isCard ? "text-xs" : "text-sm",
-            )}
-          >
-            <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
-            +{Math.abs(change.percentChange)}%
-          </span>
-        ) : null}
-
-        {change && change.direction === "down" ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 font-medium text-emerald-700",
-              isCard ? "text-xs" : "text-sm",
-            )}
-          >
-            <TrendingDown className="h-3.5 w-3.5" aria-hidden="true" />
-            {change.percentChange}%
-          </span>
-        ) : null}
-
-        {pricing.isVerifiedRecent && comparison?.isAtLowest ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 font-medium text-emerald-700",
-              isCard ? "text-xs" : "text-sm",
-            )}
-          >
-            <TrendingDown className="h-3.5 w-3.5" aria-hidden="true" />
-            La minim 30z
-          </span>
-        ) : null}
-
-        {pricing.isVerifiedRecent && priceIsHigh && comparison ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 font-medium text-red-600",
-              isCard ? "text-xs" : "text-sm",
-            )}
-          >
-            <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
-            +{comparison.percentAboveLowest}% fata de minim
-          </span>
-        ) : null}
       </div>
-
-      {pricing.isVerifiedRecent && comparison && !comparison.isAtLowest ? (
-        <p
-          className={cn(
-            "inline-flex flex-wrap items-center gap-1 text-emerald-700",
-            isCard ? "text-xs" : "text-sm",
-          )}
-        >
-          <span>Cel mai mic in 30z:</span>
-          <span className="font-semibold">{formatRon(comparison.lowest)}</span>
-          <span className="font-medium">
-            (-{comparison.percentAboveLowest}%)
-          </span>
-        </p>
-      ) : null}
-
-      {pricing.isVerifiedRecent && comparison?.isAtLowest && !isCard ? (
-        <p className="text-sm text-emerald-700">
-          Cel mai mic in 30z: {formatRon(comparison.lowest)}
-        </p>
-      ) : null}
 
       {isEstimated ? (
         <p className={cn("text-muted-foreground", isCard ? "text-xs" : "text-sm")}>
           {pricing.verifyPriceUrl
-            ? "Pret orientativ. Verifica sursa inainte de cumparare."
-            : "Pret orientativ din datele noastre."}
+            ? "Pret aproximativ. Verifica sursa inainte de cumparare."
+            : "Pret aproximativ din datele noastre."}
         </p>
       ) : null}
 

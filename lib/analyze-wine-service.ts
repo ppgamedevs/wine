@@ -63,8 +63,24 @@ function inferCategoryFromText(
   category: string | undefined,
   pageText: string,
 ): string {
-  if (category?.trim()) return category;
   const lower = pageText.toLowerCase();
+  const lead = lower.slice(0, 4_000);
+  const hasRoseSignal =
+    lead.includes("vin rose") ||
+    lead.includes("vin roze") ||
+    lead.includes("culoare roz") ||
+    lead.includes("culoare: roz") ||
+    lead.includes("product option roz");
+  const hasSparklingSignal =
+    lead.includes("spumant") ||
+    lead.includes("sparkling") ||
+    lead.includes("perlaj") ||
+    lead.includes("prosecco") ||
+    lead.includes("sampanie") ||
+    lead.includes("champagne");
+
+  if (hasRoseSignal && !hasSparklingSignal) return "rose";
+  if (category?.trim()) return category;
   if (lower.includes("spumant") || lower.includes("sparkling")) return "spumant";
   if (lower.includes("rose")) return "rose";
   if (lower.includes("alb") || lower.includes("white")) return "alb";
@@ -96,7 +112,8 @@ function resolveWineAnalysis(
 function serializeWineForApi(
   wine: NonNullable<Awaited<ReturnType<typeof loadWineForEditorial>>>,
 ): AnalyzeWineApiWine {
-  const { embedding: _embedding, ...rest } = wine;
+  const { embedding, ...rest } = wine;
+  void embedding;
   return rest;
 }
 

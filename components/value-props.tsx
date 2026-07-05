@@ -25,7 +25,7 @@ const values: ValueItem[] = [
   {
     title: "Preturi actuale",
     description:
-      "Urmarim preturile in RON din mai multe magazine si iti aratam unde gasesti cel mai bun pret, actualizat.",
+      "Afisam pretul curent sau estimativ in RON, preluat din sursa principala a vinului.",
     icon: TrendingUp,
   },
   {

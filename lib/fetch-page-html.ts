@@ -1,11 +1,13 @@
 const USER_AGENT =
-  "VinIntelBot/1.0 (+https://vinintel.ro; community wine price tracking)";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 VinIntelBot/1.0";
 
 const MAX_REDIRECT_HOPS = 10;
 
 const FETCH_INIT: RequestInit = {
   headers: {
-    Accept: "text/html,application/xhtml+xml",
+    Accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "ro-RO,ro;q=0.9,en-US;q=0.8,en;q=0.7",
     "User-Agent": USER_AGENT,
   },
   signal: AbortSignal.timeout(18_000),
@@ -52,6 +54,31 @@ function extractHtmlRedirectTarget(html: string, baseUrl: string): string | null
   );
   if (jsRedirect?.[1]) {
     const resolved = normalizeRedirectTarget(jsRedirect[1], baseUrl);
+    if (resolved) return resolved;
+  }
+
+  const jsReplaceRedirect = html.match(
+    /window\.location\.replace\(\s*["']([^"']+)["']\s*\)/i,
+  );
+  if (jsReplaceRedirect?.[1]) {
+    const resolved = normalizeRedirectTarget(jsReplaceRedirect[1], baseUrl);
+    if (resolved) return resolved;
+  }
+
+  const profitshareAdblockRedirect = html.match(
+    /window\.location\.replace\(\s*["']([^"']+)["']\s*\+\s*e\s*\+\s*["']([^"']*)["']\s*\+\s*isTpBlock/i,
+  );
+  if (profitshareAdblockRedirect?.[1]) {
+    const target = `${profitshareAdblockRedirect[1]}0${profitshareAdblockRedirect[2] ?? ""}-1`;
+    const resolved = normalizeRedirectTarget(target, baseUrl);
+    if (resolved) return resolved;
+  }
+
+  const profitshareSetupRedirect = html.match(
+    /Profitshare\.setup\([\s\S]*?,\s*["'](https?:\/\/[^"']+)["']\s*\)/i,
+  );
+  if (profitshareSetupRedirect?.[1]) {
+    const resolved = normalizeRedirectTarget(profitshareSetupRedirect[1], baseUrl);
     if (resolved) return resolved;
   }
 
@@ -149,12 +176,7 @@ async function resolveProfitshareUrl(
       };
     }
 
-    return {
-      html,
-      finalUrl: currentUrl,
-      sourceUrl,
-      redirectChain,
-    };
+    throw new Error("Linkul Profitshare nu a putut fi rezolvat catre retailer.");
   }
 
   throw new Error("Prea multe redirect-uri Profitshare.");

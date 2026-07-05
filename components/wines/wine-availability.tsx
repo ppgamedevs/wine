@@ -1,101 +1,88 @@
-import { ExternalLink, MapPin, ShoppingBag } from "lucide-react";
+import { BadgeCheck, ExternalLink, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatRon } from "@/lib/format";
+import { buildWinePriceViewModel } from "@/lib/wine-price";
 import type { WineWithRelations } from "@/types";
 
 export function WineAvailability({ wine }: { wine: WineWithRelations }) {
-  const stores = wine.availability.length > 0 ? wine.availability : [];
-  const affiliates = wine.affiliateLinks.length > 0 ? wine.affiliateLinks : [];
+  const pricing = buildWinePriceViewModel(wine);
+  const isVerified = pricing.isVerifiedRecent;
+  const priceLabel = isVerified ? "Pret actual" : "Pret aproximativ";
+  const retailer =
+    pricing.purchaseLink?.retailer ??
+    wine.availability.find((entry) => entry.retailer.trim())?.retailer ??
+    "retailer";
 
   return (
-    <section aria-labelledby="availability-heading">
+    <section aria-labelledby="price-heading">
       <h2
-        id="availability-heading"
+        id="price-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Unde il gasesti
+        Pret si disponibilitate
       </h2>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        Preturi medii in magazine din Romania. Linkurile de cumparare sunt
-        placeholder pana la activarea parteneriatelor affiliate.
+        Informatii preluate din sursa principala a vinului.
       </p>
 
-      {stores.length > 0 ? (
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          {stores.map((store) => (
-            <Card key={store.retailer} className="border-border/70">
-              <CardContent className="flex items-center justify-between gap-4 p-4">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
-                    <ShoppingBag className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <p className="font-medium text-foreground">{store.retailer}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {store.inStock ? "In stoc" : "Stoc variabil"}
-                      {store.priceRon ? ` . ${formatRon(store.priceRon)}` : ""}
-                    </p>
-                  </div>
-                </div>
-                {store.url ? (
-                  <Button asChild variant="outline" size="sm">
-                    <a
-                      href={store.url}
-                      target="_blank"
-                      rel="noopener noreferrer nofollow"
-                    >
-                      Vezi
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                  </Button>
-                ) : null}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card className="mt-6 border-dashed border-border">
-          <CardContent className="flex items-center gap-3 p-6 text-muted-foreground">
-            <MapPin className="h-5 w-5 shrink-0" aria-hidden="true" />
-            <p className="text-sm">
-              Date de disponibilitate in curs de actualizare pentru acest vin.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <Card className="mt-6 border-border/70">
+        <CardContent className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-muted-foreground">
+              <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                {isVerified ? (
+                  <Badge className="gap-1 bg-emerald-600/10 text-emerald-800 hover:bg-emerald-600/15">
+                    <BadgeCheck className="h-3 w-3" aria-hidden="true" />
+                    Pret verificat
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="outline"
+                    className="border-amber-500/40 bg-amber-500/10 text-amber-900"
+                  >
+                    Pret estimativ
+                  </Badge>
+                )}
+              </div>
+              <p className="mt-3 text-3xl font-bold leading-none text-foreground">
+                <span className="mr-2 text-base font-medium text-muted-foreground">
+                  {priceLabel}:
+                </span>
+                {formatRon(pricing.displayPrice)}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Sursa principala: {retailer}
+              </p>
+            </div>
+          </div>
 
-      {affiliates.length > 0 ? (
-        <div className="mt-6 flex flex-wrap gap-3">
-          {affiliates.map((link) => (
+          {pricing.purchaseLink ? (
             <Button
-              key={link.retailer}
               asChild
               className="bg-wine text-wine-foreground hover:bg-wine/90"
             >
               <a
-                href={link.url}
+                href={pricing.purchaseLink.url}
                 target="_blank"
                 rel="noopener noreferrer sponsored"
               >
-                Cumpara de la {link.retailer}
-                {link.priceRon ? ` . ${formatRon(link.priceRon)}` : ""}
+                Vezi la retailer
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>
-          ))}
-        </div>
-      ) : (
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button disabled className="bg-wine/50 text-wine-foreground">
-            Cumpara online (in curand)
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/cauta">Cauta in magazine</Link>
-          </Button>
-        </div>
-      )}
+          ) : (
+            <Button asChild variant="outline">
+              <Link href="/cauta">Cauta in catalog</Link>
+            </Button>
+          )}
+        </CardContent>
+      </Card>
     </section>
   );
 }

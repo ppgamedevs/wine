@@ -361,7 +361,7 @@ function buildBudgetFaq(
     {
       question: "Preturile sunt actualizate?",
       answer:
-        "Folosim preturi medii in RON urmarite in mai multe magazine din Romania, actualizate periodic.",
+        "Afisam preturi in RON ca pret actual verificat sau pret aproximativ, in functie de sursa disponibila pentru fiecare vin.",
     },
   ];
 }

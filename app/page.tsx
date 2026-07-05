@@ -32,7 +32,7 @@ const homeFaq: FaqEntry[] = [
   {
     question: "Preturile sunt in RON si actualizate?",
     answer:
-      "Da. Toate preturile sunt afisate in RON, ca preturi medii urmarite in magazine din Romania si actualizate periodic.",
+      "Da. Preturile sunt afisate in RON ca pret actual verificat sau pret aproximativ, in functie de sursa disponibila pentru fiecare vin.",
   },
 ];
 
