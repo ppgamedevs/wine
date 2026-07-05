@@ -172,12 +172,23 @@ function extractTitleTag(html: string): string | null {
 }
 
 function cleanRetailerProductTitle(title: string): string {
-  return title
+  const trimmed = title
     .replace(/\s*[-|]\s*eMAG\.ro.*$/i, "")
     .replace(/\s*[-|]\s*Altex\.ro.*$/i, "")
     .replace(/\s*[-|]\s*Flanco\.ro.*$/i, "")
     .replace(/\s*[-|]\s*cumpără.*$/i, "")
     .trim();
+
+  if (/schwaben\s+wein/i.test(trimmed)) {
+    const parts = ["Schwaben Wein"];
+    if (/roze|rose/i.test(trimmed)) parts.push("Roze");
+    if (/demisec/i.test(trimmed)) parts.push("Demisec");
+    else if (/demidulce/i.test(trimmed)) parts.push("Demidulce");
+    else if (/\bsec\b/i.test(trimmed)) parts.push("Sec");
+    return parts.join(" ");
+  }
+
+  return trimmed;
 }
 
 function extractProducerFromTitle(title: string | null): string | null {

@@ -11,10 +11,12 @@ import { generateAndApplyFullEditorial } from "./wine-enrichment";
 import { buildWineImageAlt } from "./wine-images";
 import {
   enrichWineFromProducerSite,
+  inferRecasProducerPageUrl,
   producerImageSourceFromUrl,
 } from "./wine-producer-enrichment";
 import { buildWineSlug } from "./wine-url";
 import { wines, wineries } from "./schema";
+import { mapCsvCategoryToWineType } from "./wine-csv-schema";
 
 async function reconcileOneWine(wineId: number): Promise<boolean> {
   const wine = await db.query.wines.findFirst({
@@ -27,10 +29,30 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
     return false;
   }
 
+  const retailUrl =
+    wine.availability?.[0]?.url ??
+    wine.affiliateLinks?.[0]?.url ??
+    null;
+
+  const preferredPageUrl = (() => {
+    if (wine.sourceUrl?.includes("cramelerecas.ro")) {
+      return wine.sourceUrl;
+    }
+    const inferredFromRetail = inferRecasProducerPageUrl("", retailUrl);
+    if (inferredFromRetail) return inferredFromRetail;
+    const inferred = inferRecasProducerPageUrl(wine.name, retailUrl);
+    if (inferred) return inferred;
+    if (wine.producerPageUrl?.includes("cramelerecas.ro")) {
+      return wine.producerPageUrl;
+    }
+    return null;
+  })();
+
   const producer = await enrichWineFromProducerSite({
     wineryWebsite: wine.winery.website,
     winerySlug: wine.winery.slug,
     wineName: wine.name,
+    preferredPageUrl,
   });
 
   if (!producer.producerPageUrl) {
@@ -46,7 +68,9 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
   const grapeVarieties =
     c?.grapeVarieties && c.grapeVarieties.length > 0
       ? c.grapeVarieties
-      : wine.grapeVarieties;
+      : c != null
+        ? []
+        : wine.grapeVarieties;
 
   const newSlug = buildWineSlug({
     producer: wine.winery.name,
@@ -67,13 +91,19 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
   if (c?.alcohol != null) patch.alcohol = c.alcohol;
   if (c?.acidity != null) patch.acidity = c.acidity;
 
+  if (c?.color) {
+    const mappedType = mapCsvCategoryToWineType(c.color);
+    if (mappedType) patch.type = mappedType;
+  }
+
   if (c?.imageUrl) {
+    const displayType = (patch.type as typeof wine.type | undefined) ?? wine.type;
     patch.imageUrl = c.imageUrl;
     patch.imageSource = producerImageSourceFromUrl(producer.producerPageUrl);
     patch.imageAlt = buildWineImageAlt({
       name: displayName,
       vintage,
-      type: wine.type,
+      type: displayType,
       wineryName: wine.winery.name,
     });
   }

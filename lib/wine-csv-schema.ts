@@ -66,6 +66,7 @@ export function mapCsvCategoryToWineType(category: string): WineType {
     white: "white",
     rose: "rose",
     roz: "rose",
+    roze: "rose",
     spumant: "sparkling",
     sparkling: "sparkling",
     orange: "orange",

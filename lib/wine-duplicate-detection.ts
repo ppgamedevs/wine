@@ -24,7 +24,7 @@ function normalizeIdentityText(value: string): string {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/\b(vin|rose|roze|rosu|alb|sec|demisec|demidulce|dulce)\b/g, " ")
+    .replace(/\b(vin|rose|roze|rosu|alb)\b/g, " ")
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();

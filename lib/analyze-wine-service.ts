@@ -30,6 +30,8 @@ import { buildWineImageAlt } from "@/lib/wine-images";
 import { resolveTechSpecs, techSpecsForDb } from "@/lib/wine-tech-specs";
 import {
   enrichWineFromProducerSite,
+  inferRecasProducerPageUrl,
+  parseRecasProducerFacts,
   producerImageSourceFromUrl,
   type ProducerEnrichment,
 } from "@/lib/wine-producer-enrichment";
@@ -46,6 +48,46 @@ import { resolveWineryIdFromDetection, detectWineryNameFromCatalog } from "@/lib
 import type { WineType, WineWithRelations } from "@/types";
 
 const MAX_PAGE_CHARS = 14_000;
+
+function resolvePreferredProducerPageUrl(finalUrl: string): string | null {
+  try {
+    const parsed = new URL(finalUrl);
+    const host = parsed.hostname.replace(/^www\./, "");
+    if (!host.includes("cramelerecas.ro")) return null;
+
+    const segment = parsed.pathname.split("/").filter(Boolean).pop();
+    if (!segment || segment === "vinuri") return null;
+
+    return finalUrl;
+  } catch {
+    return null;
+  }
+}
+
+function resolvePreferredProducerPageForImport(
+  finalUrl: string,
+  productName: string,
+): string | null {
+  return (
+    resolvePreferredProducerPageUrl(finalUrl) ??
+    inferRecasProducerPageUrl("", finalUrl) ??
+    inferRecasProducerPageUrl(productName, finalUrl)
+  );
+}
+
+function applySourceProducerFacts<T extends { name: string }>(
+  product: T,
+  html: string,
+  finalUrl: string,
+): T {
+  const preferredUrl = resolvePreferredProducerPageUrl(finalUrl);
+  if (!preferredUrl) return product;
+
+  const facts = parseRecasProducerFacts(html, finalUrl);
+  if (!facts?.name) return product;
+
+  return { ...product, name: facts.name };
+}
 
 export type AnalyzeWineApiWine = Omit<WineWithRelations, "embedding">;
 
@@ -308,6 +350,7 @@ async function resolveWineryIdForProduct(
 async function resolveProducerEnrichment(
   wineryId: number,
   wineName: string,
+  preferredPageUrl?: string | null,
 ) {
   const winery = await db.query.wineries.findFirst({
     where: eq(wineries.id, wineryId),
@@ -319,6 +362,7 @@ async function resolveProducerEnrichment(
       wineryWebsite: null,
       winerySlug: "",
       wineName,
+      preferredPageUrl,
     });
   }
 
@@ -326,6 +370,7 @@ async function resolveProducerEnrichment(
     wineryWebsite: winery.website,
     winerySlug: winery.slug,
     wineName,
+    preferredPageUrl,
   });
 }
 
@@ -350,8 +395,13 @@ async function resolveTechSpecsPatch(
   retailerPageText: string,
   analysis: WineLinkAnalysis,
   wineryId: number,
+  preferredPageUrl?: string | null,
 ) {
-  const producer = await resolveProducerEnrichment(wineryId, wineName);
+  const producer = await resolveProducerEnrichment(
+    wineryId,
+    wineName,
+    preferredPageUrl,
+  );
   const enrichedPageText = mergeAnalysisPageText(
     retailerPageText,
     producer.combinedText,
@@ -466,7 +516,15 @@ export async function analyzeAndSaveWineFromUrl(
   };
   const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
   const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
-  const product = mergeExtractedWithAnalysis(analysis, extracted);
+  const product = applySourceProducerFacts(
+    mergeExtractedWithAnalysis(analysis, extracted),
+    html,
+    finalUrl,
+  );
+  const preferredProducerUrl = resolvePreferredProducerPageForImport(
+    finalUrl,
+    product.name,
+  );
   const analysisForScoring =
     product.price != null ? { ...analysis, price: product.price } : analysis;
 
@@ -510,6 +568,7 @@ export async function analyzeAndSaveWineFromUrl(
       pageText,
       analysisForScoring,
       wineryId,
+      preferredProducerUrl,
     );
   const display = buildWineDisplayFacts({
     productName: product.name,
@@ -631,7 +690,15 @@ export async function analyzeWineSubmissionFromUrl(
 
   const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
   const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
-  const product = mergeExtractedWithAnalysis(analysis, extracted);
+  const product = applySourceProducerFacts(
+    mergeExtractedWithAnalysis(analysis, extracted),
+    html,
+    finalUrl,
+  );
+  const preferredProducerUrl = resolvePreferredProducerPageForImport(
+    finalUrl,
+    product.name,
+  );
   const analysisForScoring =
     product.price != null ? { ...analysis, price: product.price } : analysis;
 
@@ -719,6 +786,7 @@ export async function analyzeWineSubmissionFromUrl(
     pageText,
     analysisForScoring,
     wineryId,
+    preferredProducerUrl,
   );
 
   const retailerLinks = buildStoredRetailerLinks(
@@ -825,7 +893,15 @@ export async function reanalyzeAndUpdateWine(
   };
   const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
   const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
-  const product = mergeExtractedWithAnalysis(analysis, extracted);
+  const product = applySourceProducerFacts(
+    mergeExtractedWithAnalysis(analysis, extracted),
+    html,
+    finalUrl,
+  );
+  const preferredProducerUrl = resolvePreferredProducerPageForImport(
+    finalUrl,
+    product.name,
+  );
   const analysisForScoring =
     product.price != null ? { ...analysis, price: product.price } : analysis;
 
@@ -868,6 +944,7 @@ export async function reanalyzeAndUpdateWine(
     pageText,
     analysisForScoring,
     wineryId,
+    preferredProducerUrl,
   );
 
   const imagePatch =
