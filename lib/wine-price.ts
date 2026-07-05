@@ -1,7 +1,10 @@
 import type { AffiliateLink, PriceHistoryEntry } from "@/lib/schema";
 import {
   buildRetailerPurchaseLabel,
+  inferRetailerLabelFromStoredLinks,
   isProfitshareUrl,
+  resolveAffiliatePurchaseUrl,
+  resolveCatalogProductUrl,
   resolveUserFacingPurchaseUrl,
 } from "@/lib/retailer-links";
 import type { WineWithRelations } from "@/types";
@@ -155,6 +158,29 @@ export function getPriceComparison(
 export function resolvePrimaryPurchaseLink(
   wine: WineWithRelations,
 ): WinePriceViewModel["purchaseLink"] {
+  const affiliateUrl = resolveAffiliatePurchaseUrl({
+    sourceUrl: wine.sourceUrl,
+    affiliateLinks: wine.affiliateLinks,
+    availability: wine.availability,
+  });
+
+  if (affiliateUrl) {
+    const retailer = inferRetailerLabelFromStoredLinks({
+      affiliateLinks: wine.affiliateLinks,
+      availability: wine.availability,
+      fallbackRetailer: wine.winery?.name ?? undefined,
+    });
+    const priceRon =
+      wine.affiliateLinks[0]?.priceRon ?? wine.availability[0]?.priceRon;
+
+    return {
+      url: affiliateUrl,
+      retailer,
+      ...(priceRon != null ? { priceRon } : {}),
+      label: "Cumpara",
+    };
+  }
+
   const sourceUrl = wine.sourceUrl?.trim() || null;
 
   for (const affiliate of wine.affiliateLinks) {
@@ -189,12 +215,21 @@ export function resolvePrimaryPurchaseLink(
 }
 
 export function resolveVerifyPriceUrl(wine: WineWithRelations): string | null {
-  const purchase = resolvePrimaryPurchaseLink(wine);
-  if (purchase?.url) return purchase.url;
+  for (const affiliate of wine.affiliateLinks) {
+    const trimmed = affiliate.url?.trim();
+    if (!trimmed || isProfitshareUrl(trimmed)) continue;
+    return resolveCatalogProductUrl(trimmed);
+  }
+
+  for (const store of wine.availability) {
+    const trimmed = store.url?.trim();
+    if (!trimmed || isProfitshareUrl(trimmed)) continue;
+    return resolveCatalogProductUrl(trimmed);
+  }
 
   const sourceUrl = wine.sourceUrl?.trim();
   if (sourceUrl && !isProfitshareUrl(sourceUrl)) {
-    return resolveUserFacingPurchaseUrl(sourceUrl);
+    return resolveCatalogProductUrl(sourceUrl);
   }
 
   return null;

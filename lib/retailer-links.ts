@@ -28,6 +28,79 @@ export function detectRetailerLabel(url: string): string | null {
   return match?.label ?? null;
 }
 
+export function hasAffiliateTracking(url: string): boolean {
+  if (isProfitshareUrl(url)) return true;
+
+  const parsed = parseUrl(url);
+  if (!parsed) return false;
+
+  const params = parsed.searchParams;
+  if (params.get("ref") === "ps") return true;
+  if (params.has("emag_click_id")) return true;
+  if (params.get("utm_medium") === "profitshare") return true;
+  if (params.get("utm_source")?.includes("affiliate")) return true;
+
+  return false;
+}
+
+/** Clean product URL for price checks and catalog references (no affiliate params). */
+export function resolveCatalogProductUrl(url: string): string {
+  const trimmed = url.trim();
+  if (!trimmed || isProfitshareUrl(trimmed)) return trimmed;
+  return normalizeRetailerProductUrl(trimmed);
+}
+
+/**
+ * Affiliate purchase URL: Profitshare source or retailer link with tracking intact.
+ * Returns null when only a clean retailer URL is available.
+ */
+export function resolveAffiliatePurchaseUrl(input: {
+  sourceUrl?: string | null;
+  affiliateLinks: { url: string }[];
+  availability: { url?: string }[];
+}): string | null {
+  const source = input.sourceUrl?.trim();
+  if (source && isProfitshareUrl(source)) {
+    return source;
+  }
+
+  for (const entry of input.affiliateLinks) {
+    const url = entry.url?.trim();
+    if (url && hasAffiliateTracking(url)) {
+      return url;
+    }
+  }
+
+  for (const entry of input.availability) {
+    const url = entry.url?.trim();
+    if (url && hasAffiliateTracking(url)) {
+      return url;
+    }
+  }
+
+  return null;
+}
+
+export function inferRetailerLabelFromStoredLinks(input: {
+  affiliateLinks: { url: string; retailer: string }[];
+  availability: { url?: string; retailer: string }[];
+  fallbackRetailer?: string;
+}): string {
+  for (const entry of input.affiliateLinks) {
+    const label = detectRetailerLabel(entry.url);
+    if (label) return label;
+    if (entry.retailer?.trim()) return entry.retailer.trim();
+  }
+
+  for (const entry of input.availability) {
+    const label = detectRetailerLabel(entry.url ?? "");
+    if (label) return label;
+    if (entry.retailer?.trim()) return entry.retailer.trim();
+  }
+
+  return input.fallbackRetailer?.trim() ?? "Magazin";
+}
+
 /** Canonical product URL without affiliate tracking params (reduces eMAG bot checks). */
 export function normalizeRetailerProductUrl(url: string): string {
   const parsed = parseUrl(url);

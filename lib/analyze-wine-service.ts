@@ -14,7 +14,7 @@ import {
   inferImageSourceFromUrl,
 } from "@/lib/price-extractor";
 import { updatePrice } from "@/lib/price-tracker";
-import { detectRetailerLabel, resolveUserFacingPurchaseUrl } from "@/lib/retailer-links";
+import { detectRetailerLabel, resolveCatalogProductUrl } from "@/lib/retailer-links";
 import {
   regions,
   wineries,
@@ -136,7 +136,7 @@ function buildStoredRetailerLinks(
   price: number | null | undefined,
   checkedAt: string,
 ) {
-  const retailerUrl = resolveUserFacingPurchaseUrl(finalUrl);
+  const retailerUrl = resolveCatalogProductUrl(finalUrl);
   const retailer = detectRetailerLabel(retailerUrl) ?? fallbackRetailer;
 
   return {
