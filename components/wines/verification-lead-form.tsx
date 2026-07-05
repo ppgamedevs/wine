@@ -2,6 +2,7 @@
 
 import { Building2, CheckCircle2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { submitContactForm } from "@/app/actions/contact-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,10 +18,27 @@ export function VerificationLeadForm({
   wineName,
 }: VerificationLeadFormProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
+    setPending(true);
+    setError(null);
+
+    const formData = new FormData(event.currentTarget);
+    formData.set("wineryName", wineryName);
+    formData.set("wineName", wineName);
+
+    const result = await submitContactForm("winery_verification", formData);
+
+    setPending(false);
+    if (result.ok) {
+      setSubmitted(true);
+      return;
+    }
+
+    setError(result.error ?? "Nu am putut trimite cererea.");
   }
 
   if (submitted) {
@@ -61,6 +79,7 @@ export function VerificationLeadForm({
                 name="name"
                 placeholder="Numele tau"
                 required
+                disabled={pending}
                 aria-label="Numele tau"
               />
               <Input
@@ -68,19 +87,27 @@ export function VerificationLeadForm({
                 name="email"
                 placeholder="Email de contact"
                 required
+                disabled={pending}
                 aria-label="Email de contact"
               />
               <Textarea
                 name="message"
                 placeholder="Mesaj optional (website, CUI, detalii)"
                 rows={3}
+                disabled={pending}
                 aria-label="Mesaj optional"
               />
+              {error ? (
+                <p className="text-sm text-destructive" role="alert">
+                  {error}
+                </p>
+              ) : null}
               <Button
                 type="submit"
+                disabled={pending}
                 className="w-full bg-wine text-wine-foreground hover:bg-wine/90 sm:w-auto"
               >
-                Trimite cererea
+                {pending ? "Se trimite..." : "Trimite cererea"}
               </Button>
             </form>
           </div>

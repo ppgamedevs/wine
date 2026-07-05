@@ -8,6 +8,7 @@ import {
 import { wineApprovalEmailSummarySchema } from "@/lib/ai/schemas";
 import { getSommelierModel } from "@/lib/ai/model";
 import { envOrUndefined } from "@/lib/env";
+import { getResendFromEmail } from "@/lib/site-email";
 import { absoluteUrl } from "@/lib/seo";
 import { resolveAffiliatePurchaseUrl } from "@/lib/retailer-links";
 import type { AffiliateLink, AvailabilityEntry } from "@/lib/schema";
@@ -159,9 +160,7 @@ export async function sendWineApprovalEmail(
     return { sent: false, skippedReason: "missing_resend_api_key" };
   }
 
-  const fromEmail =
-    envOrUndefined("RESEND_FROM_EMAIL") ??
-    "VinIntel <onboarding@resend.dev>";
+  const fromEmail = getResendFromEmail();
 
   const summary = await generateWineApprovalEmailSummary(wine);
   const winePageUrl = buildWinePageUrl(wine.slug);

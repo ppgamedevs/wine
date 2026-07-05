@@ -2,6 +2,7 @@
 
 import { CheckCircle2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { submitContactForm } from "@/app/actions/contact-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,12 +15,24 @@ export function ClaimForm({
   defaultWineryName?: string;
 }) {
   const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // Lead capture is a placeholder for now. Wire to a server action,
-    // CRM or email provider later.
-    setSubmitted(true);
+    setPending(true);
+    setError(null);
+
+    const formData = new FormData(event.currentTarget);
+    const result = await submitContactForm("winery_claim", formData);
+
+    setPending(false);
+    if (result.ok) {
+      setSubmitted(true);
+      return;
+    }
+
+    setError(result.error ?? "Nu am putut trimite cererea.");
   }
 
   if (submitted) {
@@ -51,6 +64,7 @@ export function ClaimForm({
               id="winery"
               name="winery"
               required
+              disabled={pending}
               defaultValue={defaultWineryName}
               placeholder="ex. Crama Exemplu"
             />
@@ -63,6 +77,7 @@ export function ClaimForm({
                 id="contactName"
                 name="contactName"
                 required
+                disabled={pending}
                 placeholder="Nume si prenume"
               />
             </div>
@@ -71,6 +86,7 @@ export function ClaimForm({
               <Input
                 id="role"
                 name="role"
+                disabled={pending}
                 placeholder="ex. proprietar, marketing"
               />
             </div>
@@ -84,6 +100,7 @@ export function ClaimForm({
                 name="email"
                 type="email"
                 required
+                disabled={pending}
                 placeholder="email@crama.ro"
               />
             </div>
@@ -93,6 +110,7 @@ export function ClaimForm({
                 id="phone"
                 name="phone"
                 type="tel"
+                disabled={pending}
                 placeholder="07xx xxx xxx"
               />
             </div>
@@ -103,6 +121,7 @@ export function ClaimForm({
             <Input
               id="website"
               name="website"
+              disabled={pending}
               placeholder="https://crama.ro sau CUI"
             />
           </div>
@@ -113,16 +132,24 @@ export function ClaimForm({
               id="message"
               name="message"
               rows={4}
+              disabled={pending}
               placeholder="Spune-ne cum te putem ajuta sa iti revendici crama."
             />
           </div>
 
+          {error ? (
+            <p className="text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          ) : null}
+
           <Button
             type="submit"
             size="lg"
+            disabled={pending}
             className="w-full bg-wine text-wine-foreground hover:bg-wine/90 sm:w-auto"
           >
-            Trimite cererea de revendicare
+            {pending ? "Se trimite..." : "Trimite cererea de revendicare"}
           </Button>
 
           <p className="text-xs text-muted-foreground">

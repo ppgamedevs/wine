@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import { JsonLd } from "@/components/json-ld";
 import { organizationJsonLd, SITE, websiteJsonLd } from "@/lib/seo";
 import "./globals.css";
@@ -23,6 +24,8 @@ const playfair = Playfair_Display({
   display: "swap",
   weight: ["500", "600", "700", "800"],
 });
+
+const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -73,6 +76,9 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  ...(googleSiteVerification
+    ? { verification: { google: googleSiteVerification } }
+    : {}),
 };
 
 export default function RootLayout({
@@ -88,6 +94,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <JsonLd data={[organizationJsonLd, websiteJsonLd]} id="site" />
         <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
+        <GoogleAnalytics />
       </body>
     </html>
   );

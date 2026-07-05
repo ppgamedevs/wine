@@ -2,6 +2,10 @@ import "server-only";
 import { Resend } from "resend";
 import { absoluteUrl } from "@/lib/seo";
 import { envOrUndefined } from "@/lib/env";
+import {
+  getReportNotificationEmail,
+  getResendFromEmail,
+} from "@/lib/site-email";
 
 export interface WineReportLogPayload {
   wineId: number;
@@ -125,7 +129,7 @@ export async function sendWineReportNotification(
   }
 
   const apiKey = envOrUndefined("RESEND_API_KEY");
-  const toEmail = envOrUndefined("REPORT_NOTIFICATION_EMAIL");
+  const toEmail = getReportNotificationEmail();
 
   if (!apiKey) {
     console.info("[WINE REPORT EMAIL] skipped: RESEND_API_KEY not set");
@@ -139,9 +143,7 @@ export async function sendWineReportNotification(
     return { sent: false, skippedReason: "missing_recipient" };
   }
 
-  const fromEmail =
-    envOrUndefined("RESEND_FROM_EMAIL") ??
-    "VinIntel <onboarding@resend.dev>";
+  const fromEmail = getResendFromEmail();
 
   const resend = new Resend(apiKey);
   const subject = `Raport nou pe VinIntel.ro - ${wine.name}`;
