@@ -120,6 +120,28 @@ export async function applyEditorialAndScoresToWine(
     .where(eq(wines.id, wineId));
 }
 
+export async function generateAndApplyFullEditorialIfMissing(
+  wineId: number,
+): Promise<boolean> {
+  const wine = await loadWineForEditorial(wineId);
+  if (!wine) {
+    throw new Error("Vin negasit.");
+  }
+
+  const hasEditorial = Boolean(wine.descriptionEditorial?.trim());
+  const hasScores =
+    wine.valueScore != null &&
+    wine.giftScore != null &&
+    wine.foodMatchScore != null;
+
+  if (hasEditorial && hasScores) {
+    return false;
+  }
+
+  await generateAndApplyFullEditorial(wineId);
+  return true;
+}
+
 export async function generateAndApplyFullEditorial(
   wineId: number,
 ): Promise<void> {

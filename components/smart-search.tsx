@@ -11,16 +11,21 @@ import {
   type FormEvent,
 } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { EASE_OUT } from "@/lib/motion";
 import type { SearchSuggestion } from "@/lib/queries";
+import {
+  EXISTING_WINE_CATALOG_MESSAGE,
+  WINE_ALREADY_PENDING_MESSAGE,
+  WINE_PENDING_REVIEW_MESSAGE,
+} from "@/lib/wine-submission-messages";
 import { isWineUrl } from "@/lib/wine-url";
 import { cn } from "@/lib/utils";
 
 export const WINE_LINK_HELPER_TEXT =
   "Adauga un link de vin romanesc (eMag, Profitshare, site crama etc.)";
 
-export const WINE_SUBMITTED_FOR_REVIEW_MESSAGE =
-  "Vinul a fost trimis spre verificare. Va aparea pe site dupa aprobare.";
+export const WINE_SUBMITTED_FOR_REVIEW_MESSAGE = WINE_PENDING_REVIEW_MESSAGE;
 
 interface SmartSearchProps {
   className?: string;
@@ -36,6 +41,7 @@ export function SmartSearch({
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
+  const [email, setEmail] = useState("");
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -91,7 +97,7 @@ export function SmartSearch({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  async function analyzeWineUrl(url: string) {
+  async function analyzeWineUrl(url: string, notifyEmail: string) {
     setAnalyzing(true);
     setAnalysisError(null);
     setAnalysisSuccess(null);
@@ -101,7 +107,7 @@ export function SmartSearch({
       const res = await fetch("/api/analyze-wine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, email: notifyEmail }),
       });
       const data: {
         error?: string;
@@ -109,7 +115,6 @@ export function SmartSearch({
         redirectUrl?: string;
         slug?: string;
         status?: string;
-        submitType?: "affiliate" | "community";
       } = await res.json();
 
       if (!res.ok) {
@@ -118,17 +123,21 @@ export function SmartSearch({
 
       const target = data.redirectUrl ?? (data.slug ? `/wines/${data.slug}` : null);
 
-      if (
-        data.status === "created" &&
-        data.submitType === "community"
-      ) {
+      if (data.status === "pending_review") {
         setQuery("");
-        setAnalysisSuccess(WINE_SUBMITTED_FOR_REVIEW_MESSAGE);
+        setEmail("");
+        setAnalysisSuccess(data.message ?? WINE_PENDING_REVIEW_MESSAGE);
         return;
       }
 
-      if (target) {
-        router.push(target);
+      if (data.status === "existing" && target) {
+        if (data.message === EXISTING_WINE_CATALOG_MESSAGE) {
+          router.push(`${target}?notice=existing`);
+          return;
+        }
+
+        setQuery("");
+        setAnalysisSuccess(data.message ?? WINE_ALREADY_PENDING_MESSAGE);
         return;
       }
 
@@ -148,7 +157,12 @@ export function SmartSearch({
     if (!trimmed) return;
 
     if (enableLinkAnalysis && isWineUrl(trimmed)) {
-      await analyzeWineUrl(trimmed);
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail) {
+        setAnalysisError("Introdu emailul pentru a fi notificat dupa aprobare.");
+        return;
+      }
+      await analyzeWineUrl(trimmed, trimmedEmail);
       return;
     }
 
@@ -178,59 +192,77 @@ export function SmartSearch({
         onSubmit={handleSubmit}
         role="search"
         className={cn(
-          "flex w-full items-center gap-2 rounded-2xl border bg-card/80 p-2 shadow-sm backdrop-blur transition-all duration-300",
+          "flex w-full flex-col gap-2 rounded-2xl border bg-card/80 p-2 shadow-sm backdrop-blur transition-all duration-300",
           focused
             ? "border-wine/60 shadow-lg ring-4 ring-wine/10"
             : "border-border hover:border-wine/40",
         )}
       >
-        <Search
-          aria-hidden="true"
-          className={cn(
-            "ml-2 h-5 w-5 shrink-0 transition-colors",
-            focused ? "text-wine" : "text-muted-foreground",
-          )}
-        />
-        <input
-          type="search"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setAnalysisError(null);
-            setAnalysisSuccess(null);
-            setOpen(true);
-          }}
-          onFocus={() => {
-            setFocused(true);
-            setOpen(true);
-          }}
-          onBlur={() => setFocused(false)}
-          placeholder={placeholder}
-          aria-label="Cauta vinuri, crame sau adauga link"
-          aria-expanded={showDropdown}
-          aria-autocomplete="list"
-          role="combobox"
-          aria-controls="search-suggestions"
-          disabled={analyzing}
-          className="h-11 w-full flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground/80 disabled:opacity-60"
-        />
-        <Button
-          type="submit"
-          size="lg"
-          disabled={analyzing}
-          className="shrink-0 rounded-xl bg-wine px-6 text-wine-foreground hover:bg-wine/90"
-        >
-          {analyzing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Analizez...
-            </>
-          ) : isUrl ? (
-            "Analizeaza"
-          ) : (
-            "Cauta"
-          )}
-        </Button>
+        <div className="flex w-full items-center gap-2">
+          <Search
+            aria-hidden="true"
+            className={cn(
+              "ml-2 h-5 w-5 shrink-0 transition-colors",
+              focused ? "text-wine" : "text-muted-foreground",
+            )}
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setAnalysisError(null);
+              setAnalysisSuccess(null);
+              setOpen(true);
+            }}
+            onFocus={() => {
+              setFocused(true);
+              setOpen(true);
+            }}
+            onBlur={() => setFocused(false)}
+            placeholder={placeholder}
+            aria-label="Cauta vinuri, crame sau adauga link"
+            aria-expanded={showDropdown}
+            aria-autocomplete="list"
+            role="combobox"
+            aria-controls="search-suggestions"
+            disabled={analyzing}
+            className="h-11 w-full flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground/80 disabled:opacity-60"
+          />
+          <Button
+            type="submit"
+            size="lg"
+            disabled={analyzing}
+            className="shrink-0 rounded-xl bg-wine px-6 text-wine-foreground hover:bg-wine/90"
+          >
+            {analyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analizez...
+              </>
+            ) : isUrl ? (
+              "Trimite"
+            ) : (
+              "Cauta"
+            )}
+          </Button>
+        </div>
+
+        {isUrl ? (
+          <Input
+            type="email"
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setAnalysisError(null);
+            }}
+            placeholder="Email pentru notificare dupa aprobare"
+            aria-label="Email pentru notificare dupa aprobare"
+            disabled={analyzing}
+            required
+            className="h-10 rounded-xl border-border/80 bg-background/80"
+          />
+        ) : null}
       </form>
 
       {analysisError ? (
@@ -293,11 +325,9 @@ export function SmartSearch({
                           : "bg-gold/15 text-gold",
                       )}
                     >
-                      {suggestion.type === "wine" ? (
-                        <Wine className="h-4 w-4" />
-                      ) : (
-                        <Building2 className="h-4 w-4" />
-                      )}
+                      {suggestion.type === "wine"
+                        ? <Wine className="h-4 w-4" />
+                        : <Building2 className="h-4 w-4" />}
                     </span>
                     <span className="flex flex-col">
                       <span className="font-medium text-foreground">

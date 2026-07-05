@@ -19,6 +19,7 @@ import {
   regions,
   wineries,
   wines,
+  DEFAULT_WINE_SOURCE_BADGE,
   type GrapeVarietyShare,
   type WineSubmitType,
 } from "@/lib/schema";
@@ -30,6 +31,12 @@ import { resolveTechSpecs, techSpecsForDb } from "@/lib/wine-tech-specs";
 import { enrichWineFromProducerSite } from "@/lib/wine-producer-enrichment";
 import { buildWineSlug, normalizeSourceUrl, slugify } from "@/lib/wine-url";
 import { resolveWineSubmitContext } from "@/lib/wine-submit-context";
+import { findExistingWine, findWineBySourceUrl } from "@/lib/wine-duplicate-detection";
+import {
+  EXISTING_WINE_CATALOG_MESSAGE,
+  WINE_ALREADY_PENDING_MESSAGE,
+  WINE_PENDING_REVIEW_MESSAGE,
+} from "@/lib/wine-submission-messages";
 import { resolveWineryIdFromDetection, detectWineryNameFromCatalog } from "@/lib/winery-detection";
 import type { WineType, WineWithRelations } from "@/types";
 
@@ -45,7 +52,7 @@ export interface AnalyzeWineFlowMeta {
 }
 
 export interface AnalyzeWineResult {
-  status: "existing" | "created" | "updated" | "rejected";
+  status: "existing" | "created" | "updated" | "rejected" | "pending_review";
   slug?: string;
   message?: string;
   wineId?: number;
@@ -90,8 +97,9 @@ function inferCategoryFromText(
     lead.includes("sampanie") ||
     lead.includes("champagne");
 
-  if (hasRoseSignal && !hasSparklingSignal) return "rose";
-  if (hasWhiteSignal && !hasSparklingSignal && !hasRoseSignal) return "alb";
+  if (hasSparklingSignal) return "spumant";
+  if (hasRoseSignal) return "rose";
+  if (hasWhiteSignal) return "alb";
   if (category?.trim()) return category;
   if (lower.includes("spumant") || lower.includes("sparkling")) return "spumant";
   if (lower.includes("rose") || lower.includes("roze")) return "rose";
@@ -338,15 +346,16 @@ async function resolveTechSpecsPatch(
   };
 }
 
-export async function findWineBySourceUrl(
-  sourceUrl: string,
-): Promise<{ slug: string; id: number } | null> {
-  const normalized = normalizeSourceUrl(sourceUrl);
-  const row = await db.query.wines.findFirst({
-    where: eq(wines.sourceUrl, normalized),
-    columns: { id: true, slug: true },
-  });
-  return row ?? null;
+function buildExistingCatalogResult(
+  wineId: number,
+  slug: string,
+  wine: AnalyzeWineApiWine,
+  meta: AnalyzeWineFlowMeta,
+): AnalyzeWineResult {
+  return {
+    ...buildAnalyzeSuccessResult("existing", wineId, slug, wine, meta),
+    message: EXISTING_WINE_CATALOG_MESSAGE,
+  };
 }
 
 export async function analyzeAndSaveWineFromUrl(
@@ -356,18 +365,23 @@ export async function analyzeAndSaveWineFromUrl(
   const submitContext = resolveWineSubmitContext(rawUrl);
   const { sourceUrl, submitType, initialStatus, sourceBadge } = submitContext;
 
-  const existing = await findWineBySourceUrl(sourceUrl);
-  if (existing) {
-    const wine = await loadWineForApiResponse(existing.id);
+  const existingBySource = await findWineBySourceUrl(sourceUrl);
+  if (existingBySource) {
+    const wine = await loadWineForApiResponse(existingBySource.id);
     if (!wine) {
       return { status: "rejected", message: "Vinul exista dar nu a putut fi incarcat." };
     }
-    return buildAnalyzeSuccessResult("existing", existing.id, existing.slug, wine, {
-      sourceUrl,
-      finalUrl: sourceUrl,
-      redirectChain: [sourceUrl],
-      submitType: wine.submitType,
-    });
+    return buildExistingCatalogResult(
+      existingBySource.id,
+      existingBySource.slug,
+      wine,
+      {
+        sourceUrl,
+        finalUrl: sourceUrl,
+        redirectChain: [sourceUrl],
+        submitType: wine.submitType,
+      },
+    );
   }
 
   const { html, pageText, finalUrl, redirectChain } =
@@ -408,24 +422,6 @@ export async function analyzeAndSaveWineFromUrl(
     vintage: analysis.vintage,
   });
 
-  const duplicateSlug = await db.query.wines.findFirst({
-    where: eq(wines.slug, slug),
-    columns: { slug: true, id: true },
-  });
-  if (duplicateSlug) {
-    const wine = await loadWineForApiResponse(duplicateSlug.id);
-    if (!wine) {
-      return { status: "rejected", message: "Vin duplicat dar nu a putut fi incarcat." };
-    }
-    return buildAnalyzeSuccessResult(
-      "existing",
-      duplicateSlug.id,
-      duplicateSlug.slug,
-      wine,
-      flowMeta,
-    );
-  }
-
   const regionId = await resolveRegionId(analysis.region);
   const wineryId = await resolveWineryIdForProduct(
     product,
@@ -433,6 +429,28 @@ export async function analyzeAndSaveWineFromUrl(
     finalUrl,
     regionId,
   );
+
+  const existingMatch = await findExistingWine({
+    sourceUrl,
+    finalUrl,
+    name: product.name,
+    producer: detectedWineryName,
+    vintage: analysis.vintage ?? null,
+    wineryId,
+  });
+
+  if (existingMatch) {
+    const wine = await loadWineForApiResponse(existingMatch.id);
+    if (!wine) {
+      return { status: "rejected", message: "Vin duplicat dar nu a putut fi incarcat." };
+    }
+    return buildExistingCatalogResult(
+      existingMatch.id,
+      existingMatch.slug,
+      wine,
+      flowMeta,
+    );
+  }
 
   const { techSpecsPatch, producerFields } = await resolveTechSpecsPatch(
     product.name,
@@ -448,6 +466,11 @@ export async function analyzeAndSaveWineFromUrl(
     resolved.checkedAt,
   );
 
+  const status =
+    submittedBy === "admin-cli" ? ("verified" as const) : initialStatus;
+  const badge =
+    submittedBy === "admin-cli" ? DEFAULT_WINE_SOURCE_BADGE : sourceBadge;
+
   const [created] = await db
     .insert(wines)
     .values({
@@ -462,8 +485,8 @@ export async function analyzeAndSaveWineFromUrl(
       sourceUrl,
       submittedBy,
       submitType,
-      status: initialStatus,
-      sourceBadge,
+      status,
+      sourceBadge: badge,
       availability: retailerLinks.availability,
       affiliateLinks: retailerLinks.affiliateLinks,
       imageUrl: extracted.imageUrl ?? undefined,
@@ -499,6 +522,170 @@ export async function analyzeAndSaveWineFromUrl(
   }
 
   return buildAnalyzeSuccessResult("created", created.id, created.slug, wine, flowMeta);
+}
+
+export async function analyzeWineSubmissionFromUrl(
+  rawUrl: string,
+  email: string,
+): Promise<AnalyzeWineResult> {
+  const submitContext = resolveWineSubmitContext(rawUrl);
+  const { sourceUrl, submitType, sourceBadge } = submitContext;
+  const flowMetaBase = {
+    sourceUrl,
+    finalUrl: sourceUrl,
+    redirectChain: [sourceUrl],
+    submitType,
+  };
+
+  const { html, pageText, finalUrl, redirectChain } =
+    await fetchSourcePageContent(sourceUrl);
+  const flowMeta: AnalyzeWineFlowMeta = {
+    ...flowMetaBase,
+    finalUrl,
+    redirectChain,
+  };
+
+  const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
+  const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
+  const product = mergeExtractedWithAnalysis(analysis, extracted);
+  const analysisForScoring =
+    product.price != null ? { ...analysis, price: product.price } : analysis;
+
+  if (!analysis.isRomanianWine) {
+    return {
+      status: "rejected",
+      message:
+        analysis.reasonIfNotRomanian ??
+        "Cred ca acest vin nu este romanesc. VinIntel.ro se concentreaza doar pe vinuri produse in Romania.",
+      meta: flowMeta,
+    };
+  }
+
+  const resolved = resolveWineAnalysis(analysisForScoring, pageText, product.name);
+  const detectedWineryName =
+    (await detectWineryNameFromCatalog({
+      producer: product.producer,
+      wineName: product.name,
+      pageText,
+      finalUrl,
+    })) ?? product.producer;
+
+  const regionId = await resolveRegionId(analysis.region);
+  const wineryId = await resolveWineryIdForProduct(
+    product,
+    pageText,
+    finalUrl,
+    regionId,
+  );
+
+  const existingMatch = await findExistingWine({
+    sourceUrl,
+    finalUrl,
+    name: product.name,
+    producer: detectedWineryName,
+    vintage: analysis.vintage ?? null,
+    wineryId,
+  });
+
+  if (existingMatch) {
+    if (existingMatch.status === "verified") {
+      const wine = await loadWineForApiResponse(existingMatch.id);
+      if (!wine) {
+        return { status: "rejected", message: "Vinul exista dar nu a putut fi incarcat." };
+      }
+      return buildExistingCatalogResult(
+        existingMatch.id,
+        existingMatch.slug,
+        wine,
+        flowMeta,
+      );
+    }
+
+    return {
+      status: "existing",
+      wineId: existingMatch.id,
+      slug: existingMatch.slug,
+      message: WINE_ALREADY_PENDING_MESSAGE,
+      meta: flowMeta,
+      submitType,
+    };
+  }
+
+  const slug = buildWineSlug({
+    producer: detectedWineryName,
+    name: product.name,
+    vintage: analysis.vintage,
+  });
+
+  const { techSpecsPatch, producerFields } = await resolveTechSpecsPatch(
+    product.name,
+    pageText,
+    analysisForScoring,
+    wineryId,
+  );
+
+  const retailerLinks = buildStoredRetailerLinks(
+    finalUrl,
+    detectedWineryName,
+    product.price,
+    resolved.checkedAt,
+  );
+
+  const [created] = await db
+    .insert(wines)
+    .values({
+      slug,
+      name: product.name,
+      wineryId,
+      regionId,
+      type: resolved.wineType,
+      vintage: analysis.vintage ?? undefined,
+      grapeVarieties: resolved.grapeVarieties,
+      priceAvg: product.price ?? undefined,
+      sourceUrl,
+      submittedBy: email.trim().toLowerCase(),
+      submittedEmail: email.trim().toLowerCase(),
+      submitType: "community",
+      status: "user_submitted",
+      sourceBadge,
+      availability: retailerLinks.availability,
+      affiliateLinks: retailerLinks.affiliateLinks,
+      imageUrl: extracted.imageUrl ?? undefined,
+      imageSource: extracted.imageUrl
+        ? inferImageSourceFromUrl(finalUrl)
+        : undefined,
+      imageAlt: buildWineImageAlt({
+        name: product.name,
+        vintage: analysis.vintage,
+        type: resolved.wineType,
+        wineryName: detectedWineryName,
+      }),
+      ...techSpecsPatch,
+      ...producerFields,
+    })
+    .returning({ id: wines.id, slug: wines.slug });
+
+  if (product.price != null) {
+    await updatePrice(created.id, product.price, retailerLinks.url);
+  }
+
+  const { saveWineSubmissionNotification } = await import(
+    "@/lib/wine-submission-notifications"
+  );
+  await saveWineSubmissionNotification({
+    email,
+    sourceUrl,
+    wineId: created.id,
+  });
+
+  return {
+    status: "pending_review",
+    wineId: created.id,
+    slug: created.slug,
+    message: WINE_PENDING_REVIEW_MESSAGE,
+    meta: flowMeta,
+    submitType: "community",
+  };
 }
 
 export async function reanalyzeAndUpdateWine(

@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { analyzeAndSaveWineFromUrl } from "@/lib/analyze-wine-service";
+import { analyzeWineSubmissionFromUrl } from "@/lib/analyze-wine-service";
 import { isWineUrl } from "@/lib/wine-url";
 
 export const maxDuration = 120;
 
 const requestSchema = z.object({
   url: z.string().min(8),
-  submittedBy: z.string().min(1).max(120).optional(),
+  email: z.string().trim().email("Introdu o adresa de email valida."),
 });
 
 export async function POST(req: Request) {
@@ -15,8 +15,13 @@ export async function POST(req: Request) {
     const parsed = requestSchema.safeParse(body);
 
     if (!parsed.success) {
+      const emailIssue = parsed.error.flatten().fieldErrors.email?.[0];
       return Response.json(
-        { error: "Link invalid. Introdu un URL complet catre pagina vinului." },
+        {
+          error:
+            emailIssue ??
+            "Link invalid. Introdu un URL complet catre pagina vinului.",
+        },
         { status: 400 },
       );
     }
@@ -28,9 +33,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const result = await analyzeAndSaveWineFromUrl(
+    const result = await analyzeWineSubmissionFromUrl(
       parsed.data.url,
-      parsed.data.submittedBy ?? "anonymous",
+      parsed.data.email,
     );
 
     if (result.status === "rejected") {

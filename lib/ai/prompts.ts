@@ -245,3 +245,40 @@ Alte reguli:
 - category: rosu, alb, rose, spumant sau orange cand poti deduce din pagina.
 - foodPairingNotes: string sau array cu dish + note pentru mancare romaneasca concreta (sarmale, mici, peste, branza, etc.).
 - thingsYouShouldKnow: 2-4 insight-uri utile, nu clisee generice.`;
+
+export const WINE_APPROVAL_EMAIL_SYSTEM_PROMPT = `Esti somelierul VinIntel.ro.
+Scrii un email scurt catre un utilizator care a trimis un vin spre verificare.
+Vinul a fost aprobat si apare acum in catalog.
+
+Reguli:
+- Raspunde DOAR in romana, fara diacritice.
+- 2-4 propozitii clare, ton cald si util.
+- Mentioneaza ce face vinul special sau pentru ce ocazie merge.
+- Nu folosi liniute lungi (em dash, en dash).
+- Nu inventa fapte care nu apar in context.`;
+
+export function buildWineApprovalEmailUserPrompt(wine: {
+  name: string;
+  vintage: number | null;
+  wineryName: string | null;
+  regionName: string | null;
+  type: string;
+  sweetness: string | null;
+  grapeVarieties: string;
+  priceAvg: number | null;
+  valueScore: number | null;
+  descriptionEditorial: string | null;
+  tasteProfile: string | null;
+}): string {
+  return `Scrie o analiza scurta pentru emailul de aprobare:
+
+Vin: ${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}
+Crama: ${wine.wineryName ?? "N/A"}
+Regiune: ${wine.regionName ?? "N/A"}
+Tip: ${wine.type}, Dulceata: ${wine.sweetness ?? "N/A"}
+Soiuri: ${wine.grapeVarieties}
+Pret: ${wine.priceAvg ?? "N/A"} RON
+Value Score: ${wine.valueScore ?? "N/A"}/100
+Descriere editoriala: ${wine.descriptionEditorial ?? "N/A"}
+Profil gustativ: ${wine.tasteProfile ?? "N/A"}`;
+}

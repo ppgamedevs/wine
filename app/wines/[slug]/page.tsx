@@ -13,6 +13,7 @@ import { WineSpecsTable } from "@/components/wines/wine-specs-table";
 import { WineWineryLink } from "@/components/wines/wine-winery-link";
 import { WineWorthIt } from "@/components/wines/wine-worth-it";
 import { WineReportButton } from "@/components/wines/wine-report-button";
+import { WineCatalogNotice } from "@/components/wines/wine-catalog-notice";
 import { VerificationLeadForm } from "@/components/wines/verification-lead-form";
 import {
   getAllWineSlugs,
@@ -24,11 +25,13 @@ import {
 import { buildWineFaq } from "@/lib/wine-analysis";
 import { buildWineJsonLd, buildWineMetadataDescription } from "@/lib/wine-json-ld";
 import { resolveWineImage } from "@/lib/wine-images";
+import { EXISTING_WINE_CATALOG_MESSAGE } from "@/lib/wine-submission-messages";
 
 export const revalidate = 3600;
 
 interface WinePageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ notice?: string }>;
 }
 
 export async function generateStaticParams() {
@@ -85,8 +88,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function WinePage({ params }: WinePageProps) {
+export default async function WinePage({ params, searchParams }: WinePageProps) {
   const { slug } = await params;
+  const { notice } = await searchParams;
   const wine = await getWineBySlug(slug);
 
   if (!wine) notFound();
@@ -111,6 +115,9 @@ export default async function WinePage({ params }: WinePageProps) {
       ))}
 
       <SiteHeader />
+      {notice === "existing" ? (
+        <WineCatalogNotice message={EXISTING_WINE_CATALOG_MESSAGE} />
+      ) : null}
       <main className="flex-1">
         <WineHero wine={wine} />
 

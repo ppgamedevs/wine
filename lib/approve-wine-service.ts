@@ -3,12 +3,22 @@ import { db } from "@/lib/db";
 import { DEFAULT_WINE_SOURCE_BADGE, wines } from "@/lib/schema";
 import {
   extractAndSaveWineImageIfMissing,
-  generateAndApplyFullEditorial,
+  generateAndApplyFullEditorialIfMissing,
 } from "@/lib/wine-enrichment";
+import { sendWineApprovalEmail } from "@/lib/wine-approval-email";
+import { addNewsletterSubscriber } from "@/lib/subscribers";
+import {
+  markWineSubmissionNotificationsSent,
+  resolveWineSubmittedEmail,
+} from "@/lib/wine-submitter-email";
 
 export interface ApproveCommunityWineResult {
   slug: string;
   imageExtracted: boolean;
+  editorialGenerated: boolean;
+  emailSent: boolean;
+  emailSkippedReason?: string;
+  subscriberAdded: boolean;
 }
 
 export async function approveCommunityWine(
@@ -28,7 +38,7 @@ export async function approveCommunityWine(
   }
 
   const imageExtracted = await extractAndSaveWineImageIfMissing(wineId);
-  await generateAndApplyFullEditorial(wineId);
+  const editorialGenerated = await generateAndApplyFullEditorialIfMissing(wineId);
 
   await db
     .update(wines)
@@ -38,5 +48,66 @@ export async function approveCommunityWine(
     })
     .where(eq(wines.id, wineId));
 
-  return { slug: wine.slug, imageExtracted };
+  const wineForEmail = await db.query.wines.findFirst({
+    where: eq(wines.id, wineId),
+    with: { winery: true, region: true },
+  });
+
+  if (!wineForEmail) {
+    throw new Error("Vin aprobat dar nu a putut fi reincarcat.");
+  }
+
+  const submittedEmail = await resolveWineSubmittedEmail(wineId);
+  let emailSent = false;
+  let emailSkippedReason: string | undefined;
+  let subscriberAdded = false;
+
+  if (submittedEmail) {
+    const emailResult = await sendWineApprovalEmail(
+      {
+        id: wineForEmail.id,
+        name: wineForEmail.name,
+        slug: wineForEmail.slug,
+        vintage: wineForEmail.vintage,
+        type: wineForEmail.type,
+        sweetness: wineForEmail.sweetness,
+        priceAvg: wineForEmail.priceAvg,
+        currentPrice: wineForEmail.currentPrice,
+        valueScore: wineForEmail.valueScore,
+        descriptionEditorial: wineForEmail.descriptionEditorial,
+        tasteProfile: wineForEmail.tasteProfile,
+        sourceUrl: wineForEmail.sourceUrl,
+        grapeVarieties: wineForEmail.grapeVarieties,
+        affiliateLinks: wineForEmail.affiliateLinks,
+        availability: wineForEmail.availability,
+        winery: wineForEmail.winery,
+        region: wineForEmail.region,
+      },
+      submittedEmail,
+    );
+
+    emailSent = emailResult.sent;
+    emailSkippedReason = emailResult.skippedReason;
+
+    if (emailResult.sent) {
+      await markWineSubmissionNotificationsSent(wineId);
+    }
+
+    const subscriberResult = await addNewsletterSubscriber(
+      submittedEmail,
+      "wine_approval",
+    );
+    subscriberAdded = subscriberResult.added;
+  } else {
+    emailSkippedReason = "missing_submitted_email";
+  }
+
+  return {
+    slug: wine.slug,
+    imageExtracted,
+    editorialGenerated,
+    emailSent,
+    emailSkippedReason,
+    subscriberAdded,
+  };
 }

@@ -1,11 +1,9 @@
 import type { AffiliateLink, PriceHistoryEntry } from "@/lib/schema";
 import {
-  buildRetailerPurchaseLabel,
   inferRetailerLabelFromStoredLinks,
   isProfitshareUrl,
   resolveAffiliatePurchaseUrl,
   resolveCatalogProductUrl,
-  resolveUserFacingPurchaseUrl,
 } from "@/lib/retailer-links";
 import type { WineWithRelations } from "@/types";
 
@@ -36,23 +34,6 @@ export interface WinePriceViewModel {
     label: string;
   } | null;
   verifyPriceUrl: string | null;
-}
-
-function sanitizePurchaseEntry(
-  entry: { url: string; retailer: string; priceRon?: number },
-  sourceUrl: string | null | undefined,
-): { url: string; retailer: string; priceRon?: number; label: string } | null {
-  const trimmed = entry.url?.trim();
-  if (!trimmed || isProfitshareUrl(trimmed)) return null;
-
-  const url = resolveUserFacingPurchaseUrl(trimmed, { sourceUrl });
-  if (isProfitshareUrl(url)) return null;
-
-  return {
-    ...entry,
-    url,
-    label: buildRetailerPurchaseLabel(url, entry.retailer),
-  };
 }
 
 function getLatestPriceEntry(
@@ -164,54 +145,24 @@ export function resolvePrimaryPurchaseLink(
     availability: wine.availability,
   });
 
-  if (affiliateUrl) {
-    const retailer = inferRetailerLabelFromStoredLinks({
-      affiliateLinks: wine.affiliateLinks,
-      availability: wine.availability,
-      fallbackRetailer: wine.winery?.name ?? undefined,
-    });
-    const priceRon =
-      wine.affiliateLinks[0]?.priceRon ?? wine.availability[0]?.priceRon;
-
-    return {
-      url: affiliateUrl,
-      retailer,
-      ...(priceRon != null ? { priceRon } : {}),
-      label: "Cumpara",
-    };
+  if (!affiliateUrl) {
+    return null;
   }
 
-  const sourceUrl = wine.sourceUrl?.trim() || null;
+  const retailer = inferRetailerLabelFromStoredLinks({
+    affiliateLinks: wine.affiliateLinks,
+    availability: wine.availability,
+    fallbackRetailer: wine.winery?.name ?? undefined,
+  });
+  const priceRon =
+    wine.affiliateLinks[0]?.priceRon ?? wine.availability[0]?.priceRon;
 
-  for (const affiliate of wine.affiliateLinks) {
-    const sanitized = sanitizePurchaseEntry(affiliate, sourceUrl);
-    if (sanitized) return sanitized;
-  }
-
-  for (const store of wine.availability) {
-    if (!store.url?.trim()) continue;
-    const sanitized = sanitizePurchaseEntry(
-      {
-        retailer: store.retailer,
-        url: store.url,
-        priceRon: store.priceRon,
-      },
-      sourceUrl,
-    );
-    if (sanitized) return sanitized;
-  }
-
-  if (sourceUrl && !isProfitshareUrl(sourceUrl)) {
-    const url = resolveUserFacingPurchaseUrl(sourceUrl);
-    const retailer = wine.winery?.name ?? "Magazin";
-    return {
-      retailer,
-      url,
-      label: buildRetailerPurchaseLabel(url, retailer),
-    };
-  }
-
-  return null;
+  return {
+    url: affiliateUrl,
+    retailer,
+    ...(priceRon != null ? { priceRon } : {}),
+    label: "Cumpara",
+  };
 }
 
 export function resolveVerifyPriceUrl(wine: WineWithRelations): string | null {

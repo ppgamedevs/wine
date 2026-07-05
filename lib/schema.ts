@@ -275,6 +275,7 @@ export const wines = sqliteTable(
 
     sourceUrl: text("source_url"),
     submittedBy: text("submitted_by"),
+    submittedEmail: text("submitted_email"),
     submitType: text("submit_type", {
       enum: ["affiliate", "community"],
     })
@@ -313,6 +314,35 @@ export const wines = sqliteTable(
 /* -------------------------------------------------------------------------- */
 /*                            Community wine reports                           */
 /* -------------------------------------------------------------------------- */
+
+export const subscribers = sqliteTable(
+  "subscribers",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    email: text("email").notNull(),
+    source: text("source").notNull().default("wine_approval"),
+    ...timestamps,
+  },
+  (table) => [uniqueIndex("subscribers_email_idx").on(table.email)],
+);
+
+export const wineSubmissionNotifications = sqliteTable(
+  "wine_submission_notifications",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    email: text("email").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    notifiedAt: text("notified_at"),
+    ...timestamps,
+  },
+  (table) => [
+    index("wine_submission_notifications_wine_idx").on(table.wineId),
+    index("wine_submission_notifications_email_idx").on(table.email),
+  ],
+);
 
 export const wineReports = sqliteTable(
   "wine_reports",
@@ -437,6 +467,7 @@ export const winesRelations = relations(wines, ({ one, many }) => ({
   scoresHistory: many(scoresHistory),
   ratings: many(ratings),
   reports: many(wineReports),
+  submissionNotifications: many(wineSubmissionNotifications),
 }));
 
 export const scoresHistoryRelations = relations(scoresHistory, ({ one }) => ({
@@ -467,3 +498,13 @@ export const wineReportsRelations = relations(wineReports, ({ one }) => ({
     references: [wines.id],
   }),
 }));
+
+export const wineSubmissionNotificationsRelations = relations(
+  wineSubmissionNotifications,
+  ({ one }) => ({
+    wine: one(wines, {
+      fields: [wineSubmissionNotifications.wineId],
+      references: [wines.id],
+    }),
+  }),
+);

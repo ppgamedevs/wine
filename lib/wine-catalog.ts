@@ -1,12 +1,12 @@
 import "server-only";
-import { and, ne, type SQL } from "drizzle-orm";
+import { and, eq, type SQL } from "drizzle-orm";
 import { wines } from "@/lib/schema";
 
-export const CATALOG_EXCLUDED_STATUS = "rejected" as const;
+export const CATALOG_VISIBLE_STATUS = "verified" as const;
 
 /** Wines visible in search, sommelier, and public listings. */
 export function catalogWineCondition(): SQL {
-  return ne(wines.status, CATALOG_EXCLUDED_STATUS);
+  return eq(wines.status, CATALOG_VISIBLE_STATUS);
 }
 
 export function andCatalog(

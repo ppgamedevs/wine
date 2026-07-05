@@ -1,11 +1,18 @@
-import type { Metadata } from "next";
-import { BarChart3, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 import { ClaimForm } from "@/components/claim/claim-form";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import {
+  MarketingDataIcon,
+  MarketingFastIcon,
+  MarketingVerifiedBadgeIcon,
+  MarketingVisibilityIcon,
+} from "@/components/marketing-icons";
 import { getWineryBySlug } from "@/lib/queries";
 import { absoluteUrl, buildBreadcrumbJsonLd, SITE } from "@/lib/seo";
+import { cn } from "@/lib/utils";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Revendica-ti crama",
@@ -23,27 +30,31 @@ export const metadata: Metadata = {
   },
 };
 
-const benefits = [
+const benefits: {
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  title: string;
+  description: string;
+}[] = [
   {
-    icon: ShieldCheck,
+    icon: MarketingVerifiedBadgeIcon,
     title: "Badge de crama verificata",
     description:
       "Profilul tau primeste un badge de incredere, vizibil pe fiecare vin din portofoliu.",
   },
   {
-    icon: BarChart3,
+    icon: MarketingDataIcon,
     title: "Date corecte si actualizate",
     description:
       "Corecteaza preturi, vintage-uri, specificatii tehnice si pairing-uri direct de la sursa.",
   },
   {
-    icon: TrendingUp,
+    icon: MarketingVisibilityIcon,
     title: "Mai multa vizibilitate",
     description:
       "Vinurile verificate apar mai sus in topuri si in recomandarile AI Sommelier.",
   },
   {
-    icon: Sparkles,
+    icon: MarketingFastIcon,
     title: "Gratuit si rapid",
     description:
       "Revendicarea este gratuita. Te contactam in 2-3 zile lucratoare pentru activare.",
@@ -73,7 +84,7 @@ export default async function ClaimYourWineryPage({
         <section className="border-b border-border/60 bg-secondary/20">
           <div className="mx-auto max-w-4xl px-6 py-14 text-center lg:py-20">
             <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
-              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+              <MarketingVerifiedBadgeIcon className="h-4 w-4" aria-hidden="true" />
               Pentru producatori
             </span>
             <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
@@ -93,21 +104,30 @@ export default async function ClaimYourWineryPage({
               De ce sa iti revendici crama
             </h2>
             <ul className="mt-6 space-y-5">
-              {benefits.map((benefit) => (
-                <li key={benefit.title} className="flex gap-4">
-                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-wine/10 text-wine">
-                    <benefit.icon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <h3 className="font-medium text-foreground">
-                      {benefit.title}
-                    </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                      {benefit.description}
-                    </p>
-                  </div>
-                </li>
-              ))}
+              {benefits.map((benefit) => {
+                const Icon = benefit.icon;
+                return (
+                  <li key={benefit.title} className="flex gap-4">
+                    <span
+                      className={cn(
+                        "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+                        "border border-wine/25 bg-gradient-to-br from-wine/[0.08] via-background to-wine/[0.12]",
+                        "text-wine shadow-sm ring-1 ring-wine/10",
+                      )}
+                    >
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <div>
+                      <h3 className="font-medium text-foreground">
+                        {benefit.title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                        {benefit.description}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

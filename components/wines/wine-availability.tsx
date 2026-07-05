@@ -1,7 +1,5 @@
 import { BadgeCheck, ShoppingBag } from "lucide-react";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RetailerPurchaseLink } from "@/components/wines/retailer-purchase-link";
 import { formatRon } from "@/lib/format";
@@ -70,11 +68,7 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
               retailerName={pricing.purchaseLink.retailer}
               showNote
             />
-          ) : (
-            <Button asChild variant="outline">
-              <Link href="/cauta">Cauta in catalog</Link>
-            </Button>
-          )}
+          ) : null}
         </CardContent>
       </Card>
     </section>

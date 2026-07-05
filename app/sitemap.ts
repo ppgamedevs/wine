@@ -5,6 +5,7 @@ import {
   getWineSitemapEntries,
   getWinesForSommelier,
 } from "@/lib/queries";
+import { getAllJournalArticles } from "@/lib/journal";
 import { absoluteUrl } from "@/lib/seo";
 import { getResolvableTopListSlugs } from "@/lib/top-lists";
 
@@ -25,6 +26,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
+    },
+    {
+      url: absoluteUrl("/vinuri"),
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: absoluteUrl("/topuri"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: absoluteUrl("/journal"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: absoluteUrl("/crame"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
     },
     {
       url: absoluteUrl("/cum-functioneaza-scorurile"),
@@ -68,5 +93,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...wineRoutes, ...wineryRoutes, ...topListRoutes];
+  const journalArticles = getAllJournalArticles();
+  const journalArticleRoutes: MetadataRoute.Sitemap = journalArticles.map(
+    (article) => ({
+      url: absoluteUrl(`/journal/${article.slug}`),
+      lastModified: new Date(article.publishedAt),
+      changeFrequency: "monthly",
+      priority: 0.65,
+    }),
+  );
+
+  return [
+    ...staticRoutes,
+    ...wineRoutes,
+    ...wineryRoutes,
+    ...topListRoutes,
+    ...journalArticleRoutes,
+  ];
 }

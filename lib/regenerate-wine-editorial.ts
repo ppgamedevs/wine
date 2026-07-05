@@ -1,4 +1,3 @@
-import "server-only";
 import { generateObject } from "ai";
 import { eq } from "drizzle-orm";
 import { getSommelierModel } from "@/lib/ai/model";

@@ -86,6 +86,18 @@ export type WineEditorialContentOutput = z.infer<
   typeof wineEditorialContentSchema
 >;
 
+export const wineApprovalEmailSummarySchema = z.object({
+  summary: z
+    .string()
+    .describe(
+      "Analiza scurta in 2-4 propozitii, ton prietenos si util, fara diacritice",
+    ),
+});
+
+export type WineApprovalEmailSummary = z.infer<
+  typeof wineApprovalEmailSummarySchema
+>;
+
 const linkPairingSchema = z.union([
   z.string(),
   z.array(

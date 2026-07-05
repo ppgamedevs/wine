@@ -4,6 +4,7 @@ import Link from "next/link";
 const footerLinks = [
   { label: "Vinuri", href: "/vinuri" },
   { label: "Crame", href: "/crame" },
+  { label: "Wine Journal", href: "/journal" },
   { label: "AI Sommelier", href: "/ai-sommelier" },
   { label: "Topuri", href: "/topuri" },
   { label: "Cum calculam scorurile", href: "/cum-functioneaza-scorurile" },

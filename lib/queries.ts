@@ -37,6 +37,24 @@ export async function getFeaturedWines(
   }
 }
 
+/** Full verified catalog for listing pages, ordered by Value Score. */
+export async function getCatalogWines(): Promise<WineWithRelations[]> {
+  try {
+    const rows = await db.query.wines.findMany({
+      with: { winery: true, region: true },
+      where: catalogWineCondition(),
+      orderBy: (table, { desc: orderDesc, asc: orderAsc }) => [
+        orderDesc(table.valueScore),
+        orderAsc(table.name),
+      ],
+    });
+    return rows as WineWithRelations[];
+  } catch (error) {
+    console.error("getCatalogWines failed", error);
+    return [];
+  }
+}
+
 export async function getAllWineSlugs(): Promise<{ slug: string }[]> {
   try {
     return await db

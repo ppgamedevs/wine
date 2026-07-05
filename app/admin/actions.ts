@@ -73,7 +73,17 @@ export async function approveWineAction(wineId: number) {
     const parts = [
       "Vin aprobat si marcat ca verificat.",
       result.imageExtracted ? "Poza extrasa din sursa." : null,
-      "Editorial si scoruri finale generate.",
+      result.editorialGenerated
+        ? "Editorial si scoruri generate."
+        : "Editorial si scoruri deja existente.",
+      result.emailSent
+        ? "Email trimis catre utilizator."
+        : result.emailSkippedReason === "missing_submitted_email"
+          ? "Email ne trimis: lipseste submittedEmail."
+          : result.emailSkippedReason
+            ? `Email ne trimis: ${result.emailSkippedReason}.`
+            : null,
+      result.subscriberAdded ? "Email adaugat in newsletter." : null,
     ].filter(Boolean);
 
     return {

@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 const navLinks = [
   { label: "Vinuri", href: "/vinuri" },
   { label: "Crame", href: "/crame" },
-  { label: "Adauga vin", href: "/adauga-vin" },
+  { label: "Journal", href: "/journal" },
   { label: "Topuri", href: "/topuri" },
+  { label: "Adauga vin", href: "/adauga-vin" },
 ];
 
 export function SiteHeader() {
