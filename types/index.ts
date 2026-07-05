@@ -58,10 +58,16 @@ export type {
   ExpertNotes,
   FoodPairing,
   GrapeVarietyShare,
+  PriceHistoryEntry,
   WineSubmissionStatus,
 } from "@/lib/schema";
 
-export { DEFAULT_WINE_SOURCE_BADGE, COMMUNITY_SOURCE_BADGE } from "@/lib/schema";
+export {
+  DEFAULT_WINE_SOURCE_BADGE,
+  COMMUNITY_SOURCE_BADGE,
+  AFFILIATE_SOURCE_BADGE,
+} from "@/lib/schema";
+export type { WineSubmitType } from "@/lib/schema";
 
 export type WineReport = typeof import("@/lib/schema").wineReports.$inferSelect;
 

@@ -2,6 +2,30 @@ import type { WineType } from "@/types";
 
 const PLACEHOLDER_HOSTS = ["images.unsplash.com", "picsum.photos"] as const;
 
+const KNOWN_OPTIMIZED_HOSTS = [
+  "images.unsplash.com",
+  "picsum.photos",
+  "vinintel.ro",
+  "public.blob.vercel-storage.com",
+  "davino.ro",
+  "cramele-recas.ro",
+  "cotnari.ro",
+  "avincis.ro",
+  "liliac.ro",
+  "budureasca.ro",
+  "lacertawinery.ro",
+  "jidvei.ro",
+] as const;
+
+export interface ResolvedWineImage {
+  src: string | null;
+  alt: string;
+  /** True when image comes from a retailer source (eMag, Avincis, etc.). */
+  fromExternalSource: boolean;
+  /** Bypass Next.js optimizer for retailer CDNs not in remotePatterns. */
+  unoptimized: boolean;
+}
+
 const TYPE_LABELS: Record<WineType, string> = {
   red: "rosu",
   white: "alb",
@@ -24,6 +48,31 @@ export function isPlaceholderImageUrl(url: string | null | undefined): boolean {
   }
 }
 
+export function isExternalSourceImage(
+  imageSource: string | null | undefined,
+): boolean {
+  const source = imageSource?.trim();
+  return Boolean(source && source !== "manual");
+}
+
+function hostnameMatchesKnownOptimizedHost(hostname: string): boolean {
+  return KNOWN_OPTIMIZED_HOSTS.some(
+    (host) => hostname === host || hostname.endsWith(`.${host}`),
+  );
+}
+
+export function shouldUseUnoptimizedImage(
+  url: string,
+  fromExternalSource: boolean,
+): boolean {
+  if (fromExternalSource) return true;
+  try {
+    return !hostnameMatchesKnownOptimizedHost(new URL(url).hostname);
+  } catch {
+    return true;
+  }
+}
+
 export function buildWineImageAlt(input: {
   name: string;
   vintage?: number | null;
@@ -40,12 +89,13 @@ export function buildWineImageAlt(input: {
 export function resolveWineImage(wine: {
   slug: string;
   imageUrl?: string | null;
+  imageSource?: string | null;
   imageAlt?: string | null;
   name: string;
   vintage?: number | null;
   type: WineType;
   winery?: { name: string } | null;
-}): { src: string | null; alt: string } {
+}): ResolvedWineImage {
   const alt =
     wine.imageAlt?.trim() ||
     buildWineImageAlt({
@@ -55,8 +105,21 @@ export function resolveWineImage(wine: {
       type: wine.type,
     });
 
+  const fromExternalSource = isExternalSourceImage(wine.imageSource);
   const raw = wine.imageUrl?.trim();
-  const src = raw && !isPlaceholderImageUrl(raw) ? raw : null;
 
-  return { src, alt };
+  if (!raw) {
+    return { src: null, alt, fromExternalSource: false, unoptimized: false };
+  }
+
+  if (fromExternalSource || !isPlaceholderImageUrl(raw)) {
+    return {
+      src: raw,
+      alt,
+      fromExternalSource,
+      unoptimized: shouldUseUnoptimizedImage(raw, fromExternalSource),
+    };
+  }
+
+  return { src: null, alt, fromExternalSource: false, unoptimized: false };
 }

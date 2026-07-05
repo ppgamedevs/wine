@@ -10,6 +10,7 @@ import {
   verifyAdminSecret,
 } from "@/lib/admin-auth";
 import { reanalyzeAndUpdateWine } from "@/lib/analyze-wine-service";
+import { approveCommunityWine } from "@/lib/approve-wine-service";
 import { db } from "@/lib/db";
 import {
   hasMinimumFactualDataForEditorial,
@@ -17,7 +18,6 @@ import {
   regenerateWineEditorialContent,
 } from "@/lib/regenerate-wine-editorial";
 import {
-  DEFAULT_WINE_SOURCE_BADGE,
   wineReports,
   wines,
 } from "@/lib/schema";
@@ -64,15 +64,32 @@ export async function adminLogoutAction() {
 
 export async function approveWineAction(wineId: number) {
   await assertAdmin();
-  await db
-    .update(wines)
-    .set({
-      status: "verified",
-      sourceBadge: DEFAULT_WINE_SOURCE_BADGE,
-    })
-    .where(eq(wines.id, wineId));
-  revalidateAdmin();
-  return { ok: true as const };
+
+  try {
+    const result = await approveCommunityWine(wineId);
+    revalidateWine(result.slug);
+    revalidateAdmin();
+
+    const parts = [
+      "Vin aprobat si marcat ca verificat.",
+      result.imageExtracted ? "Poza extrasa din sursa." : null,
+      "Editorial si scoruri finale generate.",
+    ].filter(Boolean);
+
+    return {
+      ok: true as const,
+      message: parts.join(" "),
+    };
+  } catch (error) {
+    console.error("[admin approve]", error);
+    return {
+      ok: false as const,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Aprobarea a esuat. Incearca din nou.",
+    };
+  }
 }
 
 export async function rejectWineAction(wineId: number) {
@@ -98,7 +115,7 @@ export async function updateWineImageAction(wineId: number, imageUrl: string) {
   }
   await db
     .update(wines)
-    .set({ imageUrl: trimmed })
+    .set({ imageUrl: trimmed, imageSource: "manual" })
     .where(eq(wines.id, wineId));
   revalidateAdmin();
   return { ok: true as const };

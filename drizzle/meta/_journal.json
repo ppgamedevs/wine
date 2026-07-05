@@ -43,6 +43,34 @@
       "when": 1782640800000,
       "tag": "0005_wine_flywheel",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1782641000000,
+      "tag": "0006_wine_price_tracking",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1782641200000,
+      "tag": "0007_wine_image_source",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1782641400000,
+      "tag": "0008_winery_status",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1782641600000,
+      "tag": "0009_wine_submit_type",
+      "breakpoints": true
     }
   ]
 }

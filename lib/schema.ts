@@ -38,6 +38,13 @@ export interface AffiliateLink {
   priceRon?: number;
 }
 
+/** Tracked retail price observation for a wine. */
+export interface PriceHistoryEntry {
+  date: string;
+  price: number;
+  source: string;
+}
+
 /** Editorial pairing notes (VinIntel analysis, distinct from factual food_pairings). */
 export interface EditorialFoodPairingNote {
   dish: string;
@@ -55,6 +62,14 @@ export type WineSubmissionStatus =
 
 export const COMMUNITY_SOURCE_BADGE =
   "Adaugat de comunitate. Analiza generata de VinIntel.ro. In curs de verificare.";
+
+export const AFFILIATE_SOURCE_BADGE =
+  "Importat din sursa afiliata verificata. Analiza si scorurile apartin VinIntel.ro";
+
+export type WineSubmitType = "affiliate" | "community";
+
+/** Known values: "emag", "avincis", "manual", or retailer slug from source URL. */
+export type WineImageSource = string;
 
 /** Pre-computed sommelier knowledge per wine (generated once via LLM). */
 export interface ExpertNotes {
@@ -142,6 +157,11 @@ export const wineries = sqliteTable(
     verified: integer("verified", { mode: "boolean" })
       .notNull()
       .default(false),
+    status: text("status", {
+      enum: ["user_submitted", "verified", "rejected"],
+    })
+      .notNull()
+      .default("verified"),
     ...timestamps,
   },
   (table) => [
@@ -149,6 +169,7 @@ export const wineries = sqliteTable(
     index("wineries_region_idx").on(table.regionId),
     index("wineries_verified_idx").on(table.verified),
     index("wineries_name_idx").on(table.name),
+    index("wineries_status_idx").on(table.status),
   ],
 );
 
@@ -185,6 +206,12 @@ export const wines = sqliteTable(
     sugar: real("sugar"),
     acidity: real("acidity"),
     priceAvg: real("price_avg"),
+    currentPrice: integer("current_price"),
+    lowestPrice30d: integer("lowest_price_30d"),
+    priceHistory: text("price_history", { mode: "json" })
+      .$type<PriceHistoryEntry[]>()
+      .notNull()
+      .default(sql`'[]'`),
 
     valueScore: integer("value_score"),
     giftScore: integer("gift_score"),
@@ -231,7 +258,10 @@ export const wines = sqliteTable(
       .notNull()
       .default(sql`'[]'`),
 
+    /** External product image URL (retailer or manual upload). */
     imageUrl: text("image_url"),
+    /** Origin of imageUrl, e.g. "emag", "avincis", "manual". */
+    imageSource: text("image_source"),
     imageAlt: text("image_alt"),
     ratingAvg: real("rating_avg"),
     ratingCount: integer("rating_count").notNull().default(0),
@@ -245,6 +275,11 @@ export const wines = sqliteTable(
 
     sourceUrl: text("source_url"),
     submittedBy: text("submitted_by"),
+    submitType: text("submit_type", {
+      enum: ["affiliate", "community"],
+    })
+      .notNull()
+      .default("community"),
     status: text("status", {
       enum: ["user_submitted", "verified", "rejected"],
     })
@@ -258,6 +293,7 @@ export const wines = sqliteTable(
     uniqueIndex("wines_slug_idx").on(table.slug),
     uniqueIndex("wines_source_url_idx").on(table.sourceUrl),
     index("wines_status_idx").on(table.status),
+    index("wines_submit_type_idx").on(table.submitType),
     index("wines_winery_idx").on(table.wineryId),
     index("wines_region_idx").on(table.regionId),
     index("wines_type_idx").on(table.type),
@@ -266,6 +302,7 @@ export const wines = sqliteTable(
     index("wines_gift_score_idx").on(table.giftScore),
     index("wines_food_match_score_idx").on(table.foodMatchScore),
     index("wines_price_idx").on(table.priceAvg),
+    index("wines_current_price_idx").on(table.currentPrice),
     index("wines_beginner_idx").on(table.beginnerFriendly),
     index("wines_type_price_idx").on(table.type, table.priceAvg),
   ],

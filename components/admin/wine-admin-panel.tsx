@@ -553,7 +553,14 @@ function WineTable({
                         className="bg-wine text-wine-foreground hover:bg-wine/90"
                         onClick={() => onApprove(wine.id)}
                       >
-                        Aproba
+                        {pending ? (
+                          <>
+                            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                            Aprob...
+                          </>
+                        ) : (
+                          "Aproba"
+                        )}
                       </Button>
                     ) : null}
                     {wine.status !== "rejected" ? (

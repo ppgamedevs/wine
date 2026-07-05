@@ -13,6 +13,7 @@ interface WineImageProps {
   name: string;
   type: WineType;
   imageUrl?: string | null;
+  imageSource?: string | null;
   imageAlt?: string | null;
   vintage?: number | null;
   wineryName?: string | null;
@@ -28,6 +29,7 @@ export function WineImage({
   name,
   type,
   imageUrl,
+  imageSource,
   imageAlt,
   vintage,
   wineryName,
@@ -38,9 +40,10 @@ export function WineImage({
   aspectClassName = "relative aspect-[4/3] overflow-hidden",
 }: WineImageProps) {
   const [failed, setFailed] = useState(false);
-  const { src, alt } = resolveWineImage({
+  const { src, alt, fromExternalSource, unoptimized } = resolveWineImage({
     slug,
     imageUrl,
+    imageSource,
     imageAlt,
     name,
     vintage,
@@ -66,12 +69,18 @@ export function WineImage({
             fill
             priority={priority}
             sizes={sizes}
+            unoptimized={unoptimized}
             onError={() => setFailed(true)}
             className={cn(
               "object-cover transition-transform duration-700",
               imageClassName,
             )}
           />
+          {fromExternalSource ? (
+            <span className="absolute bottom-2 right-2 z-10 rounded-full bg-background/80 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground backdrop-blur">
+              Sursa
+            </span>
+          ) : null}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"

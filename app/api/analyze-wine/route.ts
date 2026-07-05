@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { analyzeAndSaveWineFromUrl } from "@/lib/analyze-wine-service";
-import { isWineUrl, normalizeSourceUrl } from "@/lib/wine-url";
+import { isWineUrl } from "@/lib/wine-url";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 const requestSchema = z.object({
   url: z.string().min(8),
@@ -29,23 +29,22 @@ export async function POST(req: Request) {
     }
 
     const result = await analyzeAndSaveWineFromUrl(
-      normalizeSourceUrl(parsed.data.url),
+      parsed.data.url,
       parsed.data.submittedBy ?? "anonymous",
     );
 
     if (result.status === "rejected") {
       return Response.json(
-        { status: "rejected", message: result.message },
+        {
+          status: "rejected",
+          message: result.message,
+          meta: result.meta,
+        },
         { status: 422 },
       );
     }
 
-    return Response.json({
-      status: result.status,
-      slug: result.slug,
-      wineId: result.wineId,
-      redirectUrl: result.slug ? `/wines/${result.slug}` : undefined,
-    });
+    return Response.json(result);
   } catch (error) {
     console.error("[analyze-wine]", error);
     const message =

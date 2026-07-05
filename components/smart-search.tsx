@@ -16,6 +16,12 @@ import type { SearchSuggestion } from "@/lib/queries";
 import { isWineUrl } from "@/lib/wine-url";
 import { cn } from "@/lib/utils";
 
+export const WINE_LINK_HELPER_TEXT =
+  "Adauga un link de vin romanesc (eMag, Profitshare, site crama etc.)";
+
+export const WINE_SUBMITTED_FOR_REVIEW_MESSAGE =
+  "Vinul a fost trimis spre verificare. Va aparea pe site dupa aprobare.";
+
 interface SmartSearchProps {
   className?: string;
   placeholder?: string;
@@ -34,6 +40,7 @@ export function SmartSearch({
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [analysisSuccess, setAnalysisSuccess] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
 
@@ -87,6 +94,7 @@ export function SmartSearch({
   async function analyzeWineUrl(url: string) {
     setAnalyzing(true);
     setAnalysisError(null);
+    setAnalysisSuccess(null);
     setOpen(false);
 
     try {
@@ -101,6 +109,7 @@ export function SmartSearch({
         redirectUrl?: string;
         slug?: string;
         status?: string;
+        submitType?: "affiliate" | "community";
       } = await res.json();
 
       if (!res.ok) {
@@ -108,6 +117,16 @@ export function SmartSearch({
       }
 
       const target = data.redirectUrl ?? (data.slug ? `/wines/${data.slug}` : null);
+
+      if (
+        data.status === "created" &&
+        data.submitType === "community"
+      ) {
+        setQuery("");
+        setAnalysisSuccess(WINE_SUBMITTED_FOR_REVIEW_MESSAGE);
+        return;
+      }
+
       if (target) {
         router.push(target);
         return;
@@ -178,6 +197,7 @@ export function SmartSearch({
           onChange={(event) => {
             setQuery(event.target.value);
             setAnalysisError(null);
+            setAnalysisSuccess(null);
             setOpen(true);
           }}
           onFocus={() => {
@@ -217,10 +237,18 @@ export function SmartSearch({
         <p className="mt-2 text-left text-sm text-destructive">{analysisError}</p>
       ) : null}
 
-      {isUrl && !analyzing && !analysisError ? (
-        <p className="mt-2 text-left text-xs text-muted-foreground">
-          Vin romanesc detectat. Vom extrage datele, genera scoruri si salva
-          vinul pentru comunitate.
+      {analysisSuccess ? (
+        <p
+          role="status"
+          className="mt-2 rounded-xl border border-wine/20 bg-wine/5 px-4 py-3 text-left text-sm text-foreground"
+        >
+          {analysisSuccess}
+        </p>
+      ) : null}
+
+      {enableLinkAnalysis && !analysisSuccess ? (
+        <p className="mt-2 text-left text-sm text-muted-foreground">
+          {WINE_LINK_HELPER_TEXT}
         </p>
       ) : null}
 

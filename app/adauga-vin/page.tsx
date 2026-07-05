@@ -35,20 +35,23 @@ export default function AddWinePage() {
             Adauga un vin romanesc
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Lipeste link-ul de pe site-ul cramei sau al magazinului. Analizam
-            pagina, generam scoruri si explicatii, apoi publicam vinul cu badge
-            de comunitate.
+            Lipeste link-ul produsului. Analizam pagina, generam scoruri si
+            explicatii, apoi echipa VinIntel verifica vinul inainte de
+            publicare.
           </p>
           <div className="mt-10 text-left">
             <SmartSearch
-              placeholder="https://www.avincis.ro/... sau alt link de vin romanesc"
+              placeholder="https://www.emag.ro/... sau link Profitshare / crama"
             />
           </div>
           <ol className="mt-10 space-y-3 text-left text-sm text-muted-foreground">
             <li>1. Verificam daca vinul exista deja in baza VinIntel.</li>
             <li>2. Extragem date factuale din pagina sursa.</li>
             <li>3. Generam analiza editoriala si scorurile Value / Gift / Food.</li>
-            <li>4. Publicam cu status user_submitted pana la verificare manuala.</li>
+            <li>
+              4. Vinul este trimis spre verificare si apare pe site dupa
+              aprobare.
+            </li>
           </ol>
         </section>
       </main>

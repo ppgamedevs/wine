@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import {
   wineReports,
   wines,
+  type WineImageSource,
   type WineSubmissionStatus,
 } from "@/lib/schema";
 
@@ -19,6 +20,7 @@ export interface AdminWineRow {
   createdAt: string;
   sourceUrl: string | null;
   imageUrl: string | null;
+  imageSource: WineImageSource | null;
   valueScore: number | null;
   giftScore: number | null;
   foodMatchScore: number | null;
@@ -133,6 +135,7 @@ export async function getAdminWines(
     createdAt: wine.createdAt,
     sourceUrl: wine.sourceUrl,
     imageUrl: wine.imageUrl,
+    imageSource: wine.imageSource,
     valueScore: wine.valueScore,
     giftScore: wine.giftScore,
     foodMatchScore: wine.foodMatchScore,
@@ -176,6 +179,7 @@ export async function getAdminWinesWithReports(): Promise<AdminWineRow[]> {
     createdAt: wine.createdAt,
     sourceUrl: wine.sourceUrl,
     imageUrl: wine.imageUrl,
+    imageSource: wine.imageSource,
     valueScore: wine.valueScore,
     giftScore: wine.giftScore,
     foodMatchScore: wine.foodMatchScore,
@@ -221,6 +225,7 @@ export async function getAdminWineById(
     createdAt: wine.createdAt,
     sourceUrl: wine.sourceUrl,
     imageUrl: wine.imageUrl,
+    imageSource: wine.imageSource,
     valueScore: wine.valueScore,
     giftScore: wine.giftScore,
     foodMatchScore: wine.foodMatchScore,

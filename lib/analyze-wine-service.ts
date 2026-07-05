@@ -7,42 +7,56 @@ import {
   type WineLinkAnalysis,
 } from "@/lib/ai/schemas";
 import { db } from "@/lib/db";
-import { fetchPageText } from "@/lib/fetch-page-text";
+import { fetchPageWithResolution } from "@/lib/fetch-page-html";
+import { stripHtml } from "@/lib/fetch-page-text-utils";
 import {
-  calculateInitialScores,
-  formatScoreProvenance,
-  mergeAnalysisScores,
-  type MergedAnalysisScores,
-} from "@/lib/scoring";
+  extractProductFromHtml,
+  inferImageSourceFromUrl,
+} from "@/lib/price-extractor";
+import { updatePrice } from "@/lib/price-tracker";
 import {
-  COMMUNITY_SOURCE_BADGE,
   regions,
-  wineries,
   wines,
-  type EditorialFoodPairingNote,
   type GrapeVarietyShare,
+  type WineSubmitType,
 } from "@/lib/schema";
 import { mapCsvCategoryToWineType } from "@/lib/wine-csv-schema";
+import { loadWineForEditorial } from "@/lib/regenerate-wine-editorial";
+import { generateAndApplyFullEditorial } from "@/lib/wine-enrichment";
 import { buildWineImageAlt } from "@/lib/wine-images";
 import { buildWineSlug, normalizeSourceUrl, slugify } from "@/lib/wine-url";
-import type { WineType } from "@/types";
+import { resolveWineSubmitContext } from "@/lib/wine-submit-context";
+import { resolveWineryIdFromDetection, detectWineryNameFromCatalog } from "@/lib/winery-detection";
+import type { WineType, WineWithRelations } from "@/types";
+
+const MAX_PAGE_CHARS = 14_000;
+
+export type AnalyzeWineApiWine = Omit<WineWithRelations, "embedding">;
+
+export interface AnalyzeWineFlowMeta {
+  sourceUrl: string;
+  finalUrl: string;
+  redirectChain: string[];
+  submitType: WineSubmitType;
+}
 
 export interface AnalyzeWineResult {
   status: "existing" | "created" | "updated" | "rejected";
   slug?: string;
   message?: string;
   wineId?: number;
+  redirectUrl?: string;
+  wine?: AnalyzeWineApiWine;
+  meta?: AnalyzeWineFlowMeta;
+  submitType?: WineSubmitType;
 }
 
 interface ResolvedWineAnalysis {
   analysis: WineLinkAnalysis;
   category: string;
   wineType: WineType;
-  mergedScores: MergedAnalysisScores;
-  valueExplanation: string;
-  grapeVarieties: GrapeVarietyShare[];
-  foodPairingNotes: EditorialFoodPairingNote[];
   checkedAt: string;
+  grapeVarieties: GrapeVarietyShare[];
 }
 
 function inferCategoryFromText(
@@ -58,50 +72,8 @@ function inferCategoryFromText(
   return "rosu";
 }
 
-function parseFoodPairingNotes(
-  value: string | EditorialFoodPairingNote[] | undefined,
-): EditorialFoodPairingNote[] {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  return [{ dish: "Mancare romaneasca", note: value }];
-}
-
 function toGrapeShares(names: string[]): GrapeVarietyShare[] {
   return names.map((name) => ({ name }));
-}
-
-function stripScoreProvenance(valueExplanation: string): string {
-  const marker = "\n\nScoruri VinIntel:";
-  const index = valueExplanation.indexOf(marker);
-  if (index === -1) return valueExplanation.trim();
-  return valueExplanation.slice(0, index).trim();
-}
-
-function buildValueExplanation(
-  analysis: WineLinkAnalysis,
-  mergedScores: MergedAnalysisScores,
-): string {
-  const base = stripScoreProvenance(analysis.valueExplanation);
-  return `${base}\n\n${formatScoreProvenance(mergedScores)}`;
-}
-
-function resolveMergedScores(
-  analysis: WineLinkAnalysis,
-  category: string,
-): MergedAnalysisScores {
-  const price = analysis.price ?? 0;
-  const ruleScores = calculateInitialScores({
-    price: price > 0 ? price : 50,
-    category,
-    region: analysis.region,
-    grapeVarieties: analysis.grapeVarieties,
-  });
-
-  return mergeAnalysisScores(ruleScores, price > 0 ? price : 50, {
-    valueScore: analysis.valueScore,
-    giftScore: analysis.giftScore,
-    foodMatchScore: analysis.foodMatchScore,
-  });
 }
 
 function resolveWineAnalysis(
@@ -110,18 +82,88 @@ function resolveWineAnalysis(
 ): ResolvedWineAnalysis {
   const category = inferCategoryFromText(analysis.category, pageText);
   const wineType = mapCsvCategoryToWineType(category);
-  const mergedScores = resolveMergedScores(analysis, category);
   const checkedAt = new Date().toISOString();
 
   return {
     analysis,
     category,
     wineType,
-    mergedScores,
-    valueExplanation: buildValueExplanation(analysis, mergedScores),
-    grapeVarieties: toGrapeShares(analysis.grapeVarieties),
-    foodPairingNotes: parseFoodPairingNotes(analysis.foodPairingNotes),
     checkedAt,
+    grapeVarieties: toGrapeShares(analysis.grapeVarieties),
+  };
+}
+
+function serializeWineForApi(
+  wine: NonNullable<Awaited<ReturnType<typeof loadWineForEditorial>>>,
+): AnalyzeWineApiWine {
+  const { embedding: _embedding, ...rest } = wine;
+  return rest;
+}
+
+async function loadWineForApiResponse(
+  wineId: number,
+): Promise<AnalyzeWineApiWine | null> {
+  const wine = await loadWineForEditorial(wineId);
+  return wine ? serializeWineForApi(wine) : null;
+}
+
+function buildAnalyzeSuccessResult(
+  status: "existing" | "created",
+  wineId: number,
+  slug: string,
+  wine: AnalyzeWineApiWine,
+  meta: AnalyzeWineFlowMeta,
+): AnalyzeWineResult {
+  return {
+    status,
+    wineId,
+    slug,
+    redirectUrl: `/wines/${slug}`,
+    wine,
+    meta,
+    submitType: meta.submitType,
+  };
+}
+
+function shouldUpdateImageFromSource(
+  extractedUrl: string | null,
+  currentImageSource: string | null | undefined,
+): boolean {
+  if (!extractedUrl) return false;
+  return currentImageSource !== "manual";
+}
+
+
+async function fetchSourcePageContent(sourceUrl: string): Promise<{
+  html: string;
+  pageText: string;
+  finalUrl: string;
+  redirectChain: string[];
+}> {
+  const page = await fetchPageWithResolution(sourceUrl);
+  const pageText = stripHtml(page.html).slice(0, MAX_PAGE_CHARS);
+  return {
+    html: page.html,
+    pageText,
+    finalUrl: page.finalUrl,
+    redirectChain: page.redirectChain,
+  };
+}
+
+function mergeExtractedWithAnalysis(
+  analysis: WineLinkAnalysis,
+  extracted: Awaited<ReturnType<typeof extractProductFromHtml>>,
+): {
+  name: string;
+  producer: string;
+  price: number | null;
+  retailUrl: string;
+} {
+  return {
+    name: extracted.name ?? analysis.name,
+    producer: extracted.producer ?? analysis.producer,
+    price: extracted.price ?? analysis.price ?? null,
+    retailUrl: extracted.finalUrl,
   };
 }
 
@@ -150,35 +192,21 @@ async function resolveRegionId(regionName: string): Promise<number | null> {
   return created?.id ?? null;
 }
 
-async function resolveWineryId(
-  producer: string,
+async function resolveWineryIdForProduct(
+  product: { name: string; producer: string },
+  pageText: string,
+  finalUrl: string,
   regionId: number | null,
-  website: string,
 ): Promise<number> {
-  const producerSlug = slugify(producer);
-  const existing = await db.query.wineries.findFirst({
-    where: or(eq(wineries.slug, producerSlug), eq(wineries.name, producer)),
-  });
-  if (existing) return existing.id;
-
-  const [created] = await db
-    .insert(wineries)
-    .values({
-      slug: producerSlug,
-      name: producer,
-      regionId,
-      website,
-    })
-    .onConflictDoNothing()
-    .returning();
-
-  if (created) return created.id;
-
-  const fallback = await db.query.wineries.findFirst({
-    where: eq(wineries.slug, producerSlug),
-  });
-  if (!fallback) throw new Error("Nu am putut crea crama.");
-  return fallback.id;
+  return resolveWineryIdFromDetection(
+    {
+      producer: product.producer,
+      wineName: product.name,
+      pageText,
+      finalUrl,
+    },
+    regionId,
+  );
 }
 
 export async function findWineBySourceUrl(
@@ -196,15 +224,36 @@ export async function analyzeAndSaveWineFromUrl(
   rawUrl: string,
   submittedBy = "anonymous",
 ): Promise<AnalyzeWineResult> {
-  const sourceUrl = normalizeSourceUrl(rawUrl);
+  const submitContext = resolveWineSubmitContext(rawUrl);
+  const { sourceUrl, submitType, initialStatus, sourceBadge } = submitContext;
 
   const existing = await findWineBySourceUrl(sourceUrl);
   if (existing) {
-    return { status: "existing", slug: existing.slug, wineId: existing.id };
+    const wine = await loadWineForApiResponse(existing.id);
+    if (!wine) {
+      return { status: "rejected", message: "Vinul exista dar nu a putut fi incarcat." };
+    }
+    return buildAnalyzeSuccessResult("existing", existing.id, existing.slug, wine, {
+      sourceUrl,
+      finalUrl: sourceUrl,
+      redirectChain: [sourceUrl],
+      submitType: wine.submitType,
+    });
   }
 
-  const pageText = await fetchPageText(sourceUrl);
-  const { object: analysis } = await runLinkAnalysis(sourceUrl, pageText);
+  const { html, pageText, finalUrl, redirectChain } =
+    await fetchSourcePageContent(sourceUrl);
+  const flowMeta: AnalyzeWineFlowMeta = {
+    sourceUrl,
+    finalUrl,
+    redirectChain,
+    submitType,
+  };
+  const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
+  const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
+  const product = mergeExtractedWithAnalysis(analysis, extracted);
+  const analysisForScoring =
+    product.price != null ? { ...analysis, price: product.price } : analysis;
 
   if (!analysis.isRomanianWine) {
     return {
@@ -212,13 +261,21 @@ export async function analyzeAndSaveWineFromUrl(
       message:
         analysis.reasonIfNotRomanian ??
         "Cred ca acest vin nu este romanesc. VinIntel.ro se concentreaza doar pe vinuri produse in Romania.",
+      meta: flowMeta,
     };
   }
 
-  const resolved = resolveWineAnalysis(analysis, pageText);
+  const resolved = resolveWineAnalysis(analysisForScoring, pageText);
+  const detectedWineryName =
+    (await detectWineryNameFromCatalog({
+      producer: product.producer,
+      wineName: product.name,
+      pageText,
+      finalUrl,
+    })) ?? product.producer;
   const slug = buildWineSlug({
-    producer: analysis.producer,
-    name: analysis.name,
+    producer: detectedWineryName,
+    name: product.name,
     vintage: analysis.vintage,
   });
 
@@ -227,76 +284,90 @@ export async function analyzeAndSaveWineFromUrl(
     columns: { slug: true, id: true },
   });
   if (duplicateSlug) {
-    return {
-      status: "existing",
-      slug: duplicateSlug.slug,
-      wineId: duplicateSlug.id,
-    };
+    const wine = await loadWineForApiResponse(duplicateSlug.id);
+    if (!wine) {
+      return { status: "rejected", message: "Vin duplicat dar nu a putut fi incarcat." };
+    }
+    return buildAnalyzeSuccessResult(
+      "existing",
+      duplicateSlug.id,
+      duplicateSlug.slug,
+      wine,
+      flowMeta,
+    );
   }
 
   const regionId = await resolveRegionId(analysis.region);
-  const wineryId = await resolveWineryId(
-    analysis.producer,
+  const wineryId = await resolveWineryIdForProduct(
+    product,
+    pageText,
+    finalUrl,
     regionId,
-    new URL(sourceUrl).origin,
   );
 
   const [created] = await db
     .insert(wines)
     .values({
       slug,
-      name: analysis.name,
+      name: product.name,
       wineryId,
       regionId,
       type: resolved.wineType,
       vintage: analysis.vintage ?? undefined,
       grapeVarieties: resolved.grapeVarieties,
-      priceAvg: analysis.price ?? undefined,
-      valueScore: resolved.mergedScores.valueScore,
-      giftScore: resolved.mergedScores.giftScore,
-      foodMatchScore: resolved.mergedScores.foodMatchScore,
-      overpricedRisk: resolved.mergedScores.overpricedRisk,
-      beginnerFriendly: resolved.mergedScores.beginnerFriendly,
-      cellarPotential: resolved.mergedScores.cellarPotential,
-      descriptionEditorial: analysis.descriptionEditorial,
-      valueExplanation: resolved.valueExplanation,
-      thingsYouShouldKnow: analysis.thingsYouShouldKnow,
-      tasteProfile: analysis.tasteProfile,
-      foodPairingNotes: resolved.foodPairingNotes,
+      priceAvg: product.price ?? undefined,
       sourceUrl,
       submittedBy,
-      status: "user_submitted",
-      sourceBadge: COMMUNITY_SOURCE_BADGE,
+      submitType,
+      status: initialStatus,
+      sourceBadge,
       availability: [
         {
-          retailer: analysis.producer,
-          url: sourceUrl,
-          priceRon: analysis.price ?? undefined,
+          retailer: detectedWineryName,
+          url: finalUrl,
+          priceRon: product.price ?? undefined,
           inStock: true,
           lastCheckedAt: resolved.checkedAt,
         },
       ],
       affiliateLinks: [
         {
-          retailer: analysis.producer,
-          url: sourceUrl,
-          priceRon: analysis.price ?? undefined,
+          retailer: detectedWineryName,
+          url: finalUrl,
+          priceRon: product.price ?? undefined,
         },
       ],
+      imageUrl: extracted.imageUrl ?? undefined,
+      imageSource: extracted.imageUrl
+        ? inferImageSourceFromUrl(finalUrl)
+        : undefined,
       imageAlt: buildWineImageAlt({
-        name: analysis.name,
+        name: product.name,
         vintage: analysis.vintage,
         type: resolved.wineType,
-        wineryName: analysis.producer,
+        wineryName: detectedWineryName,
       }),
     })
     .returning({ id: wines.id, slug: wines.slug });
 
-  return {
-    status: "created",
-    slug: created.slug,
-    wineId: created.id,
-  };
+  if (product.price != null) {
+    await updatePrice(created.id, product.price, finalUrl);
+  }
+
+  await generateAndApplyFullEditorial(created.id);
+
+  const wine = await loadWineForApiResponse(created.id);
+  if (!wine) {
+    return {
+      status: "rejected",
+      message: "Vin salvat dar raspunsul complet nu a putut fi generat.",
+      wineId: created.id,
+      slug: created.slug,
+      meta: flowMeta,
+    };
+  }
+
+  return buildAnalyzeSuccessResult("created", created.id, created.slug, wine, flowMeta);
 }
 
 export async function reanalyzeAndUpdateWine(
@@ -308,7 +379,9 @@ export async function reanalyzeAndUpdateWine(
       id: true,
       slug: true,
       sourceUrl: true,
+      submitType: true,
       imageUrl: true,
+      imageSource: true,
       status: true,
       submittedBy: true,
       reportCount: true,
@@ -327,8 +400,19 @@ export async function reanalyzeAndUpdateWine(
   }
 
   const sourceUrl = normalizeSourceUrl(wine.sourceUrl);
-  const pageText = await fetchPageText(sourceUrl);
-  const { object: analysis } = await runLinkAnalysis(sourceUrl, pageText);
+  const { html, pageText, finalUrl, redirectChain } =
+    await fetchSourcePageContent(sourceUrl);
+  const flowMeta: AnalyzeWineFlowMeta = {
+    sourceUrl,
+    finalUrl,
+    redirectChain,
+    submitType: wine.submitType,
+  };
+  const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
+  const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
+  const product = mergeExtractedWithAnalysis(analysis, extracted);
+  const analysisForScoring =
+    product.price != null ? { ...analysis, price: product.price } : analysis;
 
   if (!analysis.isRomanianWine) {
     return {
@@ -336,67 +420,96 @@ export async function reanalyzeAndUpdateWine(
       message:
         analysis.reasonIfNotRomanian ??
         "Re-analiza indica ca vinul nu este romanesc.",
+      meta: flowMeta,
     };
   }
 
-  const resolved = resolveWineAnalysis(analysis, pageText);
+  const resolved = resolveWineAnalysis(analysisForScoring, pageText);
+  const detectedWineryName =
+    (await detectWineryNameFromCatalog({
+      producer: product.producer,
+      wineName: product.name,
+      pageText,
+      finalUrl,
+    })) ?? product.producer;
   const regionId = await resolveRegionId(analysis.region);
-  const wineryId = await resolveWineryId(
-    analysis.producer,
+  const wineryId = await resolveWineryIdForProduct(
+    product,
+    pageText,
+    finalUrl,
     regionId,
-    new URL(sourceUrl).origin,
   );
+
+  const imagePatch =
+    shouldUpdateImageFromSource(extracted.imageUrl, wine.imageSource) &&
+    extracted.imageUrl
+      ? {
+          imageUrl: extracted.imageUrl,
+          imageSource: inferImageSourceFromUrl(finalUrl),
+        }
+      : {};
 
   await db
     .update(wines)
     .set({
-      name: analysis.name,
+      name: product.name,
       wineryId,
       regionId,
       type: resolved.wineType,
       vintage: analysis.vintage ?? undefined,
       grapeVarieties: resolved.grapeVarieties,
-      priceAvg: analysis.price ?? undefined,
-      valueScore: resolved.mergedScores.valueScore,
-      giftScore: resolved.mergedScores.giftScore,
-      foodMatchScore: resolved.mergedScores.foodMatchScore,
-      overpricedRisk: resolved.mergedScores.overpricedRisk,
-      beginnerFriendly: resolved.mergedScores.beginnerFriendly,
-      cellarPotential: resolved.mergedScores.cellarPotential,
-      descriptionEditorial: analysis.descriptionEditorial,
-      valueExplanation: resolved.valueExplanation,
-      thingsYouShouldKnow: analysis.thingsYouShouldKnow,
-      tasteProfile: analysis.tasteProfile,
-      foodPairingNotes: resolved.foodPairingNotes,
+      priceAvg: product.price ?? undefined,
       availability: [
         {
-          retailer: analysis.producer,
-          url: sourceUrl,
-          priceRon: analysis.price ?? undefined,
+          retailer: detectedWineryName,
+          url: finalUrl,
+          priceRon: product.price ?? undefined,
           inStock: true,
           lastCheckedAt: resolved.checkedAt,
         },
       ],
       affiliateLinks: [
         {
-          retailer: analysis.producer,
-          url: sourceUrl,
-          priceRon: analysis.price ?? undefined,
+          retailer: detectedWineryName,
+          url: finalUrl,
+          priceRon: product.price ?? undefined,
         },
       ],
       imageAlt: buildWineImageAlt({
-        name: analysis.name,
+        name: product.name,
         vintage: analysis.vintage,
         type: resolved.wineType,
-        wineryName: analysis.producer,
+        wineryName: detectedWineryName,
       }),
+      ...imagePatch,
     })
     .where(eq(wines.id, wine.id));
+
+  if (product.price != null) {
+    await updatePrice(wine.id, product.price, finalUrl);
+  }
+
+  await generateAndApplyFullEditorial(wine.id);
+
+  const updatedWine = await loadWineForApiResponse(wine.id);
+  if (!updatedWine) {
+    return {
+      status: "rejected",
+      message: "Vin actualizat dar raspunsul complet nu a putut fi generat.",
+      wineId: wine.id,
+      slug: wine.slug,
+      meta: flowMeta,
+    };
+  }
 
   return {
     status: "updated",
     slug: wine.slug,
     wineId: wine.id,
+    redirectUrl: `/wines/${wine.slug}`,
+    wine: updatedWine,
+    meta: flowMeta,
+    submitType: wine.submitType,
     message: "Vin re-analizat cu succes.",
   };
 }

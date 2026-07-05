@@ -1,10 +1,11 @@
 import { Building2, CheckCircle2, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
 import { WineImage } from "@/components/wines/wine-image";
+import { WinePriceDisplay } from "@/components/wines/wine-price-display";
 import { SourceBadge } from "@/components/wines/source-badge";
 import { CommunityBadge } from "@/components/wines/community-badge";
 import { Badge } from "@/components/ui/badge";
-import { formatRon, formatLongDate, wineTypeLabel } from "@/lib/format";
+import { formatLongDate, wineTypeLabel } from "@/lib/format";
 import { resolveWineFactualSource } from "@/lib/wine-source";
 import type { WineWithRelations } from "@/types";
 
@@ -19,6 +20,7 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
               name={wine.name}
               type={wine.type}
               imageUrl={wine.imageUrl}
+              imageSource={wine.imageSource}
               imageAlt={wine.imageAlt}
               vintage={wine.vintage}
               wineryName={wine.winery?.name}
@@ -101,13 +103,8 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
             </p>
           ) : null}
 
-          <div className="mt-6 flex flex-wrap items-baseline gap-3">
-            <span className="text-3xl font-bold text-foreground">
-              {formatRon(wine.priceAvg)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              pret mediu in Romania
-            </span>
+          <div className="mt-6">
+            <WinePriceDisplay wine={wine} variant="hero" />
           </div>
 
           <div className="mt-4">

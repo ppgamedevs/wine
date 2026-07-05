@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import Link from "next/link";
 import { WineImage } from "@/components/wines/wine-image";
-import { Button } from "@/components/ui/button";
-import { formatRon, valueScoreTone, wineTypeLabel } from "@/lib/format";
+import { WineCardPriceFooter } from "@/components/wines/wine-price-display";
+import { valueScoreTone, wineTypeLabel } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
@@ -31,6 +31,7 @@ export function WineCard({
           name={wine.name}
           type={wine.type}
           imageUrl={wine.imageUrl}
+          imageSource={wine.imageSource}
           imageAlt={wine.imageAlt}
           vintage={wine.vintage}
           wineryName={wine.winery?.name}
@@ -81,22 +82,7 @@ export function WineCard({
           </Link>
         </h3>
 
-        <div className="mt-auto flex items-center justify-between pt-4">
-          <span className="text-lg font-semibold text-foreground">
-            {formatRon(wine.priceAvg)}
-          </span>
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="group/btn -mr-2 text-wine hover:bg-wine/10 hover:text-wine"
-          >
-            <Link href={`/wines/${wine.slug}`}>
-              Vezi detalii
-              <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-0.5" />
-            </Link>
-          </Button>
-        </div>
+        <WineCardPriceFooter wine={wine} />
       </div>
     </motion.article>
   );

@@ -33,6 +33,7 @@ export function RecommendationCard({
           name={wine.name}
           type={wine.type}
           imageUrl={wine.imageUrl}
+          imageSource={wine.imageSource}
           vintage={wine.vintage}
           wineryName={wine.winery?.name}
           sizes="(max-width: 640px) 100vw, 160px"
