@@ -107,6 +107,30 @@ export const wineLinkAnalysisSchema = z.object({
   category: z.string().optional(),
   grapeVarieties: z.array(z.string()).default([]),
   region: z.string().min(2),
+  sweetness: z
+    .enum(["sec", "demisec", "demidulce", "dulce"])
+    .nullable()
+    .optional()
+    .describe("Dulceata daca apare explicit in pagina sau in numele produsului"),
+  alcohol: z
+    .number()
+    .min(8)
+    .max(18)
+    .nullable()
+    .optional()
+    .describe("Concentratie alcoolica in % vol, doar daca apare in pagina"),
+  sugar: z
+    .number()
+    .nonnegative()
+    .nullable()
+    .optional()
+    .describe("Zahar rezidual g/L, doar daca apare in pagina"),
+  acidity: z
+    .number()
+    .nonnegative()
+    .nullable()
+    .optional()
+    .describe("Aciditate g/L, doar daca apare in pagina"),
   sourceUrl: z.string().url(),
   descriptionEditorial: z.string().min(40),
   valueScore: z.number().min(1).max(10),

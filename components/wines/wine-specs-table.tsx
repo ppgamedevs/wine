@@ -7,6 +7,16 @@ import {
 import { formatRon, wineTypeLabel } from "@/lib/format";
 import type { WineWithRelations } from "@/types";
 
+const SWEETNESS_LABELS: Record<
+  NonNullable<WineWithRelations["sweetness"]>,
+  string
+> = {
+  sec: "Sec",
+  demisec: "Demisec",
+  demidulce: "Demidulce",
+  dulce: "Dulce",
+};
+
 interface SpecRow {
   label: string;
   value: string;
@@ -21,9 +31,14 @@ function buildSpecs(wine: WineWithRelations): SpecRow[] {
 
   const specs: SpecRow[] = [
     { label: "Tip vin", value: wineTypeLabel[wine.type] },
-    wine.sweetness
-      ? { label: "Dulceata", value: wine.sweetness }
-      : { label: "Dulceata", value: "N/A" },
+    ...(wine.sweetness
+      ? [
+          {
+            label: "Dulceata",
+            value: SWEETNESS_LABELS[wine.sweetness],
+          },
+        ]
+      : []),
     wine.vintage
       ? { label: "An recolta", value: String(wine.vintage) }
       : { label: "An recolta", value: "N/A" },
@@ -36,15 +51,15 @@ function buildSpecs(wine: WineWithRelations): SpecRow[] {
     wine.winery?.name
       ? { label: "Crama", value: wine.winery.name }
       : { label: "Crama", value: "N/A" },
-    wine.alcohol
-      ? { label: "Alcool", value: `${wine.alcohol}% vol.` }
-      : { label: "Alcool", value: "N/A" },
-    wine.sugar !== null && wine.sugar !== undefined
-      ? { label: "Zahar rezidual", value: `${wine.sugar} g/L` }
-      : { label: "Zahar rezidual", value: "N/A" },
-    wine.acidity !== null && wine.acidity !== undefined
-      ? { label: "Aciditate", value: `${wine.acidity} g/L` }
-      : { label: "Aciditate", value: "N/A" },
+    ...(wine.alcohol
+      ? [{ label: "Alcool", value: `${wine.alcohol}% vol.` }]
+      : []),
+    ...(wine.sugar !== null && wine.sugar !== undefined
+      ? [{ label: "Zahar rezidual", value: `${wine.sugar} g/L` }]
+      : []),
+    ...(wine.acidity !== null && wine.acidity !== undefined
+      ? [{ label: "Aciditate", value: `${wine.acidity} g/L` }]
+      : []),
     wine.priceAvg
       ? { label: "Pret mediu", value: formatRon(wine.priceAvg) }
       : { label: "Pret mediu", value: "N/A" },

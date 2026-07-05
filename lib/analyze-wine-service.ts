@@ -25,6 +25,7 @@ import { mapCsvCategoryToWineType } from "@/lib/wine-csv-schema";
 import { loadWineForEditorial } from "@/lib/regenerate-wine-editorial";
 import { generateAndApplyFullEditorial } from "@/lib/wine-enrichment";
 import { buildWineImageAlt } from "@/lib/wine-images";
+import { resolveTechSpecs, techSpecsForDb } from "@/lib/wine-tech-specs";
 import { buildWineSlug, normalizeSourceUrl, slugify } from "@/lib/wine-url";
 import { resolveWineSubmitContext } from "@/lib/wine-submit-context";
 import { resolveWineryIdFromDetection, detectWineryNameFromCatalog } from "@/lib/winery-detection";
@@ -315,6 +316,17 @@ export async function analyzeAndSaveWineFromUrl(
   }
 
   const resolved = resolveWineAnalysis(analysisForScoring, pageText);
+  const techSpecs = resolveTechSpecs({
+    wineName: product.name,
+    pageText,
+    ai: {
+      sweetness: analysis.sweetness ?? null,
+      alcohol: analysis.alcohol ?? null,
+      sugar: analysis.sugar ?? null,
+      acidity: analysis.acidity ?? null,
+    },
+  });
+  const techSpecsPatch = techSpecsForDb(techSpecs);
   const detectedWineryName =
     (await detectWineryNameFromCatalog({
       producer: product.producer,
@@ -389,6 +401,7 @@ export async function analyzeAndSaveWineFromUrl(
         type: resolved.wineType,
         wineryName: detectedWineryName,
       }),
+      ...techSpecsPatch,
     })
     .returning({ id: wines.id, slug: wines.slug });
 
@@ -467,6 +480,17 @@ export async function reanalyzeAndUpdateWine(
   }
 
   const resolved = resolveWineAnalysis(analysisForScoring, pageText);
+  const techSpecs = resolveTechSpecs({
+    wineName: product.name,
+    pageText,
+    ai: {
+      sweetness: analysis.sweetness ?? null,
+      alcohol: analysis.alcohol ?? null,
+      sugar: analysis.sugar ?? null,
+      acidity: analysis.acidity ?? null,
+    },
+  });
+  const techSpecsPatch = techSpecsForDb(techSpecs);
   const detectedWineryName =
     (await detectWineryNameFromCatalog({
       producer: product.producer,
@@ -517,6 +541,7 @@ export async function reanalyzeAndUpdateWine(
         wineryName: detectedWineryName,
       }),
       ...imagePatch,
+      ...techSpecsPatch,
     })
     .where(eq(wines.id, wine.id));
 
