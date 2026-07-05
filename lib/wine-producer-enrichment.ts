@@ -102,13 +102,26 @@ function resolveRecasKnownSlugs(wineName: string): string[] {
     slugs.push("explicit-merlot");
   }
   if (norm.includes("muse") && norm.includes("stars")) {
-    slugs.push("muse-stars-rose-spumant", "muse-stars");
+    if (norm.includes("rose") || norm.includes("roze")) {
+      slugs.push("muse-stars-rose-spumant", "muse-stars");
+    } else if (
+      norm.includes("brut") ||
+      norm.includes("chardonnay") ||
+      norm.includes("spumant alb")
+    ) {
+      // Alb brut: pagina dedicata lipseste pe site; evitam rose-ul.
+    } else {
+      slugs.push("muse-stars-rose-spumant", "muse-stars");
+    }
   }
   if (norm.includes("muse") && norm.includes("day")) {
     slugs.push("muse-day");
   }
   if (norm.includes("muse") && norm.includes("night")) {
     slugs.push("muse-night");
+  }
+  if (norm.includes("muse") && norm.includes("white")) {
+    slugs.push("muse-white");
   }
   if (norm.includes("sole") && (norm.includes("rose") || norm.includes("roze"))) {
     slugs.push("sole-roze");
@@ -303,23 +316,53 @@ function parseSweetnessLabel(raw: string): WineSweetnessLevel | null {
   return null;
 }
 
-function parseGrapeVarietiesFromCupaj(text: string): GrapeVarietyShare[] {
-  const cupajBlock = text.match(
-    /cupaj\s*([\s\S]*?)(?=culoare|an\b|an\d|apela|vol\.?\s*alc|temperatur)/i,
-  )?.[1];
+function parsePercentVarietiesFromCommaList(segment: string): GrapeVarietyShare[] {
+  const varieties: GrapeVarietyShare[] = [];
 
-  if (cupajBlock) {
-    const varieties: GrapeVarietyShare[] = [];
-    for (const segment of cupajBlock.split(";")) {
-      const trimmed = segment.trim();
-      if (!trimmed) continue;
-      const match = trimmed.match(/^(.+?)\s*(\d{1,3})\s*%$/);
-      const name = match?.[1]?.trim();
-      const percentage = match?.[2] ? Number.parseInt(match[2], 10) : null;
-      if (!name || percentage == null || !Number.isFinite(percentage)) continue;
-      varieties.push({ name, percentage });
+  for (const part of segment.split(/[,;]+/)) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const match = trimmed.match(/^(.+?)\s*(\d{1,3})\s*%$/);
+    const name = match?.[1]?.trim().replace(/\bCupaj\b/gi, " ").trim();
+    const percentage = match?.[2] ? Number.parseInt(match[2], 10) : null;
+    if (!name || percentage == null || !Number.isFinite(percentage)) continue;
+    if (name.length > 50 || /\./.test(name)) continue;
+    varieties.push({ name, percentage });
+  }
+
+  return varieties;
+}
+
+function extractCompactCupajLine(block: string): string | null {
+  const trimmed = block.replace(/^\s*Cupaj\s*/i, "").trim();
+  if (trimmed.length <= 140) return trimmed;
+
+  const inline = block.match(
+    /Cupaj\s*((?:[A-Za-zÀ-ž][A-Za-zÀ-ž\s.'-]{2,40}\s*\d{1,3}\s*%,?\s*){1,6})/i,
+  )?.[1];
+  return inline?.trim() ?? null;
+}
+
+function parseGrapeVarietiesFromCupaj(text: string): GrapeVarietyShare[] {
+  const cupajSections = [
+    ...text.matchAll(
+      /\bCupaj\s*([\s\S]{0,240}?)(?=Culoare|An\b|An\d|Apela|Vol\.?\s*Alc|Temperatur)/gi,
+    ),
+  ];
+
+  for (const section of cupajSections) {
+    const block = section[1] ?? "";
+    const compact = extractCompactCupajLine(block);
+    if (!compact) continue;
+
+    const varieties = parsePercentVarietiesFromCommaList(compact);
+    if (varieties.length === 0) continue;
+
+    const total = varieties.reduce((sum, item) => sum + (item.percentage ?? 0), 0);
+    if (total >= 90 && total <= 110) return varieties;
+    if (varieties.length === 1 && varieties[0]?.percentage === 100) {
+      return varieties;
     }
-    if (varieties.length > 0) return varieties;
   }
 
   const singleSoi = text.match(
@@ -408,6 +451,23 @@ export function inferRecasProducerPageUrl(
 
   if (/explicit-roze|roze-explicit/i.test(retailContext)) {
     return "https://cramelerecas.ro/roze-explicit/";
+  }
+
+  if (
+    /muse-stars.*(?:rose|roze)|muse-stars-rose|rose-spumant.*muse-stars/i.test(
+      retailContext,
+    )
+  ) {
+    return "https://cramelerecas.ro/muse-stars-rose-spumant/";
+  }
+
+  if (
+    /muse-stars.*brut|muse-stars-brut|spumant-alb-recas-muse-stars/i.test(
+      retailContext,
+    ) &&
+    !/(?:rose|roze)/i.test(retailContext)
+  ) {
+    return null;
   }
 
   if (

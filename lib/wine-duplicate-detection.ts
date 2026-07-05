@@ -24,10 +24,42 @@ function normalizeIdentityText(value: string): string {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/\b(vin|rose|roze|rosu|alb)\b/g, " ")
+    .replace(/\bvin\b/g, " ")
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+type IdentityColor = "white" | "rose" | "red";
+
+function extractIdentityColor(name: string, url = ""): IdentityColor | null {
+  const hay = normalizeIdentityText(`${name} ${url}`);
+  if (
+    /\b(alb|white|chardonnay|sauvignon|riesling|feteasca regala|muscat)\b/.test(
+      hay,
+    )
+  ) {
+    return "white";
+  }
+  if (/\b(rose|roze|roz|pinot noir)\b/.test(hay)) {
+    return "rose";
+  }
+  if (/\b(rosu|red|merlot|cabernet|feteasca neagra)\b/.test(hay)) {
+    return "red";
+  }
+  return null;
+}
+
+function identityColorsConflict(
+  leftName: string,
+  leftUrl: string,
+  rightName: string,
+  rightUrl = "",
+): boolean {
+  const left = extractIdentityColor(leftName, leftUrl);
+  const right = extractIdentityColor(rightName, rightUrl);
+  if (left == null || right == null) return false;
+  return left !== right;
 }
 
 function extractRetailerProductId(url: string): string | null {
@@ -106,6 +138,15 @@ async function findByIdentity(input: FindExistingWineInput): Promise<ExistingWin
     const score = tokenSimilarity(input.name, candidate.name);
     if (score < 0.8) continue;
     if (!vintagesCompatible(input.vintage, candidate.vintage)) continue;
+    if (
+      identityColorsConflict(
+        input.name,
+        input.finalUrl,
+        candidate.name,
+      )
+    ) {
+      continue;
+    }
 
     if (score > bestScore) {
       bestScore = score;

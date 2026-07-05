@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/journal/recolta-2024-in-moldova-ce-inseamna-pentru-tine",
+        destination:
+          "/journal/recolta-2026-in-moldova-ce-inseamna-pentru-tine",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30,
