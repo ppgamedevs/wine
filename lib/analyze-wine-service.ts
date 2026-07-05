@@ -14,6 +14,7 @@ import {
   inferImageSourceFromUrl,
 } from "@/lib/price-extractor";
 import { updatePrice } from "@/lib/price-tracker";
+import { detectRetailerLabel, resolveUserFacingPurchaseUrl } from "@/lib/retailer-links";
 import {
   regions,
   wines,
@@ -115,6 +116,37 @@ function serializeWineForApi(
   const { embedding, ...rest } = wine;
   void embedding;
   return rest;
+}
+
+function buildStoredRetailerLinks(
+  finalUrl: string,
+  fallbackRetailer: string,
+  price: number | null | undefined,
+  checkedAt: string,
+) {
+  const retailerUrl = resolveUserFacingPurchaseUrl(finalUrl);
+  const retailer = detectRetailerLabel(retailerUrl) ?? fallbackRetailer;
+
+  return {
+    retailer,
+    url: retailerUrl,
+    availability: [
+      {
+        retailer,
+        url: retailerUrl,
+        priceRon: price ?? undefined,
+        inStock: true,
+        lastCheckedAt: checkedAt,
+      },
+    ],
+    affiliateLinks: [
+      {
+        retailer,
+        url: retailerUrl,
+        priceRon: price ?? undefined,
+      },
+    ],
+  };
 }
 
 async function loadWineForApiResponse(
@@ -322,6 +354,13 @@ export async function analyzeAndSaveWineFromUrl(
     regionId,
   );
 
+  const retailerLinks = buildStoredRetailerLinks(
+    finalUrl,
+    detectedWineryName,
+    product.price,
+    resolved.checkedAt,
+  );
+
   const [created] = await db
     .insert(wines)
     .values({
@@ -338,22 +377,8 @@ export async function analyzeAndSaveWineFromUrl(
       submitType,
       status: initialStatus,
       sourceBadge,
-      availability: [
-        {
-          retailer: detectedWineryName,
-          url: finalUrl,
-          priceRon: product.price ?? undefined,
-          inStock: true,
-          lastCheckedAt: resolved.checkedAt,
-        },
-      ],
-      affiliateLinks: [
-        {
-          retailer: detectedWineryName,
-          url: finalUrl,
-          priceRon: product.price ?? undefined,
-        },
-      ],
+      availability: retailerLinks.availability,
+      affiliateLinks: retailerLinks.affiliateLinks,
       imageUrl: extracted.imageUrl ?? undefined,
       imageSource: extracted.imageUrl
         ? inferImageSourceFromUrl(finalUrl)
@@ -368,7 +393,7 @@ export async function analyzeAndSaveWineFromUrl(
     .returning({ id: wines.id, slug: wines.slug });
 
   if (product.price != null) {
-    await updatePrice(created.id, product.price, finalUrl);
+    await updatePrice(created.id, product.price, retailerLinks.url);
   }
 
   await generateAndApplyFullEditorial(created.id);
@@ -466,6 +491,13 @@ export async function reanalyzeAndUpdateWine(
         }
       : {};
 
+  const retailerLinks = buildStoredRetailerLinks(
+    finalUrl,
+    detectedWineryName,
+    product.price,
+    resolved.checkedAt,
+  );
+
   await db
     .update(wines)
     .set({
@@ -476,22 +508,8 @@ export async function reanalyzeAndUpdateWine(
       vintage: analysis.vintage ?? undefined,
       grapeVarieties: resolved.grapeVarieties,
       priceAvg: product.price ?? undefined,
-      availability: [
-        {
-          retailer: detectedWineryName,
-          url: finalUrl,
-          priceRon: product.price ?? undefined,
-          inStock: true,
-          lastCheckedAt: resolved.checkedAt,
-        },
-      ],
-      affiliateLinks: [
-        {
-          retailer: detectedWineryName,
-          url: finalUrl,
-          priceRon: product.price ?? undefined,
-        },
-      ],
+      availability: retailerLinks.availability,
+      affiliateLinks: retailerLinks.affiliateLinks,
       imageAlt: buildWineImageAlt({
         name: product.name,
         vintage: analysis.vintage,
@@ -503,7 +521,7 @@ export async function reanalyzeAndUpdateWine(
     .where(eq(wines.id, wine.id));
 
   if (product.price != null) {
-    await updatePrice(wine.id, product.price, finalUrl);
+    await updatePrice(wine.id, product.price, retailerLinks.url);
   }
 
   await generateAndApplyFullEditorial(wine.id);

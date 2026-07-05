@@ -14,6 +14,7 @@ import {
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { WineImage } from "@/components/wines/wine-image";
+import { RetailerPurchaseLink } from "@/components/wines/retailer-purchase-link";
 import { Button } from "@/components/ui/button";
 import {
   formatRon,
@@ -21,6 +22,7 @@ import {
   wineTypeLabel,
 } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
+import { buildWinePriceViewModel } from "@/lib/wine-price";
 import type { ExpertRecommendationDisplay } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -61,7 +63,7 @@ export function ExpertRecommendationCard({
 }) {
   const { wine, matchScore, whyThisWine, thingsYouShouldKnow, pairingScience, servingAndStorage, budgetFit } =
     recommendation;
-  const affiliate = wine.affiliateLinks[0];
+  const pricing = buildWinePriceViewModel(wine);
 
   const handleShare = async () => {
     const text = `${wine.name}: ${whyThisWine}`;
@@ -203,12 +205,13 @@ export function ExpertRecommendationCard({
           </Link>
         </Button>
 
-        {affiliate ? (
-          <Button asChild size="sm" variant="outline">
-            <a href={affiliate.url} target="_blank" rel="noopener noreferrer">
-              Cumpara la {affiliate.retailer}
-            </a>
-          </Button>
+        {pricing.purchaseLink ? (
+          <RetailerPurchaseLink
+            url={pricing.purchaseLink.url}
+            retailerName={pricing.purchaseLink.retailer}
+            size="sm"
+            variant="outline"
+          />
         ) : null}
 
         <Button

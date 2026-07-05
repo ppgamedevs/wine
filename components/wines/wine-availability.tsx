@@ -1,8 +1,9 @@
-import { BadgeCheck, ExternalLink, ShoppingBag } from "lucide-react";
+import { BadgeCheck, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { RetailerPurchaseLink } from "@/components/wines/retailer-purchase-link";
 import { formatRon } from "@/lib/format";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
 import type { WineWithRelations } from "@/types";
@@ -25,7 +26,8 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
         Pret si disponibilitate
       </h2>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        Informatii preluate din sursa principala a vinului.
+        Informatii preluate din sursa principala a vinului. Comanda se
+        finalizeaza direct la magazinul partener.
       </p>
 
       <Card className="mt-6 border-border/70">
@@ -63,19 +65,11 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
           </div>
 
           {pricing.purchaseLink ? (
-            <Button
-              asChild
-              className="bg-wine text-wine-foreground hover:bg-wine/90"
-            >
-              <a
-                href={pricing.purchaseLink.url}
-                target="_blank"
-                rel="noopener noreferrer sponsored"
-              >
-                Vezi la retailer
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            </Button>
+            <RetailerPurchaseLink
+              url={pricing.purchaseLink.url}
+              retailerName={pricing.purchaseLink.retailer}
+              showNote
+            />
           ) : (
             <Button asChild variant="outline">
               <Link href="/cauta">Cauta in catalog</Link>

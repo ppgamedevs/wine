@@ -1,10 +1,8 @@
-import {
-  BadgeCheck,
-  ExternalLink,
-} from "lucide-react";
+import { BadgeCheck, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RetailerPurchaseLink } from "@/components/wines/retailer-purchase-link";
 import { formatRon } from "@/lib/format";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
 import { cn } from "@/lib/utils";
@@ -115,23 +113,13 @@ export function WinePriceDisplay({
       ) : null}
 
       {showPurchaseButton && pricing.purchaseLink ? (
-        <Button
-          asChild
+        <RetailerPurchaseLink
+          url={pricing.purchaseLink.url}
+          retailerName={pricing.purchaseLink.retailer}
           size={isCard ? "sm" : "default"}
-          className={cn(
-            "bg-wine text-wine-foreground hover:bg-wine/90",
-            isCard ? "mt-1" : "mt-2",
-          )}
-        >
-          <a
-            href={pricing.purchaseLink.url}
-            target="_blank"
-            rel="noopener noreferrer sponsored"
-          >
-            Cumpara
-            <ExternalLink className="h-4 w-4" />
-          </a>
-        </Button>
+          showNote={!isCard}
+          className={isCard ? "mt-1" : "mt-2"}
+        />
       ) : null}
     </div>
   );
@@ -146,20 +134,11 @@ export function WineCardPriceFooter({ wine }: { wine: WineWithRelations }) {
 
       <div className="flex items-center justify-between gap-2">
         {pricing.purchaseLink ? (
-          <Button
-            asChild
+          <RetailerPurchaseLink
+            url={pricing.purchaseLink.url}
+            retailerName={pricing.purchaseLink.retailer}
             size="sm"
-            className="bg-wine text-wine-foreground hover:bg-wine/90"
-          >
-            <a
-              href={pricing.purchaseLink.url}
-              target="_blank"
-              rel="noopener noreferrer sponsored"
-            >
-              Cumpara
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </Button>
+          />
         ) : pricing.verifyPriceUrl ? (
           <Button
             asChild
