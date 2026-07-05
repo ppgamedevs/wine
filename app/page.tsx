@@ -22,7 +22,7 @@ const homeFaq: FaqEntry[] = [
   {
     question: "Ce inseamna Value Score?",
     answer:
-      "Value Score este un indicator de la 0 la 100 care arata cat de bun este un vin raportat la pretul cerut. Un scor peste 85 inseamna un raport calitate-pret excelent.",
+      "Value Score este un indicator de la 0 la 100 care arata cat de bun este un vin raportat la pretul cerut. Peste 75 merita banii, intre 70 si 74 este pret mediu, sub 70 recomandam alternative.",
   },
   {
     question: "Cum gasesc un vin pentru o anumita mancare sau ocazie?",

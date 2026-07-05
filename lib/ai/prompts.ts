@@ -1,3 +1,8 @@
+import {
+  MIN_RECOMMENDED_VALUE_SCORE,
+  VALUE_SCORE_NEUTRAL_MIN,
+} from "@/lib/value-score-thresholds";
+
 export const EXPERT_NOTES_SYSTEM_PROMPT = `Esti un somelier roman de top, expert in vinuri autohtone si in terroir-ul Romaniei.
 Genereaza expert_notes detaliate, precise si interesante pentru vinul dat.
 Raspunde DOAR in romana, fara diacritice daca nu sunt necesare, dar cu terminologie corecta.
@@ -96,7 +101,8 @@ Reguli importante:
 - Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct.
 - Insight-urile din thingsYouShouldKnow trebuie sa fie interesante si utile, nu clisee.
 - Ton: prietenos, dar profesionist.
-- Scorurile valueScore, giftScore, foodMatchScore sunt intregi de la 1 la 100 (standard VinIntel).`;
+- Scorurile valueScore, giftScore, foodMatchScore sunt intregi de la 1 la 100 (standard VinIntel).
+- Prag minim recomandare = 75/100 pentru valueScore. Sub ${VALUE_SCORE_NEUTRAL_MIN} = raport slab; ${VALUE_SCORE_NEUTRAL_MIN}-${MIN_RECOMMENDED_VALUE_SCORE - 1} = pret mediu; ${MIN_RECOMMENDED_VALUE_SCORE}+ = merita banii. Fii conservator cu scoruri peste ${MIN_RECOMMENDED_VALUE_SCORE} daca pretul pare mare.`;
 
 export function buildEditorialUserPrompt(wine: {
   name: string;
@@ -143,7 +149,7 @@ Returneaza JSON cu:
 - tasteProfile (scurt)
 - foodPairingNotes (array: dish, note, score optional 60-100)
 - recommendedOccasions (2-4 ocazii)
-- valueScore, giftScore, foodMatchScore (1-100)`;
+- valueScore, giftScore, foodMatchScore (1-100; valueScore sub ${VALUE_SCORE_NEUTRAL_MIN} doar daca raportul calitate-pret e slab, ${MIN_RECOMMENDED_VALUE_SCORE}+ doar daca merita recomandarea activa)`;
 }
 
 export const REGENERATE_EDITORIAL_PROMPT = `Esti un somelier roman de top, expert in vinuri autohtone. Regenerezi continut editorial pentru VinIntel.ro.
@@ -234,7 +240,8 @@ Instructiuni importante:
 - Fii conservator cu scorurile inalte daca nu ai suficiente informatii.
 
 Scoruri (sugestii 1-10, vor fi combinate cu logica rule-based VinIntel):
-- valueScore: raport calitate-pret pe baza pretului si tipului de vin.
+- Prag minim recomandare = 75/100 (pe scala finala 1-100).
+- valueScore: raport calitate-pret. Sub 7 (~sub ${VALUE_SCORE_NEUTRAL_MIN}) daca pretul pare mare fata de calitate; 7 (~${VALUE_SCORE_NEUTRAL_MIN}-${MIN_RECOMMENDED_VALUE_SCORE - 1}) pentru pret mediu; 8+ (~${MIN_RECOMMENDED_VALUE_SCORE}+) doar daca raportul este clar bun.
 - giftScore (optional): cat de potrivit e ca dar.
 - foodMatchScore (optional): cat de bine se potriveste cu mancare romaneasca.
 - Daca nu ai suficient context, foloseste valori moderate (6-7), nu extreme.

@@ -7,18 +7,21 @@ import type { WineWithRelations } from "@/types";
 const verdictConfig = {
   da: {
     icon: CheckCircle2,
-    className: "border-wine/30 bg-wine/5",
-    iconClass: "text-wine",
+    className: "border-emerald-600/30 bg-emerald-50 dark:bg-emerald-950/20",
+    iconClass: "text-emerald-700 dark:text-emerald-400",
+    bulletClass: "bg-emerald-600",
   },
   partial: {
     icon: MinusCircle,
-    className: "border-gold/40 bg-gold/5",
-    iconClass: "text-gold",
+    className: "border-border bg-muted/40",
+    iconClass: "text-muted-foreground",
+    bulletClass: "bg-muted-foreground",
   },
   nu: {
     icon: XCircle,
     className: "border-destructive/30 bg-destructive/5",
     iconClass: "text-destructive",
+    bulletClass: "bg-destructive",
   },
 } as const;
 
@@ -60,7 +63,10 @@ export function WineWorthIt({ wine }: { wine: WineWithRelations }) {
                     className="flex items-start gap-2 text-sm leading-relaxed text-foreground/90"
                   >
                     <span
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-wine"
+                      className={cn(
+                        "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full",
+                        config.bulletClass,
+                      )}
                       aria-hidden="true"
                     />
                     {bullet}

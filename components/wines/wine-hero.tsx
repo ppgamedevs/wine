@@ -6,10 +6,13 @@ import { SourceBadge } from "@/components/wines/source-badge";
 import { CommunityBadge } from "@/components/wines/community-badge";
 import { Badge } from "@/components/ui/badge";
 import { formatLongDate, wineTypeLabel } from "@/lib/format";
+import { resolveWineVintage } from "@/lib/wine-vintage";
 import { resolveWineFactualSource } from "@/lib/wine-source";
 import type { WineWithRelations } from "@/types";
 
 export function WineHero({ wine }: { wine: WineWithRelations }) {
+  const displayVintage = resolveWineVintage(wine);
+
   return (
     <section className="border-b border-border/60 bg-secondary/20">
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-12 lg:py-14">
@@ -22,7 +25,7 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
               imageUrl={wine.imageUrl}
               imageSource={wine.imageSource}
               imageAlt={wine.imageAlt}
-              vintage={wine.vintage}
+              vintage={displayVintage}
               wineryName={wine.winery?.name}
               priority
               sizes="(max-width: 1024px) 100vw, 45vw"
@@ -52,8 +55,8 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
             <Badge variant="outline" className="border-wine/30 text-wine">
               {wineTypeLabel[wine.type]}
             </Badge>
-            {wine.vintage ? (
-              <Badge variant="secondary">{wine.vintage}</Badge>
+            {displayVintage ? (
+              <Badge variant="secondary">{displayVintage}</Badge>
             ) : null}
             {wine.sweetness ? (
               <Badge variant="secondary" className="capitalize">
@@ -71,8 +74,8 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
 
           <h1 className="mt-4 font-serif text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
             {wine.name}
-            {wine.vintage ? (
-              <span className="text-muted-foreground"> {wine.vintage}</span>
+            {displayVintage ? (
+              <span className="text-muted-foreground"> {displayVintage}</span>
             ) : null}
           </h1>
 

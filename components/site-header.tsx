@@ -8,7 +8,6 @@ const navLinks = [
   { label: "Crame", href: "/crame" },
   { label: "Journal", href: "/journal" },
   { label: "Topuri", href: "/topuri" },
-  { label: "Adauga vin", href: "/adauga-vin" },
 ];
 
 export function SiteHeader() {

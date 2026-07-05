@@ -23,7 +23,7 @@ import { isWineUrl } from "@/lib/wine-url";
 import { cn } from "@/lib/utils";
 
 export const WINE_LINK_HELPER_TEXT =
-  "Adauga un link de vin romanesc (eMag, Profitshare, site crama etc.)";
+  "Adauga un link de vin romanesc (eMag, site crama etc.)";
 
 export const WINE_SUBMITTED_FOR_REVIEW_MESSAGE = WINE_PENDING_REVIEW_MESSAGE;
 

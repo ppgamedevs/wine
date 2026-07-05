@@ -50,8 +50,8 @@ export async function FeaturedWines() {
                 Vinuri recomandate
               </h2>
               <p className="mt-3 text-muted-foreground">
-                Selectia noastra dupa Value Score: cel mai bun raport calitate
-                pret din vinul romanesc.
+                Selectia noastra dupa Value Score (minim 75/100): cel mai bun
+                raport calitate pret din vinul romanesc.
               </p>
             </div>
             <Button

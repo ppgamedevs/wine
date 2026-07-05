@@ -32,7 +32,7 @@ export function WineRelatedSections({
           </p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {similar.map((item) => (
-              <WineCard key={item.id} wine={item} />
+              <WineCard key={item.id} wine={item} minValueScore={null} />
             ))}
           </div>
         </section>
@@ -47,7 +47,8 @@ export function WineRelatedSections({
             Recomandari VinIntel
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Alternative cu Value Score ridicat in acelasi interval de pret.
+            Alternative cu Value Score de cel putin 75/100 in acelasi interval de
+            pret.
           </p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {recommended.map((item) => (

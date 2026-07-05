@@ -35,23 +35,6 @@ export function WinePriceDisplay({
         >
           Pret indisponibil
         </p>
-        {pricing.verifyPriceUrl ? (
-          <Button
-            asChild
-            size={isCard ? "sm" : "default"}
-            variant="outline"
-            className="border-wine/30 text-wine hover:bg-wine/10"
-          >
-            <a
-              href={pricing.verifyPriceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Vezi sursa
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </Button>
-        ) : null}
       </div>
     );
   }
@@ -133,13 +116,13 @@ export function WineCardPriceFooter({ wine }: { wine: WineWithRelations }) {
       <WinePriceDisplay wine={wine} variant="card" showPurchaseButton={false} />
 
       <div className="flex items-center justify-between gap-2">
-        {pricing.purchaseLink ? (
+        {pricing.status !== "unavailable" && pricing.purchaseLink ? (
           <RetailerPurchaseLink
             url={pricing.purchaseLink.url}
             retailerName={pricing.purchaseLink.retailer}
             size="sm"
           />
-        ) : pricing.verifyPriceUrl ? (
+        ) : pricing.status !== "unavailable" && pricing.verifyPriceUrl ? (
           <Button
             asChild
             size="sm"

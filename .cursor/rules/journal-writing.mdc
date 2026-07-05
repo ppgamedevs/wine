@@ -1,0 +1,40 @@
+---
+description: Prompt si conventii pentru articole Wine Journal
+globs: content/journal/**
+alwaysApply: false
+---
+
+# Wine Journal - scriere articole
+
+Cand scrii sau editezi articole in `content/journal/`, foloseste baza din `lib/ai/journal-prompts.ts`:
+
+- `JOURNAL_ARTICLE_SYSTEM_PROMPT` - voce, ton, structura (1400-1800 cuvinte)
+- `buildJournalArticleUserPrompt({ title, subject, category })` - prompt user cu titlu si subiect
+
+## Format fisier
+
+```markdown
+---
+slug: exemplu-articol
+title: Titlul articolului
+excerpt: Rezumat scurt pentru card.
+publishedAt: 2026-07-05
+category: ghiduri-incepatori
+featured: false
+popular: false
+readCount: 0
+---
+
+Continut markdown cu ## pentru sectiuni.
+```
+
+## Categorii valide
+
+`ghiduri-incepatori`, `pairing-romanesc`, `soiuri-autohtone`, `povesti-crame`, `value-ocazii`, `vintage-reports`
+
+## Conventii VinIntel
+
+- Romana fara diacritice in titlu, excerpt si corp (ca articolele existente)
+- Fara em dash / en dash
+- Exemple concrete: soiuri, regiuni, crame, preturi in RON
+- Ton autoritar dar accesibil, direct la cititor (tu)

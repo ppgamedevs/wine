@@ -31,6 +31,7 @@ interface WineTarget {
   sourceUrl: string;
   currentPrice: number | null;
   imageUrl: string | null;
+  vintage: number | null;
 }
 
 function parseArgs(): JobOptions {
@@ -62,6 +63,7 @@ async function loadTargets(limit: number): Promise<WineTarget[]> {
       sourceUrl: true,
       currentPrice: true,
       imageUrl: true,
+      vintage: true,
       updatedAt: true,
     },
     orderBy: [
@@ -84,6 +86,7 @@ async function loadTargets(limit: number): Promise<WineTarget[]> {
       sourceUrl: row.sourceUrl.trim(),
       currentPrice: row.currentPrice,
       imageUrl: row.imageUrl,
+      vintage: row.vintage,
     }));
 }
 
@@ -131,10 +134,7 @@ async function main() {
       if (extracted.price == null) {
         skipped += 1;
         console.warn(`${prefix} skip: pret negasit`);
-        continue;
-      }
-
-      if (!priceChanged(wine.currentPrice, extracted.price)) {
+      } else if (!priceChanged(wine.currentPrice, extracted.price)) {
         unchanged += 1;
         console.log(`${prefix} skip: pret neschimbat (${extracted.price} RON)`);
       } else {
@@ -164,6 +164,16 @@ async function main() {
         console.log(`${prefix} imagine adaugata`);
       } else if (extracted.imageUrl && !wine.imageUrl) {
         console.log(`${prefix} imagine gasita (dry-run)`);
+      }
+
+      if (wine.vintage == null && extracted.vintage != null && !options.dryRun) {
+        await db
+          .update(wines)
+          .set({ vintage: extracted.vintage })
+          .where(eq(wines.id, wine.id));
+        console.log(`${prefix} vintage completat: ${extracted.vintage}`);
+      } else if (wine.vintage == null && extracted.vintage != null) {
+        console.log(`${prefix} vintage gasit (dry-run): ${extracted.vintage}`);
       }
     } catch (error) {
       failed += 1;

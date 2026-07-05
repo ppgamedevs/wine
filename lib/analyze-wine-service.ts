@@ -30,6 +30,7 @@ import { buildWineImageAlt } from "@/lib/wine-images";
 import { resolveTechSpecs, techSpecsForDb } from "@/lib/wine-tech-specs";
 import { enrichWineFromProducerSite } from "@/lib/wine-producer-enrichment";
 import { buildWineSlug, normalizeSourceUrl, slugify } from "@/lib/wine-url";
+import { resolveStoredWineVintage } from "@/lib/wine-vintage";
 import { resolveWineSubmitContext } from "@/lib/wine-submit-context";
 import { findExistingWine, findWineBySourceUrl } from "@/lib/wine-duplicate-detection";
 import {
@@ -130,6 +131,26 @@ function resolveWineAnalysis(
   };
 }
 
+function resolveImportVintage(
+  analysis: WineLinkAnalysis,
+  product: { vintage: number | null; name: string },
+  pageText: string,
+  html: string,
+  producer: string,
+): number | null {
+  return resolveStoredWineVintage({
+    vintage: analysis.vintage ?? product.vintage ?? null,
+    name: product.name,
+    slug: buildWineSlug({
+      producer,
+      name: product.name,
+      vintage: analysis.vintage ?? product.vintage ?? null,
+    }),
+    pageText,
+    html,
+  });
+}
+
 function serializeWineForApi(
   wine: NonNullable<Awaited<ReturnType<typeof loadWineForEditorial>>>,
 ): AnalyzeWineApiWine {
@@ -227,12 +248,14 @@ function mergeExtractedWithAnalysis(
   producer: string;
   price: number | null;
   retailUrl: string;
+  vintage: number | null;
 } {
   return {
     name: extracted.name ?? analysis.name,
     producer: extracted.producer ?? analysis.producer,
     price: extracted.price ?? analysis.price ?? null,
     retailUrl: extracted.finalUrl,
+    vintage: extracted.vintage ?? analysis.vintage ?? null,
   };
 }
 
@@ -416,10 +439,17 @@ export async function analyzeAndSaveWineFromUrl(
       pageText,
       finalUrl,
     })) ?? product.producer;
+  const resolvedVintage = resolveImportVintage(
+    analysis,
+    product,
+    pageText,
+    html,
+    detectedWineryName,
+  );
   const slug = buildWineSlug({
     producer: detectedWineryName,
     name: product.name,
-    vintage: analysis.vintage,
+    vintage: resolvedVintage,
   });
 
   const regionId = await resolveRegionId(analysis.region);
@@ -435,7 +465,7 @@ export async function analyzeAndSaveWineFromUrl(
     finalUrl,
     name: product.name,
     producer: detectedWineryName,
-    vintage: analysis.vintage ?? null,
+    vintage: resolvedVintage,
     wineryId,
   });
 
@@ -479,7 +509,7 @@ export async function analyzeAndSaveWineFromUrl(
       wineryId,
       regionId,
       type: resolved.wineType,
-      vintage: analysis.vintage ?? undefined,
+      vintage: resolvedVintage ?? undefined,
       grapeVarieties: resolved.grapeVarieties,
       priceAvg: product.price ?? undefined,
       sourceUrl,
@@ -495,7 +525,7 @@ export async function analyzeAndSaveWineFromUrl(
         : undefined,
       imageAlt: buildWineImageAlt({
         name: product.name,
-        vintage: analysis.vintage,
+        vintage: resolvedVintage,
         type: resolved.wineType,
         wineryName: detectedWineryName,
       }),
@@ -583,7 +613,13 @@ export async function analyzeWineSubmissionFromUrl(
     finalUrl,
     name: product.name,
     producer: detectedWineryName,
-    vintage: analysis.vintage ?? null,
+    vintage: resolveImportVintage(
+      analysis,
+      product,
+      pageText,
+      html,
+      detectedWineryName,
+    ),
     wineryId,
   });
 
@@ -611,10 +647,17 @@ export async function analyzeWineSubmissionFromUrl(
     };
   }
 
+  const resolvedVintage = resolveImportVintage(
+    analysis,
+    product,
+    pageText,
+    html,
+    detectedWineryName,
+  );
   const slug = buildWineSlug({
     producer: detectedWineryName,
     name: product.name,
-    vintage: analysis.vintage,
+    vintage: resolvedVintage,
   });
 
   const { techSpecsPatch, producerFields } = await resolveTechSpecsPatch(
@@ -639,7 +682,7 @@ export async function analyzeWineSubmissionFromUrl(
       wineryId,
       regionId,
       type: resolved.wineType,
-      vintage: analysis.vintage ?? undefined,
+      vintage: resolvedVintage ?? undefined,
       grapeVarieties: resolved.grapeVarieties,
       priceAvg: product.price ?? undefined,
       sourceUrl,
@@ -656,7 +699,7 @@ export async function analyzeWineSubmissionFromUrl(
         : undefined,
       imageAlt: buildWineImageAlt({
         name: product.name,
-        vintage: analysis.vintage,
+        vintage: resolvedVintage,
         type: resolved.wineType,
         wineryName: detectedWineryName,
       }),
@@ -758,6 +801,14 @@ export async function reanalyzeAndUpdateWine(
     regionId,
   );
 
+  const resolvedVintage = resolveImportVintage(
+    analysis,
+    product,
+    pageText,
+    html,
+    detectedWineryName,
+  );
+
   const { techSpecsPatch, producerFields } = await resolveTechSpecsPatch(
     product.name,
     pageText,
@@ -788,14 +839,14 @@ export async function reanalyzeAndUpdateWine(
       wineryId,
       regionId,
       type: resolved.wineType,
-      vintage: analysis.vintage ?? undefined,
+      vintage: resolvedVintage ?? undefined,
       grapeVarieties: resolved.grapeVarieties,
       priceAvg: product.price ?? undefined,
       availability: retailerLinks.availability,
       affiliateLinks: retailerLinks.affiliateLinks,
       imageAlt: buildWineImageAlt({
         name: product.name,
-        vintage: analysis.vintage,
+        vintage: resolvedVintage,
         type: resolved.wineType,
         wineryName: detectedWineryName,
       }),

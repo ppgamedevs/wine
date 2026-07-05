@@ -1,5 +1,9 @@
 import type { GrapeVarietyShare } from "@/lib/schema";
 import type { OverpricedRisk } from "@/types";
+import {
+  MIN_RECOMMENDED_VALUE_SCORE,
+  VALUE_SCORE_NEUTRAL_MIN,
+} from "@/lib/value-score-thresholds";
 
 export interface ScoreInput {
   price: number;
@@ -133,14 +137,16 @@ function inferOverpricedRisk(
   price: number,
   valueScore: number,
 ): OverpricedRisk {
-  if (valueScore >= 80 && price <= 80) return "low";
+  if (valueScore >= MIN_RECOMMENDED_VALUE_SCORE && price <= 80) return "low";
+  if (valueScore < VALUE_SCORE_NEUTRAL_MIN) return "high";
+  if (price > 80 && valueScore < MIN_RECOMMENDED_VALUE_SCORE) return "high";
   if (valueScore <= 50 || price > 120) return "high";
-  if (price > 80 && valueScore < 70) return "high";
   return "medium";
 }
 
 /**
  * Rule-based scores for CSV import (1-10 logic, stored as 1-100 in DB).
+ * Prag minim recomandare = 75/100 (vezi lib/value-score-thresholds.ts).
  * Rafinare ulterioara: db:editorial sau logica din lib/sommelier.ts.
  */
 export function calculateInitialScores(input: ScoreInput): InitialScores {

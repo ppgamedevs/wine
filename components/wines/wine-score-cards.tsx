@@ -7,6 +7,10 @@ import {
 import { EditorialSectionIcon } from "@/components/wines/editorial-section-icon";
 import { VinScoreBadge } from "@/components/wines/vin-score-badge";
 import { splitValueExplanation, sanitizeEditorialText } from "@/lib/editorial-text";
+import {
+  MIN_RECOMMENDED_VALUE_SCORE,
+  VALUE_SCORE_NEUTRAL_MIN,
+} from "@/lib/value-score-thresholds";
 import type { WineWithRelations } from "@/types";
 import type { ComponentType, SVGProps } from "react";
 
@@ -38,17 +42,18 @@ function ScoreCard({ label, score, description, icon: Icon }: ScoreCardProps) {
   );
 }
 
+function valueScoreFallbackDescription(): string {
+  return `Cat de bun este vinul raportat la pretul cerut. Peste ${MIN_RECOMMENDED_VALUE_SCORE} inseamna ca merita banii; ${VALUE_SCORE_NEUTRAL_MIN}-${MIN_RECOMMENDED_VALUE_SCORE - 1} este pret mediu; sub ${VALUE_SCORE_NEUTRAL_MIN} recomandam alternative.`;
+}
+
 function valueScoreDescription(wine: WineWithRelations): string {
   const raw = wine.valueExplanation?.trim();
   if (!raw) {
-    return "Cat de bun este vinul raportat la pretul cerut. Peste 85 inseamna excelent raport calitate-pret.";
+    return valueScoreFallbackDescription();
   }
 
   const { summary } = splitValueExplanation(raw);
-  return (
-    summary ||
-    "Cat de bun este vinul raportat la pretul cerut. Peste 85 inseamna excelent raport calitate-pret."
-  );
+  return summary || valueScoreFallbackDescription();
 }
 
 export function WineScoreCards({ wine }: { wine: WineWithRelations }) {

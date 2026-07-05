@@ -1,4 +1,9 @@
 import type { WineType } from "@/types";
+import {
+  MIN_RECOMMENDED_VALUE_SCORE,
+  VALUE_SCORE_NEUTRAL_MIN,
+  valueScoreVerdictLabel,
+} from "@/lib/value-score-thresholds";
 
 const ronFormatter = new Intl.NumberFormat("ro-RO", {
   style: "currency",
@@ -66,7 +71,7 @@ export interface VinScoreMeta {
   label: string;
 }
 
-/** Color-coded score bands for VinIntel 0-100 scale. */
+/** Color-coded score bands for VinIntel 0-100 scale. Prag minim recomandare = 75/100. */
 export function getVinScoreMeta(score: number | null | undefined): VinScoreMeta {
   if (score === null || score === undefined) {
     return {
@@ -76,41 +81,25 @@ export function getVinScoreMeta(score: number | null | undefined): VinScoreMeta 
     };
   }
 
-  if (score >= 85) {
+  if (score >= MIN_RECOMMENDED_VALUE_SCORE) {
     return {
       badgeClass: "bg-emerald-700 text-white shadow-sm",
       ringClass: "ring-emerald-600/30",
-      label: "Excelent",
+      label: valueScoreVerdictLabel(score),
     };
   }
 
-  if (score >= 75) {
-    return {
-      badgeClass: "bg-wine text-wine-foreground shadow-sm",
-      ringClass: "ring-wine/35",
-      label: "Foarte bun",
-    };
-  }
-
-  if (score >= 65) {
+  if (score >= VALUE_SCORE_NEUTRAL_MIN) {
     return {
       badgeClass: "bg-amber-500/20 text-amber-950 border border-amber-500/35",
       ringClass: "ring-amber-500/30",
-      label: "Bun",
-    };
-  }
-
-  if (score >= 50) {
-    return {
-      badgeClass: "bg-orange-500/15 text-orange-950 border border-orange-500/30",
-      ringClass: "ring-orange-500/25",
-      label: "Mediu",
+      label: valueScoreVerdictLabel(score),
     };
   }
 
   return {
     badgeClass: "bg-red-600/10 text-red-900 border border-red-500/25",
     ringClass: "ring-red-500/20",
-    label: "Sub asteptari",
+    label: valueScoreVerdictLabel(score),
   };
 }

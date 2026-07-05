@@ -7,16 +7,30 @@ import { WineImage } from "@/components/wines/wine-image";
 import { WineCardPriceFooter } from "@/components/wines/wine-price-display";
 import { valueScoreTone, wineTypeLabel } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
+import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
+import { resolveWineVintage } from "@/lib/wine-vintage";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
 
 export function WineCard({
   wine,
   priority = false,
+  /** Prag minim recomandare = 75/100. Cand e setat, ascunde vinurile sub prag. */
+  minValueScore = MIN_RECOMMENDED_VALUE_SCORE,
 }: {
   wine: WineWithRelations;
   priority?: boolean;
+  minValueScore?: number | null;
 }) {
+  if (
+    minValueScore != null &&
+    (wine.valueScore ?? 0) < minValueScore
+  ) {
+    return null;
+  }
+
+  const displayVintage = resolveWineVintage(wine);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 12 }}
@@ -33,7 +47,7 @@ export function WineCard({
           imageUrl={wine.imageUrl}
           imageSource={wine.imageSource}
           imageAlt={wine.imageAlt}
-          vintage={wine.vintage}
+          vintage={displayVintage}
           wineryName={wine.winery?.name}
           priority={priority}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
@@ -43,7 +57,7 @@ export function WineCard({
 
         <span className="absolute left-3 top-3 z-10 rounded-full bg-background/85 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur">
           {wineTypeLabel[wine.type]}
-          {wine.vintage ? ` ${wine.vintage}` : ""}
+          {displayVintage ? ` ${displayVintage}` : ""}
         </span>
 
         {wine.valueScore !== null && wine.valueScore !== undefined ? (

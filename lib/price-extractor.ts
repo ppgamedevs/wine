@@ -7,6 +7,7 @@ import {
 } from "@/lib/fetch-page-html";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import { normalizeSourceUrl } from "@/lib/wine-url";
+import { extractVintageFromHtml } from "@/lib/wine-vintage";
 
 const LOG_PREFIX = "[price-extractor]";
 const MIN_WINE_PRICE_RON = 12;
@@ -20,6 +21,7 @@ export interface ExtractedProductData {
   price: number | null;
   imageUrl: string | null;
   producer: string | null;
+  vintage: number | null;
 }
 
 export interface ExtractProductOptions {
@@ -46,6 +48,7 @@ const emptyProduct = (
   price: null,
   imageUrl: null,
   producer: null,
+  vintage: null,
 });
 
 function log(message: string): void {
@@ -282,6 +285,7 @@ function extractEmagProduct(
     price,
     imageUrl,
     producer,
+    vintage: null,
   };
 }
 
@@ -321,6 +325,7 @@ function extractGenericProductMeta(
     price: pickBestPrice(prices),
     imageUrl: extractOgImage(html, pageUrl),
     producer,
+    vintage: null,
   };
 }
 
@@ -335,6 +340,7 @@ function mergeProductData(
     price: primary.price ?? secondary.price,
     imageUrl: primary.imageUrl ?? secondary.imageUrl,
     producer: primary.producer ?? secondary.producer,
+    vintage: primary.vintage ?? secondary.vintage,
   };
 }
 
@@ -392,6 +398,7 @@ async function extractProductWithLlm(
       price,
       imageUrl,
       producer,
+      vintage: null,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -451,12 +458,17 @@ export async function extractProductFromHtml(
     result = attachSourceContext(
       host.includes("emag.ro")
         ? mergeProductData(result, llmResult)
-        : llmResult,
+        : mergeProductData(llmResult, result),
       sourceUrl,
       finalUrl,
     );
   } else if (!host.includes("emag.ro")) {
     log("LLM dezactivat si site non-eMag: fara extractie LLM");
+  }
+
+  const vintage = extractVintageFromHtml(html);
+  if (vintage != null) {
+    result = { ...result, vintage };
   }
 
   return result;

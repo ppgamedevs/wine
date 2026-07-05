@@ -224,6 +224,6 @@ export function getPriceStatusLabel(status: WinePriceStatus): string {
     case "estimated":
       return "Pret estimativ";
     case "unavailable":
-      return "Verifica pret";
+      return "Pret indisponibil";
   }
 }

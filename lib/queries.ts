@@ -1,8 +1,9 @@
 import "server-only";
-import { and, asc, count, desc, eq, like, ne, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, like, ne, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { grapeVarieties, wineries, wines } from "@/lib/schema";
 import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
+import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import type {
   WineryListItem,
   WineryWithWines,
@@ -18,6 +19,7 @@ export interface SearchSuggestion {
 
 /**
  * Top wines for the homepage, ordered by value score. Joins winery + region.
+ * Prag minim recomandare = 75/100.
  * Returns an empty array if the database is not yet provisioned.
  */
 export async function getFeaturedWines(
@@ -26,7 +28,10 @@ export async function getFeaturedWines(
   try {
     const rows = await db.query.wines.findMany({
       with: { winery: true, region: true },
-      where: catalogWineCondition(),
+      where: and(
+        catalogWineCondition(),
+        gte(wines.valueScore, MIN_RECOMMENDED_VALUE_SCORE),
+      ),
       orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
       limit,
     });
@@ -304,7 +309,10 @@ export async function getRecommendedWines(
     const maxPrice = wine.priceAvg ? wine.priceAvg * 1.3 : 9999;
 
     const rows = await db.query.wines.findMany({
-      where: andCatalog(ne(wines.id, wine.id)),
+      where: andCatalog(
+        ne(wines.id, wine.id),
+        gte(wines.valueScore, MIN_RECOMMENDED_VALUE_SCORE),
+      ),
       with: { winery: true, region: true },
       orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
       limit: limit + 6,

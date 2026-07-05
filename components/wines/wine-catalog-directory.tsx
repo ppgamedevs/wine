@@ -60,7 +60,7 @@ export function WineCatalogDirectory({
           </p>
           <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((wine, index) => (
-              <WineCard key={wine.id} wine={wine} priority={index < 4} />
+              <WineCard key={wine.id} wine={wine} priority={index < 4} minValueScore={null} />
             ))}
           </div>
         </>
