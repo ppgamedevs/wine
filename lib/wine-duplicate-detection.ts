@@ -104,7 +104,7 @@ async function findByIdentity(input: FindExistingWineInput): Promise<ExistingWin
 
   for (const candidate of candidates) {
     const score = tokenSimilarity(input.name, candidate.name);
-    if (score < 0.72) continue;
+    if (score < 0.8) continue;
     if (!vintagesCompatible(input.vintage, candidate.vintage)) continue;
 
     if (score > bestScore) {

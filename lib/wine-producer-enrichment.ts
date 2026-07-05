@@ -1,6 +1,9 @@
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import { extractPdfTextFromUrl } from "@/lib/pdf-text";
+import type { GrapeVarietyShare } from "@/lib/schema";
+import type { WineSweetnessLevel } from "@/lib/wine-tech-specs";
 import { slugify } from "@/lib/wine-url";
+import { extractVintageFromPageText } from "@/lib/wine-vintage";
 
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 VinIntelBot/1.0";
@@ -18,18 +21,30 @@ const FETCH_INIT: RequestInit = {
 const MAX_PRODUCER_TEXT_CHARS = 12_000;
 const MAX_PDF_TEXT_CHARS = 6_000;
 
+/** Date canonice de pe site-ul producatorului (prioritare fata de retailer). */
+export interface ProducerCanonicalFacts {
+  name: string | null;
+  grapeVarieties: GrapeVarietyShare[];
+  vintage: number | null;
+  alcohol: number | null;
+  acidity: number | null;
+  sweetness: WineSweetnessLevel | null;
+  imageUrl: string | null;
+}
+
 export interface ProducerEnrichment {
   producerPageUrl: string | null;
   tastingSheetUrl: string | null;
   producerText: string;
   pdfText: string;
   combinedText: string;
+  canonical: ProducerCanonicalFacts | null;
 }
 
 const WINERY_SITE_ALIASES: Record<string, string[]> = {
   "cramele-recas": [
     "https://cramelerecas.ro",
-    "https://www.cramele-recas.ro",
+    "https://www.cramelerecas.ro",
     "https://cramelerecas.ro",
   ],
 };
@@ -57,6 +72,7 @@ function wineNameTokens(wineName: string): string[] {
     "dulce",
     "l",
     "ml",
+    "ll",
   ]);
 
   return normalizeMatchText(wineName)
@@ -64,10 +80,42 @@ function wineNameTokens(wineName: string): string[] {
     .filter((token) => token.length > 2 && !stopWords.has(token));
 }
 
-function wineSlugCandidates(wineName: string): string[] {
+/** Slug-uri cunoscute pe cramelerecas.ro/vinuri/{slug}/ */
+function resolveRecasKnownSlugs(wineName: string): string[] {
+  const norm = normalizeMatchText(wineName);
+  const slugs: string[] = [];
+
+  if (norm.includes("muse") && norm.includes("stars")) {
+    slugs.push("muse-stars-rose-spumant", "muse-stars");
+  }
+  if (norm.includes("muse") && norm.includes("day")) {
+    slugs.push("muse-day");
+  }
+  if (norm.includes("muse") && norm.includes("night")) {
+    slugs.push("muse-night");
+  }
+  if (norm.includes("sole") && (norm.includes("rose") || norm.includes("roze"))) {
+    slugs.push("sole-roze");
+  }
+  if (norm.includes("sole") && norm.includes("chardonnay")) {
+    slugs.push("sole-chardonnay");
+  }
+  if (norm.includes("solo") && norm.includes("quinta")) {
+    if (norm.includes("alb")) slugs.push("solo-quinta-alb");
+    else if (norm.includes("rose") || norm.includes("roze")) {
+      slugs.push("solo-quinta-roze");
+    } else {
+      slugs.push("solo-quinta");
+    }
+  }
+
+  return slugs;
+}
+
+function wineSlugCandidates(wineName: string, winerySlug?: string): string[] {
   const cleaned = wineName
     .replace(/\b\d{4}\b/g, " ")
-    .replace(/\b0[,.]?\d+\s*l\b/gi, " ")
+    .replace(/\b0[,.]?\d+\s*l+\b/gi, " ")
     .replace(/\b(vin|alb|rosu|rose|roze|recas)\b/gi, " ")
     .replace(/\b(sec|demisec|demidulce|dulce|cupaj)\b/gi, " ")
     .trim();
@@ -79,7 +127,10 @@ function wineSlugCandidates(wineName: string): string[] {
     tokens.filter((token) => !["cramele", "recas"].includes(token)).slice(0, 2).join("-"),
   );
 
-  return [...new Set([slug, compact, seriesSlug].filter(Boolean))];
+  const known =
+    winerySlug === "cramele-recas" ? resolveRecasKnownSlugs(wineName) : [];
+
+  return [...new Set([...known, slug, compact, seriesSlug].filter(Boolean))];
 }
 
 function websiteCandidates(
@@ -107,16 +158,13 @@ function websiteCandidates(
   return [...urls];
 }
 
-function buildProductPageCandidates(baseUrl: string, wineName: string): string[] {
-  const slugs = wineSlugCandidates(wineName);
-  const paths = [
-    "/vinuri/{slug}/",
-    "/vinuri/{slug}",
-    "/shop/{slug}/",
-    "/shop/{slug}",
-    "/{slug}/",
-    "/{slug}",
-  ];
+function buildProductPageCandidates(
+  baseUrl: string,
+  wineName: string,
+  winerySlug?: string,
+): string[] {
+  const slugs = wineSlugCandidates(wineName, winerySlug);
+  const paths = ["/vinuri/{slug}/", "/vinuri/{slug}"];
 
   const candidates: string[] = [];
   for (const slug of slugs) {
@@ -130,6 +178,115 @@ function buildProductPageCandidates(baseUrl: string, wineName: string): string[]
   }
 
   return [...new Set(candidates)];
+}
+
+function extractOgImage(html: string, pageUrl: string): string | null {
+  const patterns = [
+    /<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image(?::secure_url)?["']/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (!match?.[1]?.trim()) continue;
+    try {
+      const resolved = new URL(match[1].trim().replace(/&amp;/g, "&"), pageUrl);
+      if (["http:", "https:"].includes(resolved.protocol)) {
+        return resolved.toString();
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return null;
+}
+
+function parseDecimalToken(raw: string): number | null {
+  const value = Number.parseFloat(raw.replace(",", "."));
+  return Number.isFinite(value) ? value : null;
+}
+
+function parseSweetnessLabel(raw: string): WineSweetnessLevel | null {
+  const norm = normalizeMatchText(raw);
+  if (norm === "sec") return "sec";
+  if (norm === "demisec") return "demisec";
+  if (norm === "demidulce") return "demidulce";
+  if (norm === "dulce") return "dulce";
+  return null;
+}
+
+function parseGrapeVarietiesFromCupaj(text: string): GrapeVarietyShare[] {
+  const cupajBlock = text.match(
+    /cupaj\s*([\s\S]*?)(?=culoare|an\b|apela|vol\.?\s*alc|temperatur)/i,
+  )?.[1];
+  if (!cupajBlock) return [];
+
+  const varieties: GrapeVarietyShare[] = [];
+  for (const match of cupajBlock.matchAll(
+    /([A-Za-zÀ-ž][A-Za-zÀ-ž\s.'-]{2,45}?)\s*(\d{1,3})\s*%/g,
+  )) {
+    const name = match[1]?.trim();
+    const percentage = match[2] ? Number.parseInt(match[2], 10) : null;
+    if (!name || percentage == null || !Number.isFinite(percentage)) continue;
+    varieties.push({ name, percentage });
+  }
+
+  return varieties;
+}
+
+/** Extrage fapte structurate de pe paginile de produs Cramele Recas. */
+export function parseRecasProducerFacts(
+  html: string,
+  pageUrl: string,
+): ProducerCanonicalFacts | null {
+  if (!pageUrl.includes("cramelerecas.ro")) return null;
+
+  const plain = stripHtml(html);
+  const titleMatch = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+  const name = titleMatch?.[1]?.trim() ?? null;
+
+  const vintage =
+    extractVintageFromPageText(plain) ??
+    (() => {
+      const m = plain.match(/\bAn\s*(20\d{2}|19\d{2})\b/i);
+      return m?.[1] ? Number.parseInt(m[1], 10) : null;
+    })();
+
+  const alcoholMatch = plain.match(
+    /Vol\.?\s*Alc\.?\s*(\d{1,2}(?:[.,]\d{1,2})?)\s*%/i,
+  );
+  const acidityMatch = plain.match(
+    /Aciditate\s*(\d{1,2}(?:[.,]\d{1,2})?)\s*g\s*\/\s*l/i,
+  );
+  const sweetnessMatch = plain.match(
+    /Clasificare\s*(Sec|Demisec|Demidulce|Dulce)/i,
+  );
+
+  const grapeVarieties = parseGrapeVarietiesFromCupaj(plain);
+  const imageUrl = extractOgImage(html, pageUrl);
+
+  if (
+    !name &&
+    grapeVarieties.length === 0 &&
+    vintage == null &&
+    !alcoholMatch &&
+    !imageUrl
+  ) {
+    return null;
+  }
+
+  return {
+    name,
+    grapeVarieties,
+    vintage,
+    alcohol: alcoholMatch?.[1] ? parseDecimalToken(alcoholMatch[1]) : null,
+    acidity: acidityMatch?.[1] ? parseDecimalToken(acidityMatch[1]) : null,
+    sweetness: sweetnessMatch?.[1]
+      ? parseSweetnessLabel(sweetnessMatch[1])
+      : null,
+    imageUrl,
+  };
 }
 
 function extractPdfLinks(html: string, pageUrl: string): string[] {
@@ -148,7 +305,11 @@ function extractPdfLinks(html: string, pageUrl: string): string[] {
   return [...links];
 }
 
-function scoreProducerPage(html: string, wineName: string): number {
+function scoreProducerPage(
+  html: string,
+  wineName: string,
+  pageUrl: string,
+): number {
   const text = normalizeMatchText(stripHtml(html));
   const tokens = wineNameTokens(wineName);
   let score = 0;
@@ -158,8 +319,14 @@ function scoreProducerPage(html: string, wineName: string): number {
   }
 
   if (/\.pdf/i.test(html)) score += 6;
-  if (/aciditate|vol\.?\s*alc|clasificare|cupaj|arome/i.test(text)) score += 5;
+  if (/aciditate|vol\.?\s*alc|clasificare|cupaj|arome/i.test(text)) score += 8;
   if (/fisa.*degustare|degustare/i.test(text)) score += 4;
+  if (pageUrl.includes("/vinuri/")) score += 5;
+
+  const knownSlugs = resolveRecasKnownSlugs(wineName);
+  for (const slug of knownSlugs) {
+    if (pageUrl.includes(`/vinuri/${slug}`)) score += 12;
+  }
 
   return score;
 }
@@ -210,6 +377,7 @@ function emptyEnrichment(): ProducerEnrichment {
     producerText: "",
     pdfText: "",
     combinedText: "",
+    canonical: null,
   };
 }
 
@@ -224,13 +392,17 @@ export async function enrichWineFromProducerSite(input: {
   let bestPage: { html: string; finalUrl: string; score: number } | null = null;
 
   for (const base of bases) {
-    const candidates = buildProductPageCandidates(base, input.wineName);
+    const candidates = buildProductPageCandidates(
+      base,
+      input.wineName,
+      input.winerySlug,
+    );
     for (const candidate of candidates) {
       const page = await fetchProducerHtml(candidate);
       if (!page) continue;
 
-      const score = scoreProducerPage(page.html, input.wineName);
-      if (score < 4) continue;
+      const score = scoreProducerPage(page.html, input.wineName, page.finalUrl);
+      if (score < 6) continue;
 
       if (!bestPage || score > bestPage.score) {
         bestPage = { ...page, score };
@@ -252,11 +424,30 @@ export async function enrichWineFromProducerSite(input: {
     .join("\n\n")
     .slice(0, MAX_PRODUCER_TEXT_CHARS + MAX_PDF_TEXT_CHARS);
 
+  const canonical =
+    input.winerySlug === "cramele-recas"
+      ? parseRecasProducerFacts(bestPage.html, bestPage.finalUrl)
+      : null;
+
   return {
     producerPageUrl: bestPage.finalUrl,
     tastingSheetUrl,
     producerText,
     pdfText,
     combinedText,
+    canonical,
   };
+}
+
+export function producerImageSourceFromUrl(pageUrl: string): string {
+  try {
+    const host = new URL(pageUrl).hostname.replace(/^www\./, "").toLowerCase();
+    if (host.includes("cramelerecas") || host.includes("cramele-recas")) {
+      return "cramelerecas";
+    }
+    const [label] = host.split(".");
+    return label || host;
+  } catch {
+    return "producer";
+  }
 }

@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "davino.ro" },
       { protocol: "https", hostname: "www.cramele-recas.ro" },
       { protocol: "https", hostname: "cramele-recas.ro" },
+      { protocol: "https", hostname: "www.cramelerecas.ro" },
+      { protocol: "https", hostname: "cramelerecas.ro" },
       { protocol: "https", hostname: "www.cotnari.ro" },
       { protocol: "https", hostname: "www.avincis.ro" },
       { protocol: "https", hostname: "www.liliac.ro" },

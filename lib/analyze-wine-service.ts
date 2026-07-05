@@ -28,7 +28,11 @@ import { loadWineForEditorial } from "@/lib/regenerate-wine-editorial";
 import { generateAndApplyFullEditorial } from "@/lib/wine-enrichment";
 import { buildWineImageAlt } from "@/lib/wine-images";
 import { resolveTechSpecs, techSpecsForDb } from "@/lib/wine-tech-specs";
-import { enrichWineFromProducerSite } from "@/lib/wine-producer-enrichment";
+import {
+  enrichWineFromProducerSite,
+  producerImageSourceFromUrl,
+  type ProducerEnrichment,
+} from "@/lib/wine-producer-enrichment";
 import { buildWineSlug, normalizeSourceUrl, slugify } from "@/lib/wine-url";
 import { resolveStoredWineVintage } from "@/lib/wine-vintage";
 import { resolveWineSubmitContext } from "@/lib/wine-submit-context";
@@ -352,20 +356,65 @@ async function resolveTechSpecsPatch(
     retailerPageText,
     producer.combinedText,
   );
+  const canonical = producer.canonical;
   const techSpecs = resolveTechSpecs({
-    wineName,
+    wineName: canonical?.name ?? wineName,
     pageText: enrichedPageText,
     ai: {
-      sweetness: analysis.sweetness ?? null,
-      alcohol: analysis.alcohol ?? null,
+      sweetness: canonical?.sweetness ?? analysis.sweetness ?? null,
+      alcohol: canonical?.alcohol ?? analysis.alcohol ?? null,
       sugar: analysis.sugar ?? null,
-      acidity: analysis.acidity ?? null,
+      acidity: canonical?.acidity ?? analysis.acidity ?? null,
     },
   });
 
   return {
     techSpecsPatch: techSpecsForDb(techSpecs),
     producerFields: producerFieldsForDb(producer),
+    producer,
+  };
+}
+
+function buildWineDisplayFacts(input: {
+  productName: string;
+  producer: ProducerEnrichment;
+  resolvedVintage: number | null;
+  grapeVarieties: GrapeVarietyShare[];
+  techSpecsPatch: ReturnType<typeof techSpecsForDb>;
+  extractedImage: string | null;
+  retailerFinalUrl: string;
+  wineryName: string;
+  wineType: WineType;
+}) {
+  const canonical = input.producer.canonical;
+  const name = canonical?.name ?? input.productName;
+  const vintage = canonical?.vintage ?? input.resolvedVintage;
+  const grapeVarieties =
+    canonical?.grapeVarieties && canonical.grapeVarieties.length > 0
+      ? canonical.grapeVarieties
+      : input.grapeVarieties;
+
+  const producerImage = canonical?.imageUrl ?? null;
+  const imageUrl = producerImage ?? input.extractedImage ?? undefined;
+  const imageSource = imageUrl
+    ? producerImage && input.producer.producerPageUrl
+      ? producerImageSourceFromUrl(input.producer.producerPageUrl)
+      : inferImageSourceFromUrl(input.retailerFinalUrl)
+    : undefined;
+
+  return {
+    name,
+    vintage,
+    grapeVarieties,
+    imageUrl,
+    imageSource,
+    imageAlt: buildWineImageAlt({
+      name,
+      vintage,
+      type: input.wineType,
+      wineryName: input.wineryName,
+    }),
+    techSpecsPatch: input.techSpecsPatch,
   };
 }
 
@@ -439,18 +488,6 @@ export async function analyzeAndSaveWineFromUrl(
       pageText,
       finalUrl,
     })) ?? product.producer;
-  const resolvedVintage = resolveImportVintage(
-    analysis,
-    product,
-    pageText,
-    html,
-    detectedWineryName,
-  );
-  const slug = buildWineSlug({
-    producer: detectedWineryName,
-    name: product.name,
-    vintage: resolvedVintage,
-  });
 
   const regionId = await resolveRegionId(analysis.region);
   const wineryId = await resolveWineryIdForProduct(
@@ -460,12 +497,43 @@ export async function analyzeAndSaveWineFromUrl(
     regionId,
   );
 
+  const resolvedVintage = resolveImportVintage(
+    analysis,
+    product,
+    pageText,
+    html,
+    detectedWineryName,
+  );
+  const { techSpecsPatch, producerFields, producer } =
+    await resolveTechSpecsPatch(
+      product.name,
+      pageText,
+      analysisForScoring,
+      wineryId,
+    );
+  const display = buildWineDisplayFacts({
+    productName: product.name,
+    producer,
+    resolvedVintage,
+    grapeVarieties: resolved.grapeVarieties,
+    techSpecsPatch,
+    extractedImage: extracted.imageUrl,
+    retailerFinalUrl: finalUrl,
+    wineryName: detectedWineryName,
+    wineType: resolved.wineType,
+  });
+  const slug = buildWineSlug({
+    producer: detectedWineryName,
+    name: display.name,
+    vintage: display.vintage,
+  });
+
   const existingMatch = await findExistingWine({
     sourceUrl,
     finalUrl,
-    name: product.name,
+    name: display.name,
     producer: detectedWineryName,
-    vintage: resolvedVintage,
+    vintage: display.vintage,
     wineryId,
   });
 
@@ -481,13 +549,6 @@ export async function analyzeAndSaveWineFromUrl(
       flowMeta,
     );
   }
-
-  const { techSpecsPatch, producerFields } = await resolveTechSpecsPatch(
-    product.name,
-    pageText,
-    analysisForScoring,
-    wineryId,
-  );
 
   const retailerLinks = buildStoredRetailerLinks(
     finalUrl,
@@ -505,12 +566,12 @@ export async function analyzeAndSaveWineFromUrl(
     .insert(wines)
     .values({
       slug,
-      name: product.name,
+      name: display.name,
       wineryId,
       regionId,
       type: resolved.wineType,
-      vintage: resolvedVintage ?? undefined,
-      grapeVarieties: resolved.grapeVarieties,
+      vintage: display.vintage ?? undefined,
+      grapeVarieties: display.grapeVarieties,
       priceAvg: product.price ?? undefined,
       sourceUrl,
       submittedBy,
@@ -519,17 +580,10 @@ export async function analyzeAndSaveWineFromUrl(
       sourceBadge: badge,
       availability: retailerLinks.availability,
       affiliateLinks: retailerLinks.affiliateLinks,
-      imageUrl: extracted.imageUrl ?? undefined,
-      imageSource: extracted.imageUrl
-        ? inferImageSourceFromUrl(finalUrl)
-        : undefined,
-      imageAlt: buildWineImageAlt({
-        name: product.name,
-        vintage: resolvedVintage,
-        type: resolved.wineType,
-        wineryName: detectedWineryName,
-      }),
-      ...techSpecsPatch,
+      imageUrl: display.imageUrl,
+      imageSource: display.imageSource,
+      imageAlt: display.imageAlt,
+      ...display.techSpecsPatch,
       ...producerFields,
     })
     .returning({ id: wines.id, slug: wines.slug });

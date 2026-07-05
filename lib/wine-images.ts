@@ -9,6 +9,7 @@ const KNOWN_OPTIMIZED_HOSTS = [
   "public.blob.vercel-storage.com",
   "davino.ro",
   "cramele-recas.ro",
+  "cramelerecas.ro",
   "cotnari.ro",
   "avincis.ro",
   "liliac.ro",
