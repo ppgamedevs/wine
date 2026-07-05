@@ -68,14 +68,18 @@ function wineSlugCandidates(wineName: string): string[] {
   const cleaned = wineName
     .replace(/\b\d{4}\b/g, " ")
     .replace(/\b0[,.]?\d+\s*l\b/gi, " ")
-    .replace(/\b(sec|demisec|demidulce|dulce)\b/gi, " ")
+    .replace(/\b(vin|alb|rosu|rose|roze|recas)\b/gi, " ")
+    .replace(/\b(sec|demisec|demidulce|dulce|cupaj)\b/gi, " ")
     .trim();
 
   const slug = slugify(cleaned);
   const tokens = wineNameTokens(wineName);
   const compact = slugify(tokens.join("-"));
+  const seriesSlug = slugify(
+    tokens.filter((token) => !["cramele", "recas"].includes(token)).slice(0, 2).join("-"),
+  );
 
-  return [...new Set([slug, compact].filter(Boolean))];
+  return [...new Set([slug, compact, seriesSlug].filter(Boolean))];
 }
 
 function websiteCandidates(

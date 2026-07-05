@@ -71,6 +71,13 @@
       "when": 1782641600000,
       "tag": "0009_wine_submit_type",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1782641800000,
+      "tag": "0010_wine_producer_sources",
+      "breakpoints": true
     }
   ]
 }

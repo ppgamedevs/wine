@@ -155,12 +155,15 @@ function pick<T>(aiValue: T | null | undefined, ruleValue: T | null): T | null {
 /** Merge AI extraction with deterministic page parsing. */
 export function resolveTechSpecs(input: ResolveTechSpecsInput): WineTechSpecs {
   const fromPage = extractTechSpecsFromPage(input.wineName, input.pageText);
+  const fromName = parseSweetnessFromText(input.wineName, "");
 
   return {
-    sweetness: pick(input.ai?.sweetness, fromPage.sweetness),
-    alcohol: pick(input.ai?.alcohol, fromPage.alcohol),
-    sugar: pick(input.ai?.sugar, fromPage.sugar),
-    acidity: pick(input.ai?.acidity, fromPage.acidity),
+    sweetness:
+      fromName ??
+      pick(input.ai?.sweetness ?? null, fromPage.sweetness),
+    alcohol: pick(input.ai?.alcohol ?? null, fromPage.alcohol),
+    sugar: pick(input.ai?.sugar ?? null, fromPage.sugar),
+    acidity: pick(input.ai?.acidity ?? null, fromPage.acidity),
   };
 }
 

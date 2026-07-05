@@ -66,8 +66,9 @@ interface ResolvedWineAnalysis {
 function inferCategoryFromText(
   category: string | undefined,
   pageText: string,
+  wineName = "",
 ): string {
-  const lower = pageText.toLowerCase();
+  const lower = `${wineName} ${pageText}`.toLowerCase();
   const lead = lower.slice(0, 4_000);
   const hasRoseSignal =
     lead.includes("vin rose") ||
@@ -75,6 +76,12 @@ function inferCategoryFromText(
     lead.includes("culoare roz") ||
     lead.includes("culoare: roz") ||
     lead.includes("product option roz");
+  const hasWhiteSignal =
+    lead.includes("vin alb") ||
+    lead.includes("white wine") ||
+    lead.includes("culoare alb") ||
+    lead.includes("culoare: alb") ||
+    /\balb\b/.test(lead) && lead.includes("solo quinta cupaj");
   const hasSparklingSignal =
     lead.includes("spumant") ||
     lead.includes("sparkling") ||
@@ -84,9 +91,10 @@ function inferCategoryFromText(
     lead.includes("champagne");
 
   if (hasRoseSignal && !hasSparklingSignal) return "rose";
+  if (hasWhiteSignal && !hasSparklingSignal && !hasRoseSignal) return "alb";
   if (category?.trim()) return category;
   if (lower.includes("spumant") || lower.includes("sparkling")) return "spumant";
-  if (lower.includes("rose")) return "rose";
+  if (lower.includes("rose") || lower.includes("roze")) return "rose";
   if (lower.includes("alb") || lower.includes("white")) return "alb";
   if (lower.includes("orange")) return "orange";
   return "rosu";
@@ -99,8 +107,9 @@ function toGrapeShares(names: string[]): GrapeVarietyShare[] {
 function resolveWineAnalysis(
   analysis: WineLinkAnalysis,
   pageText: string,
+  wineName = "",
 ): ResolvedWineAnalysis {
-  const category = inferCategoryFromText(analysis.category, pageText);
+  const category = inferCategoryFromText(analysis.category, pageText, wineName);
   const wineType = mapCsvCategoryToWineType(category);
   const checkedAt = new Date().toISOString();
 
@@ -385,7 +394,7 @@ export async function analyzeAndSaveWineFromUrl(
     };
   }
 
-  const resolved = resolveWineAnalysis(analysisForScoring, pageText);
+  const resolved = resolveWineAnalysis(analysisForScoring, pageText, product.name);
   const detectedWineryName =
     (await detectWineryNameFromCatalog({
       producer: product.producer,
@@ -546,7 +555,7 @@ export async function reanalyzeAndUpdateWine(
     };
   }
 
-  const resolved = resolveWineAnalysis(analysisForScoring, pageText);
+  const resolved = resolveWineAnalysis(analysisForScoring, pageText, product.name);
   const detectedWineryName =
     (await detectWineryNameFromCatalog({
       producer: product.producer,
