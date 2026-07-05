@@ -286,6 +286,8 @@ export const wines = sqliteTable(
       .notNull()
       .default("verified"),
     reportCount: integer("report_count").notNull().default(0),
+    producerPageUrl: text("producer_page_url"),
+    tastingSheetUrl: text("tasting_sheet_url"),
 
     ...timestamps,
   },

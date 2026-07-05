@@ -1,12 +1,18 @@
-import { Gauge, MapPin, TrendingUp, UtensilsCrossed } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Reveal } from "@/components/reveal";
+import {
+  MarketingPairingIcon,
+  MarketingPriceIcon,
+  MarketingRegionIcon,
+  MarketingValueIcon,
+} from "@/components/marketing-icons";
+import { cn } from "@/lib/utils";
 
 interface ValueItem {
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
 const values: ValueItem[] = [
@@ -14,25 +20,25 @@ const values: ValueItem[] = [
     title: "Value Score real",
     description:
       "Un scor onest de la 0 la 100 care arata cat de bun e vinul pentru banii ceruti. Fara marketing, doar valoare reala.",
-    icon: Gauge,
+    icon: MarketingValueIcon,
   },
   {
     title: "Pairing-uri romanesti",
     description:
       "Asocieri gandite pentru mancarea de aici: sarmale, mici, ciorba de burta, friptura de porc sau cozonac.",
-    icon: UtensilsCrossed,
+    icon: MarketingPairingIcon,
   },
   {
     title: "Preturi actuale",
     description:
       "Afisam pretul curent sau estimativ in RON, preluat din sursa principala a vinului.",
-    icon: TrendingUp,
+    icon: MarketingPriceIcon,
   },
   {
     title: "Date locale",
     description:
       "Informatii despre crame, soiuri autohtone si regiuni romanesti, adunate intr-un singur loc clar si rapid.",
-    icon: MapPin,
+    icon: MarketingRegionIcon,
   },
 ];
 
@@ -57,7 +63,14 @@ export function ValueProps() {
               <Reveal key={value.title} delay={index * 0.08} className="h-full">
                 <Card className="group h-full border-border/70 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-wine/30 hover:shadow-lg">
                   <CardContent className="flex h-full flex-col gap-4 p-6">
-                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-wine/10 text-wine transition-colors group-hover:bg-wine group-hover:text-wine-foreground">
+                    <span
+                      className={cn(
+                        "inline-flex h-11 w-11 items-center justify-center rounded-xl",
+                        "border border-wine/25 bg-gradient-to-br from-wine/[0.08] via-background to-wine/[0.12]",
+                        "text-wine shadow-sm ring-1 ring-wine/10 transition-colors",
+                        "group-hover:border-wine/40 group-hover:from-wine group-hover:to-wine/90 group-hover:text-wine-foreground",
+                      )}
+                    >
                       <Icon className="h-5 w-5" aria-hidden="true" />
                     </span>
                     <h3 className="font-serif text-xl font-semibold text-foreground">

@@ -17,6 +17,7 @@ import { updatePrice } from "@/lib/price-tracker";
 import { detectRetailerLabel, resolveUserFacingPurchaseUrl } from "@/lib/retailer-links";
 import {
   regions,
+  wineries,
   wines,
   type GrapeVarietyShare,
   type WineSubmitType,
@@ -26,6 +27,7 @@ import { loadWineForEditorial } from "@/lib/regenerate-wine-editorial";
 import { generateAndApplyFullEditorial } from "@/lib/wine-enrichment";
 import { buildWineImageAlt } from "@/lib/wine-images";
 import { resolveTechSpecs, techSpecsForDb } from "@/lib/wine-tech-specs";
+import { enrichWineFromProducerSite } from "@/lib/wine-producer-enrichment";
 import { buildWineSlug, normalizeSourceUrl, slugify } from "@/lib/wine-url";
 import { resolveWineSubmitContext } from "@/lib/wine-submit-context";
 import { resolveWineryIdFromDetection, detectWineryNameFromCatalog } from "@/lib/winery-detection";
@@ -259,6 +261,74 @@ async function resolveWineryIdForProduct(
   );
 }
 
+async function resolveProducerEnrichment(
+  wineryId: number,
+  wineName: string,
+) {
+  const winery = await db.query.wineries.findFirst({
+    where: eq(wineries.id, wineryId),
+    columns: { website: true, slug: true },
+  });
+
+  if (!winery) {
+    return enrichWineFromProducerSite({
+      wineryWebsite: null,
+      winerySlug: "",
+      wineName,
+    });
+  }
+
+  return enrichWineFromProducerSite({
+    wineryWebsite: winery.website,
+    winerySlug: winery.slug,
+    wineName,
+  });
+}
+
+function mergeAnalysisPageText(
+  retailerPageText: string,
+  producerCombinedText: string,
+): string {
+  return [retailerPageText, producerCombinedText].filter(Boolean).join("\n\n");
+}
+
+function producerFieldsForDb(
+  producer: Awaited<ReturnType<typeof enrichWineFromProducerSite>>,
+) {
+  return {
+    ...(producer.producerPageUrl ? { producerPageUrl: producer.producerPageUrl } : {}),
+    ...(producer.tastingSheetUrl ? { tastingSheetUrl: producer.tastingSheetUrl } : {}),
+  };
+}
+
+async function resolveTechSpecsPatch(
+  wineName: string,
+  retailerPageText: string,
+  analysis: WineLinkAnalysis,
+  wineryId: number,
+) {
+  const producer = await resolveProducerEnrichment(wineryId, wineName);
+  const enrichedPageText = mergeAnalysisPageText(
+    retailerPageText,
+    producer.combinedText,
+  );
+  const techSpecs = resolveTechSpecs({
+    wineName,
+    pageText: enrichedPageText,
+    ai: {
+      sweetness: analysis.sweetness ?? null,
+      alcohol: analysis.alcohol ?? null,
+      sugar: analysis.sugar ?? null,
+      acidity: analysis.acidity ?? null,
+    },
+  });
+
+  return {
+    techSpecsPatch: techSpecsForDb(techSpecs),
+    producerFields: producerFieldsForDb(producer),
+  };
+}
+
 export async function findWineBySourceUrl(
   sourceUrl: string,
 ): Promise<{ slug: string; id: number } | null> {
@@ -316,17 +386,6 @@ export async function analyzeAndSaveWineFromUrl(
   }
 
   const resolved = resolveWineAnalysis(analysisForScoring, pageText);
-  const techSpecs = resolveTechSpecs({
-    wineName: product.name,
-    pageText,
-    ai: {
-      sweetness: analysis.sweetness ?? null,
-      alcohol: analysis.alcohol ?? null,
-      sugar: analysis.sugar ?? null,
-      acidity: analysis.acidity ?? null,
-    },
-  });
-  const techSpecsPatch = techSpecsForDb(techSpecs);
   const detectedWineryName =
     (await detectWineryNameFromCatalog({
       producer: product.producer,
@@ -366,6 +425,13 @@ export async function analyzeAndSaveWineFromUrl(
     regionId,
   );
 
+  const { techSpecsPatch, producerFields } = await resolveTechSpecsPatch(
+    product.name,
+    pageText,
+    analysisForScoring,
+    wineryId,
+  );
+
   const retailerLinks = buildStoredRetailerLinks(
     finalUrl,
     detectedWineryName,
@@ -402,6 +468,7 @@ export async function analyzeAndSaveWineFromUrl(
         wineryName: detectedWineryName,
       }),
       ...techSpecsPatch,
+      ...producerFields,
     })
     .returning({ id: wines.id, slug: wines.slug });
 
@@ -480,17 +547,6 @@ export async function reanalyzeAndUpdateWine(
   }
 
   const resolved = resolveWineAnalysis(analysisForScoring, pageText);
-  const techSpecs = resolveTechSpecs({
-    wineName: product.name,
-    pageText,
-    ai: {
-      sweetness: analysis.sweetness ?? null,
-      alcohol: analysis.alcohol ?? null,
-      sugar: analysis.sugar ?? null,
-      acidity: analysis.acidity ?? null,
-    },
-  });
-  const techSpecsPatch = techSpecsForDb(techSpecs);
   const detectedWineryName =
     (await detectWineryNameFromCatalog({
       producer: product.producer,
@@ -504,6 +560,13 @@ export async function reanalyzeAndUpdateWine(
     pageText,
     finalUrl,
     regionId,
+  );
+
+  const { techSpecsPatch, producerFields } = await resolveTechSpecsPatch(
+    product.name,
+    pageText,
+    analysisForScoring,
+    wineryId,
   );
 
   const imagePatch =
@@ -542,6 +605,7 @@ export async function reanalyzeAndUpdateWine(
       }),
       ...imagePatch,
       ...techSpecsPatch,
+      ...producerFields,
     })
     .where(eq(wines.id, wine.id));
 

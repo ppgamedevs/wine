@@ -10,6 +10,7 @@ import { WinePairings } from "@/components/wines/wine-pairings";
 import { WineRelatedSections } from "@/components/wines/wine-related-sections";
 import { WineScoreCards } from "@/components/wines/wine-score-cards";
 import { WineSpecsTable } from "@/components/wines/wine-specs-table";
+import { WineWineryLink } from "@/components/wines/wine-winery-link";
 import { WineWorthIt } from "@/components/wines/wine-worth-it";
 import { WineReportButton } from "@/components/wines/wine-report-button";
 import { VerificationLeadForm } from "@/components/wines/verification-lead-form";
@@ -18,6 +19,7 @@ import {
   getRecommendedWines,
   getSimilarWines,
   getWineBySlug,
+  getWineryWineCount,
 } from "@/lib/queries";
 import { buildWineFaq } from "@/lib/wine-analysis";
 import { buildWineJsonLd, buildWineMetadataDescription } from "@/lib/wine-json-ld";
@@ -89,9 +91,10 @@ export default async function WinePage({ params }: WinePageProps) {
 
   if (!wine) notFound();
 
-  const [similar, recommended] = await Promise.all([
+  const [similar, recommended, wineryWineCount] = await Promise.all([
     getSimilarWines(wine, 4),
     getRecommendedWines(wine, 4),
+    wine.wineryId ? getWineryWineCount(wine.wineryId) : Promise.resolve(0),
   ]);
 
   const faq = buildWineFaq(wine);
@@ -131,6 +134,9 @@ export default async function WinePage({ params }: WinePageProps) {
 
           <WineScoreCards wine={wine} />
           <WineWorthIt wine={wine} />
+          {wine.winery ? (
+            <WineWineryLink wine={wine} wineCount={wineryWineCount} />
+          ) : null}
           <WineSpecsTable wine={wine} />
           <WinePairings wine={wine} />
           <WineAvailability wine={wine} />

@@ -47,6 +47,7 @@ export function parseSweetnessFromText(
     const patterns: RegExp[] =
       level === "sec"
         ? [
+            /\bclasificare[:\s]+sec\b/i,
             /\bvin\s+sec\b/,
             /\brose\s+sec\b/,
             /\broze\s+sec\b/,
@@ -71,6 +72,7 @@ export function parseSweetnessFromText(
 
 export function parseAlcoholFromText(pageText: string): number | null {
   const patterns = [
+    /vol\.?\s*alc\.?[:\s]+(\d{1,2}(?:[.,]\d{1,2})?)\s*%/i,
     /concentrat(?:ie|ia)\s+alcoolic[aă][:\s]+(\d{1,2}(?:[.,]\d{1,2})?)\s*%/i,
     /alcool[:\s]+(\d{1,2}(?:[.,]\d{1,2})?)\s*%/i,
     /(\d{1,2}(?:[.,]\d{1,2})?)\s*%\s*vol\.?/i,
@@ -114,7 +116,7 @@ export function parseSugarFromText(pageText: string): number | null {
 
 export function parseAcidityFromText(pageText: string): number | null {
   const patterns = [
-    /aciditate[:\s]+(\d+(?:[.,]\d+)?)\s*g/i,
+    /aciditate[:\s]+(\d+(?:[.,]\d+)?)\s*g\s*\/?\s*l?/i,
     /(\d+(?:[.,]\d+)?)\s*g\s*\/\s*l\s*aciditate/i,
     /(\d+(?:[.,]\d+)?)\s*g\/l\s*aciditate/i,
   ];

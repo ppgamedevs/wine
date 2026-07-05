@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, desc, eq, like, ne, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, like, ne, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { grapeVarieties, wineries, wines } from "@/lib/schema";
 import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
@@ -218,6 +218,20 @@ export async function getWinesForSommelier(): Promise<WineWithRelations[]> {
   } catch (error) {
     console.error("getWinesForSommelier failed", error);
     return [];
+  }
+}
+
+export async function getWineryWineCount(wineryId: number): Promise<number> {
+  try {
+    const [row] = await db
+      .select({ total: count() })
+      .from(wines)
+      .where(and(eq(wines.wineryId, wineryId), catalogWineCondition()));
+
+    return row?.total ?? 0;
+  } catch (error) {
+    console.error("getWineryWineCount failed", error);
+    return 0;
   }
 }
 
