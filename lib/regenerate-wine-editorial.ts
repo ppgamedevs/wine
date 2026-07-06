@@ -2,19 +2,26 @@ import { generateObject } from "ai";
 import { eq } from "drizzle-orm";
 import { getSommelierModel } from "@/lib/ai/model";
 import {
+  buildDessertPairingsUserPrompt,
   buildEditorialUserPrompt,
   buildRegenerateEditorialUserPrompt,
+  DESSERT_PAIRINGS_SYSTEM_PROMPT,
   EDITORIAL_SYSTEM_PROMPT,
   REGENERATE_EDITORIAL_PROMPT,
 } from "@/lib/ai/prompts";
 import {
+  wineDessertPairingsOnlySchema,
   wineEditorialContentSchema,
   wineEditorialSchema,
+  type WineDessertPairingsOnlyOutput,
   type WineEditorialContentOutput,
   type WineEditorialOutput,
 } from "@/lib/ai/schemas";
 import { db } from "@/lib/db";
+import { sanitizeEditorialText } from "@/lib/editorial-text";
+import { calculateInitialScores } from "@/lib/scoring";
 import { wines } from "@/lib/schema";
+import type { WineType } from "@/types";
 
 type WineWithRelations = NonNullable<
   Awaited<ReturnType<typeof loadWineForEditorial>>
@@ -161,6 +168,81 @@ export async function regenerateWineEditorialContent(
     .where(eq(wines.id, wine.id));
 
   return { slug: wine.slug, editorial };
+}
+
+function mapWineTypeToScoreCategory(type: WineType): string {
+  const map: Record<WineType, string> = {
+    red: "rosu",
+    white: "alb",
+    rose: "rose",
+    sparkling: "spumant",
+    dessert: "desert",
+    orange: "orange",
+  };
+  return map[type];
+}
+
+async function generateDessertPairingsObject(wine: WineWithRelations) {
+  const context = buildWineEditorialContext(wine);
+
+  return generateObject({
+    model: getSommelierModel(),
+    schema: wineDessertPairingsOnlySchema,
+    system: DESSERT_PAIRINGS_SYSTEM_PROMPT,
+    prompt: buildDessertPairingsUserPrompt({
+      name: context.name,
+      vintage: context.vintage,
+      type: context.type,
+      sweetness: context.sweetness,
+      wineryName: context.wineryName,
+      regionName: context.regionName,
+      grapeVarieties: context.grapeVarieties,
+      tasteProfile: wine.tasteProfile,
+      descriptionEditorial: wine.descriptionEditorial,
+    }),
+    temperature: 0.45,
+  });
+}
+
+export async function generateDessertPairingsForWine(
+  wine: WineWithRelations,
+): Promise<WineDessertPairingsOnlyOutput> {
+  const { object } = await generateDessertPairingsObject(wine);
+  return {
+    dessertPairings: object.dessertPairings.map((pairing) => ({
+      ...pairing,
+      dish: sanitizeEditorialText(pairing.dish),
+      note: sanitizeEditorialText(pairing.note),
+    })),
+  };
+}
+
+export async function applyDessertPairingsToWine(
+  wine: WineWithRelations,
+  dessertPairings: WineDessertPairingsOnlyOutput["dessertPairings"],
+): Promise<void> {
+  const price = wine.currentPrice ?? wine.priceAvg ?? 50;
+  const ruleScores = calculateInitialScores({
+    price: price > 0 ? price : 50,
+    category: mapWineTypeToScoreCategory(wine.type),
+    region: wine.region?.name,
+    grapeVarieties: wine.grapeVarieties.map((grape) => grape.name),
+    sweetness: wine.sweetness,
+    dessertPairingCount: dessertPairings.length,
+  });
+
+  const foodMatchScore = Math.max(
+    wine.foodMatchScore ?? 0,
+    ruleScores.foodMatchScore,
+  );
+
+  await db
+    .update(wines)
+    .set({
+      dessertPairings,
+      foodMatchScore,
+    })
+    .where(eq(wines.id, wine.id));
 }
 
 export async function applyFullEditorialToWine(

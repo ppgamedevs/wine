@@ -1,8 +1,11 @@
 import "./load-env";
 import { eq } from "drizzle-orm";
 import {
+  applyDessertPairingsToWine,
   applyFullEditorialToWine,
+  generateDessertPairingsForWine,
   generateFullEditorialForWine,
+  hasMinimumFactualDataForEditorial,
   loadWineForEditorial,
 } from "@/lib/regenerate-wine-editorial";
 import { db } from "@/lib/db";
@@ -13,7 +16,8 @@ function parseArgs() {
   const slugArg = args.find((a) => a.startsWith("--slug="));
   const slug = slugArg?.slice("--slug=".length);
   const force = args.includes("--force");
-  return { slug, force };
+  const dessertOnly = args.includes("--dessert-only");
+  return { slug, force, dessertOnly };
 }
 
 async function loadWines(slug?: string) {
@@ -41,8 +45,14 @@ function hasEditorial(wine: Awaited<ReturnType<typeof loadWines>>[number]): bool
   );
 }
 
+function needsDessertPairings(
+  wine: Awaited<ReturnType<typeof loadWines>>[number],
+): boolean {
+  return wine.dessertPairings.length === 0;
+}
+
 async function main() {
-  const { slug, force } = parseArgs();
+  const { slug, force, dessertOnly } = parseArgs();
   const targetWines = await loadWines(slug);
 
   if (slug && targetWines.length === 0) {
@@ -50,9 +60,8 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(
-    `Generating editorial content for ${targetWines.length} wine(s)...`,
-  );
+  const modeLabel = dessertOnly ? "dessert pairings" : "editorial content";
+  console.log(`Generating ${modeLabel} for ${targetWines.length} wine(s)...`);
 
   if (targetWines.length === 0) {
     console.log("Baza de date este goala. Ruleaza mai intai: npm run db:seed");
@@ -61,6 +70,33 @@ async function main() {
 
   let done = 0;
   for (const wine of targetWines) {
+    if (dessertOnly) {
+      if (!force && !needsDessertPairings(wine)) {
+        console.log(`Skip ${wine.slug} (already has dessert pairings)`);
+        continue;
+      }
+      if (!hasMinimumFactualDataForEditorial(wine)) {
+        console.log(`Skip ${wine.slug} (insufficient factual data)`);
+        continue;
+      }
+
+      try {
+        console.log(`Dessert pairings: ${wine.name}...`);
+        const result = await generateDessertPairingsForWine(wine);
+        await applyDessertPairingsToWine(wine, result.dessertPairings);
+
+        done += 1;
+        const dishes = result.dessertPairings.map((p) => p.dish).join(", ");
+        console.log(
+          `  OK ${wine.slug} | ${result.dessertPairings.length} pairing(s)${dishes ? `: ${dishes}` : ""}`,
+        );
+        await sleep(1200);
+      } catch (error) {
+        console.error(`Failed for ${wine.slug}:`, error);
+      }
+      continue;
+    }
+
     if (!force && hasEditorial(wine)) {
       console.log(`Skip ${wine.slug} (already has editorial)`);
       continue;
@@ -81,7 +117,8 @@ async function main() {
     }
   }
 
-  console.log(`Done. Generated editorial for ${done} wine(s).`);
+  const suffix = dessertOnly ? "dessert pairing set(s)" : "editorial set(s)";
+  console.log(`Done. Generated ${done} ${suffix}.`);
 }
 
 function sleep(ms: number) {

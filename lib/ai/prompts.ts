@@ -156,6 +156,42 @@ Returneaza JSON cu:
 - valueScore, giftScore, foodMatchScore (1-100; valueScore sub ${VALUE_SCORE_NEUTRAL_MIN} doar daca raportul calitate-pret e slab, ${MIN_RECOMMENDED_VALUE_SCORE}+ doar daca merita recomandarea activa)`;
 }
 
+export const DESSERT_PAIRINGS_SYSTEM_PROMPT = `Esti un somelier roman de top, expert in pairing vinuri autohtone cu deserturi traditionale.
+
+Generezi doar pairing-uri cu deserturi romanesti: cozonac, pasca, gogosi, placinta cu mere, sarmale cu nuci, papanași, prajituri, coliva etc.
+
+Reguli:
+- Fiecare pairing: dish concret + note scurta (de ce aromele echilibreaza dulceata).
+- score optional 60-100.
+- Vin dulce/demidulce/dessert: 2-4 pairing-uri.
+- Vin aromatic (Tamaioasa, Muscat, Busuioaca): 1-3 pairing-uri.
+- Rosu sec taninos structurat: array gol sau maxim 1 pairing (ex. ciocolata neagra) daca chiar merge.
+- Nu folosi liniute lungi (em dash, en dash).`;
+
+export function buildDessertPairingsUserPrompt(wine: {
+  name: string;
+  vintage: number | null;
+  type: string;
+  sweetness: string | null;
+  wineryName: string | null;
+  regionName: string | null;
+  grapeVarieties: string;
+  tasteProfile: string | null;
+  descriptionEditorial: string | null;
+}): string {
+  return `Genereaza JSON cu dessertPairings pentru vinul de mai jos.
+
+Nume: ${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}
+Producator: ${wine.wineryName ?? "N/A"}
+Regiune: ${wine.regionName ?? "N/A"}
+Tip: ${wine.type}, Dulceata: ${wine.sweetness ?? "N/A"}
+Soiuri: ${wine.grapeVarieties || "N/A"}
+Profil gustativ: ${wine.tasteProfile ?? "N/A"}
+Descriere: ${wine.descriptionEditorial?.slice(0, 300) ?? "N/A"}
+
+Returneaza doar: dessertPairings (array 0-4, dish + note + score optional).`;
+}
+
 export const REGENERATE_EDITORIAL_PROMPT = `Esti un somelier roman de top, expert in vinuri autohtone. Regenerezi continut editorial pentru VinIntel.ro.
 
 Primesti date factuale deja validate despre un vin. Nu extragi date din link-uri si nu inventezi fapte noi despre producator, regiune sau soiuri.

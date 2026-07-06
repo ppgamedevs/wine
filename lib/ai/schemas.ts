@@ -113,6 +113,19 @@ export type WineEditorialContentOutput = z.infer<
   typeof wineEditorialContentSchema
 >;
 
+export const wineDessertPairingsOnlySchema = z.object({
+  dessertPairings: z
+    .array(editorialDessertPairingSchema)
+    .max(4)
+    .describe(
+      "Pairing-uri cu deserturi romanesti; array gol daca vinul sec taninos nu se potriveste",
+    ),
+});
+
+export type WineDessertPairingsOnlyOutput = z.infer<
+  typeof wineDessertPairingsOnlySchema
+>;
+
 export const wineApprovalEmailSummarySchema = z.object({
   summary: z
     .string()
