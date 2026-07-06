@@ -92,6 +92,18 @@ function resolveRecasKnownSlugs(wineName: string): string[] {
   if (norm.includes("implicit") && norm.includes("aligote")) {
     slugs.push("implicit-aligote");
   }
+  if (norm.includes("implicit") && norm.includes("chardonnay")) {
+    slugs.push("implicit-chardonnay");
+  }
+  if (norm.includes("implicit") && (norm.includes("pinot grigio") || norm.includes("pinot-grigio"))) {
+    slugs.push("implicit-pinot-grigio");
+  }
+  if (
+    norm.includes("implicit") &&
+    (norm.includes("sauvignon blanc") || norm.includes("sauvignon-blanc"))
+  ) {
+    slugs.push("implicit-sauvignon-blanc");
+  }
   if (norm.includes("explicit") && (norm.includes("rose") || norm.includes("roze"))) {
     slugs.push("roze-explicit", "explicit-roze");
   }
