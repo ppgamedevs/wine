@@ -8,8 +8,10 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChatWineCard } from "@/components/sommelier/chat-wine-card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { EASE_OUT } from "@/lib/motion";
 import type { ChatWineRecommendation } from "@/lib/sommelier-chat-types";
+import { sanitizeAssistantChatText } from "@/lib/sommelier-chat-utils";
 import { useSpeechRecognition } from "@/lib/use-speech-recognition";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +49,44 @@ function getRecommendationsFromMessage(
     }
   }
   return items;
+}
+
+function AssistantRecommendations({
+  recommendations,
+}: {
+  recommendations: ChatWineRecommendation[];
+}) {
+  if (recommendations.length === 0) return null;
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: EASE_OUT }}
+      className="w-full max-w-[min(100%,42rem)] space-y-4"
+      aria-label="Recomandari principale"
+    >
+      <div className="flex items-center gap-2.5 px-1">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-wine/10 text-wine">
+          <Wine className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <div>
+          <h2 className="font-serif text-lg font-semibold text-foreground">
+            Recomandari principale
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Selectie din catalogul VinIntel, potrivita cererii tale
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {recommendations.map((wine, index) => (
+          <ChatWineCard key={wine.slug} wine={wine} index={index} />
+        ))}
+      </div>
+    </motion.section>
+  );
 }
 
 function ChatBubble({
@@ -247,7 +287,11 @@ export function SommelierChat() {
 
           <AnimatePresence initial={false}>
             {messages.map((message) => {
-              const text = getTextFromMessage(message);
+              const rawText = getTextFromMessage(message);
+              const text =
+                message.role === "assistant"
+                  ? sanitizeAssistantChatText(rawText)
+                  : rawText;
               const recommendations = getRecommendationsFromMessage(message);
               const isUser = message.role === "user";
 
@@ -256,23 +300,15 @@ export function SommelierChat() {
               }
 
               return (
-                <div key={message.id} className="space-y-3">
+                <div key={message.id} className="space-y-4">
                   {text ? (
                     <ChatBubble role={isUser ? "user" : "assistant"}>
                       <p className="whitespace-pre-wrap">{text}</p>
                     </ChatBubble>
                   ) : null}
 
-                  {!isUser && recommendations.length > 0 ? (
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {recommendations.map((wine, index) => (
-                        <ChatWineCard
-                          key={wine.slug}
-                          wine={wine}
-                          index={index}
-                        />
-                      ))}
-                    </div>
+                  {!isUser ? (
+                    <AssistantRecommendations recommendations={recommendations} />
                   ) : null}
                 </div>
               );
@@ -294,88 +330,96 @@ export function SommelierChat() {
         </div>
       </div>
 
-      <div className="sticky bottom-0 border-t border-border/60 bg-background/90 px-4 py-4 backdrop-blur-md sm:px-6">
-        <AnimatePresence>
-          {isListening ? (
-            <ListeningIndicator interimTranscript={interimTranscript} />
-          ) : null}
-        </AnimatePresence>
-
-        {voiceError ? (
-          <p className="mx-auto mb-3 max-w-3xl text-center text-xs text-muted-foreground">
-            {voiceError}
-          </p>
-        ) : null}
-
-        <form
-          onSubmit={handleSubmit}
-          className="mx-auto flex max-w-3xl items-end gap-2"
-        >
-          <div
-            className={cn(
-              "relative min-w-0 flex-1 rounded-2xl border bg-card shadow-sm transition-colors focus-within:ring-2 focus-within:ring-wine/10",
-              isListening
-                ? "border-wine/40 ring-2 ring-wine/10"
-                : "border-border/80 focus-within:border-wine/40",
-            )}
-          >
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={handleKeyDown}
-              rows={1}
-              placeholder="Scrie ce ocazie ai sau ce fel de vin cauti..."
-              disabled={isBusy || isListening}
-              className={cn(
-                "max-h-40 min-h-[52px] w-full resize-none bg-transparent py-3.5 text-sm leading-relaxed outline-none placeholder:text-muted-foreground disabled:opacity-60 sm:text-[15px]",
-                isVoiceSupported ? "pl-4 pr-12" : "px-4",
-              )}
-              aria-label="Mesaj pentru somelier"
-            />
-
-            {isVoiceSupported ? (
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                disabled={isBusy}
-                onClick={toggleListening}
-                className={cn(
-                  "absolute bottom-1.5 right-1.5 h-9 w-9 rounded-xl text-muted-foreground hover:bg-wine/10 hover:text-wine",
-                  isListening && "bg-wine/15 text-wine hover:bg-wine/20 hover:text-wine",
-                )}
-                aria-label={isListening ? "Opreste ascultarea" : "Vorbeste mesajul"}
-                aria-pressed={isListening}
-              >
-                <Mic className={cn("h-4 w-4", isListening && "animate-pulse")} />
-              </Button>
+      <div className="sticky bottom-0 border-t border-border/50 bg-gradient-to-t from-background via-background/95 to-background/80 px-4 py-5 backdrop-blur-md sm:px-6">
+        <div className="mx-auto max-w-3xl space-y-3">
+          <AnimatePresence>
+            {isListening ? (
+              <ListeningIndicator interimTranscript={interimTranscript} />
             ) : null}
-          </div>
+          </AnimatePresence>
 
-          {isBusy ? (
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              className="h-[52px] w-[52px] shrink-0 rounded-2xl"
-              onClick={stop}
-              aria-label="Opreste generarea"
-            >
-              <Square className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!input.trim()}
-              className="h-[52px] w-[52px] shrink-0 rounded-2xl bg-wine text-wine-foreground hover:bg-wine/90"
-              aria-label="Trimite mesaj"
-            >
-              <SendHorizontal className="h-4 w-4" />
-            </Button>
-          )}
-        </form>
+          {voiceError ? (
+            <p className="text-center text-xs text-muted-foreground">
+              {voiceError}
+            </p>
+          ) : null}
+
+          <Card className="border-border/70 py-0 shadow-lg shadow-wine/5">
+            <CardContent className="p-3 sm:p-4">
+              <form onSubmit={handleSubmit} className="flex items-end gap-2.5">
+                <div
+                  className={cn(
+                    "relative min-w-0 flex-1 rounded-xl border bg-background/80 transition-colors focus-within:ring-2 focus-within:ring-wine/10",
+                    isListening
+                      ? "border-wine/40 ring-2 ring-wine/10"
+                      : "border-border/80 focus-within:border-wine/40",
+                  )}
+                >
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(event) => setInput(event.target.value)}
+                    onKeyDown={handleKeyDown}
+                    rows={1}
+                    placeholder="Scrie ce ocazie ai sau ce fel de vin cauti..."
+                    disabled={isBusy || isListening}
+                    className={cn(
+                      "max-h-40 min-h-[52px] w-full resize-none bg-transparent py-3.5 text-sm leading-relaxed outline-none placeholder:text-muted-foreground disabled:opacity-60 sm:text-[15px]",
+                      isVoiceSupported ? "pl-4 pr-12" : "px-4",
+                    )}
+                    aria-label="Mesaj pentru somelier"
+                  />
+
+                  {isVoiceSupported ? (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      disabled={isBusy}
+                      onClick={toggleListening}
+                      className={cn(
+                        "absolute bottom-1.5 right-1.5 h-9 w-9 rounded-xl text-muted-foreground hover:bg-wine/10 hover:text-wine",
+                        isListening &&
+                          "bg-wine/15 text-wine hover:bg-wine/20 hover:text-wine",
+                      )}
+                      aria-label={
+                        isListening ? "Opreste ascultarea" : "Vorbeste mesajul"
+                      }
+                      aria-pressed={isListening}
+                    >
+                      <Mic
+                        className={cn("h-4 w-4", isListening && "animate-pulse")}
+                      />
+                    </Button>
+                  ) : null}
+                </div>
+
+                {isBusy ? (
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    className="h-[52px] w-[52px] shrink-0 rounded-xl"
+                    onClick={stop}
+                    aria-label="Opreste generarea"
+                  >
+                    <Square className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={!input.trim()}
+                    className="h-[52px] w-[52px] shrink-0 rounded-xl bg-wine text-wine-foreground hover:bg-wine/90"
+                    aria-label="Trimite mesaj"
+                  >
+                    <SendHorizontal className="h-4 w-4" />
+                  </Button>
+                )}
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

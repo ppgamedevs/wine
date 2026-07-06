@@ -13,6 +13,7 @@ import {
   retrieveWinesForChat,
   serializeWineForChat,
 } from "@/lib/sommelier-chat";
+import { extractRecommendedSlugs } from "@/lib/sommelier-chat-utils";
 
 export const maxDuration = 60;
 
@@ -42,20 +43,12 @@ export async function POST(req: Request) {
       6,
     );
 
-    const recommendations = wines.slice(0, 2).map(serializeWineForChat);
     const system = buildChatSommelierSystemPrompt(wines, input);
+    const candidateSlugs = wines.map((wine) => wine.slug);
 
     const stream = createUIMessageStream({
       originalMessages: messages,
       execute: async ({ writer }) => {
-        if (recommendations.length > 0) {
-          writer.write({
-            type: "data-recommendations",
-            id: generateId(),
-            data: recommendations,
-          });
-        }
-
         const modelMessages = await convertToModelMessages(messages);
 
         const result = streamText({
@@ -66,6 +59,22 @@ export async function POST(req: Request) {
         });
 
         writer.merge(result.toUIMessageStream());
+
+        const fullText = await result.text;
+        const slugs = extractRecommendedSlugs(fullText, candidateSlugs);
+        const wineBySlug = new Map(wines.map((wine) => [wine.slug, wine]));
+        const recommendations = slugs
+          .map((slug) => wineBySlug.get(slug))
+          .filter((wine) => wine != null)
+          .map((wine) => serializeWineForChat(wine));
+
+        if (recommendations.length > 0) {
+          writer.write({
+            type: "data-recommendations",
+            id: generateId(),
+            data: recommendations,
+          });
+        }
       },
       onError: () => "Somelierul nu a putut raspunde. Incearca din nou.",
     });

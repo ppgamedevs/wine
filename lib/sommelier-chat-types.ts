@@ -8,8 +8,8 @@ export interface ChatWineRecommendation {
   type: WineType;
   wineryName: string | null;
   priceRon: number | null;
-  purchaseUrl: string | null;
-  purchaseLabel: string | null;
+  /** True when the wine has an affiliate purchase link on its detail page. */
+  hasAffiliateLink: boolean;
   valueScore: number | null;
   imageUrl: string | null;
   imageAlt: string;

@@ -123,8 +123,7 @@ export function serializeWineForChat(wine: WineWithRelations): ChatWineRecommend
     type: wine.type,
     wineryName: wine.winery?.name ?? null,
     priceRon: pricing.displayPrice ?? wine.currentPrice ?? wine.priceAvg,
-    purchaseUrl: pricing.purchaseLink?.url ?? null,
-    purchaseLabel: pricing.purchaseLink?.label ?? null,
+    hasAffiliateLink: Boolean(pricing.purchaseLink?.url),
     valueScore: wine.valueScore,
     imageUrl: image.src,
     imageAlt: image.alt,
@@ -170,9 +169,6 @@ export function buildChatSommelierSystemPrompt(
         `   Value ${wine.valueScore ?? "N/A"}/100 | Food Match ${wine.foodMatchScore ?? "N/A"}/100`,
         foodNotes ? `   Pairing mancare: ${foodNotes}` : null,
         dessertNotes ? `   Pairing desert: ${dessertNotes}` : null,
-        pricing.purchaseLink?.url
-          ? `   Link cumparare: ${pricing.purchaseLink.url}`
-          : null,
       ]
         .filter(Boolean)
         .join("\n");
@@ -188,7 +184,15 @@ Context cerere:
 - Dulceata preferata: ${input.sweetness === "any" ? "oricare" : input.sweetness}
 
 Catalog vinuri candidate (sursa unica de adevar):
-${catalog || "(niciun vin in buget; explica onest si sugereaza sa relaxeze bugetul sau cerinta)"}`;
+${catalog || "(niciun vin in buget; explica onest si sugereaza sa relaxeze bugetul sau cerinta)"}
+
+Format final obligatoriu (ultima linie, separata):
+RECOMMENDED_SLUGS: <slug1>, <slug2>
+
+Reguli finale:
+- Nu include URL-uri in raspuns (nici Profitshare, nici eMAG).
+- Mentioneaza pretul aproximativ in RON in text, fara link de cumparare.
+- RECOMMENDED_SLUGS trebuie sa contina 1-2 slug-uri EXACTE din catalog, in ordinea recomandarilor.`;
 }
 
 export function buildChatSommelierUserPrompt(
