@@ -91,7 +91,14 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
   if (c?.alcohol != null) patch.alcohol = c.alcohol;
   if (c?.acidity != null) patch.acidity = c.acidity;
 
-  if (c?.color) {
+  const producerText = producer.producerText ?? "";
+  const isOrangeWine =
+    /Apela[^\n]*Vin Orange|Vin Orange Wine|sole-orange/i.test(
+      `${producerText} ${producer.producerPageUrl ?? ""}`,
+    );
+  if (isOrangeWine) {
+    patch.type = "orange";
+  } else if (c?.color) {
     const mappedType = mapCsvCategoryToWineType(c.color);
     if (mappedType) patch.type = mappedType;
   }

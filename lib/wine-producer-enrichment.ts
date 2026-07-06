@@ -121,13 +121,23 @@ function resolveRecasKnownSlugs(wineName: string): string[] {
     slugs.push("muse-night");
   }
   if (norm.includes("muse") && norm.includes("white")) {
-    slugs.push("muse-white");
+    if (norm.includes("magnum")) {
+      slugs.push("muse-white-magnum");
+    } else {
+      slugs.push("muse-white");
+    }
   }
   if (norm.includes("sole") && (norm.includes("rose") || norm.includes("roze"))) {
     slugs.push("sole-roze");
   }
   if (norm.includes("sole") && norm.includes("chardonnay")) {
     slugs.push("sole-chardonnay");
+  }
+  if (norm.includes("sole") && norm.includes("orange")) {
+    slugs.push("sole-orange-wine");
+  }
+  if (norm.includes("sole") && norm.includes("feteasca") && norm.includes("regala")) {
+    slugs.push("sole-feteasca-regala");
   }
   if (norm.includes("solo") && norm.includes("quinta")) {
     if (norm.includes("alb")) slugs.push("solo-quinta-alb");
@@ -377,13 +387,19 @@ function parseGrapeVarietiesFromCupaj(text: string): GrapeVarietyShare[] {
 }
 
 /** Extrage fapte structurate de pe paginile de produs Cramele Recas. */
+function normalizeRecasPlainText(plain: string): string {
+  return plain
+    .replace(/&ndash;|&mdash;/gi, "-")
+    .replace(/\u2013|\u2014/g, "-");
+}
+
 export function parseRecasProducerFacts(
   html: string,
   pageUrl: string,
 ): ProducerCanonicalFacts | null {
   if (!pageUrl.includes("cramelerecas.ro")) return null;
 
-  const plain = stripHtml(html);
+  const plain = normalizeRecasPlainText(stripHtml(html));
   const titleMatch = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
   const name = titleMatch?.[1]?.trim() ?? null;
 
@@ -405,8 +421,23 @@ export function parseRecasProducerFacts(
   );
   const colorMatch = plain.match(/Culoare\s*(Alb|Roze|Roșu|Rosu)/i);
 
-  const grapeVarieties = parseGrapeVarietiesFromCupaj(plain);
+  const grapeVarietiesFromCupaj = parseGrapeVarietiesFromCupaj(plain);
   const imageUrl = extractOgImage(html, pageUrl);
+
+  let resolvedGrapes = grapeVarietiesFromCupaj;
+  const multiSoi = plain.match(
+    /Soi\s*([A-Za-zÀ-ž][\s\S]*?)(?=Culoare|An\b|An\d|Apela|Vol|Clasificare)/i,
+  )?.[1];
+  if (multiSoi && /[-–—]/.test(multiSoi)) {
+    const names = multiSoi
+      .split(/[-–—]+/)
+      .map((part) => part.trim())
+      .filter((part) => part.length > 2);
+    if (names.length >= 2) {
+      const share = Math.round(100 / names.length);
+      resolvedGrapes = names.map((name) => ({ name, percentage: share }));
+    }
+  }
 
   const colorRaw = colorMatch?.[1]?.toLowerCase().replace("ș", "s") ?? null;
   const color =
@@ -420,7 +451,7 @@ export function parseRecasProducerFacts(
 
   if (
     !name &&
-    grapeVarieties.length === 0 &&
+    resolvedGrapes.length === 0 &&
     vintage == null &&
     !alcoholMatch &&
     !imageUrl
@@ -430,7 +461,7 @@ export function parseRecasProducerFacts(
 
   return {
     name,
-    grapeVarieties,
+    grapeVarieties: resolvedGrapes,
     vintage,
     alcohol: alcoholMatch?.[1] ? parseDecimalToken(alcoholMatch[1]) : null,
     acidity: acidityMatch?.[1] ? parseDecimalToken(acidityMatch[1]) : null,
@@ -451,6 +482,14 @@ export function inferRecasProducerPageUrl(
 
   if (/explicit-roze|roze-explicit/i.test(retailContext)) {
     return "https://cramelerecas.ro/roze-explicit/";
+  }
+
+  if (
+    /sole.*orange|vin-orange.*sole|orange-recas-sole|sole-orange-wine/i.test(
+      retailContext,
+    )
+  ) {
+    return "https://cramelerecas.ro/sole-orange-wine/";
   }
 
   if (
