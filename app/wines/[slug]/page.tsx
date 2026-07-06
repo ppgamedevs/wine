@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WineAvailability } from "@/components/wines/wine-availability";
 import { WineFaq } from "@/components/wines/wine-faq";
+import { WineDualScores } from "@/components/wines/wine-dual-scores";
 import { WineEditorial } from "@/components/wines/wine-editorial";
 import { WineHero } from "@/components/wines/wine-hero";
 import { WinePairings } from "@/components/wines/wine-pairings";
@@ -126,6 +127,7 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
 
         <div className="mx-auto max-w-6xl space-y-16 px-6 py-14">
           <WineEditorial wine={wine} />
+          <WineDualScores wine={wine} />
 
           {wine.status === "user_submitted" ? (
             <section

@@ -272,6 +272,9 @@ export const wines = sqliteTable(
     imageAlt: text("image_alt"),
     ratingAvg: real("rating_avg"),
     ratingCount: integer("rating_count").notNull().default(0),
+    /** Media voturilor comunitatii VinIntel (0-100). */
+    communityScore: integer("community_score"),
+    communityVoteCount: integer("community_vote_count").notNull().default(0),
 
     expertNotes: text("expert_notes", { mode: "json" })
       .$type<ExpertNotes | null>()
@@ -445,6 +448,50 @@ export const ratings = sqliteTable(
   ],
 );
 
+export const wineVotes = sqliteTable(
+  "wine_votes",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    /** 1-100, aceeasi scala ca VinIntel Score. */
+    score: integer("score").notNull(),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("wine_votes_user_wine_idx").on(table.userId, table.wineId),
+    index("wine_votes_wine_idx").on(table.wineId),
+    index("wine_votes_user_idx").on(table.userId),
+  ],
+);
+
+export const wineVoteLogs = sqliteTable(
+  "wine_vote_logs",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    ipAddress: text("ip_address").notNull(),
+    action: text("action", { enum: ["create", "update"] }).notNull(),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("wine_vote_logs_user_created_idx").on(table.userId, table.createdAt),
+    index("wine_vote_logs_ip_created_idx").on(table.ipAddress, table.createdAt),
+    index("wine_vote_logs_wine_idx").on(table.wineId),
+  ],
+);
+
 /* -------------------------------------------------------------------------- */
 /*                                 Relations                                   */
 /* -------------------------------------------------------------------------- */
@@ -473,6 +520,7 @@ export const winesRelations = relations(wines, ({ one, many }) => ({
   }),
   scoresHistory: many(scoresHistory),
   ratings: many(ratings),
+  wineVotes: many(wineVotes),
   reports: many(wineReports),
   submissionNotifications: many(wineSubmissionNotifications),
 }));
@@ -486,6 +534,8 @@ export const scoresHistoryRelations = relations(scoresHistory, ({ one }) => ({
 
 export const usersRelations = relations(users, ({ many }) => ({
   ratings: many(ratings),
+  wineVotes: many(wineVotes),
+  wineVoteLogs: many(wineVoteLogs),
 }));
 
 export const ratingsRelations = relations(ratings, ({ one }) => ({
@@ -495,6 +545,28 @@ export const ratingsRelations = relations(ratings, ({ one }) => ({
   }),
   wine: one(wines, {
     fields: [ratings.wineId],
+    references: [wines.id],
+  }),
+}));
+
+export const wineVotesRelations = relations(wineVotes, ({ one }) => ({
+  user: one(users, {
+    fields: [wineVotes.userId],
+    references: [users.id],
+  }),
+  wine: one(wines, {
+    fields: [wineVotes.wineId],
+    references: [wines.id],
+  }),
+}));
+
+export const wineVoteLogsRelations = relations(wineVoteLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [wineVoteLogs.userId],
+    references: [users.id],
+  }),
+  wine: one(wines, {
+    fields: [wineVoteLogs.wineId],
     references: [wines.id],
   }),
 }));

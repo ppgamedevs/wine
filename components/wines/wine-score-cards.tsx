@@ -64,7 +64,7 @@ export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
       </h2>
       <div className="grid gap-4 sm:grid-cols-3">
         <ScoreCard
-          label="Value Score"
+          label="VinIntel Score"
           score={wine.valueScore}
           description={valueScoreDescription(wine)}
           icon={EditorialValueIcon}

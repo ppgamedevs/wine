@@ -29,6 +29,9 @@ export type NewUser = typeof users.$inferInsert;
 export type Rating = typeof ratings.$inferSelect;
 export type NewRating = typeof ratings.$inferInsert;
 
+export type WineVote = typeof import("@/lib/schema").wineVotes.$inferSelect;
+export type WineVoteLog = typeof import("@/lib/schema").wineVoteLogs.$inferSelect;
+
 export type WineType = Wine["type"];
 export type WineSweetness = NonNullable<Wine["sweetness"]>;
 export type GrapeColor = GrapeVariety["color"];

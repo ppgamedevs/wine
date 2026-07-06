@@ -10,12 +10,10 @@ import {
   EditorialOccasionIcon,
   EditorialPairingIcon,
   EditorialTasteIcon,
-  EditorialValueIcon,
   EditorialWineIcon,
 } from "@/components/wines/editorial-icons";
-import { VinScoreBadge } from "@/components/wines/vin-score-badge";
 import { getVinScoreMeta } from "@/lib/format";
-import { splitValueExplanation, sanitizeEditorialText } from "@/lib/editorial-text";
+import { sanitizeEditorialText } from "@/lib/editorial-text";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
 
@@ -51,46 +49,8 @@ function pairingTone(score: number | undefined): string {
   return getVinScoreMeta(score).badgeClass;
 }
 
-function ValueExplanationContent({ raw }: { raw: string }) {
-  const { summary, provenanceLines } = splitValueExplanation(raw);
-
-  return (
-    <div className="flex-1 min-w-0 space-y-4">
-      {summary ? (
-        <p className="break-words text-base leading-relaxed text-foreground/90">
-          {summary}
-        </p>
-      ) : null}
-
-      {provenanceLines.length > 0 ? (
-        <div className="rounded-xl border border-border/70 bg-secondary/30 p-4">
-          <p className="text-sm font-medium text-foreground">
-            Cum calculam scorul
-          </p>
-          <ul className="mt-3 space-y-2">
-            {provenanceLines.map((line) => (
-              <li
-                key={line}
-                className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground"
-              >
-                <span
-                  className="mt-2 h-1 w-1 shrink-0 rounded-full bg-wine"
-                  aria-hidden="true"
-                />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
 export function WineEditorial({ wine }: { wine: WineWithRelations }) {
   const hasDescription = Boolean(wine.descriptionEditorial?.trim());
-  const hasValueBlock =
-    wine.valueScore != null || Boolean(wine.valueExplanation?.trim());
   const hasThings = wine.thingsYouShouldKnow.length > 0;
   const hasTaste = Boolean(wine.tasteProfile?.trim());
   const hasPairingNotes = wine.foodPairingNotes.length > 0;
@@ -99,7 +59,6 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
 
   const hasEditorialContent =
     hasDescription ||
-    hasValueBlock ||
     hasThings ||
     hasTaste ||
     hasPairingNotes ||
@@ -127,30 +86,6 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
           <p className="max-w-3xl text-base leading-relaxed text-foreground/90">
             {sanitizeEditorialText(wine.descriptionEditorial)}
           </p>
-        </EditorialBlock>
-      ) : null}
-
-      {hasValueBlock ? (
-        <EditorialBlock
-          id="wine-value-editorial"
-          title="Value Score explicat"
-          icon={EditorialValueIcon}
-        >
-          <Card className="border-border/70">
-            <CardContent className="flex min-w-0 flex-col gap-6 p-6 sm:flex-row sm:items-start">
-              {wine.valueScore != null ? (
-                <div className="flex shrink-0 flex-col items-center gap-2 sm:items-start">
-                  <VinScoreBadge score={wine.valueScore} size="lg" />
-                  <Badge variant="outline" className="border-wine/30 text-wine">
-                    Scor VinIntel
-                  </Badge>
-                </div>
-              ) : null}
-              {wine.valueExplanation?.trim() ? (
-                <ValueExplanationContent raw={wine.valueExplanation} />
-              ) : null}
-            </CardContent>
-          </Card>
         </EditorialBlock>
       ) : null}
 
