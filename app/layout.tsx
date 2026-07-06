@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { GoogleAnalytics } from "@/components/google-analytics";
+import { CookieConsentRoot } from "@/components/cookie-consent/cookie-consent-root";
 import { JsonLd } from "@/components/json-ld";
 import { organizationJsonLd, SITE, websiteJsonLd } from "@/lib/seo";
 import "./globals.css";
@@ -94,7 +94,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <JsonLd data={[organizationJsonLd, websiteJsonLd]} id="site" />
         <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
-        <GoogleAnalytics />
+        <CookieConsentRoot />
       </body>
     </html>
   );

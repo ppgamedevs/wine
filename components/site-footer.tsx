@@ -8,6 +8,8 @@ const footerLinks = [
   { label: "AI Sommelier", href: "/ai-sommelier" },
   { label: "Topuri", href: "/topuri" },
   { label: "Cum calculam scorurile", href: "/cum-functioneaza-scorurile" },
+  { label: "Confidentialitate", href: "/politica-confidentialitate" },
+  { label: "Politica cookies", href: "/politica-cookies" },
   { label: "Revendica crama", href: "/claim-your-winery" },
 ];
 
