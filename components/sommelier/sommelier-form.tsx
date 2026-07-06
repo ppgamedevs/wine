@@ -147,7 +147,7 @@ export function SommelierForm({
               <Label htmlFor="occasion-trigger" className="text-sm font-medium">
                 Ocazie
               </Label>
-              <Select value={occasion} onValueChange={setOccasion}>
+              <Select value={occasion} onValueChange={(value) => setOccasion(value as OccasionId)}>
                 <SelectTrigger id="occasion-trigger" className="w-full">
                   <SelectValue placeholder="Alege ocazia" />
                 </SelectTrigger>

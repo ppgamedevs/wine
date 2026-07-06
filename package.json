@@ -21,6 +21,7 @@
     "jobs:update-prices": "tsx jobs/update-prices.ts"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^4.0.5",
     "@ai-sdk/react": "^4.0.5",
     "@ai-sdk/xai": "^4.0.2",
     "@huggingface/inference": "^4.13.20",

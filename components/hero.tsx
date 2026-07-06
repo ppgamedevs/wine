@@ -10,7 +10,7 @@ import { EASE_OUT, staggerContainer } from "@/lib/motion";
 const suggestions = [
   { label: "Sub 50 lei", href: "/topuri/vinuri-sub-50-lei" },
   { label: "Pentru sarmale", href: "/topuri/vinuri-sub-50-lei-pentru-sarmale" },
-  { label: "Pentru desert", href: "/ai-sommelier?occasion=pentru-desert" },
+  { label: "Pentru desert", href: "/ai-sommelier?q=Vin+bun+pentru+cozonac" },
   { label: "Feteasca Neagra", href: "/topuri/cele-mai-bune-feteasca-neagra" },
   { label: "Vinuri cadou", href: "/topuri/vinuri-cadou" },
 ];
