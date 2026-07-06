@@ -93,6 +93,137 @@ function extractHtmlRedirectTarget(html: string, baseUrl: string): string | null
   return null;
 }
 
+function isEmagUrl(url: string): boolean {
+  try {
+    return new URL(url).hostname.toLowerCase().includes("emag.ro");
+  } catch {
+    return url.toLowerCase().includes("emag.ro");
+  }
+}
+
+function capitalizeToken(token: string): string {
+  if (!token) return token;
+  return token.charAt(0).toUpperCase() + token.slice(1);
+}
+
+/** Best-effort metadata when eMAG blocks server-side fetch (511/403). */
+function parseEmagSlugMetadata(url: string): {
+  title: string;
+  producer: string | null;
+} | null {
+  try {
+    const slug = new URL(url).pathname.split("/").filter(Boolean)[0];
+    if (!slug?.startsWith("vin-")) return null;
+
+    const tokens = slug.split("-").filter(Boolean);
+    if (tokens.length < 4 || tokens[0] !== "vin") return null;
+
+    if (tokens[1] === "recas" && tokens[2] === "explicit") {
+      const stopWords = new Set([
+        "0",
+        "75l",
+        "sec",
+        "demisec",
+        "demidulce",
+        "dulce",
+        "750ml",
+        "rec",
+      ]);
+      const nameParts = ["Explicit"];
+
+      for (let index = 3; index < tokens.length; index += 1) {
+        const token = tokens[index] ?? "";
+        if (stopWords.has(token) || /^\d{2,}$/.test(token)) break;
+        nameParts.push(capitalizeToken(token));
+      }
+
+      const wineName = nameParts.slice(1).join(" ");
+      const sweetness =
+        slug.includes("-sec-") || slug.endsWith("-sec") ? "sec" : "";
+      const title = [`Explicit ${wineName}`.trim(), sweetness]
+        .filter(Boolean)
+        .join(" ");
+
+      return { title, producer: "Recas" };
+    }
+
+    const color = tokens[1] ?? "alb";
+    const producerToken = tokens[2];
+    if (!producerToken) return null;
+
+    const stopWords = new Set([
+      "0",
+      "75l",
+      "sec",
+      "demisec",
+      "demidulce",
+      "dulce",
+      "750ml",
+    ]);
+    const nameParts: string[] = [];
+
+    for (let index = 3; index < tokens.length; index += 1) {
+      const token = tokens[index] ?? "";
+      if (stopWords.has(token) || /^\d{8,}$/.test(token)) break;
+      nameParts.push(capitalizeToken(token));
+    }
+
+    const producer = capitalizeToken(producerToken);
+    const wineName = nameParts.join(" ");
+    const sweetness = slug.includes("-sec-") || slug.endsWith("-sec") ? "sec" : "";
+    const title = [wineName, sweetness].filter(Boolean).join(" ");
+
+    return { title, producer };
+  } catch {
+    return null;
+  }
+}
+
+function buildEmagFallbackHtml(url: string): string | null {
+  const meta = parseEmagSlugMetadata(url);
+  if (!meta) return null;
+
+  const escape = (value: string) =>
+    value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+
+  return `<!DOCTYPE html><html><head>
+<meta property="og:title" content="${escape(meta.title)}" />
+<meta property="product:brand" content="${escape(meta.producer ?? "")}" />
+<title>${escape(meta.title)}</title>
+</head><body><h1>${escape(meta.title)}</h1>
+<p>Vin romanesc ${escape(meta.producer ?? "")}. Disponibil in Romania.</p>
+</body></html>`;
+}
+
+async function fetchEmagWithFallback(url: string): Promise<{
+  html: string;
+  finalUrl: string;
+} | null> {
+  const { inferRecasProducerPageUrl } = await import(
+    "@/lib/wine-producer-enrichment"
+  );
+  const producerUrl = inferRecasProducerPageUrl("", url);
+  if (producerUrl) {
+    const producer = await fetch(producerUrl, {
+      ...FETCH_INIT,
+      redirect: "follow",
+    });
+    if (producer.ok) {
+      return {
+        html: await producer.text(),
+        finalUrl: url,
+      };
+    }
+  }
+
+  const fallbackHtml = buildEmagFallbackHtml(url);
+  if (fallbackHtml) {
+    return { html: fallbackHtml, finalUrl: url };
+  }
+
+  return null;
+}
+
 async function fetchRetailerDocument(url: string): Promise<{
   html: string;
   finalUrl: string;
@@ -103,6 +234,11 @@ async function fetchRetailerDocument(url: string): Promise<{
   });
 
   if (!response.ok) {
+    if (isEmagUrl(url) && (response.status === 511 || response.status === 403)) {
+      const fallback = await fetchEmagWithFallback(url);
+      if (fallback) return fallback;
+    }
+
     throw new Error(`Pagina nu a putut fi accesata (${response.status}).`);
   }
 

@@ -113,6 +113,28 @@ function resolveRecasKnownSlugs(wineName: string): string[] {
   if (norm.includes("explicit") && norm.includes("merlot")) {
     slugs.push("explicit-merlot");
   }
+  if (
+    norm.includes("explicit") &&
+    (norm.includes("sauvignon blanc") || norm.includes("sauvignon-blanc"))
+  ) {
+    slugs.push("explicit-sauvignon-blanc");
+  }
+  if (norm.includes("explicit") && norm.includes("chardonnay")) {
+    slugs.push("explicit-chardonnay");
+  }
+  if (
+    norm.includes("explicit") &&
+    norm.includes("feteasca") &&
+    norm.includes("regala")
+  ) {
+    slugs.push("explicit-feteasca-regala");
+  }
+  if (
+    norm.includes("explicit") &&
+    (norm.includes("muscat ottonel") || norm.includes("muscat-ottonel"))
+  ) {
+    slugs.push("explicit-muscat-ottonel");
+  }
   if (norm.includes("muse") && norm.includes("stars")) {
     if (norm.includes("rose") || norm.includes("roze")) {
       slugs.push("muse-stars-rose-spumant", "muse-stars");
@@ -494,6 +516,34 @@ export function inferRecasProducerPageUrl(
 
   if (/explicit-roze|roze-explicit/i.test(retailContext)) {
     return "https://cramelerecas.ro/roze-explicit/";
+  }
+
+  if (
+    /explicit.*sauvignon|sauvignon.*explicit|rec-261/i.test(retailContext)
+  ) {
+    return "https://cramelerecas.ro/explicit-sauvignon-blanc/";
+  }
+
+  if (
+    /explicit.*chardonnay|chardonnay.*explicit|rec-282/i.test(retailContext)
+  ) {
+    return "https://cramelerecas.ro/explicit-chardonnay/";
+  }
+
+  if (
+    /explicit.*feteasca.*regala|feteasca.*regala.*explicit|rec-259/i.test(
+      retailContext,
+    )
+  ) {
+    return "https://cramelerecas.ro/explicit-feteasca-regala/";
+  }
+
+  if (
+    /explicit.*muscat.*ottonel|muscat.*ottonel.*explicit|rec-258/i.test(
+      retailContext,
+    )
+  ) {
+    return "https://cramelerecas.ro/explicit-muscat-ottonel/";
   }
 
   if (

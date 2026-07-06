@@ -19,6 +19,7 @@ const RETAILER_NAMES = new Set([
 /** Aliases mapped to canonical winery names when not yet in DB. */
 export const KNOWN_WINERY_ALIASES: { name: string; aliases: string[] }[] = [
   { name: "Cramele Recas", aliases: ["recas", "recaș", "cramele recas", "cramele-recas"] },
+  { name: "Purcari", aliases: ["purcari", "chateau purcari", "vinaria purcari"] },
   { name: "Avincis", aliases: ["avincis"] },
   { name: "Davino", aliases: ["davino"] },
   { name: "Cotnari", aliases: ["cotnari"] },
