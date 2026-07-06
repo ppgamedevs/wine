@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { WineryListItem } from "@/types";
 
@@ -14,7 +15,7 @@ export function WineryCard({ winery }: { winery: WineryListItem }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-wine/30 hover:shadow-xl">
       <div className="flex items-start gap-4 p-5">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border/70 bg-secondary/40">
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-wine/15 bg-gradient-to-br from-wine/[0.08] via-white to-wine/[0.12] shadow-sm ring-1 ring-wine/10">
           {winery.logoUrl ? (
             <Image
               src={winery.logoUrl}
@@ -31,7 +32,7 @@ export function WineryCard({ winery }: { winery: WineryListItem }) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             {winery.region?.name ? (
               <span className="inline-flex items-center gap-0.5">
                 <MapPin className="h-3 w-3" aria-hidden="true" />
@@ -45,7 +46,11 @@ export function WineryCard({ winery }: { winery: WineryListItem }) {
                 <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                 Verificata
               </span>
-            ) : null}
+            ) : (
+              <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-medium">
+                Neverificata
+              </Badge>
+            )}
           </div>
 
           <h3 className="mt-1 truncate font-serif text-lg font-semibold leading-snug text-foreground">

@@ -68,7 +68,9 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
                 <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                 Crama verificata
               </Badge>
-            ) : null}
+            ) : (
+              <Badge variant="secondary">Crama neverificata</Badge>
+            )}
             <CommunityBadge status={wine.status} />
           </div>
 

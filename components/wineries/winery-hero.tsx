@@ -9,6 +9,10 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import {
+  getWineryCatalogEnrichment,
+  splitWineryStory,
+} from "@/lib/winery-catalog";
 import type { WineryWithWines } from "@/types";
 
 interface WineryHeroProps {
@@ -21,6 +25,14 @@ interface WineryHeroProps {
 }
 
 export function WineryHero({ winery, stats }: WineryHeroProps) {
+  const enrichment = getWineryCatalogEnrichment(winery.slug);
+  const tagline = enrichment?.tagline ?? winery.description;
+  const storyParagraphs = enrichment?.story
+    ? splitWineryStory(enrichment.story)
+    : winery.description
+      ? [winery.description]
+      : [];
+
   return (
     <section className="border-b border-border/60 bg-secondary/20">
       <div className="mx-auto max-w-6xl px-6 py-10 lg:py-14">
@@ -40,15 +52,15 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
         </nav>
 
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-wine/15 bg-gradient-to-br from-wine/[0.08] via-white to-wine/[0.12] shadow-md ring-1 ring-wine/10 sm:h-28 sm:w-28">
             {winery.logoUrl ? (
               <Image
                 src={winery.logoUrl}
                 alt={winery.name}
                 fill
                 priority
-                sizes="96px"
-                className="object-contain p-2"
+                sizes="112px"
+                className="object-contain p-2.5"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-wine/10 text-wine">
@@ -94,7 +106,7 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
                   Fondata in {winery.foundedYear}
                 </span>
               ) : null}
-              {winery.website ? (
+              {winery.verified && winery.website ? (
                 <a
                   href={winery.website}
                   target="_blank"
@@ -107,10 +119,23 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
               ) : null}
             </div>
 
-            {winery.description ? (
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
-                {winery.description}
+            {tagline ? (
+              <p className="mt-5 max-w-2xl text-lg font-medium leading-relaxed text-foreground/90">
+                {tagline}
               </p>
+            ) : null}
+
+            {storyParagraphs.length > 0 ? (
+              <div className="mt-4 max-w-3xl space-y-4 border-l-2 border-wine/20 pl-5">
+                {storyParagraphs.map((paragraph) => (
+                  <p
+                    key={paragraph.slice(0, 48)}
+                    className="text-base leading-relaxed text-muted-foreground"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
             ) : null}
 
             <dl className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:max-w-lg">

@@ -211,7 +211,7 @@ function resolveRecasKnownSlugs(wineName: string): string[] {
       slugs.push("castel-huniade-roze");
     }
   }
-  if (norm.includes("schwaben") && norm.includes("wein")) {
+  if (norm.includes("schwaben")) {
     if (norm.includes("roze") || norm.includes("rose")) {
       if (norm.includes("demisec")) slugs.push("schwaben-wein-roze-demisec");
       else slugs.push("schwaben-wein-roze");
@@ -597,6 +597,16 @@ export function inferRecasProducerPageUrl(
 
   if (/schwaben-wein.*(?:roze|rose)|(?:roze|rose).*schwaben-wein/i.test(retailContext)) {
     return "https://cramelerecas.ro/schwaben-wein-roze/";
+  }
+
+  if (
+    /schwaben.*feteasca.*regala|feteasca.*regala.*schwaben/i.test(retailContext)
+  ) {
+    return "https://cramelerecas.ro/schwaben-wein-feteasca-regala/";
+  }
+
+  if (/schwaben.*riesling|riesling.*schwaben/i.test(retailContext)) {
+    return "https://cramelerecas.ro/schwaben-wein-riesling-italian/";
   }
 
   const context = `${wineName} ${retailContext}`;

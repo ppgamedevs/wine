@@ -272,7 +272,7 @@ const winerySeed = [
     slug: "davino",
     name: "Davino",
     regionSlug: "dealu-mare",
-    verified: true,
+    verified: false,
     foundedYear: 1991,
     website: "https://davino.ro",
     description:
@@ -282,7 +282,7 @@ const winerySeed = [
     slug: "serve",
     name: "SERVE",
     regionSlug: "dealu-mare",
-    verified: true,
+    verified: false,
     foundedYear: 1994,
     website: "https://serve.ro",
     description:
@@ -292,7 +292,7 @@ const winerySeed = [
     slug: "avincis",
     name: "Avincis",
     regionSlug: "dragasani",
-    verified: true,
+    verified: false,
     foundedYear: 2007,
     website: "https://avincis.ro",
     description:
@@ -302,7 +302,7 @@ const winerySeed = [
     slug: "crama-oprisor",
     name: "Crama Oprisor",
     regionSlug: "oltenia",
-    verified: true,
+    verified: false,
     foundedYear: 2002,
     website: "https://cramaoprisor.ro",
     description:
@@ -312,7 +312,7 @@ const winerySeed = [
     slug: "liliac",
     name: "Liliac",
     regionSlug: "lechinta",
-    verified: true,
+    verified: false,
     foundedYear: 2010,
     website: "https://liliac.com",
     description:
@@ -322,7 +322,7 @@ const winerySeed = [
     slug: "cramele-recas",
     name: "Cramele Recas",
     regionSlug: "recas",
-    verified: true,
+    verified: false,
     foundedYear: 1991,
     website: "https://cramelerecas.ro",
     description:
@@ -342,7 +342,7 @@ const winerySeed = [
     slug: "budureasca",
     name: "Budureasca",
     regionSlug: "dealu-mare",
-    verified: true,
+    verified: false,
     foundedYear: 2009,
     website: "https://budureasca.ro",
     description:
@@ -352,7 +352,7 @@ const winerySeed = [
     slug: "domeniile-coroanei-segarcea",
     name: "Domeniile Coroanei Segarcea",
     regionSlug: "segarcea",
-    verified: true,
+    verified: false,
     foundedYear: 1906,
     website: "https://domeniulcoroanei.ro",
     description:
@@ -362,7 +362,7 @@ const winerySeed = [
     slug: "tohani",
     name: "Tohani",
     regionSlug: "dealu-mare",
-    verified: true,
+    verified: false,
     foundedYear: 1968,
     website: "https://tohani.ro",
     description:
@@ -372,7 +372,7 @@ const winerySeed = [
     slug: "petro-vaselo",
     name: "Petro Vaselo",
     regionSlug: "banat",
-    verified: true,
+    verified: false,
     foundedYear: 2004,
     website: "https://petrovaselo.com",
     description:
@@ -382,7 +382,7 @@ const winerySeed = [
     slug: "crama-girboiu",
     name: "Crama Girboiu",
     regionSlug: "vrancea",
-    verified: true,
+    verified: false,
     foundedYear: 2007,
     website: "https://cramagirboiu.ro",
     description:
@@ -392,7 +392,7 @@ const winerySeed = [
     slug: "lacerta",
     name: "Lacerta",
     regionSlug: "dealu-mare",
-    verified: true,
+    verified: false,
     foundedYear: 2007,
     website: "https://lacertawinery.ro",
     description:
@@ -402,7 +402,7 @@ const winerySeed = [
     slug: "crama-basilescu",
     name: "Crama Basilescu",
     regionSlug: "dealu-mare",
-    verified: true,
+    verified: false,
     foundedYear: 2015,
     website: "https://cramabasilescu.ro",
     description:
@@ -412,7 +412,7 @@ const winerySeed = [
     slug: "jidvei",
     name: "Jidvei",
     regionSlug: "tarnave",
-    verified: true,
+    verified: false,
     foundedYear: 1949,
     website: "https://jidvei.ro",
     description:
@@ -432,7 +432,7 @@ const winerySeed = [
     slug: "balla-geza",
     name: "Balla Geza",
     regionSlug: "minis",
-    verified: true,
+    verified: false,
     foundedYear: 1999,
     website: "https://ballageza.ro",
     description:
@@ -442,7 +442,7 @@ const winerySeed = [
     slug: "corcova",
     name: "Corcova Roy & Dâmboviceanu",
     regionSlug: "oltenia",
-    verified: true,
+    verified: false,
     foundedYear: 2005,
     website: "https://corcova.ro",
     description:
@@ -452,7 +452,7 @@ const winerySeed = [
     slug: "prince-stirbey",
     name: "Prince Stirbey",
     regionSlug: "dragasani",
-    verified: true,
+    verified: false,
     foundedYear: 2004,
     website: "https://stirbey.com",
     description:
@@ -472,7 +472,7 @@ const winerySeed = [
     slug: "halewood",
     name: "Halewood Wines",
     regionSlug: "dealu-mare",
-    verified: true,
+    verified: false,
     foundedYear: 1998,
     website: "https://halewood.com.ro",
     description:
@@ -482,7 +482,7 @@ const winerySeed = [
     slug: "villa-vinea",
     name: "Villa Vinea",
     regionSlug: "tarnave",
-    verified: true,
+    verified: false,
     foundedYear: 2006,
     website: "https://villavinea.com",
     description:

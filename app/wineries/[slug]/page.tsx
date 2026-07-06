@@ -140,7 +140,8 @@ export default async function WineryPage({ params }: WineryPageProps) {
     url,
     logo: winery.logoUrl ?? undefined,
     foundingDate: winery.foundedYear ? String(winery.foundedYear) : undefined,
-    sameAs: winery.website ? [winery.website] : undefined,
+    sameAs:
+      winery.verified && winery.website ? [winery.website] : undefined,
     address: winery.region
       ? {
           "@type": "PostalAddress",
