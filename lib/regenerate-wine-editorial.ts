@@ -43,6 +43,14 @@ function formatFoodPairings(
     .join("; ");
 }
 
+function formatDessertPairings(
+  dessertPairings: { dish: string; note: string }[],
+): string {
+  return dessertPairings
+    .map((pairing) => `${pairing.dish} (${pairing.note})`)
+    .join("; ");
+}
+
 function buildWineEditorialContext(wine: WineWithRelations) {
   return {
     name: wine.name,
@@ -54,6 +62,7 @@ function buildWineEditorialContext(wine: WineWithRelations) {
     grapeVarieties: formatGrapeVarieties(wine.grapeVarieties),
     tastingNotes: wine.tastingNotes,
     foodPairings: formatFoodPairings(wine.foodPairings),
+    dessertPairings: formatDessertPairings(wine.dessertPairings),
     priceAvg: wine.priceAvg,
     alcohol: wine.alcohol,
     sugar: wine.sugar,
@@ -146,6 +155,7 @@ export async function regenerateWineEditorialContent(
       thingsYouShouldKnow: editorial.thingsYouShouldKnow,
       tasteProfile: editorial.tasteProfile,
       foodPairingNotes: editorial.foodPairingNotes,
+      dessertPairings: editorial.dessertPairings ?? [],
       recommendedOccasions: editorial.recommendedOccasions,
     })
     .where(eq(wines.id, wine.id));
@@ -165,6 +175,7 @@ export async function applyFullEditorialToWine(
       thingsYouShouldKnow: editorial.thingsYouShouldKnow,
       tasteProfile: editorial.tasteProfile,
       foodPairingNotes: editorial.foodPairingNotes,
+      dessertPairings: editorial.dessertPairings ?? [],
       recommendedOccasions: editorial.recommendedOccasions,
       valueScore: editorial.valueScore,
       giftScore: editorial.giftScore,

@@ -54,6 +54,7 @@ export interface WineryListItem extends Winery {
 export type {
   AffiliateLink,
   AvailabilityEntry,
+  EditorialDessertPairingNote,
   EditorialFoodPairingNote,
   ExpertNotes,
   FoodPairing,

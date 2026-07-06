@@ -44,6 +44,26 @@ const editorialPairingSchema = z.object({
     .describe("Cat de bine se potriveste, 60-100"),
 });
 
+const editorialDessertPairingSchema = z.object({
+  dish: z
+    .string()
+    .describe(
+      "Desert romanesc concret: cozonac, pasca, gogosi, placinta cu mere, sarmale cu nuci etc.",
+    ),
+  note: z
+    .string()
+    .describe(
+      "Explicatie scurta: de ce aromele vinului echilibreaza dulceata desertului",
+    ),
+  score: z
+    .number()
+    .int()
+    .min(60)
+    .max(100)
+    .optional()
+    .describe("Cat de bine se potriveste, 60-100"),
+});
+
 export const wineEditorialSchema = z.object({
   descriptionEditorial: z
     .string()
@@ -64,6 +84,13 @@ export const wineEditorialSchema = z.object({
     .min(2)
     .max(5)
     .describe("Pairing-uri cu mancare romaneasca"),
+  dessertPairings: z
+    .array(editorialDessertPairingSchema)
+    .max(4)
+    .default([])
+    .describe(
+      "Pairing-uri cu deserturi romanesti; obligatoriu pentru vinuri dulci/demidulce, optional altfel",
+    ),
   recommendedOccasions: z
     .array(z.string())
     .min(2)

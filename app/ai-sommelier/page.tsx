@@ -3,6 +3,7 @@ import { Sparkles } from "lucide-react";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SommelierForm } from "@/components/sommelier/sommelier-form";
+import { OCCASIONS, type OccasionId } from "@/lib/sommelier";
 import { getAllWineries, getWinesForSommelier } from "@/lib/queries";
 
 export const revalidate = 3600;
@@ -18,6 +19,8 @@ export const metadata: Metadata = {
     "somelier AI",
     "recomandare vin",
     "vin pentru sarmale",
+    "vin pentru desert",
+    "cozonac vin",
     "vin cadou",
     "vin romanesc",
     "asociere vin mancare",
@@ -54,7 +57,16 @@ const jsonLd = {
   },
 };
 
-export default async function AiSommelierPage() {
+export default async function AiSommelierPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ occasion?: string }>;
+}) {
+  const { occasion: occasionParam } = await searchParams;
+  const initialOccasion = OCCASIONS.some((o) => o.id === occasionParam)
+    ? (occasionParam as OccasionId)
+    : "oricare";
+
   const [wineries, wines] = await Promise.all([
     getAllWineries(),
     getWinesForSommelier(),
@@ -91,7 +103,11 @@ export default async function AiSommelierPage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
-          <SommelierForm wineries={wineries} wines={wines} />
+          <SommelierForm
+            wineries={wineries}
+            wines={wines}
+            initialOccasion={initialOccasion}
+          />
         </section>
       </main>
       <SiteFooter />

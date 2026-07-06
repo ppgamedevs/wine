@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { OCCASIONS, computeBudgetFit } from "@/lib/sommelier";
+import { OCCASIONS, computeBudgetFit, type OccasionId } from "@/lib/sommelier";
 import { EASE_OUT } from "@/lib/motion";
 import type { ExpertRecommendationDisplay, WineWithRelations } from "@/types";
 
@@ -48,12 +48,14 @@ const sweetnessOptions = [
 export function SommelierForm({
   wineries,
   wines,
+  initialOccasion = "oricare",
 }: {
   wineries: WineryOption[];
   wines: WineWithRelations[];
+  initialOccasion?: OccasionId;
 }) {
   const [budget, setBudget] = useState<[number, number]>([30, 150]);
-  const [occasion, setOccasion] = useState("oricare");
+  const [occasion, setOccasion] = useState<OccasionId>(initialOccasion);
   const [color, setColor] = useState("any");
   const [sweetness, setSweetness] = useState("any");
   const [selectedWineries, setSelectedWineries] = useState<string[]>([]);

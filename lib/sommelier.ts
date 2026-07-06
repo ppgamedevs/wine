@@ -1,4 +1,10 @@
 import type { ExpertRecommendationOutput } from "@/lib/ai/schemas";
+import {
+  collectSommelierPairingText,
+  countDessertKeywordMatches,
+  isSweetnessDessertFriendly,
+  ROMANIAN_DESSERT_KEYWORDS,
+} from "@/lib/dessert-pairings";
 import type { WineWithRelations } from "@/types";
 
 export type ColorPreference = "any" | "red" | "white" | "rose" | "sparkling";
@@ -22,7 +28,8 @@ export type OccasionId =
   | "sarmale"
   | "gratar"
   | "petrecere"
-  | "sarbatori";
+  | "sarbatori"
+  | "pentru-desert";
 
 interface OccasionConfig {
   id: OccasionId;
@@ -116,6 +123,15 @@ export const OCCASIONS: OccasionConfig[] = [
     dishKeywords: ["cozonac", "friptura", "rata", "curcan", "desert"],
     rationale: "completeaza mesele festive de sarbatori",
   },
+  {
+    id: "pentru-desert",
+    label: "Pentru desert",
+    description: "Cozonac, pasca, prajituri si dulciuri romanesti",
+    weights: { value: 0.35, gift: 0.2, food: 0.45 },
+    preferredTypes: ["dessert", "white", "sparkling"],
+    dishKeywords: [...ROMANIAN_DESSERT_KEYWORDS],
+    rationale: "se potriveste cu deserturile romanesti traditionale",
+  },
 ];
 
 export function getOccasion(id: OccasionId): OccasionConfig {
@@ -151,6 +167,7 @@ function maxAchievableScore(input: SommelierInput): number {
   if (input.sweetness !== "any") max += 10;
   if (occasion.preferredTypes.length > 0) max += 10;
   if (occasion.dishKeywords.length > 0) max += 12;
+  if (input.occasion === "pentru-desert") max += 44;
   if (input.preferredWinerySlugs.length > 0) max += 18;
   return max;
 }
@@ -223,17 +240,32 @@ function scoreWineRaw(
     score += 10;
   }
 
+  const pairingText = collectSommelierPairingText(wine);
+
   if (occasion.dishKeywords.length > 0) {
-    const pairingText = wine.foodPairings
-      .map((p) => `${p.dish} ${p.note ?? ""}`)
-      .join(" ")
-      .toLowerCase();
     const matchedKeyword = occasion.dishKeywords.find((keyword) =>
-      pairingText.includes(keyword),
+      pairingText.includes(keyword.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()),
     );
     if (matchedKeyword) {
       score += 12;
       reasons.push(`Potrivit pentru ${matchedKeyword}.`);
+    }
+  }
+
+  if (input.occasion === "pentru-desert") {
+    if (wine.dessertPairings.length > 0) {
+      score += 14;
+      reasons.push("Are pairing-uri editoriale cu deserturi romanesti.");
+    }
+    if (isSweetnessDessertFriendly(wine.sweetness)) {
+      score += 10;
+    }
+    if (wine.type === "dessert") {
+      score += 12;
+    }
+    const dessertMatches = countDessertKeywordMatches(pairingText);
+    if (dessertMatches >= 2) {
+      score += 8;
     }
   }
 
@@ -278,6 +310,9 @@ export function buildWineContextBlock(wine: WineWithRelations): string {
   const pairings = wine.foodPairings
     .map((p) => `${p.dish}${p.note ? `: ${p.note}` : ""}`)
     .join("; ");
+  const dessertPairings = wine.dessertPairings
+    .map((p) => `${p.dish}${p.note ? `: ${p.note}` : ""}`)
+    .join("; ");
 
   const expert = wine.expertNotes
     ? `
@@ -300,7 +335,8 @@ Tip: ${wine.type} | Dulceata: ${wine.sweetness ?? "N/A"} | ${wine.priceAvg ?? "?
 Soiuri: ${grapes}
 Scoruri: Value ${wine.valueScore ?? "N/A"}, Gift ${wine.giftScore ?? "N/A"}, Food ${wine.foodMatchScore ?? "N/A"}
 Note: ${wine.tastingNotes ?? "N/A"}
-Pairing-uri: ${pairings}
+Pairing-uri mancare: ${pairings || "N/A"}
+Pairing-uri desert: ${dessertPairings || "N/A"}
 ${expert}
 ---`;
 }

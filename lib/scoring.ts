@@ -1,5 +1,5 @@
-import type { GrapeVarietyShare } from "@/lib/schema";
 import type { OverpricedRisk } from "@/types";
+import { dessertFoodMatchBoost } from "@/lib/dessert-pairings";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_NEUTRAL_MIN,
@@ -10,6 +10,8 @@ export interface ScoreInput {
   category: string;
   region?: string;
   grapeVarieties?: string[];
+  sweetness?: string | null;
+  dessertPairingCount?: number;
 }
 
 export interface InitialScores {
@@ -150,7 +152,8 @@ function inferOverpricedRisk(
  * Rafinare ulterioara: db:editorial sau logica din lib/sommelier.ts.
  */
 export function calculateInitialScores(input: ScoreInput): InitialScores {
-  const { price, category } = input;
+  const { price, category, sweetness, grapeVarieties, dessertPairingCount } =
+    input;
   const cat = normalizeCategory(category);
 
   let valueScore = 7;
@@ -164,6 +167,14 @@ export function calculateInitialScores(input: ScoreInput): InitialScores {
 
   let foodMatchScore = 7;
   if (cat === "rosu" || cat === "red") foodMatchScore = 8;
+
+  const dessertBoost = dessertFoodMatchBoost({
+    category: cat,
+    sweetness,
+    grapeVarieties,
+    dessertPairingCount,
+  });
+  foodMatchScore = Math.min(10, foodMatchScore + dessertBoost);
 
   const scaledValue = toSiteScale(valueScore);
   const scaledGift = toSiteScale(giftScore);

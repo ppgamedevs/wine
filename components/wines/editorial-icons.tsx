@@ -161,6 +161,45 @@ export function EditorialPairingIcon(props: EditorialIconProps) {
   );
 }
 
+/** Layered cake slice for dessert pairings. */
+export function EditorialDessertIcon(props: EditorialIconProps) {
+  return (
+    <IconBase {...props}>
+      <path
+        d="M6 18h12l-1-4H7l-1 4Z"
+        stroke="currentColor"
+        strokeWidth="1.35"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M7 14h10l1.5-3.5a2 2 0 0 0-1.9-2.5H7.4a2 2 0 0 0-1.9 2.5L7 14Z"
+        stroke="currentColor"
+        strokeWidth="1.35"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 10.5h6"
+        stroke="currentColor"
+        strokeWidth="1.15"
+        strokeLinecap="round"
+        opacity="0.7"
+      />
+      <path
+        d="M12 6v2.5"
+        stroke="currentColor"
+        strokeWidth="1.35"
+        strokeLinecap="round"
+      />
+      <path
+        d="M10.5 5.5c.5-.75 1.5-.75 2 0"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+    </IconBase>
+  );
+}
+
 /** Calendar with wine accent for occasions. */
 export function EditorialOccasionIcon(props: EditorialIconProps) {
   return (

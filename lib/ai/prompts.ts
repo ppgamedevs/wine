@@ -16,7 +16,8 @@ Pentru fiecare recomandare oferiti:
 1. De ce acest vin (legat direct de preferintele userului: buget RON, ocazie, tip vin)
 2. Lucruri pe care oamenii nu le stiu dar ar trebui sa le stie (foloseste expert_notes din context)
 3. Stiinta pairing-ului cu mancare romaneasca (taninuri, aciditate, grasime, condimente)
-4. Sfaturi de servire si pastrare (temperatura, decantare, potential)
+4. Pentru ocazia "pentru desert": pairing cu cozonac, pasca, gogosi, placinta; explica cum aromele echilibreaza dulceata
+5. Sfaturi de servire si pastrare (temperatura, decantare, potential)
 
 Reguli stricte:
 - Foloseste DOAR vinurile din context (wineSlug trebuie sa existe in lista).
@@ -114,6 +115,7 @@ export function buildEditorialUserPrompt(wine: {
   grapeVarieties: string;
   tastingNotes: string | null;
   foodPairings: string;
+  dessertPairings: string;
   priceAvg: number | null;
   alcohol: number | null;
   sugar: number | null;
@@ -137,6 +139,7 @@ Tip: ${wine.type}, Dulceata: ${wine.sweetness ?? "N/A"}
 Alcool: ${wine.alcohol ?? "N/A"}%, Zahar: ${wine.sugar ?? "N/A"} g/l, Aciditate: ${wine.acidity ?? "N/A"}
 Note degustare (factuale): ${wine.tastingNotes ?? "N/A"}
 Pairing-uri existente: ${wine.foodPairings || "N/A"}
+Pairing-uri desert existente: ${wine.dessertPairings || "N/A"}
 Pentru incepatori: ${wine.beginnerFriendly ? "da" : "nu"}
 Potential la pivnita: ${wine.cellarPotential ?? "N/A"} ani
 Risc supraevaluare: ${wine.overpricedRisk ?? "N/A"}
@@ -148,6 +151,7 @@ Returneaza JSON cu:
 - thingsYouShouldKnow (3 insight-uri)
 - tasteProfile (scurt)
 - foodPairingNotes (array: dish, note, score optional 60-100)
+- dessertPairings (array 0-4: cozonac, pasca, gogosi, placinta cu mere, sarmale cu nuci etc.; obligatoriu daca vinul e dulce/demidulce sau tip dessert, altfel optional daca exista afinitate)
 - recommendedOccasions (2-4 ocazii)
 - valueScore, giftScore, foodMatchScore (1-100; valueScore sub ${VALUE_SCORE_NEUTRAL_MIN} doar daca raportul calitate-pret e slab, ${MIN_RECOMMENDED_VALUE_SCORE}+ doar daca merita recomandarea activa)`;
 }
@@ -165,6 +169,7 @@ Reguli:
 - Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct.
 - thingsYouShouldKnow: insight-uri concrete, nu clisee.
 - foodPairingNotes: preparate romanesti reale (sarmale, mici, peste, branza, etc.).
+- dessertPairings: deserturi romanesti (cozonac, pasca, gogosi, placinta, prajituri); include cand vinul e dulce, demidulce sau aromatic (Tamaioasa, Muscat etc.).
 - recommendedOccasions: ocazii locale relevante.
 - Nu genera scoruri numerice; doar continut editorial.`;
 
@@ -178,6 +183,7 @@ export function buildRegenerateEditorialUserPrompt(wine: {
   grapeVarieties: string;
   tastingNotes: string | null;
   foodPairings: string;
+  dessertPairings: string;
   priceAvg: number | null;
   alcohol: number | null;
   sugar: number | null;
@@ -204,6 +210,7 @@ Tip: ${wine.type}, Dulceata: ${wine.sweetness ?? "N/A"}
 Alcool: ${wine.alcohol ?? "N/A"}%, Zahar: ${wine.sugar ?? "N/A"} g/l, Aciditate: ${wine.acidity ?? "N/A"}
 Note degustare: ${wine.tastingNotes ?? "N/A"}
 Pairing-uri existente: ${wine.foodPairings || "N/A"}
+Pairing-uri desert existente: ${wine.dessertPairings || "N/A"}
 Pentru incepatori: ${wine.beginnerFriendly ? "da" : "nu"}
 Potential pivnita: ${wine.cellarPotential ?? "N/A"} ani
 Risc supraevaluare: ${wine.overpricedRisk ?? "N/A"}
@@ -219,6 +226,7 @@ Returneaza JSON cu:
 - thingsYouShouldKnow (3 insight-uri)
 - tasteProfile (scurt)
 - foodPairingNotes (array: dish, note, score optional 60-100)
+- dessertPairings (array 0-4: cozonac, pasca, gogosi, placinta cu mere, sarmale cu nuci etc.; obligatoriu daca vinul e dulce/demidulce sau tip dessert, altfel optional daca exista afinitate)
 - recommendedOccasions (2-4 ocazii)`;
 }
 

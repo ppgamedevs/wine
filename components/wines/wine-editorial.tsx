@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EditorialSectionIcon } from "@/components/wines/editorial-section-icon";
 import {
+  EditorialDessertIcon,
   EditorialFoodMatchIcon,
   EditorialGiftIcon,
   EditorialInsightIcon,
@@ -93,6 +94,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
   const hasThings = wine.thingsYouShouldKnow.length > 0;
   const hasTaste = Boolean(wine.tasteProfile?.trim());
   const hasPairingNotes = wine.foodPairingNotes.length > 0;
+  const hasDessertPairings = wine.dessertPairings.length > 0;
   const hasOccasions = wine.recommendedOccasions.length > 0;
 
   const hasEditorialContent =
@@ -101,6 +103,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
     hasThings ||
     hasTaste ||
     hasPairingNotes ||
+    hasDessertPairings ||
     hasOccasions;
 
   return (
@@ -197,6 +200,48 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
               <Card
                 key={pairing.dish}
                 className="border-border/70 transition-colors hover:border-wine/30"
+              >
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-medium text-foreground">
+                      {pairing.dish}
+                    </h3>
+                    {pairing.score != null ? (
+                      <span
+                        className={cn(
+                          "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+                          pairingTone(pairing.score),
+                        )}
+                      >
+                        {pairing.score}/100
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {sanitizeEditorialText(pairing.note)}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </EditorialBlock>
+      ) : null}
+
+      {hasDessertPairings ? (
+        <EditorialBlock
+          id="wine-dessert-pairings"
+          title="Pairing cu deserturi romanesti"
+          icon={EditorialDessertIcon}
+        >
+          <p className="mb-5 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            Sugestii VinIntel pentru dulciuri traditionale: cum aromele vinului
+            echilibreaza zaharul si grasimea desertului.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {wine.dessertPairings.map((pairing) => (
+              <Card
+                key={pairing.dish}
+                className="border-border/70 border-gold/20 bg-gold/5 transition-colors hover:border-wine/30"
               >
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between gap-2">

@@ -52,6 +52,9 @@ export interface EditorialFoodPairingNote {
   score?: number;
 }
 
+/** Editorial dessert pairing notes for Romanian sweets. */
+export type EditorialDessertPairingNote = EditorialFoodPairingNote;
+
 export const DEFAULT_WINE_SOURCE_BADGE =
   "Date factuale preluate din surse publice. Analiza si scorurile apartin VinIntel.ro";
 
@@ -234,6 +237,10 @@ export const wines = sqliteTable(
       .default(sql`'[]'`),
     foodPairingNotes: text("food_pairing_notes", { mode: "json" })
       .$type<EditorialFoodPairingNote[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    dessertPairings: text("dessert_pairings", { mode: "json" })
+      .$type<EditorialDessertPairingNote[]>()
       .notNull()
       .default(sql`'[]'`),
     tasteProfile: text("taste_profile"),

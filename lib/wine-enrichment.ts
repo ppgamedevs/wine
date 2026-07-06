@@ -63,6 +63,8 @@ export function mergeEditorialScoresForWine(
     category,
     region: wine.region?.name,
     grapeVarieties,
+    sweetness: wine.sweetness,
+    dessertPairingCount: editorial.dessertPairings?.length ?? 0,
   });
 
   return mergeAnalysisScores(
@@ -91,6 +93,11 @@ function sanitizeEditorialOutput(
       dish: sanitizeEditorialText(pairing.dish),
       note: sanitizeEditorialText(pairing.note),
     })),
+    dessertPairings: (editorial.dessertPairings ?? []).map((pairing) => ({
+      ...pairing,
+      dish: sanitizeEditorialText(pairing.dish),
+      note: sanitizeEditorialText(pairing.note),
+    })),
   };
 }
 
@@ -109,6 +116,7 @@ export async function applyEditorialAndScoresToWine(
       thingsYouShouldKnow: clean.thingsYouShouldKnow,
       tasteProfile: clean.tasteProfile,
       foodPairingNotes: clean.foodPairingNotes,
+      dessertPairings: clean.dessertPairings,
       recommendedOccasions: clean.recommendedOccasions,
       valueScore: mergedScores.valueScore,
       giftScore: mergedScores.giftScore,

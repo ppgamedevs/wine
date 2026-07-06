@@ -68,6 +68,9 @@ export async function generateMetadata({
       "Value Score",
       ...(wine.foodPairings.map((p) => `vin pentru ${p.dish.toLowerCase()}`) ??
         []),
+      ...(wine.dessertPairings.map(
+        (p) => `vin pentru ${p.dish.toLowerCase()}`,
+      ) ?? []),
     ].filter(Boolean),
     openGraph: {
       type: "website",

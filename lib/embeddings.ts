@@ -31,6 +31,13 @@ export function buildWineDocumentText(wine: WineWithRelations): string {
     .map((g) => `${g.name}${g.percentage ? ` ${g.percentage}%` : ""}`)
     .join(", ");
   const pairings = wine.foodPairings.map((p) => p.dish).join(", ");
+  const dessertPairings = wine.dessertPairings.map((p) => p.dish).join(", ");
+  const editorialDesserts = wine.foodPairingNotes
+    .filter((p) =>
+      /cozonac|pasca|gogosi|placinta|desert|prajitur|papana/i.test(p.dish),
+    )
+    .map((p) => p.dish)
+    .join(", ");
   const notes = wine.expertNotes
     ? [
         wine.expertNotes.history,
@@ -50,6 +57,8 @@ export function buildWineDocumentText(wine: WineWithRelations): string {
     grapes,
     wine.tastingNotes,
     pairings,
+    dessertPairings,
+    editorialDesserts,
     notes,
     `Value ${wine.valueScore}`,
     `${wine.priceAvg} RON`,
@@ -69,6 +78,9 @@ export function buildQueryText(params: {
 }): string {
   return [
     `ocazie ${params.occasion}`,
+    params.occasion === "pentru-desert"
+      ? "desert cozonac pasca gogosi placinta prajituri"
+      : "",
     `tip vin ${params.color}`,
     `dulceata ${params.sweetness}`,
     `buget ${params.budgetMin}-${params.budgetMax} RON`,
