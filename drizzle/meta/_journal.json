@@ -92,6 +92,13 @@
       "when": 1782642200000,
       "tag": "0012_wine_submitted_email_subscribers",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1782642400000,
+      "tag": "0013_wine_dessert_pairings",
+      "breakpoints": true
     }
   ]
 }
