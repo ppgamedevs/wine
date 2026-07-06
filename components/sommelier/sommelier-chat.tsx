@@ -8,7 +8,6 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChatWineCard } from "@/components/sommelier/chat-wine-card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { EASE_OUT } from "@/lib/motion";
 import type { ChatWineRecommendation } from "@/lib/sommelier-chat-types";
 import { sanitizeAssistantChatText } from "@/lib/sommelier-chat-utils";
@@ -160,6 +159,121 @@ function ListeningIndicator({
   );
 }
 
+function ChatComposer({
+  input,
+  setInput,
+  textareaRef,
+  isBusy,
+  isListening,
+  isVoiceSupported,
+  voiceError,
+  interimTranscript,
+  onSubmit,
+  onKeyDown,
+  onToggleListening,
+  onStop,
+  className,
+}: {
+  input: string;
+  setInput: (value: string) => void;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  isBusy: boolean;
+  isListening: boolean;
+  isVoiceSupported: boolean;
+  voiceError: string | null;
+  interimTranscript: string;
+  onSubmit: (event: React.FormEvent) => void;
+  onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onToggleListening: () => void;
+  onStop: () => void;
+  className?: string;
+}) {
+  return (
+    <div className={cn("w-full", className)}>
+      <AnimatePresence>
+        {isListening ? (
+          <ListeningIndicator interimTranscript={interimTranscript} />
+        ) : null}
+      </AnimatePresence>
+
+      {voiceError ? (
+        <p className="mb-3 text-center text-xs text-muted-foreground">
+          {voiceError}
+        </p>
+      ) : null}
+
+      <form onSubmit={onSubmit}>
+        <div
+          className={cn(
+            "flex items-center gap-1 rounded-2xl border bg-card/90 p-1.5 shadow-sm backdrop-blur-sm transition-all",
+            isListening
+              ? "border-wine/35 ring-2 ring-wine/10"
+              : "border-border/60 focus-within:border-wine/30 focus-within:shadow-md",
+          )}
+        >
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            onKeyDown={onKeyDown}
+            rows={1}
+            placeholder="Scrie ce ocazie ai sau ce fel de vin cauti..."
+            disabled={isBusy || isListening}
+            className="min-h-[48px] max-h-36 min-w-0 flex-1 resize-none overflow-hidden bg-transparent px-3 py-3 text-sm leading-relaxed outline-none placeholder:text-muted-foreground disabled:opacity-60 sm:text-[15px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            aria-label="Mesaj pentru somelier"
+          />
+
+          {isVoiceSupported ? (
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              disabled={isBusy}
+              onClick={onToggleListening}
+              className={cn(
+                "h-11 w-11 shrink-0 rounded-xl text-muted-foreground hover:bg-wine/10 hover:text-wine",
+                isListening &&
+                  "bg-wine/15 text-wine hover:bg-wine/20 hover:text-wine",
+              )}
+              aria-label={
+                isListening ? "Opreste ascultarea" : "Vorbeste mesajul"
+              }
+              aria-pressed={isListening}
+            >
+              <Mic
+                className={cn("h-5 w-5", isListening && "animate-pulse")}
+              />
+            </Button>
+          ) : null}
+
+          {isBusy ? (
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              className="h-11 w-11 shrink-0 rounded-xl"
+              onClick={onStop}
+              aria-label="Opreste generarea"
+            >
+              <Square className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!input.trim()}
+              className="h-11 w-11 shrink-0 rounded-xl bg-wine text-wine-foreground hover:bg-wine/90 disabled:opacity-40"
+              aria-label="Trimite mesaj"
+            >
+              <SendHorizontal className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export function SommelierChat() {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -221,7 +335,10 @@ export function SommelierChat() {
     const node = textareaRef.current;
     if (!node) return;
     node.style.height = "auto";
-    node.style.height = `${Math.min(node.scrollHeight, 160)}px`;
+    const maxHeight = 144;
+    const nextHeight = Math.min(node.scrollHeight, maxHeight);
+    node.style.height = `${nextHeight}px`;
+    node.style.overflowY = node.scrollHeight > maxHeight ? "auto" : "hidden";
   }, [input]);
 
   useEffect(() => {
@@ -247,36 +364,54 @@ export function SommelierChat() {
     <div className="flex min-h-[calc(100dvh-4rem)] flex-col bg-gradient-to-b from-[#faf7f5] via-background to-background">
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-6 sm:px-6"
+        className={cn(
+          "flex-1 overflow-y-auto px-4 sm:px-6",
+          hasMessages ? "py-6" : "flex flex-col justify-center py-10 sm:py-14",
+        )}
       >
-        <div className="mx-auto flex max-w-3xl flex-col gap-6">
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
           {!hasMessages ? (
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: EASE_OUT }}
-              className="flex flex-col items-center py-10 text-center sm:py-16"
+              className="flex flex-col items-center text-center"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-wine/20 bg-wine/10 text-wine">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-wine/15 bg-wine/8 text-wine">
                 <Wine className="h-7 w-7" aria-hidden="true" />
               </div>
               <h1 className="mt-5 font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 Somelierul tau romanesc
               </h1>
-              <p className="mt-3 max-w-lg text-balance text-muted-foreground">
+              <p className="mt-3 max-w-md text-balance text-muted-foreground">
                 Intreaba orice despre vinuri autohtone: ocazii, mancare,
-                deserturi, buget in lei. Raspunsuri oneste, rapide, cu
-                recomandari din catalogul VinIntel.
+                deserturi, buget in lei.
               </p>
 
-              <div className="mt-8 flex w-full max-w-xl flex-wrap justify-center gap-2">
+              <ChatComposer
+                input={input}
+                setInput={setInput}
+                textareaRef={textareaRef}
+                isBusy={isBusy}
+                isListening={isListening}
+                isVoiceSupported={isVoiceSupported}
+                voiceError={voiceError}
+                interimTranscript={interimTranscript}
+                onSubmit={handleSubmit}
+                onKeyDown={handleKeyDown}
+                onToggleListening={toggleListening}
+                onStop={stop}
+                className="mt-8"
+              />
+
+              <div className="mt-6 flex w-full flex-wrap justify-center gap-2">
                 {QUICK_PROMPTS.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
                     onClick={() => void submitText(prompt)}
                     disabled={isBusy}
-                    className="rounded-full border border-wine/20 bg-white/80 px-4 py-2 text-sm text-foreground/90 shadow-sm transition-colors hover:border-wine/40 hover:bg-wine/5 disabled:opacity-50"
+                    className="rounded-full border border-border/60 bg-background/60 px-3.5 py-1.5 text-sm text-foreground/80 transition-colors hover:border-wine/30 hover:bg-wine/5 disabled:opacity-50"
                   >
                     {prompt}
                   </button>
@@ -330,97 +465,25 @@ export function SommelierChat() {
         </div>
       </div>
 
-      <div className="sticky bottom-0 border-t border-border/50 bg-gradient-to-t from-background via-background/95 to-background/80 px-4 py-5 backdrop-blur-md sm:px-6">
-        <div className="mx-auto max-w-3xl space-y-3">
-          <AnimatePresence>
-            {isListening ? (
-              <ListeningIndicator interimTranscript={interimTranscript} />
-            ) : null}
-          </AnimatePresence>
-
-          {voiceError ? (
-            <p className="text-center text-xs text-muted-foreground">
-              {voiceError}
-            </p>
-          ) : null}
-
-          <Card className="border-border/70 py-0 shadow-lg shadow-wine/5">
-            <CardContent className="p-3 sm:p-4">
-              <form onSubmit={handleSubmit} className="flex items-end gap-2.5">
-                <div
-                  className={cn(
-                    "relative min-w-0 flex-1 rounded-xl border bg-background/80 transition-colors focus-within:ring-2 focus-within:ring-wine/10",
-                    isListening
-                      ? "border-wine/40 ring-2 ring-wine/10"
-                      : "border-border/80 focus-within:border-wine/40",
-                  )}
-                >
-                  <textarea
-                    ref={textareaRef}
-                    value={input}
-                    onChange={(event) => setInput(event.target.value)}
-                    onKeyDown={handleKeyDown}
-                    rows={1}
-                    placeholder="Scrie ce ocazie ai sau ce fel de vin cauti..."
-                    disabled={isBusy || isListening}
-                    className={cn(
-                      "max-h-40 min-h-[52px] w-full resize-none bg-transparent py-3.5 text-sm leading-relaxed outline-none placeholder:text-muted-foreground disabled:opacity-60 sm:text-[15px]",
-                      isVoiceSupported ? "pl-4 pr-12" : "px-4",
-                    )}
-                    aria-label="Mesaj pentru somelier"
-                  />
-
-                  {isVoiceSupported ? (
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      disabled={isBusy}
-                      onClick={toggleListening}
-                      className={cn(
-                        "absolute bottom-1.5 right-1.5 h-9 w-9 rounded-xl text-muted-foreground hover:bg-wine/10 hover:text-wine",
-                        isListening &&
-                          "bg-wine/15 text-wine hover:bg-wine/20 hover:text-wine",
-                      )}
-                      aria-label={
-                        isListening ? "Opreste ascultarea" : "Vorbeste mesajul"
-                      }
-                      aria-pressed={isListening}
-                    >
-                      <Mic
-                        className={cn("h-4 w-4", isListening && "animate-pulse")}
-                      />
-                    </Button>
-                  ) : null}
-                </div>
-
-                {isBusy ? (
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    className="h-[52px] w-[52px] shrink-0 rounded-xl"
-                    onClick={stop}
-                    aria-label="Opreste generarea"
-                  >
-                    <Square className="h-4 w-4" />
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    size="icon"
-                    disabled={!input.trim()}
-                    className="h-[52px] w-[52px] shrink-0 rounded-xl bg-wine text-wine-foreground hover:bg-wine/90"
-                    aria-label="Trimite mesaj"
-                  >
-                    <SendHorizontal className="h-4 w-4" />
-                  </Button>
-                )}
-              </form>
-            </CardContent>
-          </Card>
+      {hasMessages ? (
+        <div className="sticky bottom-0 border-t border-border/40 bg-background/80 px-4 py-4 backdrop-blur-md sm:px-6">
+          <ChatComposer
+            input={input}
+            setInput={setInput}
+            textareaRef={textareaRef}
+            isBusy={isBusy}
+            isListening={isListening}
+            isVoiceSupported={isVoiceSupported}
+            voiceError={voiceError}
+            interimTranscript={interimTranscript}
+            onSubmit={handleSubmit}
+            onKeyDown={handleKeyDown}
+            onToggleListening={toggleListening}
+            onStop={stop}
+            className="mx-auto max-w-2xl"
+          />
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }
