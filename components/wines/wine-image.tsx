@@ -24,6 +24,8 @@ interface WineImageProps {
   aspectClassName?: string;
   /** Use contain for product shots (cards); cover for hero/editorial crops. */
   objectFit?: "cover" | "contain";
+  /** Tailwind padding classes when objectFit is contain. Defaults to p-5. */
+  containPaddingClass?: string;
 }
 
 export function WineImage({
@@ -41,6 +43,7 @@ export function WineImage({
   imageClassName,
   aspectClassName = "relative aspect-[4/3] overflow-hidden",
   objectFit = "cover",
+  containPaddingClass = "p-5",
 }: WineImageProps) {
   const [failed, setFailed] = useState(false);
   const { src, alt, fromExternalSource, unoptimized } = resolveWineImage({
@@ -77,8 +80,8 @@ export function WineImage({
             className={cn(
               "transition-transform duration-700",
               objectFit === "contain"
-                ? "object-contain object-center p-5"
-                : "object-cover",
+                ? cn("object-contain object-center", containPaddingClass)
+                : "object-cover object-center",
               imageClassName,
             )}
           />

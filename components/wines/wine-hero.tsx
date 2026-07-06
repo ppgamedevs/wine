@@ -16,8 +16,12 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
   return (
     <section className="border-b border-border/60 bg-secondary/20">
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-12 lg:py-14">
-        <div className="space-y-3">
-          <div className="group relative aspect-[4/5] max-h-[520px] overflow-hidden rounded-3xl border border-border/70 shadow-lg lg:max-h-none">
+        <div className="relative mx-auto w-full max-w-sm lg:mx-0 lg:max-w-none">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-8 bottom-2 top-8 rounded-[2rem] bg-wine/[0.06] blur-2xl"
+          />
+          <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-white via-secondary/15 to-secondary/35 shadow-[0_24px_60px_-28px_rgba(124,45,18,0.35)] ring-1 ring-wine/10">
             <WineImage
               slug={wine.slug}
               name={wine.name}
@@ -29,8 +33,10 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
               wineryName={wine.winery?.name}
               priority
               sizes="(max-width: 1024px) 100vw, 45vw"
-              aspectClassName="relative h-full w-full overflow-hidden"
-              imageClassName="object-cover object-center"
+              aspectClassName="relative aspect-[2/3] w-full overflow-hidden"
+              objectFit="contain"
+              containPaddingClass="px-8 pb-10 pt-12"
+              imageClassName="drop-shadow-[0_10px_28px_rgba(0,0,0,0.14)]"
             />
           </div>
         </div>

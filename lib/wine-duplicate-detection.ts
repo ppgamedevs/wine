@@ -62,6 +62,25 @@ function identityColorsConflict(
   return left !== right;
 }
 
+function identityBlendConflict(
+  leftName: string,
+  leftUrl: string,
+  rightName: string,
+  rightUrl = "",
+): boolean {
+  const left = normalizeIdentityText(`${leftName} ${leftUrl}`);
+  const right = normalizeIdentityText(`${rightName} ${rightUrl}`);
+  const leftPinot = /\bpinot noir\b/.test(left);
+  const rightPinot = /\bpinot noir\b/.test(right);
+  if (leftPinot !== rightPinot) return true;
+
+  const leftBlend = /\bcu\b/.test(left);
+  const rightBlend = /\bcu\b/.test(right);
+  if (leftBlend !== rightBlend) return true;
+
+  return false;
+}
+
 function extractRetailerProductId(url: string): string | null {
   const match = url.match(/\/pd\/([A-Z0-9]+)/i);
   return match?.[1]?.toUpperCase() ?? null;
@@ -140,6 +159,15 @@ async function findByIdentity(input: FindExistingWineInput): Promise<ExistingWin
     if (!vintagesCompatible(input.vintage, candidate.vintage)) continue;
     if (
       identityColorsConflict(
+        input.name,
+        input.finalUrl,
+        candidate.name,
+      )
+    ) {
+      continue;
+    }
+    if (
+      identityBlendConflict(
         input.name,
         input.finalUrl,
         candidate.name,

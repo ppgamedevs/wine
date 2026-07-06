@@ -48,6 +48,7 @@ const WINERY_SITE_ALIASES: Record<string, string[]> = {
     "https://www.cramelerecas.ro",
     "https://cramelerecas.ro",
   ],
+  avincis: ["https://avincis.ro", "https://www.avincis.ro"],
 };
 
 function normalizeMatchText(text: string): string {
@@ -104,13 +105,35 @@ function resolveRecasKnownSlugs(wineName: string): string[] {
   ) {
     slugs.push("implicit-sauvignon-blanc");
   }
+  if (
+    norm.includes("implicit") &&
+    norm.includes("feteasca") &&
+    norm.includes("neagra")
+  ) {
+    slugs.push("implicit-feteasca-neagra");
+  }
   if (norm.includes("explicit") && (norm.includes("rose") || norm.includes("roze"))) {
     slugs.push("roze-explicit", "explicit-roze");
   }
   if (norm.includes("explicit") && norm.includes("cabernet")) {
     slugs.push("explicit-cabernet-sauvignon");
   }
-  if (norm.includes("explicit") && norm.includes("merlot")) {
+  if (
+    norm.includes("explicit") &&
+    (norm.includes("rara neagra") ||
+      norm.includes("rara-neagra") ||
+      norm.includes("babeasca neagra")) &&
+    norm.includes("merlot")
+  ) {
+    slugs.push("explicit-rara-neagra-merlot");
+  }
+  if (
+    norm.includes("explicit") &&
+    norm.includes("merlot") &&
+    !norm.includes("rara neagra") &&
+    !norm.includes("rara-neagra") &&
+    !norm.includes("babeasca neagra")
+  ) {
     slugs.push("explicit-merlot");
   }
   if (
@@ -181,9 +204,43 @@ function resolveRecasKnownSlugs(wineName: string): string[] {
       slugs.push("solo-quinta");
     }
   }
+  if (norm.includes("stejari")) {
+    if (norm.includes("merlot")) {
+      slugs.push("la-stejari-merlot");
+    } else if (norm.includes("cabernet")) {
+      slugs.push("la-stejari-cabernet-sauvignon");
+    } else if (norm.includes("chardonnay")) {
+      slugs.push("la-stejari-chardonnay");
+    } else if (norm.includes("feteasca") && norm.includes("regala")) {
+      slugs.push("la-stejari-feteasca-regala");
+    }
+  }
+  if (
+    norm.includes("cuvee") &&
+    (norm.includes("uberland") || norm.includes("überland"))
+  ) {
+    slugs.push("cuvee-uberland");
+  }
+  if (norm.includes("selene")) {
+    if (norm.includes("syrah")) {
+      slugs.push("selene-syrah");
+    } else if (norm.includes("merlot")) {
+      slugs.push("selene-merlot");
+    } else if (norm.includes("feteasca") && norm.includes("neagra")) {
+      slugs.push("selene-feteasca-neagra");
+    } else if (norm.includes("cabernet")) {
+      slugs.push("selene-cabernet-sauvignon");
+    }
+  }
   if (norm.includes("castel") && norm.includes("huniade")) {
     if (norm.includes("cabernet")) {
       slugs.push("castel-huniade-cabernet-sauvignon");
+    } else if (
+      norm.includes("merlot") &&
+      norm.includes("pinot") &&
+      norm.includes("noir")
+    ) {
+      // Cupaj retail-only; fara pagina dedicata pe cramelerecas.ro
     } else if (norm.includes("merlot")) {
       slugs.push("castel-huniade-merlot");
     } else if (norm.includes("riesling")) {
@@ -233,6 +290,20 @@ function resolveRecasKnownSlugs(wineName: string): string[] {
   return slugs;
 }
 
+function resolveAvincisKnownSlugs(wineName: string): string[] {
+  const norm = normalizeMatchText(wineName);
+  const slugs: string[] = [];
+
+  if (norm.includes("orange")) {
+    const vintage = wineName.match(/\b(20\d{2})\b/)?.[0] ?? "2022";
+    slugs.push(`orange-${vintage}-magazin-online-v52-ro`);
+    slugs.push(`orange-${vintage}-online-shop-v52-en`);
+    slugs.push("orange-avincis-wine-72-en");
+  }
+
+  return slugs;
+}
+
 function wineSlugCandidates(wineName: string, winerySlug?: string): string[] {
   const cleaned = wineName
     .replace(/\b\d{4}\b/g, " ")
@@ -249,7 +320,11 @@ function wineSlugCandidates(wineName: string, winerySlug?: string): string[] {
   );
 
   const known =
-    winerySlug === "cramele-recas" ? resolveRecasKnownSlugs(wineName) : [];
+    winerySlug === "cramele-recas"
+      ? resolveRecasKnownSlugs(wineName)
+      : winerySlug === "avincis"
+        ? resolveAvincisKnownSlugs(wineName)
+        : [];
 
   return [...new Set([...known, slug, compact, seriesSlug].filter(Boolean))];
 }
@@ -299,6 +374,15 @@ function buildRecasUrlCandidates(
     new URL(`/vinuri/${slug}/`, baseUrl).toString(),
   ];
 }
+
+function buildAvincisUrlCandidates(baseUrl: string, slug: string): string[] {
+  const base = slug.replace(/\.htm$/i, "");
+  return [
+    new URL(`/${base}.htm`, baseUrl).toString(),
+    new URL(`/${base}-magazin-online-v52-ro.htm`, baseUrl).toString(),
+  ];
+}
+
 function buildProductPageCandidates(
   baseUrl: string,
   wineName: string,
@@ -308,7 +392,9 @@ function buildProductPageCandidates(
   const paths =
     winerySlug === "cramele-recas"
       ? ["/{slug}/", "/vinuri/{slug}/", "/vinuri/{slug}"]
-      : ["/vinuri/{slug}/", "/vinuri/{slug}"];
+      : winerySlug === "avincis"
+        ? ["/{slug}.htm"]
+        : ["/vinuri/{slug}/", "/vinuri/{slug}"];
 
   const candidates: string[] = [];
   for (const slug of slugs) {
@@ -366,7 +452,9 @@ function parsePercentVarietiesFromCommaList(segment: string): GrapeVarietyShare[
   for (const part of segment.split(/[,;]+/)) {
     const trimmed = part.trim();
     if (!trimmed) continue;
-    const match = trimmed.match(/^(.+?)\s*(\d{1,3})\s*%$/);
+    const match =
+      trimmed.match(/^(.+?)\s*\((\d{1,3})\s*%\)$/) ??
+      trimmed.match(/^(.+?)\s*(\d{1,3})\s*%$/);
     const name = match?.[1]?.trim().replace(/\bCupaj\b/gi, " ").trim();
     const percentage = match?.[2] ? Number.parseInt(match[2], 10) : null;
     if (!name || percentage == null || !Number.isFinite(percentage)) continue;
@@ -400,12 +488,21 @@ function parseGrapeVarietiesFromCupaj(text: string): GrapeVarietyShare[] {
     if (!compact) continue;
 
     const varieties = parsePercentVarietiesFromCommaList(compact);
-    if (varieties.length === 0) continue;
+    if (varieties.length > 0) {
+      const total = varieties.reduce((sum, item) => sum + (item.percentage ?? 0), 0);
+      if (total >= 90 && total <= 110) return varieties;
+      if (varieties.length === 1 && varieties[0]?.percentage === 100) {
+        return varieties;
+      }
+    }
 
-    const total = varieties.reduce((sum, item) => sum + (item.percentage ?? 0), 0);
-    if (total >= 90 && total <= 110) return varieties;
-    if (varieties.length === 1 && varieties[0]?.percentage === 100) {
-      return varieties;
+    const nameOnly = compact
+      .split(/[,;]+/)
+      .map((part) => part.trim())
+      .filter((part) => part.length > 2 && part.length <= 50 && !/\./.test(part));
+    if (nameOnly.length >= 2) {
+      const share = Math.round(100 / nameOnly.length);
+      return nameOnly.map((name) => ({ name, percentage: share }));
     }
   }
 
@@ -435,7 +532,14 @@ export function parseRecasProducerFacts(
 
   const plain = normalizeRecasPlainText(stripHtml(html));
   const titleMatch = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
-  const name = titleMatch?.[1]?.trim() ?? null;
+  const name = titleMatch?.[1]
+    ? titleMatch[1]
+        .trim()
+        .replace(/&#(\d+);/g, (_, code) =>
+          String.fromCharCode(Number.parseInt(code, 10)),
+        )
+        .replace(/&amp;/g, "&")
+    : null;
 
   const vintage =
     extractVintageFromPageText(plain) ??
@@ -459,17 +563,19 @@ export function parseRecasProducerFacts(
   const imageUrl = extractOgImage(html, pageUrl);
 
   let resolvedGrapes = grapeVarietiesFromCupaj;
-  const multiSoi = plain.match(
-    /Soi\s*([A-Za-zÀ-ž][\s\S]*?)(?=Culoare|An\b|An\d|Apela|Vol|Clasificare)/i,
-  )?.[1];
-  if (multiSoi && /[-–—]/.test(multiSoi)) {
-    const names = multiSoi
-      .split(/[-–—]+/)
-      .map((part) => part.trim())
-      .filter((part) => part.length > 2);
-    if (names.length >= 2) {
-      const share = Math.round(100 / names.length);
-      resolvedGrapes = names.map((name) => ({ name, percentage: share }));
+  if (resolvedGrapes.length === 0) {
+    const multiSoi = plain.match(
+      /(?:^|[\s•])Soi\s+(?!uri)([A-Za-zÀ-ž][A-Za-zÀ-ž\s.'-]{2,120}?)(?=Culoare|An\b|An\d|Apela|Vol|Clasificare)/i,
+    )?.[1];
+    if (multiSoi && /[-–—]/.test(multiSoi)) {
+      const names = multiSoi
+        .split(/[-–—]+/)
+        .map((part) => part.trim())
+        .filter((part) => part.length > 2);
+      if (names.length >= 2) {
+        const share = Math.round(100 / names.length);
+        resolvedGrapes = names.map((name) => ({ name, percentage: share }));
+      }
     }
   }
 
@@ -507,6 +613,113 @@ export function parseRecasProducerFacts(
   };
 }
 
+function parseAvincisGrapeList(raw: string): GrapeVarietyShare[] {
+  const normalized = raw.replace(/\s+si\s+/gi, ", ").replace(/\s+and\s+/gi, ", ");
+  const names = normalized
+    .split(/[,;]+/)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 2 && part.length <= 50 && !/\./.test(part));
+
+  if (names.length === 0) return [];
+
+  const share = Math.round(100 / names.length);
+  return names.map((name) => ({ name, percentage: share }));
+}
+
+/** Extrage fapte structurate de pe paginile Avincis (.htm). */
+export function parseAvincisProducerFacts(
+  html: string,
+  pageUrl: string,
+): ProducerCanonicalFacts | null {
+  if (!pageUrl.includes("avincis.ro")) return null;
+
+  const plain = stripHtml(html).replace(/\s+/g, " ");
+  const headingMatch =
+    html.match(/<h3[^>]*>\s*([^<]+?)\s*<\/h3>/i) ??
+    html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+
+  let name = headingMatch?.[1]
+    ? headingMatch[1]
+        .trim()
+        .replace(/&#(\d+);/g, (_, code) =>
+          String.fromCharCode(Number.parseInt(code, 10)),
+        )
+        .replace(/&amp;/g, "&")
+        .replace(/\s20\d{2}\s*$/, "")
+        .trim()
+    : null;
+
+  if (name?.toLowerCase() === "magazin online") {
+    name = null;
+  }
+
+  const vintage =
+    extractVintageFromPageText(plain) ??
+    (() => {
+      const m = plain.match(/\bOrange\s+(20\d{2})\b/i);
+      return m?.[1] ? Number.parseInt(m[1], 10) : null;
+    })();
+
+  const alcoholMatch = plain.match(/(\d{1,2}(?:[.,]\d{1,2})?)\s*%\s*alc/i);
+  const sweetnessMatch = plain.match(
+    /\b(Vin alb sec|Vin rosu sec|Vin rose sec|sec|demisec|demidulce|dulce)\b/i,
+  );
+
+  const blendMatch =
+    plain.match(/cupaj(?:ul)?\s+din\s+([^.]+?)(?:,\s*vinificat|\.)/i) ??
+    plain.match(/este\s+cupaj(?:ul)?\s+din\s+([^.]+?)(?:,\s*vinificat|\.)/i);
+
+  const grapeVarieties = blendMatch?.[1]
+    ? parseAvincisGrapeList(blendMatch[1])
+    : [];
+
+  const imageUrl = extractOgImage(html, pageUrl);
+  const isOrange =
+    /\borange\b/i.test(`${name ?? ""} ${pageUrl} ${plain.slice(0, 800)}`);
+
+  if (
+    !name &&
+    grapeVarieties.length === 0 &&
+    vintage == null &&
+    !alcoholMatch &&
+    !imageUrl
+  ) {
+    return null;
+  }
+
+  return {
+    name,
+    grapeVarieties,
+    vintage,
+    alcohol: alcoholMatch?.[1] ? parseDecimalToken(alcoholMatch[1]) : null,
+    acidity: null,
+    sweetness: sweetnessMatch?.[1]
+      ? parseSweetnessLabel(sweetnessMatch[1])
+      : null,
+    imageUrl,
+    color: isOrange ? null : "alb",
+  };
+}
+
+/** Deduce pagina producatorului Avincis din numele vinului sau URL-ul retailerului. */
+export function inferAvincisProducerPageUrl(
+  wineName: string,
+  contextUrl?: string | null,
+): string | null {
+  const ctx = `${wineName} ${contextUrl ?? ""}`.toLowerCase();
+
+  if (!ctx.includes("avincis") && !ctx.includes("orange")) {
+    return null;
+  }
+
+  if (/\borange\b/.test(ctx)) {
+    const vintage = ctx.match(/\b(20\d{2})\b/)?.[0] ?? "2022";
+    return `https://www.avincis.ro/orange-${vintage}-magazin-online-v52-ro.htm`;
+  }
+
+  return null;
+}
+
 /** Deduce pagina producatorului Recas din numele vinului sau URL-ul retailerului. */
 export function inferRecasProducerPageUrl(
   wineName: string,
@@ -516,6 +729,14 @@ export function inferRecasProducerPageUrl(
 
   if (/explicit-roze|roze-explicit/i.test(retailContext)) {
     return "https://cramelerecas.ro/roze-explicit/";
+  }
+
+  if (
+    /explicit.*rara.*neagra.*merlot|rara.*neagra.*merlot.*explicit|rec-275/i.test(
+      retailContext,
+    )
+  ) {
+    return "https://cramelerecas.ro/explicit-rara-neagra-merlot/";
   }
 
   if (
@@ -573,11 +794,26 @@ export function inferRecasProducerPageUrl(
 
   if (
     /castel-huniade.*(?:rose|roze|demisec)/i.test(retailContext) &&
-    !/cabernet|merlot|riesling|feteasca|sauvignon|muscat|sarba/i.test(
+    !/cabernet|merlot|riesling|feteasca|sauvignon|muscat|sarba|pinot/i.test(
       retailContext,
     )
   ) {
     return "https://cramelerecas.ro/castel-huniade-roze/";
+  }
+
+  if (
+    /castel-huniade.*merlot.*pinot.*noir|merlot.*pinot.*noir.*castel-huniade|rec-248/i.test(
+      retailContext,
+    )
+  ) {
+    return null;
+  }
+
+  if (
+    /castel-huniade.*merlot|merlot.*castel-huniade/i.test(retailContext) &&
+    !/pinot/i.test(retailContext)
+  ) {
+    return "https://cramelerecas.ro/castel-huniade-merlot/";
   }
 
   if (
@@ -609,6 +845,40 @@ export function inferRecasProducerPageUrl(
     return "https://cramelerecas.ro/schwaben-wein-riesling-italian/";
   }
 
+  if (
+    /la-stejari.*cabernet|cabernet.*la-stejari/i.test(retailContext)
+  ) {
+    return "https://cramelerecas.ro/vinuri/la-stejari-cabernet-sauvignon/";
+  }
+
+  if (/la-stejari.*merlot|merlot.*la-stejari/i.test(retailContext)) {
+    return "https://cramelerecas.ro/vinuri/la-stejari-merlot/";
+  }
+
+  if (/cuvee.*uberland|uberland.*cuvee/i.test(retailContext)) {
+    return "https://cramelerecas.ro/vinuri/cuvee-uberland/";
+  }
+
+  if (/selene.*cabernet|cabernet.*selene/i.test(retailContext)) {
+    return "https://cramelerecas.ro/vinuri/selene-cabernet-sauvignon/";
+  }
+
+  if (/selene.*merlot|merlot.*selene/i.test(retailContext)) {
+    return "https://cramelerecas.ro/vinuri/selene-merlot/";
+  }
+
+  if (/selene.*syrah|syrah.*selene/i.test(retailContext)) {
+    return "https://cramelerecas.ro/vinuri/selene-syrah/";
+  }
+
+  if (/selene.*feteasca.*neagra|feteasca.*neagra.*selene/i.test(retailContext)) {
+    return "https://cramelerecas.ro/vinuri/selene-feteasca-neagra/";
+  }
+
+  if (/implicit.*feteasca.*neagra|feteasca.*neagra.*implicit/i.test(retailContext)) {
+    return "https://cramelerecas.ro/implicit-feteasca-neagra/";
+  }
+
   const context = `${wineName} ${retailContext}`;
 
   if (/explicit-roze|roze-explicit/i.test(context)) {
@@ -618,7 +888,16 @@ export function inferRecasProducerPageUrl(
   const slugs = resolveRecasKnownSlugs(context);
   if (slugs.length === 0) return null;
 
-  return `https://cramelerecas.ro/${slugs[0]}/`;
+  const slug = slugs[0];
+  if (
+    slug.startsWith("la-stejari-") ||
+    slug.startsWith("selene-") ||
+    slug === "cuvee-uberland"
+  ) {
+    return `https://cramelerecas.ro/vinuri/${slug}/`;
+  }
+
+  return `https://cramelerecas.ro/${slug}/`;
 }
 
 function extractPdfLinks(html: string, pageUrl: string): string[] {
@@ -741,6 +1020,21 @@ export async function enrichWineFromProducerSite(input: {
     }
   }
 
+  if (
+    input.preferredPageUrl &&
+    input.winerySlug === "avincis" &&
+    input.preferredPageUrl.includes("avincis.ro")
+  ) {
+    const preferred = await fetchProducerHtml(input.preferredPageUrl);
+    const preferredFacts = preferred
+      ? parseAvincisProducerFacts(preferred.html, preferred.finalUrl)
+      : null;
+    if (preferred && preferredFacts) {
+      bestPage = { ...preferred, score: 100 };
+      preferredLocked = true;
+    }
+  }
+
   if (!preferredLocked) {
     for (const base of bases) {
       const slugFromUrl =
@@ -748,7 +1042,13 @@ export async function enrichWineFromProducerSite(input: {
           ? extractRecasSlugFromUrl(input.preferredPageUrl)
           : null;
       const extraCandidates =
-        slugFromUrl != null ? buildRecasUrlCandidates(base, slugFromUrl) : [];
+        slugFromUrl != null
+          ? buildRecasUrlCandidates(base, slugFromUrl)
+          : input.winerySlug === "avincis"
+            ? resolveAvincisKnownSlugs(input.wineName).flatMap((slug) =>
+                buildAvincisUrlCandidates(base, slug),
+              )
+            : [];
 
       const candidates = [
         ...extraCandidates,
@@ -785,7 +1085,9 @@ export async function enrichWineFromProducerSite(input: {
   const canonical =
     input.winerySlug === "cramele-recas"
       ? parseRecasProducerFacts(bestPage.html, bestPage.finalUrl)
-      : null;
+      : input.winerySlug === "avincis"
+        ? parseAvincisProducerFacts(bestPage.html, bestPage.finalUrl)
+        : null;
 
   return {
     producerPageUrl: bestPage.finalUrl,
@@ -802,6 +1104,9 @@ export function producerImageSourceFromUrl(pageUrl: string): string {
     const host = new URL(pageUrl).hostname.replace(/^www\./, "").toLowerCase();
     if (host.includes("cramelerecas") || host.includes("cramele-recas")) {
       return "cramelerecas";
+    }
+    if (host.includes("avincis")) {
+      return "avincis";
     }
     const [label] = host.split(".");
     return label || host;

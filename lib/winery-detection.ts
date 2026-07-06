@@ -18,7 +18,7 @@ const RETAILER_NAMES = new Set([
 
 /** Aliases mapped to canonical winery names when not yet in DB. */
 export const KNOWN_WINERY_ALIASES: { name: string; aliases: string[] }[] = [
-  { name: "Cramele Recas", aliases: ["recas", "recaș", "cramele recas", "cramele-recas"] },
+  { name: "Cramele Recas", aliases: ["recas", "recaș", "cramele recas", "cramele-recas", "domeniile recas", "domeniile-recas"] },
   { name: "Purcari", aliases: ["purcari", "chateau purcari", "vinaria purcari"] },
   { name: "Avincis", aliases: ["avincis"] },
   { name: "Davino", aliases: ["davino"] },
@@ -162,6 +162,22 @@ export async function detectWineryNameFromCatalog(
   const producerCandidate = input.producer.trim();
 
   if (producerCandidate && !isRetailerName(producerCandidate)) {
+    const normalizedProducer = normalizeMatchText(producerCandidate);
+
+    for (const entry of KNOWN_WINERY_ALIASES) {
+      const aliasHit = entry.aliases.some((alias) => {
+        const normalizedAlias = normalizeMatchText(alias);
+        return (
+          normalizedProducer.includes(normalizedAlias) ||
+          normalizedAlias.includes(normalizedProducer)
+        );
+      });
+      if (aliasHit) {
+        const canonical = await findWineryByNameInsensitive(entry.name);
+        return canonical?.name ?? entry.name;
+      }
+    }
+
     const fromProducer = await findWineryByNameInsensitive(producerCandidate);
     if (fromProducer) return fromProducer.name;
     return producerCandidate;

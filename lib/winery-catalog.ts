@@ -3,12 +3,15 @@ export interface WineryCatalogEnrichment {
   logoUrl: string;
   tagline: string;
   story: string;
+  /** Pagina oficiala de vizite / degustari (activa doar dupa revendicare). */
+  visitUrl?: string;
 }
 
 export const WINERY_CATALOG: Partial<Record<string, WineryCatalogEnrichment>> = {
   "cramele-recas": {
     logoUrl:
       "https://cramelerecas.ro/wp-content/uploads/logo-Cramele-Recas-512.jpg",
+    visitUrl: "https://cramelerecas.ro/viziteaza/",
     tagline:
       "Cel mai mare exportator de vin imbuteliat din Romania, cu un raport calitate-pret remarcabil.",
     story: `In Banat, langa Recas, viticultura are radacini adanci: coloniile sveste au adus aici traditii germane de crama, iar solul si soarele din podgorie au modelat generatii de vinificatori. Cramele Recas s-a nascut in 1991 din curajul unor oameni care au crezut ca vinul romanesc poate concura pe piata internationala fara sa-si trade identitatea.

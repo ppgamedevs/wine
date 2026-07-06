@@ -1,35 +1,20 @@
 import {
   ArrowRight,
-  Building2,
   CheckCircle2,
   MapPin,
   Wine as WineIcon,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { WineryLogo } from "@/components/wineries/winery-logo";
 import type { WineryListItem } from "@/types";
 
 export function WineryCard({ winery }: { winery: WineryListItem }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-wine/30 hover:shadow-xl">
       <div className="flex items-start gap-4 p-5">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-wine/15 bg-gradient-to-br from-wine/[0.08] via-white to-wine/[0.12] shadow-sm ring-1 ring-wine/10">
-          {winery.logoUrl ? (
-            <Image
-              src={winery.logoUrl}
-              alt={winery.name}
-              fill
-              sizes="64px"
-              className="object-contain p-1.5"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-wine/10 text-wine">
-              <Building2 className="h-7 w-7" aria-hidden="true" />
-            </div>
-          )}
-        </div>
+        <WineryLogo name={winery.name} logoUrl={winery.logoUrl} size="card" />
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">

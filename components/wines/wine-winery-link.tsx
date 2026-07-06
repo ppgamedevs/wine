@@ -1,7 +1,6 @@
 import { ArrowUpRight, ExternalLink } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { MarketingWineryIcon } from "@/components/marketing-icons";
+import { WineryLogo } from "@/components/wineries/winery-logo";
 import { Button } from "@/components/ui/button";
 import type { WineWithRelations } from "@/types";
 
@@ -26,19 +25,11 @@ export function WineWineryLink({ wine, wineCount }: WineWineryLinkProps) {
       >
         <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
           <div className="flex min-w-0 items-start gap-4 sm:items-center">
-            <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-wine/20 bg-gradient-to-br from-wine/[0.08] via-background to-wine/[0.14] shadow-sm ring-1 ring-wine/10">
-              {winery.logoUrl ? (
-                <Image
-                  src={winery.logoUrl}
-                  alt=""
-                  width={56}
-                  height={56}
-                  className="h-full w-full object-contain p-2"
-                />
-              ) : (
-                <MarketingWineryIcon className="h-6 w-6 text-wine" />
-              )}
-            </span>
+            <WineryLogo
+              name={winery.name}
+              logoUrl={winery.logoUrl}
+              size="inline"
+            />
 
             <div className="min-w-0">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">

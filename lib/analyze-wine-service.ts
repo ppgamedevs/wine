@@ -30,7 +30,9 @@ import { buildWineImageAlt } from "@/lib/wine-images";
 import { resolveTechSpecs, techSpecsForDb } from "@/lib/wine-tech-specs";
 import {
   enrichWineFromProducerSite,
+  inferAvincisProducerPageUrl,
   inferRecasProducerPageUrl,
+  parseAvincisProducerFacts,
   parseRecasProducerFacts,
   producerImageSourceFromUrl,
   type ProducerEnrichment,
@@ -53,12 +55,11 @@ function resolvePreferredProducerPageUrl(finalUrl: string): string | null {
   try {
     const parsed = new URL(finalUrl);
     const host = parsed.hostname.replace(/^www\./, "");
-    if (!host.includes("cramelerecas.ro")) return null;
+    if (host.includes("cramelerecas.ro") || host.includes("avincis.ro")) {
+      return finalUrl;
+    }
 
-    const segment = parsed.pathname.split("/").filter(Boolean).pop();
-    if (!segment || segment === "vinuri") return null;
-
-    return finalUrl;
+    return null;
   } catch {
     return null;
   }
@@ -71,7 +72,9 @@ function resolvePreferredProducerPageForImport(
   return (
     resolvePreferredProducerPageUrl(finalUrl) ??
     inferRecasProducerPageUrl("", finalUrl) ??
-    inferRecasProducerPageUrl(productName, finalUrl)
+    inferAvincisProducerPageUrl("", finalUrl) ??
+    inferRecasProducerPageUrl(productName, finalUrl) ??
+    inferAvincisProducerPageUrl(productName, finalUrl)
   );
 }
 
@@ -83,7 +86,9 @@ function applySourceProducerFacts<T extends { name: string }>(
   const preferredUrl = resolvePreferredProducerPageUrl(finalUrl);
   if (!preferredUrl) return product;
 
-  const facts = parseRecasProducerFacts(html, finalUrl);
+  const facts = finalUrl.includes("avincis.ro")
+    ? parseAvincisProducerFacts(html, finalUrl)
+    : parseRecasProducerFacts(html, finalUrl);
   if (!facts?.name) return product;
 
   return { ...product, name: facts.name };
@@ -146,12 +151,13 @@ function inferCategoryFromText(
 
   if (hasSparklingSignal) return "spumant";
   if (hasRoseSignal) return "rose";
+  if (/\borange\b/.test(lower)) return "orange";
   if (hasWhiteSignal) return "alb";
   if (category?.trim()) return category;
   if (lower.includes("spumant") || lower.includes("sparkling")) return "spumant";
   if (lower.includes("rose") || lower.includes("roze")) return "rose";
-  if (lower.includes("alb") || lower.includes("white")) return "alb";
   if (lower.includes("orange")) return "orange";
+  if (lower.includes("alb") || lower.includes("white")) return "alb";
   return "rosu";
 }
 

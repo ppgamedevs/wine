@@ -1,14 +1,15 @@
 import {
-  Building2,
   CalendarDays,
   CheckCircle2,
   ChevronRight,
   ExternalLink,
   MapPin,
+  Ticket,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { WineryLogo } from "@/components/wineries/winery-logo";
 import {
   getWineryCatalogEnrichment,
   splitWineryStory,
@@ -52,22 +53,12 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
         </nav>
 
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-wine/15 bg-gradient-to-br from-wine/[0.08] via-white to-wine/[0.12] shadow-md ring-1 ring-wine/10 sm:h-28 sm:w-28">
-            {winery.logoUrl ? (
-              <Image
-                src={winery.logoUrl}
-                alt={winery.name}
-                fill
-                priority
-                sizes="112px"
-                className="object-contain p-2.5"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-wine/10 text-wine">
-                <Building2 className="h-10 w-10" aria-hidden="true" />
-              </div>
-            )}
-          </div>
+          <WineryLogo
+            name={winery.name}
+            logoUrl={winery.logoUrl}
+            size="hero"
+            priority
+          />
 
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2">
@@ -135,6 +126,45 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
                     {paragraph}
                   </p>
                 ))}
+              </div>
+            ) : null}
+
+            {enrichment?.visitUrl ? (
+              <div className="mt-6 flex flex-col items-start gap-2">
+                {winery.verified ? (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="border-wine/30 text-wine hover:bg-wine/5"
+                  >
+                    <a
+                      href={enrichment.visitUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Ticket className="h-4 w-4" aria-hidden="true" />
+                      Viziteaza crama
+                      <ExternalLink className="h-3.5 w-3.5 opacity-70" aria-hidden="true" />
+                    </a>
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled
+                      className="pointer-events-none opacity-50"
+                      aria-disabled="true"
+                    >
+                      <Ticket className="h-4 w-4" aria-hidden="true" />
+                      Viziteaza crama
+                    </Button>
+                    <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
+                      Linkul catre pachetele de degustare se activeaza dupa ce crama
+                      isi revendica si verifica profilul.
+                    </p>
+                  </>
+                )}
               </div>
             ) : null}
 

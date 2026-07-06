@@ -188,7 +188,28 @@ function cleanRetailerProductTitle(title: string): string {
     return parts.join(" ");
   }
 
-  return trimmed;
+  const castelHuniade = trimmed.match(
+    /^(?:Vin\s+)?Castel\s+Huniade\s+(.+?)(?:\s+0\.?75\s*l)?$/i,
+  );
+  if (castelHuniade?.[1]) {
+    const rest = castelHuniade[1]
+      .replace(/\s+0\.?75\s*l$/i, "")
+      .replace(/\s+(Demisec|Demidulce|Dulce|Sec)$/i, "")
+      .trim();
+    return `Castel Huniade ${rest}`;
+  }
+
+  const avincis = trimmed.match(
+    /^Avincis\s+(.+?)(?:,\s*Sec|,?\s*0\.?75\s*l)?$/i,
+  );
+  if (avincis?.[1]) {
+    return avincis[1]
+      .replace(/\s+0\.?75\s*l$/i, "")
+      .replace(/\s*,?\s*(Sec|Demisec|Demidulce|Dulce)$/i, "")
+      .trim();
+  }
+
+  return trimmed.replace(/^Vin\s+(Recas\s+)?/i, "").trim();
 }
 
 function extractProducerFromTitle(title: string | null): string | null {

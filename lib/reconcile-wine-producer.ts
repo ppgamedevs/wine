@@ -11,7 +11,10 @@ import { generateAndApplyFullEditorial } from "./wine-enrichment";
 import { buildWineImageAlt } from "./wine-images";
 import {
   enrichWineFromProducerSite,
+  inferAvincisProducerPageUrl,
   inferRecasProducerPageUrl,
+  parseAvincisProducerFacts,
+  parseRecasProducerFacts,
   producerImageSourceFromUrl,
 } from "./wine-producer-enrichment";
 import { buildWineSlug } from "./wine-url";
@@ -38,11 +41,19 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
     if (wine.sourceUrl?.includes("cramelerecas.ro")) {
       return wine.sourceUrl;
     }
+    if (wine.sourceUrl?.includes("avincis.ro")) {
+      return wine.sourceUrl;
+    }
     const inferredFromRetail = inferRecasProducerPageUrl("", retailUrl);
     if (inferredFromRetail) return inferredFromRetail;
+    const inferredAvincis = inferAvincisProducerPageUrl(wine.name, retailUrl);
+    if (inferredAvincis) return inferredAvincis;
     const inferred = inferRecasProducerPageUrl(wine.name, retailUrl);
     if (inferred) return inferred;
     if (wine.producerPageUrl?.includes("cramelerecas.ro")) {
+      return wine.producerPageUrl;
+    }
+    if (wine.producerPageUrl?.includes("avincis.ro")) {
       return wine.producerPageUrl;
     }
     return null;
@@ -93,8 +104,8 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
 
   const producerText = producer.producerText ?? "";
   const isOrangeWine =
-    /Apela[^\n]*Vin Orange|Vin Orange Wine|sole-orange/i.test(
-      `${producerText} ${producer.producerPageUrl ?? ""}`,
+    /Apela[^\n]*Vin Orange|Vin Orange Wine|sole-orange|\borange\b/i.test(
+      `${producerText} ${displayName} ${producer.producerPageUrl ?? ""}`,
     );
   if (isOrangeWine) {
     patch.type = "orange";
