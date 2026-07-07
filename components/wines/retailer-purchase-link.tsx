@@ -1,3 +1,5 @@
+"use client";
+
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { detectRetailerLabel } from "@/lib/retailer-links";
