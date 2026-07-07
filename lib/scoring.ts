@@ -325,12 +325,12 @@ export function buildValueScoreBreakdown(wine: ValueScoreInput): ValueScoreBreak
 export function valueScoreInputFromWine(wine: {
   priceAvg: number | null;
   currentPrice?: number | null;
-  grapeVarieties: { name: string }[] | string[];
+  grapeVarieties: { name: string }[] | string[] | null;
   region?: { name: string } | null;
   valueScore?: number | null;
 }): ValueScoreInput {
   const price = wine.currentPrice ?? wine.priceAvg ?? 0;
-  const grapes = wine.grapeVarieties.map((g) =>
+  const grapes = (wine.grapeVarieties ?? []).map((g) =>
     typeof g === "string" ? g : g.name,
   );
 

@@ -77,7 +77,7 @@ export function buildWineJsonLd(
           lowPrice: wine.priceAvg,
           highPrice: wine.priceAvg,
           priceCurrency: "RON",
-          offerCount: wine.availability.length || 1,
+          offerCount: (wine.availability ?? []).length || 1,
           availability: "https://schema.org/InStock",
         }
       : undefined,
@@ -138,7 +138,7 @@ export function buildWineMetadataDescription(wine: WineWithRelations): string {
     wine.winery?.name ? `de la ${wine.winery.name}` : null,
     wine.priceAvg ? `la ${formatRon(wine.priceAvg)}` : null,
     wine.valueScore ? `Value Score ${wine.valueScore}/100` : null,
-    wine.foodPairings[0]?.dish
+    wine.foodPairings?.[0]?.dish
       ? `potrivit pentru ${wine.foodPairings[0].dish.toLowerCase()}`
       : null,
   ].filter(Boolean);

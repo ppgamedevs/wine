@@ -288,7 +288,7 @@ export async function getWineBySlug(
     });
     return (wine ? normalizeWineRow(wine as WineWithRelations) : null);
   } catch (error) {
-    console.error("getWineBySlug failed", error);
+    console.error("getWineBySlug failed", { slug, error });
     return null;
   }
 }

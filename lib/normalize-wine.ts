@@ -1,9 +1,11 @@
 import type { WineWithRelations } from "@/types";
 
-/** Guard against legacy NULL JSON columns that crash `.length` in UI. */
+/** Guard against legacy NULL JSON columns that crash `.length` / `.map` in UI. */
 export function normalizeWineRow<T extends WineWithRelations>(wine: T): T {
   return {
     ...wine,
+    grapeVarieties: wine.grapeVarieties ?? [],
+    priceHistory: wine.priceHistory ?? [],
     thingsYouShouldKnow: wine.thingsYouShouldKnow ?? [],
     foodPairingNotes: wine.foodPairingNotes ?? [],
     dessertPairings: wine.dessertPairings ?? [],

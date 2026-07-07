@@ -51,11 +51,11 @@ function pairingTone(score: number | undefined): string {
 
 export function WineEditorial({ wine }: { wine: WineWithRelations }) {
   const hasDescription = Boolean(wine.descriptionEditorial?.trim());
-  const hasThings = wine.thingsYouShouldKnow.length > 0;
+  const hasThings = (wine.thingsYouShouldKnow ?? []).length > 0;
   const hasTaste = Boolean(wine.tasteProfile?.trim());
-  const hasPairingNotes = wine.foodPairingNotes.length > 0;
-  const hasDessertPairings = wine.dessertPairings.length > 0;
-  const hasOccasions = wine.recommendedOccasions.length > 0;
+  const hasPairingNotes = (wine.foodPairingNotes ?? []).length > 0;
+  const hasDessertPairings = (wine.dessertPairings ?? []).length > 0;
+  const hasOccasions = (wine.recommendedOccasions ?? []).length > 0;
 
   const hasEditorialContent =
     hasDescription ||
@@ -108,7 +108,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
           icon={EditorialInsightIcon}
         >
           <ul className="grid gap-3 sm:grid-cols-2">
-            {wine.thingsYouShouldKnow.map((item) => (
+            {(wine.thingsYouShouldKnow ?? []).map((item) => (
               <li
                 key={item}
                 className="flex items-start gap-3 rounded-xl border border-border/70 bg-card p-4 text-sm leading-relaxed text-foreground/90"
@@ -131,7 +131,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
           icon={EditorialPairingIcon}
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            {wine.foodPairingNotes.map((pairing) => (
+            {(wine.foodPairingNotes ?? []).map((pairing) => (
               <Card
                 key={pairing.dish}
                 className="border-border/70 transition-colors hover:border-wine/30"
@@ -173,7 +173,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
             echilibreaza zaharul si grasimea desertului.
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
-            {wine.dessertPairings.map((pairing) => (
+            {(wine.dessertPairings ?? []).map((pairing) => (
               <Card
                 key={pairing.dish}
                 className="border-border/70 border-gold/20 bg-gold/5 transition-colors hover:border-wine/30"
@@ -211,7 +211,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
           icon={EditorialOccasionIcon}
         >
           <ul className="flex flex-wrap gap-2">
-            {wine.recommendedOccasions.map((occasion) => (
+            {(wine.recommendedOccasions ?? []).map((occasion) => (
               <li key={occasion}>
                 <Badge
                   variant="secondary"

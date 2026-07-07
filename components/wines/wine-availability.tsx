@@ -12,7 +12,7 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
   const priceLabel = isVerified ? "Pret actual" : "Pret aproximativ";
   const retailer =
     pricing.purchaseLink?.retailer ??
-    wine.availability.find((entry) => entry.retailer.trim())?.retailer ??
+    wine.availability?.find((entry) => entry.retailer.trim())?.retailer ??
     "retailer";
 
   return (

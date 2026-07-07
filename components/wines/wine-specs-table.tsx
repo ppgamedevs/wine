@@ -23,7 +23,7 @@ interface SpecRow {
 }
 
 function buildSpecs(wine: WineWithRelations): SpecRow[] {
-  const grapeText = wine.grapeVarieties
+  const grapeText = (wine.grapeVarieties ?? [])
     .map((g) =>
       g.percentage ? `${g.name} (${g.percentage}%)` : g.name,
     )

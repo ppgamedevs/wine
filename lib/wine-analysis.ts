@@ -88,7 +88,8 @@ export function buildWineFaq(wine: WineWithRelations): WineFaqItem[] {
   const wineryName = wine.winery?.name ?? "crama producatoare";
   const regionName = wine.region?.name ?? "Romania";
   const price = formatRon(wine.priceAvg);
-  const topPairing = wine.foodPairings[0]?.dish ?? "mancare traditionala romaneasca";
+  const topPairing =
+    wine.foodPairings?.[0]?.dish ?? "mancare traditionala romaneasca";
 
   return [
     {
@@ -143,7 +144,7 @@ export function buildProgrammaticLinks(wine: WineWithRelations) {
     });
   }
 
-  const topDish = wine.foodPairings[0]?.dish;
+  const topDish = wine.foodPairings?.[0]?.dish;
   if (topDish) {
     const dishSlug = topDish
       .toLowerCase()

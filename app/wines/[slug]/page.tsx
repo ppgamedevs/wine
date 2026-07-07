@@ -29,6 +29,7 @@ import { resolveWineImage } from "@/lib/wine-images";
 import { EXISTING_WINE_CATALOG_MESSAGE } from "@/lib/wine-submission-messages";
 
 export const revalidate = 3600;
+export const dynamicParams = true;
 
 interface WinePageProps {
   params: Promise<{ slug: string }>;
@@ -67,11 +68,10 @@ export async function generateMetadata({
       wine.region?.name ?? "",
       "vin romanesc",
       "Value Score",
-      ...(wine.foodPairings.map((p) => `vin pentru ${p.dish.toLowerCase()}`) ??
-        []),
-      ...(wine.dessertPairings.map(
+      ...(wine.foodPairings ?? []).map((p) => `vin pentru ${p.dish.toLowerCase()}`),
+      ...(wine.dessertPairings ?? []).map(
         (p) => `vin pentru ${p.dish.toLowerCase()}`,
-      ) ?? []),
+      ),
     ].filter(Boolean),
     openGraph: {
       type: "website",

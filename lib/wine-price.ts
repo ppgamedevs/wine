@@ -52,7 +52,7 @@ function getPreviousPriceEntry(
 }
 
 export function isRecentVerifiedPrice(wine: WineWithRelations): boolean {
-  const latest = getLatestPriceEntry(wine.priceHistory);
+  const latest = getLatestPriceEntry(wine.priceHistory ?? []);
   if (!latest) return false;
 
   const observedAt = new Date(latest.date);
@@ -155,7 +155,8 @@ export function resolvePrimaryPurchaseLink(
     fallbackRetailer: wine.winery?.name ?? undefined,
   });
   const priceRon =
-    wine.affiliateLinks[0]?.priceRon ?? wine.availability[0]?.priceRon;
+    (wine.affiliateLinks ?? [])[0]?.priceRon ??
+    (wine.availability ?? [])[0]?.priceRon;
 
   return {
     url: affiliateUrl,
@@ -166,13 +167,13 @@ export function resolvePrimaryPurchaseLink(
 }
 
 export function resolveVerifyPriceUrl(wine: WineWithRelations): string | null {
-  for (const affiliate of wine.affiliateLinks) {
+  for (const affiliate of wine.affiliateLinks ?? []) {
     const trimmed = affiliate.url?.trim();
     if (!trimmed || isProfitshareUrl(trimmed)) continue;
     return resolveCatalogProductUrl(trimmed);
   }
 
-  for (const store of wine.availability) {
+  for (const store of wine.availability ?? []) {
     const trimmed = store.url?.trim();
     if (!trimmed || isProfitshareUrl(trimmed)) continue;
     return resolveCatalogProductUrl(trimmed);
@@ -199,7 +200,7 @@ export function buildWinePriceViewModel(
 
   const priceChange =
     status === "verified" && displayPrice != null
-      ? getPriceChange(wine.priceHistory, displayPrice)
+      ? getPriceChange(wine.priceHistory ?? [], displayPrice)
       : null;
 
   return {
