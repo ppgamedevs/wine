@@ -65,7 +65,10 @@ export function WineImage({
         <WineImageFallback type={type} />
       ) : (
         <motion.div
-          className="relative h-full w-full"
+          className={cn(
+            "relative h-full w-full",
+            objectFit === "contain" && containPaddingClass,
+          )}
           whileHover={{ scale: objectFit === "contain" ? 1.02 : 1.03 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
@@ -80,7 +83,7 @@ export function WineImage({
             className={cn(
               "transition-transform duration-700",
               objectFit === "contain"
-                ? cn("object-contain object-center", containPaddingClass)
+                ? "object-contain object-center"
                 : "object-cover object-center",
               imageClassName,
             )}
