@@ -3,6 +3,7 @@ import { and, asc, count, desc, eq, gte, like, ne, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { grapeVarieties, wineryEvents, wineries, wines } from "@/lib/schema";
 import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
+import { normalizeWineRow, normalizeWineRows } from "@/lib/normalize-wine";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import type {
   WineryEvent,
@@ -36,7 +37,7 @@ export async function getFeaturedWines(
       orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
       limit,
     });
-    return rows as WineWithRelations[];
+    return normalizeWineRows(rows as WineWithRelations[]);
   } catch (error) {
     console.error("getFeaturedWines failed", error);
     return [];
@@ -54,7 +55,7 @@ export async function getCatalogWines(): Promise<WineWithRelations[]> {
         orderAsc(table.name),
       ],
     });
-    return rows as WineWithRelations[];
+    return normalizeWineRows(rows as WineWithRelations[]);
   } catch (error) {
     console.error("getCatalogWines failed", error);
     return [];
@@ -285,7 +286,7 @@ export async function getWineBySlug(
       where: and(eq(wines.slug, slug), catalogWineCondition()),
       with: { winery: true, region: true },
     });
-    return (wine as WineWithRelations | undefined) ?? null;
+    return (wine ? normalizeWineRow(wine as WineWithRelations) : null);
   } catch (error) {
     console.error("getWineBySlug failed", error);
     return null;
@@ -312,7 +313,7 @@ export async function getSimilarWines(
       orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
       limit,
     });
-    return rows as WineWithRelations[];
+    return normalizeWineRows(rows as WineWithRelations[]);
   } catch (error) {
     console.error("getSimilarWines failed", error);
     return [];
@@ -337,7 +338,7 @@ export async function getRecommendedWines(
       limit: limit + 6,
     });
 
-    const filtered = (rows as WineWithRelations[])
+    const filtered = normalizeWineRows(rows as WineWithRelations[])
       .filter((row) => {
         if (!row.priceAvg || !wine.priceAvg) return true;
         return row.priceAvg >= minPrice && row.priceAvg <= maxPrice;
@@ -346,7 +347,7 @@ export async function getRecommendedWines(
 
     return filtered.length > 0
       ? filtered
-      : (rows as WineWithRelations[]).slice(0, limit);
+      : normalizeWineRows((rows as WineWithRelations[]).slice(0, limit));
   } catch (error) {
     console.error("getRecommendedWines failed", error);
     return [];

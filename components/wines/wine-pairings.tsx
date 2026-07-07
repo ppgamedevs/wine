@@ -19,7 +19,9 @@ function pairingTone(score: number | undefined): string {
 
 export function WinePairings({ wine }: { wine: WineWithRelations }) {
   const pairings =
-    wine.foodPairings.length > 0 ? wine.foodPairings : defaultRomanianPairings;
+    (wine.foodPairings?.length ?? 0) > 0
+      ? wine.foodPairings
+      : defaultRomanianPairings;
 
   return (
     <section aria-labelledby="pairings-heading">
