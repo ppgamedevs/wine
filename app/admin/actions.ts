@@ -19,6 +19,7 @@ import {
 } from "@/lib/regenerate-wine-editorial";
 import {
   wineReports,
+  wineries,
   wines,
 } from "@/lib/schema";
 import { redirect } from "next/navigation";
@@ -34,13 +35,30 @@ const updateWineSchema = z.object({
   thingsYouShouldKnow: z.string().optional(),
 });
 
+const updateWineryPremiumSchema = z.object({
+  wineryId: z.number().int().positive(),
+  isPremium: z.coerce.boolean(),
+  customBannerUrl: z.string().optional(),
+  customStory: z.string().optional(),
+  analyticsEnabled: z.coerce.boolean().optional(),
+  leadCaptureEnabled: z.coerce.boolean().optional(),
+  featuredPlacement: z.coerce.boolean().optional(),
+});
+
 function revalidateAdmin() {
   revalidatePath("/admin/wines");
+  revalidatePath("/admin/wineries");
 }
 
 function revalidateWine(slug: string) {
   revalidatePath(`/wines/${slug}`);
   revalidatePath(`/vinuri/${slug}`);
+}
+
+function revalidateWinery(slug: string) {
+  revalidatePath(`/wineries/${slug}`);
+  revalidatePath(`/crame/${slug}`);
+  revalidatePath("/crame");
 }
 
 async function assertAdmin() {
@@ -162,6 +180,66 @@ export async function updateWineEditorialAction(
 
   revalidateAdmin();
   return { ok: true as const };
+}
+
+export async function updateWineryPremiumAction(
+  input: z.infer<typeof updateWineryPremiumSchema>,
+) {
+  await assertAdmin();
+  const parsed = updateWineryPremiumSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false as const, error: "Date invalide." };
+  }
+
+  const existing = await db.query.wineries.findFirst({
+    where: eq(wineries.id, parsed.data.wineryId),
+    columns: {
+      slug: true,
+      isPremium: true,
+      premiumSince: true,
+    },
+  });
+
+  if (!existing) {
+    return { ok: false as const, error: "Crama negasita." };
+  }
+
+  const activatingPremium = parsed.data.isPremium && !existing.isPremium;
+
+  await db
+    .update(wineries)
+    .set({
+      isPremium: parsed.data.isPremium,
+      premiumSince: parsed.data.isPremium
+        ? existing.premiumSince ??
+          new Date().toISOString().slice(0, 19).replace("T", " ")
+        : null,
+      customBannerUrl: parsed.data.customBannerUrl?.trim() || null,
+      customStory: parsed.data.customStory?.trim() || null,
+      analyticsEnabled: parsed.data.analyticsEnabled ?? false,
+      leadCaptureEnabled: parsed.data.leadCaptureEnabled ?? false,
+      featuredPlacement: parsed.data.featuredPlacement ?? false,
+      ...(parsed.data.isPremium
+        ? {}
+        : {
+            analyticsEnabled: false,
+            leadCaptureEnabled: false,
+            featuredPlacement: false,
+          }),
+    })
+    .where(eq(wineries.id, parsed.data.wineryId));
+
+  revalidateWinery(existing.slug);
+  revalidateAdmin();
+
+  return {
+    ok: true as const,
+    message: activatingPremium
+      ? "Profil Premium activat."
+      : parsed.data.isPremium
+        ? "Profil Premium actualizat."
+        : "Profil Premium dezactivat.",
+  };
 }
 
 export async function resolveWineReportsAction(wineId: number) {

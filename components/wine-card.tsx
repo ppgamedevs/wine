@@ -7,6 +7,7 @@ import { WineImage } from "@/components/wines/wine-image";
 import { WineCardPriceFooter } from "@/components/wines/wine-price-display";
 import { valueScoreTone, wineTypeLabel } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
+import { trackWineryEvent } from "@/lib/winery-analytics-client";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import { resolveWineVintage } from "@/lib/wine-vintage";
 import { cn } from "@/lib/utils";
@@ -17,10 +18,12 @@ export function WineCard({
   priority = false,
   /** Prag minim recomandare = 75/100. Cand e setat, ascunde vinurile sub prag. */
   minValueScore = MIN_RECOMMENDED_VALUE_SCORE,
+  trackAnalytics,
 }: {
   wine: WineWithRelations;
   priority?: boolean;
   minValueScore?: number | null;
+  trackAnalytics?: { wineryId: number; wineId: number };
 }) {
   if (
     minValueScore != null &&
@@ -92,12 +95,20 @@ export function WineCard({
           <Link
             href={`/wines/${wine.slug}`}
             className="transition-colors hover:text-wine"
+            onClick={() => {
+              if (trackAnalytics) {
+                void trackWineryEvent(trackAnalytics.wineryId, "wine_click", {
+                  wineId: trackAnalytics.wineId,
+                  metadata: { wineSlug: wine.slug },
+                });
+              }
+            }}
           >
             {wine.name}
           </Link>
         </h3>
 
-        <WineCardPriceFooter wine={wine} />
+        <WineCardPriceFooter wine={wine} trackAnalytics={trackAnalytics} />
       </div>
     </motion.article>
   );

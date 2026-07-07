@@ -3,6 +3,7 @@ import { count, desc, eq, gt, isNotNull } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   wineReports,
+  wineries,
   wines,
   type WineImageSource,
   type WineSubmissionStatus,
@@ -272,4 +273,68 @@ export async function getRecentReports(limit = 20): Promise<AdminReportRow[]> {
       createdAt: row.createdAt,
       reportCount: row.wine!.reportCount,
     }));
+}
+
+export interface AdminWineryRow {
+  id: number;
+  slug: string;
+  name: string;
+  verified: boolean;
+  isPremium: boolean;
+  premiumSince: string | null;
+  customBannerUrl: string | null;
+  customStory: string | null;
+  analyticsEnabled: boolean;
+  leadCaptureEnabled: boolean;
+  featuredPlacement: boolean;
+  regionName: string | null;
+  wineCount: number;
+}
+
+export async function getAdminWineries(searchQuery = ""): Promise<AdminWineryRow[]> {
+  const trimmedSearch = searchQuery.trim().toLowerCase();
+
+  const rows = await db.query.wineries.findMany({
+    with: {
+      region: true,
+      wines: {
+        columns: { id: true, status: true },
+      },
+    },
+    orderBy: (table, { asc }) => [asc(table.name)],
+    limit: 500,
+  });
+
+  const filtered =
+    trimmedSearch.length >= 2
+      ? rows.filter((winery) => {
+          const haystack = [winery.name, winery.slug, winery.region?.name ?? ""]
+            .join(" ")
+            .toLowerCase();
+          return haystack.includes(trimmedSearch);
+        })
+      : rows;
+
+  return filtered.map((winery) => ({
+    id: winery.id,
+    slug: winery.slug,
+    name: winery.name,
+    verified: winery.verified,
+    isPremium: winery.isPremium,
+    premiumSince: winery.premiumSince,
+    customBannerUrl: winery.customBannerUrl,
+    customStory: winery.customStory,
+    analyticsEnabled: winery.analyticsEnabled,
+    leadCaptureEnabled: winery.leadCaptureEnabled,
+    featuredPlacement: winery.featuredPlacement,
+    regionName: winery.region?.name ?? null,
+    wineCount: winery.wines.filter((w) => w.status !== "rejected").length,
+  }));
+}
+
+export async function getAdminWineryById(
+  wineryId: number,
+): Promise<AdminWineryRow | null> {
+  const list = await getAdminWineries();
+  return list.find((w) => w.id === wineryId) ?? null;
 }

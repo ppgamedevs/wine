@@ -11,6 +11,7 @@ interface RetailerPurchaseLinkProps {
   variant?: "default" | "outline";
   showNote?: boolean;
   className?: string;
+  onTrackClick?: () => void;
 }
 
 export function RetailerPurchaseLink({
@@ -21,6 +22,7 @@ export function RetailerPurchaseLink({
   variant = "default",
   showNote = false,
   className,
+  onTrackClick,
 }: RetailerPurchaseLinkProps) {
   const retailer = detectRetailerLabel(url) ?? retailerName;
 
@@ -36,7 +38,12 @@ export function RetailerPurchaseLink({
           className,
         )}
       >
-        <a href={url} target="_blank" rel="noopener noreferrer sponsored">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          onClick={() => onTrackClick?.()}
+        >
           {label}
           <ExternalLink className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />
         </a>
@@ -55,7 +62,12 @@ export function RetailerPurchaseLink({
             "bg-wine text-wine-foreground hover:bg-wine/90",
         )}
       >
-        <a href={url} target="_blank" rel="noopener noreferrer sponsored">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          onClick={() => onTrackClick?.()}
+        >
           {label}
           <ExternalLink className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />
         </a>

@@ -6,7 +6,10 @@ import {
   getResendFromEmail,
 } from "@/lib/site-email";
 
-export type ContactFormKind = "winery_claim" | "winery_verification";
+export type ContactFormKind =
+  | "winery_claim"
+  | "winery_verification"
+  | "winery_premium";
 
 export interface ContactFormSubmission {
   kind: ContactFormKind;
@@ -33,20 +36,31 @@ function row(label: string, value: string): string {
 }
 
 function buildSubject(input: ContactFormSubmission): string {
+  if (input.kind === "winery_premium") {
+    return `Premium Profile: ${input.wineryName} | VinIntel.ro`;
+  }
   if (input.kind === "winery_claim") {
     return `Revendicare crama: ${input.wineryName} | VinIntel.ro`;
   }
   return `Verificare crama: ${input.wineryName} | VinIntel.ro`;
 }
 
+function kindLabel(kind: ContactFormSubmission["kind"]): string {
+  if (kind === "winery_premium") return "Premium Profile";
+  if (kind === "winery_claim") return "Revendicare";
+  return "Verificare";
+}
+
 function buildHtml(input: ContactFormSubmission): string {
   const title =
-    input.kind === "winery_claim"
-      ? "Cerere noua de revendicare crama"
-      : "Cerere noua de verificare crama";
+    input.kind === "winery_premium"
+      ? "Cerere noua Premium Profile"
+      : input.kind === "winery_claim"
+        ? "Cerere noua de revendicare crama"
+        : "Cerere noua de verificare crama";
 
   const rows = [
-    row("Tip", input.kind === "winery_claim" ? "Revendicare" : "Verificare"),
+    row("Tip", kindLabel(input.kind)),
     row("Crama", input.wineryName),
     ...(input.wineName ? [row("Vin", input.wineName)] : []),
     row("Nume contact", input.contactName),

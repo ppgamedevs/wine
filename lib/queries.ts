@@ -1,10 +1,11 @@
 import "server-only";
 import { and, asc, count, desc, eq, gte, like, ne, or } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { grapeVarieties, wineries, wines } from "@/lib/schema";
+import { grapeVarieties, wineryEvents, wineries, wines } from "@/lib/schema";
 import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import type {
+  WineryEvent,
   WineryListItem,
   WineryWithWines,
   WineWithRelations,
@@ -202,6 +203,24 @@ export async function getWineryBySlug(
   } catch (error) {
     console.error("getWineryBySlug failed", error);
     return null;
+  }
+}
+
+export async function getWineryPublishedEvents(
+  wineryId: number,
+): Promise<WineryEvent[]> {
+  try {
+    return await db.query.wineryEvents.findMany({
+      where: and(
+        eq(wineryEvents.wineryId, wineryId),
+        eq(wineryEvents.isPublished, true),
+      ),
+      orderBy: [asc(wineryEvents.startsAt)],
+      limit: 24,
+    });
+  } catch (error) {
+    console.error("getWineryPublishedEvents failed", error);
+    return [];
   }
 }
 

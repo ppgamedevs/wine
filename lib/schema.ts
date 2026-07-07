@@ -71,6 +71,35 @@ export const AFFILIATE_SOURCE_BADGE =
 
 export type WineSubmitType = "affiliate" | "community";
 
+/** Calendar event types for premium winery pages. */
+export type WineryEventType =
+  | "tasting"
+  | "tour"
+  | "harvest"
+  | "festival"
+  | "workshop"
+  | "other";
+
+/** Tracked analytics events for premium wineries. */
+export type WineryAnalyticsEventType =
+  | "page_view"
+  | "profile_click"
+  | "wine_click"
+  | "purchase_click"
+  | "event_click"
+  | "lead_submit"
+  | "visit_click"
+  | "banner_click";
+
+/** Optional JSON payload on analytics rows. */
+export interface WineryAnalyticsMetadata {
+  path?: string;
+  referrer?: string;
+  wineSlug?: string;
+  eventSlug?: string;
+  [key: string]: string | number | boolean | undefined;
+}
+
 /** Known values: "emag", "avincis", "manual", or retailer slug from source URL. */
 export type WineImageSource = string;
 
@@ -165,6 +194,26 @@ export const wineries = sqliteTable(
     })
       .notNull()
       .default("verified"),
+    isPremium: integer("is_premium", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    premiumSince: text("premium_since"),
+    premiumExpiresAt: text("premium_expires_at"),
+    premiumPlan: text("premium_plan", { enum: ["monthly", "annual"] }),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    stripeSubscriptionStatus: text("stripe_subscription_status"),
+    customBannerUrl: text("custom_banner_url"),
+    customStory: text("custom_story"),
+    analyticsEnabled: integer("analytics_enabled", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    leadCaptureEnabled: integer("lead_capture_enabled", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    featuredPlacement: integer("featured_placement", { mode: "boolean" })
+      .notNull()
+      .default(false),
     ...timestamps,
   },
   (table) => [
@@ -173,6 +222,95 @@ export const wineries = sqliteTable(
     index("wineries_verified_idx").on(table.verified),
     index("wineries_name_idx").on(table.name),
     index("wineries_status_idx").on(table.status),
+    index("wineries_is_premium_idx").on(table.isPremium),
+    index("wineries_stripe_subscription_idx").on(table.stripeSubscriptionId),
+    index("wineries_stripe_customer_idx").on(table.stripeCustomerId),
+    index("wineries_featured_placement_idx").on(table.featuredPlacement),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
+/*                         Premium winery events & analytics                   */
+/* -------------------------------------------------------------------------- */
+
+export const wineryEvents = sqliteTable(
+  "winery_events",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    wineryId: integer("winery_id")
+      .notNull()
+      .references(() => wineries.id, { onDelete: "cascade" }),
+    slug: text("slug").notNull(),
+    title: text("title").notNull(),
+    description: text("description"),
+    eventType: text("event_type", {
+      enum: ["tasting", "tour", "harvest", "festival", "workshop", "other"],
+    })
+      .notNull()
+      .default("other"),
+    startsAt: text("starts_at").notNull(),
+    endsAt: text("ends_at"),
+    location: text("location"),
+    registrationUrl: text("registration_url"),
+    isPublished: integer("is_published", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("winery_events_winery_slug_idx").on(table.wineryId, table.slug),
+    index("winery_events_winery_idx").on(table.wineryId),
+    index("winery_events_starts_at_idx").on(table.startsAt),
+    index("winery_events_published_idx").on(table.isPublished),
+  ],
+);
+
+export const wineryAnalytics = sqliteTable(
+  "winery_analytics",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    wineryId: integer("winery_id")
+      .notNull()
+      .references(() => wineries.id, { onDelete: "cascade" }),
+    eventType: text("event_type", {
+      enum: [
+        "page_view",
+        "profile_click",
+        "wine_click",
+        "purchase_click",
+        "event_click",
+        "lead_submit",
+        "visit_click",
+        "banner_click",
+      ],
+    }).notNull(),
+    wineId: integer("wine_id").references(() => wines.id, {
+      onDelete: "set null",
+    }),
+    wineryEventId: integer("winery_event_id").references(
+      () => wineryEvents.id,
+      { onDelete: "set null" },
+    ),
+    path: text("path"),
+    referrer: text("referrer"),
+    userAgent: text("user_agent"),
+    ipAddress: text("ip_address"),
+    metadata: text("metadata", { mode: "json" })
+      .$type<WineryAnalyticsMetadata>()
+      .default(sql`'null'`),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("winery_analytics_winery_idx").on(table.wineryId),
+    index("winery_analytics_event_type_idx").on(table.eventType),
+    index("winery_analytics_created_idx").on(table.createdAt),
+    index("winery_analytics_winery_created_idx").on(
+      table.wineryId,
+      table.createdAt,
+    ),
+    index("winery_analytics_wine_idx").on(table.wineId),
   ],
 );
 
@@ -492,6 +630,58 @@ export const wineVoteLogs = sqliteTable(
   ],
 );
 
+export type StripeSubscriptionStatus =
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "incomplete"
+  | "incomplete_expired"
+  | "paused";
+
+export type PremiumCheckoutPlan = "monthly" | "annual";
+
+export const wineryPremiumCheckouts = sqliteTable(
+  "winery_premium_checkouts",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    stripeSessionId: text("stripe_session_id").notNull(),
+    wineryId: integer("winery_id").references(() => wineries.id, {
+      onDelete: "set null",
+    }),
+    wineryName: text("winery_name").notNull(),
+    winerySlug: text("winery_slug"),
+    email: text("email").notNull(),
+    phone: text("phone"),
+    plan: text("plan", { enum: ["monthly", "annual"] }).notNull(),
+    status: text("status", { enum: ["pending", "completed"] })
+      .notNull()
+      .default("pending"),
+    completedAt: text("completed_at"),
+    expiresAt: text("expires_at"),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    welcomeEmailSentAt: text("welcome_email_sent_at"),
+    reminderEmailSentAt: text("reminder_email_sent_at"),
+    expiredEmailSentAt: text("expired_email_sent_at"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    uniqueIndex("winery_premium_checkouts_session_idx").on(
+      table.stripeSessionId,
+    ),
+    index("winery_premium_checkouts_winery_idx").on(table.wineryId),
+    index("winery_premium_checkouts_email_idx").on(table.email),
+    index("winery_premium_checkouts_expires_idx").on(table.expiresAt),
+    index("winery_premium_checkouts_subscription_idx").on(
+      table.stripeSubscriptionId,
+    ),
+  ],
+);
+
 /* -------------------------------------------------------------------------- */
 /*                                 Relations                                   */
 /* -------------------------------------------------------------------------- */
@@ -507,6 +697,8 @@ export const wineriesRelations = relations(wineries, ({ one, many }) => ({
     references: [regions.id],
   }),
   wines: many(wines),
+  events: many(wineryEvents),
+  analytics: many(wineryAnalytics),
 }));
 
 export const winesRelations = relations(wines, ({ one, many }) => ({
@@ -571,6 +763,16 @@ export const wineVoteLogsRelations = relations(wineVoteLogs, ({ one }) => ({
   }),
 }));
 
+export const wineryPremiumCheckoutsRelations = relations(
+  wineryPremiumCheckouts,
+  ({ one }) => ({
+    winery: one(wineries, {
+      fields: [wineryPremiumCheckouts.wineryId],
+      references: [wineries.id],
+    }),
+  }),
+);
+
 export const wineReportsRelations = relations(wineReports, ({ one }) => ({
   wine: one(wines, {
     fields: [wineReports.wineId],
@@ -587,3 +789,25 @@ export const wineSubmissionNotificationsRelations = relations(
     }),
   }),
 );
+
+export const wineryEventsRelations = relations(wineryEvents, ({ one }) => ({
+  winery: one(wineries, {
+    fields: [wineryEvents.wineryId],
+    references: [wineries.id],
+  }),
+}));
+
+export const wineryAnalyticsRelations = relations(wineryAnalytics, ({ one }) => ({
+  winery: one(wineries, {
+    fields: [wineryAnalytics.wineryId],
+    references: [wineries.id],
+  }),
+  wine: one(wines, {
+    fields: [wineryAnalytics.wineId],
+    references: [wines.id],
+  }),
+  wineryEvent: one(wineryEvents, {
+    fields: [wineryAnalytics.wineryEventId],
+    references: [wineryEvents.id],
+  }),
+}));

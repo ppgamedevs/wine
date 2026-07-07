@@ -238,6 +238,9 @@ export function WineAdminPanel({
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
+            <Link href="/admin/wineries">Crame Premium</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
             <Link href="/adauga-vin">Adauga vin (test)</Link>
           </Button>
           <Button

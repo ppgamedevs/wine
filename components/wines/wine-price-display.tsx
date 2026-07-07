@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RetailerPurchaseLink } from "@/components/wines/retailer-purchase-link";
 import { formatRon } from "@/lib/format";
+import { trackWineryEvent } from "@/lib/winery-analytics-client";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
@@ -13,6 +14,9 @@ interface WinePriceDisplayProps {
   variant?: "card" | "hero";
   showPurchaseButton?: boolean;
   className?: string;
+  trackAnalytics?: {
+    onPurchaseClick?: () => void;
+  };
 }
 
 export function WinePriceDisplay({
@@ -20,6 +24,7 @@ export function WinePriceDisplay({
   variant = "hero",
   showPurchaseButton = true,
   className,
+  trackAnalytics,
 }: WinePriceDisplayProps) {
   const pricing = buildWinePriceViewModel(wine);
   const isCard = variant === "card";
@@ -102,18 +107,39 @@ export function WinePriceDisplay({
           size={isCard ? "sm" : "default"}
           showNote={!isCard}
           className={isCard ? "mt-1" : "mt-2"}
+          onTrackClick={trackAnalytics?.onPurchaseClick}
         />
       ) : null}
     </div>
   );
 }
 
-export function WineCardPriceFooter({ wine }: { wine: WineWithRelations }) {
+export function WineCardPriceFooter({
+  wine,
+  trackAnalytics,
+}: {
+  wine: WineWithRelations;
+  trackAnalytics?: { wineryId: number; wineId: number };
+}) {
   const pricing = buildWinePriceViewModel(wine);
+
+  const onPurchaseClick = trackAnalytics
+    ? () => {
+        void trackWineryEvent(trackAnalytics.wineryId, "purchase_click", {
+          wineId: trackAnalytics.wineId,
+          metadata: { wineSlug: wine.slug },
+        });
+      }
+    : undefined;
 
   return (
     <div className="mt-auto space-y-3 pt-4">
-      <WinePriceDisplay wine={wine} variant="card" showPurchaseButton={false} />
+      <WinePriceDisplay
+        wine={wine}
+        variant="card"
+        showPurchaseButton={false}
+        trackAnalytics={{ onPurchaseClick }}
+      />
 
       <div className="flex items-center justify-between gap-2">
         {pricing.status !== "unavailable" && pricing.purchaseLink ? (
@@ -121,6 +147,7 @@ export function WineCardPriceFooter({ wine }: { wine: WineWithRelations }) {
             url={pricing.purchaseLink.url}
             retailerName={pricing.purchaseLink.retailer}
             size="sm"
+            onTrackClick={onPurchaseClick}
           />
         ) : pricing.status !== "unavailable" && pricing.verifyPriceUrl ? (
           <Button

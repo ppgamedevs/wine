@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  BarChart3,
   CheckCircle2,
   ChevronRight,
   ExternalLink,
@@ -9,11 +10,13 @@ import {
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PremiumBadge } from "@/components/wineries/premium-badge";
 import { WineryLogo } from "@/components/wineries/winery-logo";
 import {
   getWineryCatalogEnrichment,
-  splitWineryStory,
 } from "@/lib/winery-catalog";
+import { trackWineryEvent } from "@/lib/winery-analytics-client";
+import { isWineryPremium, resolveWineryStory } from "@/lib/winery-premium";
 import type { WineryWithWines } from "@/types";
 
 interface WineryHeroProps {
@@ -23,16 +26,19 @@ interface WineryHeroProps {
     avgValueScore: number | null;
     priceRange: { min: number; max: number } | null;
   };
+  trackAnalytics?: boolean;
 }
 
-export function WineryHero({ winery, stats }: WineryHeroProps) {
+export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHeroProps) {
   const enrichment = getWineryCatalogEnrichment(winery.slug);
+  const premium = isWineryPremium(winery);
   const tagline = enrichment?.tagline ?? winery.description;
-  const storyParagraphs = enrichment?.story
-    ? splitWineryStory(enrichment.story)
-    : winery.description
-      ? [winery.description]
-      : [];
+  const storyParagraphs = resolveWineryStory({
+    isPremium: winery.isPremium,
+    customStory: winery.customStory,
+    description: winery.description,
+    catalogStory: enrichment?.story ?? null,
+  });
 
   return (
     <section className="border-b border-border/60 bg-secondary/20">
@@ -62,6 +68,7 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
 
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2">
+              {premium ? <PremiumBadge /> : null}
               {winery.verified ? (
                 <Badge className="gap-1 bg-wine/10 text-wine hover:bg-wine/15">
                   <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
@@ -110,14 +117,14 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
               ) : null}
             </div>
 
-            {tagline ? (
+            {tagline && !premium ? (
               <p className="mt-5 max-w-2xl text-lg font-medium leading-relaxed text-foreground/90">
                 {tagline}
               </p>
             ) : null}
 
             {storyParagraphs.length > 0 ? (
-              <div className="mt-4 max-w-3xl space-y-4 border-l-2 border-wine/20 pl-5">
+              <div className="mt-5 max-w-3xl space-y-4 border-l-2 border-wine/20 pl-5">
                 {storyParagraphs.map((paragraph) => (
                   <p
                     key={paragraph.slice(0, 48)}
@@ -127,6 +134,10 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
                   </p>
                 ))}
               </div>
+            ) : tagline && premium ? (
+              <p className="mt-5 max-w-2xl text-lg font-medium leading-relaxed text-foreground/90">
+                {tagline}
+              </p>
             ) : null}
 
             {enrichment?.visitUrl ? (
@@ -141,10 +152,18 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
                       href={enrichment.visitUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => {
+                        if (trackAnalytics) {
+                          void trackWineryEvent(winery.id, "visit_click");
+                        }
+                      }}
                     >
                       <Ticket className="h-4 w-4" aria-hidden="true" />
                       Viziteaza crama
-                      <ExternalLink className="h-3.5 w-3.5 opacity-70" aria-hidden="true" />
+                      <ExternalLink
+                        className="h-3.5 w-3.5 opacity-70"
+                        aria-hidden="true"
+                      />
                     </a>
                   </Button>
                 ) : (
@@ -160,8 +179,8 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
                       Viziteaza crama
                     </Button>
                     <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
-                      Linkul catre pachetele de degustare se activeaza dupa ce crama
-                      isi revendica si verifica profilul.
+                      Linkul catre pachetele de degustare se activeaza dupa ce
+                      crama isi revendica si verifica profilul.
                     </p>
                   </>
                 )}
@@ -208,6 +227,22 @@ export function WineryHero({ winery, stats }: WineryHeroProps) {
                 </div>
               ) : null}
             </dl>
+
+            {premium ? (
+              <div className="mt-5">
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto px-0 text-wine hover:bg-transparent hover:text-wine/80"
+                >
+                  <Link href={`/wineries/${winery.slug}/dashboard`}>
+                    <BarChart3 className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                    Dashboard analytics Premium
+                  </Link>
+                </Button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

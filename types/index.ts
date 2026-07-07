@@ -32,6 +32,14 @@ export type NewRating = typeof ratings.$inferInsert;
 export type WineVote = typeof import("@/lib/schema").wineVotes.$inferSelect;
 export type WineVoteLog = typeof import("@/lib/schema").wineVoteLogs.$inferSelect;
 
+export type WineryEvent = typeof import("@/lib/schema").wineryEvents.$inferSelect;
+export type NewWineryEvent = typeof import("@/lib/schema").wineryEvents.$inferInsert;
+
+export type WineryAnalyticsRow =
+  typeof import("@/lib/schema").wineryAnalytics.$inferSelect;
+export type NewWineryAnalyticsRow =
+  typeof import("@/lib/schema").wineryAnalytics.$inferInsert;
+
 export type WineType = Wine["type"];
 export type WineSweetness = NonNullable<Wine["sweetness"]>;
 export type GrapeColor = GrapeVariety["color"];
@@ -64,6 +72,9 @@ export type {
   GrapeVarietyShare,
   PriceHistoryEntry,
   WineSubmissionStatus,
+  WineryAnalyticsEventType,
+  WineryAnalyticsMetadata,
+  WineryEventType,
 } from "@/lib/schema";
 
 export {

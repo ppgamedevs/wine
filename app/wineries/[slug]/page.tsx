@@ -6,10 +6,14 @@ import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WineCard } from "@/components/wine-card";
+import { WineryEventsCalendar } from "@/components/wineries/winery-events-calendar";
 import { WineryHero } from "@/components/wineries/winery-hero";
+import { WineryPageViewTracker } from "@/components/wineries/winery-page-view-tracker";
+import { WineryPremiumBanner } from "@/components/wineries/winery-premium-banner";
 import { Button } from "@/components/ui/button";
 import { formatRon } from "@/lib/format";
-import { getAllWinerySlugs, getWineryBySlug } from "@/lib/queries";
+import { getAllWinerySlugs, getWineryBySlug, getWineryPublishedEvents } from "@/lib/queries";
+import { isWineryPremium, canTrackWineryAnalytics } from "@/lib/winery-premium";
 import {
   absoluteUrl,
   buildBreadcrumbJsonLd,
@@ -128,6 +132,12 @@ export default async function WineryPage({ params }: WineryPageProps) {
 
   if (!winery) notFound();
 
+  const premium = isWineryPremium(winery);
+  const trackAnalytics = canTrackWineryAnalytics(winery);
+  const events = premium
+    ? await getWineryPublishedEvents(winery.id)
+    : [];
+
   const stats = computeStats(winery);
   const faq = buildWineryFaq(winery);
   const url = absoluteUrl(`/wineries/${winery.slug}`);
@@ -188,10 +198,16 @@ export default async function WineryPage({ params }: WineryPageProps) {
         id="winery"
       />
       <SiteHeader />
+      {trackAnalytics ? <WineryPageViewTracker wineryId={winery.id} /> : null}
       <main className="flex-1">
-        <WineryHero winery={winery} stats={stats} />
+        {premium ? <WineryPremiumBanner winery={winery} /> : null}
+        <WineryHero winery={winery} stats={stats} trackAnalytics={trackAnalytics} />
 
         <div className="mx-auto max-w-6xl space-y-16 px-6 py-14">
+          {premium && events.length > 0 ? (
+            <WineryEventsCalendar events={events} wineryName={winery.name} />
+          ) : null}
+
           <section aria-labelledby="wines-heading">
             <h2
               id="wines-heading"
@@ -214,7 +230,16 @@ export default async function WineryPage({ params }: WineryPageProps) {
             {winery.wines.length > 0 ? (
               <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {winery.wines.map((wine) => (
-                  <WineCard key={wine.id} wine={wine} minValueScore={null} />
+                  <WineCard
+                    key={wine.id}
+                    wine={wine}
+                    minValueScore={null}
+                    trackAnalytics={
+                      trackAnalytics
+                        ? { wineryId: winery.id, wineId: wine.id }
+                        : undefined
+                    }
+                  />
                 ))}
               </div>
             ) : (
