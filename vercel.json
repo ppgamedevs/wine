@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/premium-emails",
-      "schedule": "0 8 * * *"
-    }
-  ]
-}
