@@ -17,23 +17,21 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
     <section className="border-b border-border/60 bg-secondary/20">
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-12 lg:py-14">
         <div className="relative mx-auto w-full max-w-sm lg:mx-0 lg:max-w-none">
-          <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-[#f3ede4] shadow-[0_20px_50px_-24px_rgba(124,45,18,0.35)] ring-1 ring-wine/10">
-            <WineImage
-              slug={wine.slug}
-              name={wine.name}
-              type={wine.type}
-              imageUrl={wine.imageUrl}
-              imageSource={wine.imageSource}
-              imageAlt={wine.imageAlt}
-              vintage={displayVintage}
-              wineryName={wine.winery?.name}
-              priority
-              variant="hero"
-              sizes="(max-width: 1024px) 100vw, 45vw"
-              aspectClassName="relative aspect-[4/5] w-full sm:aspect-[3/4]"
-              imageClassName="drop-shadow-[0_20px_36px_rgba(0,0,0,0.18)]"
-            />
-          </div>
+          <WineImage
+            slug={wine.slug}
+            name={wine.name}
+            type={wine.type}
+            imageUrl={wine.imageUrl}
+            imageSource={wine.imageSource}
+            imageAlt={wine.imageAlt}
+            vintage={displayVintage}
+            wineryName={wine.winery?.name}
+            priority
+            variant="hero"
+            sizes="(max-width: 1024px) 100vw, 45vw"
+            aspectClassName="relative aspect-[4/5] w-full sm:aspect-[3/4]"
+            imageClassName="drop-shadow-[0_18px_32px_rgba(0,0,0,0.14)]"
+          />
         </div>
 
         <div className="flex flex-col justify-center">
