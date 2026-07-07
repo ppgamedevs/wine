@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CookieConsentRoot } from "@/components/cookie-consent/cookie-consent-root";
 import { JsonLd } from "@/components/json-ld";
@@ -97,6 +98,7 @@ export default function RootLayout({
         <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
         <CookieConsentRoot />
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
