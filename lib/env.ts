@@ -21,9 +21,27 @@ export function envOrUndefined(key: string): string | undefined {
 }
 
 export function getTursoConfig(): { url: string; authToken?: string } {
-  const url = envOrUndefined("TURSO_DATABASE_URL") ?? "file:local.db";
+  const url = envOrUndefined("TURSO_DATABASE_URL");
   const authToken = envOrUndefined("TURSO_AUTH_TOKEN");
-  return { url, authToken };
+
+  if (process.env.VERCEL === "1") {
+    if (!url || !isTursoUrl(url)) {
+      throw new Error(
+        "TURSO_DATABASE_URL lipseste sau e invalid pe Vercel. Seteaza variabila pentru Preview si Production.",
+      );
+    }
+    if (!authToken) {
+      throw new Error(
+        "TURSO_AUTH_TOKEN lipseste pe Vercel. Seteaza tokenul pentru Preview si Production.",
+      );
+    }
+    return { url, authToken };
+  }
+
+  return {
+    url: url ?? "file:local.db",
+    authToken,
+  };
 }
 
 export function isTursoUrl(url: string): boolean {
