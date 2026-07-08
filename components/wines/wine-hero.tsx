@@ -28,9 +28,8 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
             wineryName={wine.winery?.name}
             priority
             variant="hero"
-            sizes="(max-width: 1024px) 100vw, 45vw"
-            aspectClassName="relative aspect-[4/5] w-full sm:aspect-[3/4]"
-            imageClassName="drop-shadow-[0_18px_32px_rgba(0,0,0,0.14)]"
+            sizes="(max-width: 1024px) 100vw, 42vw"
+            aspectClassName="relative aspect-[3/4] w-full max-h-[min(78vh,640px)]"
           />
         </div>
 

@@ -62,16 +62,17 @@ export function WineImage({
 
   const showFallback = !src || failed;
   const isHero = variant === "hero";
-  const heroStudioClass = fromExternalSource
-    ? "border-border/35 bg-white shadow-[0_24px_60px_-32px_rgba(15,15,15,0.18)]"
-    : "border-border/50 bg-gradient-to-b from-[#faf6f0] via-[#f3ede4] to-[#ebe2d6] shadow-[0_20px_50px_-24px_rgba(124,45,18,0.35)] ring-1 ring-wine/10";
+  const heroExternal = isHero && fromExternalSource;
 
   return (
     <div
       className={cn(
         aspectClassName,
-        isHero && "overflow-hidden rounded-3xl border",
-        isHero && heroStudioClass,
+        isHero && "overflow-hidden rounded-3xl",
+        isHero &&
+          (heroExternal
+            ? "bg-white shadow-[0_28px_70px_-36px_rgba(15,15,15,0.22)]"
+            : "border border-border/50 bg-gradient-to-b from-[#faf6f0] via-[#f3ede4] to-[#ebe2d6] shadow-[0_20px_50px_-24px_rgba(124,45,18,0.35)] ring-1 ring-wine/10"),
         className,
       )}
     >
@@ -79,28 +80,40 @@ export function WineImage({
         <WineImageFallback type={type} />
       ) : isHero ? (
         <motion.div
-          className="relative flex h-full w-full items-end justify-center px-4 pb-5 pt-6 sm:px-6 sm:pb-6 sm:pt-8"
-          whileHover={{ scale: 1.01 }}
+          className="relative h-full w-full overflow-hidden"
+          whileHover={{ scale: 1.008 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-[18%] bottom-4 h-4 rounded-[100%] bg-black/[0.08] blur-md sm:bottom-5"
-          />
-          <Image
-            src={src}
-            alt={alt}
-            width={520}
-            height={700}
-            priority={priority}
-            sizes={sizes}
-            unoptimized={unoptimized}
-            onError={() => setFailed(true)}
             className={cn(
-              "relative z-[1] h-auto max-h-[min(72vh,560px)] w-auto max-w-[92%] object-contain object-bottom transition-transform duration-700 sm:max-w-[86%]",
-              imageClassName,
+              "pointer-events-none absolute inset-x-[14%] bottom-3 z-[2] h-5 rounded-[100%] blur-lg",
+              heroExternal ? "bg-black/[0.07]" : "bg-black/[0.08]",
             )}
           />
+          <div
+            className={cn(
+              "absolute inset-0",
+              heroExternal ? "bottom-0 top-[4%]" : "inset-x-5 bottom-5 top-7 sm:inset-x-7",
+            )}
+          >
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              priority={priority}
+              sizes={sizes}
+              unoptimized={unoptimized}
+              onError={() => setFailed(true)}
+              className={cn(
+                "object-contain object-bottom transition-transform duration-700",
+                heroExternal
+                  ? "origin-bottom scale-[1.42] sm:scale-[1.48]"
+                  : "origin-bottom",
+                !heroExternal && imageClassName,
+              )}
+            />
+          </div>
         </motion.div>
       ) : (
         <motion.div
