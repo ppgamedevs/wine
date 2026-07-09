@@ -94,7 +94,9 @@ export function WineImage({
           <div
             className={cn(
               "absolute inset-0",
-              heroExternal ? "bottom-0 top-[4%]" : "inset-x-5 bottom-5 top-7 sm:inset-x-7",
+              heroExternal
+                ? "bottom-2 left-1 right-1 top-4 sm:bottom-3 sm:left-2 sm:right-2 sm:top-5"
+                : "inset-x-5 bottom-5 top-7 sm:inset-x-7",
             )}
           >
             <Image
@@ -106,10 +108,10 @@ export function WineImage({
               unoptimized={unoptimized}
               onError={() => setFailed(true)}
               className={cn(
-                "object-contain object-bottom transition-transform duration-700",
+                "object-contain transition-transform duration-700",
                 heroExternal
-                  ? "origin-bottom scale-[1.42] sm:scale-[1.48]"
-                  : "origin-bottom",
+                  ? "origin-center scale-[1.1] object-center sm:scale-[1.14]"
+                  : "origin-bottom object-bottom",
                 !heroExternal && imageClassName,
               )}
             />
