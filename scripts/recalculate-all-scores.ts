@@ -1,5 +1,5 @@
 /**
- * Recalculeaza VinIntel Value Score pentru toate vinurile (logica medalii inclusa).
+ * Recalculeaza VinIntel Value Score 2.0 pentru toate vinurile (batch percentile).
  *
  *   npx tsx scripts/recalculate-all-scores.ts
  *   npx tsx scripts/recalculate-all-scores.ts --dry-run
@@ -9,9 +9,11 @@ import { eq } from "drizzle-orm";
 import { db } from "../lib/db";
 import { wines } from "../lib/schema";
 import {
-  calculateValueScore,
-  valueScoreInputFromWine,
-} from "../lib/scoring";
+  calculateBatchValueScoresV2,
+  type BatchValueScoreEntry,
+} from "../lib/scoring-v2";
+import { valueScoreInputFromWine } from "../lib/scoring";
+import { VALUE_SCORE_VERSION } from "../lib/scoring-v2/constants";
 
 interface ScoreChange {
   id: number;
@@ -35,17 +37,78 @@ async function main() {
       currentPrice: true,
       grapeVarieties: true,
       medals: true,
+      type: true,
+      cellarPotential: true,
+      acidity: true,
+      tasteProfile: true,
+      vintage: true,
+      ratingAvg: true,
+      communityScore: true,
+      criticScore: true,
+      estimatedQuality: true,
+      drinkabilityStart: true,
+      drinkabilityEnd: true,
     },
     with: {
       region: {
+        columns: { name: true },
+      },
+      winery: {
         columns: { name: true },
       },
     },
   });
 
   console.log(
-    `[recalculate-scores] ${rows.length} vinuri de procesat${dryRun ? " (dry-run)" : ""}`,
+    `[recalculate-scores] ${rows.length} vinuri, Value Score v${VALUE_SCORE_VERSION}${dryRun ? " (dry-run)" : ""}`,
   );
+
+  const batchEntries: BatchValueScoreEntry[] = rows.map((wine) => {
+    const input = valueScoreInputFromWine({
+      priceAvg: wine.priceAvg,
+      currentPrice: wine.currentPrice,
+      grapeVarieties: wine.grapeVarieties,
+      region: wine.region,
+      medals: wine.medals,
+      winery: wine.winery,
+      type: wine.type,
+      cellarPotential: wine.cellarPotential,
+      acidity: wine.acidity,
+      tasteProfile: wine.tasteProfile,
+      vintage: wine.vintage,
+      ratingAvg: wine.ratingAvg,
+      communityScore: wine.communityScore,
+      criticScore: wine.criticScore,
+      estimatedQuality: wine.estimatedQuality,
+      drinkabilityStart: wine.drinkabilityStart,
+      drinkabilityEnd: wine.drinkabilityEnd,
+    });
+
+    return {
+      id: wine.id,
+      input: {
+        price: input.price,
+        grapeVarieties: input.grapeVarieties,
+        region: input.region,
+        wineryName: input.wineryName,
+        wineType: input.wineType,
+        cellarPotential: input.cellarPotential,
+        acidity: input.acidity,
+        tasteProfile: input.tasteProfile,
+        wineMedals: input.wineMedals,
+        criticScore: input.criticScore,
+        vintage: input.vintage,
+        ratingAvg: input.ratingAvg,
+        communityScore: input.communityScore,
+        drinkabilityStart: input.drinkabilityStart,
+        drinkabilityEnd: input.drinkabilityEnd,
+        estimatedQuality: input.estimatedQuality ?? input.baseQuality,
+      },
+    };
+  });
+
+  const batchResults = calculateBatchValueScoresV2(batchEntries);
+  const resultById = new Map(batchResults.map((entry) => [entry.id, entry]));
 
   const changes: ScoreChange[] = [];
   let updated = 0;
@@ -53,19 +116,12 @@ async function main() {
   let newlyScored = 0;
 
   for (const wine of rows) {
-    const newScore = calculateValueScore(
-      valueScoreInputFromWine({
-        priceAvg: wine.priceAvg,
-        currentPrice: wine.currentPrice,
-        grapeVarieties: wine.grapeVarieties,
-        region: wine.region,
-        medals: wine.medals,
-      }),
-    );
+    const result = resultById.get(wine.id);
+    if (!result) continue;
 
+    const newScore = result.finalScore;
     const oldScore = wine.valueScore;
-    const delta =
-      oldScore != null ? newScore - oldScore : newScore;
+    const delta = oldScore != null ? newScore - oldScore : newScore;
 
     if (oldScore === newScore) {
       unchanged += 1;
@@ -88,17 +144,43 @@ async function main() {
     if (!dryRun) {
       await db
         .update(wines)
-        .set({ valueScore: newScore })
+        .set({
+          valueScore: newScore,
+          valueScoreVersion: VALUE_SCORE_VERSION,
+          estimatedQuality: result.core.qHat,
+          qualityEffective: result.core.qEffective,
+          qualityFinal: result.core.qFinal,
+          qualitySurplus: result.core.qualitySurplus,
+          rawSigmoidScore: result.core.rawSigmoidScore,
+          drinkabilityStart: result.core.drinkabilityStart,
+          drinkabilityEnd: result.core.drinkabilityEnd,
+        })
         .where(eq(wines.id, wine.id));
     }
 
     updated += 1;
   }
 
+  const scores = batchResults.map((entry) => entry.finalScore);
+  const avg =
+    scores.length > 0
+      ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
+      : 0;
+  const min = scores.length > 0 ? Math.min(...scores) : 0;
+  const max = scores.length > 0 ? Math.max(...scores) : 0;
+  const recommended = scores.filter((score) => score >= 75).length;
+  const exceptional = scores.filter((score) => score >= 90).length;
+
   const increased = changes.filter((c) => c.oldScore != null && c.delta > 0);
   const decreased = changes.filter((c) => c.oldScore != null && c.delta < 0);
 
   changes.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+
+  console.log("\n[recalculate-scores] Distributie v2");
+  console.log(`  Medie:            ${avg}`);
+  console.log(`  Min / Max:          ${min} / ${max}`);
+  console.log(`  Recomandate (75+):  ${recommended}`);
+  console.log(`  Exceptionale (90+): ${exceptional}`);
 
   console.log("\n[recalculate-scores] Raport final");
   console.log(`  Total vinuri:     ${rows.length}`);
@@ -107,16 +189,6 @@ async function main() {
   console.log(`  Fara scor anterior: ${newlyScored}`);
   console.log(`  Scor crescut:     ${increased.length}`);
   console.log(`  Scor scazut:      ${decreased.length}`);
-
-  if (increased.length > 0) {
-    const totalGain = increased.reduce((sum, c) => sum + c.delta, 0);
-    console.log(`  Delta total (+):  +${totalGain}`);
-  }
-
-  if (decreased.length > 0) {
-    const totalLoss = decreased.reduce((sum, c) => sum + c.delta, 0);
-    console.log(`  Delta total (-):  ${totalLoss}`);
-  }
 
   const topChanges = changes.slice(0, 15);
   if (topChanges.length > 0) {

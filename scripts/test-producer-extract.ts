@@ -18,6 +18,11 @@ const FIXTURES = [
     url: "https://cramelerecas.ro/la-stejari-chardonnay/",
     expectedMedals: 6,
   },
+  {
+    label: "Recas Castel Huniade Feteasca Regala",
+    url: "https://cramelerecas.ro/castel-huniade-feteasca-regala/",
+    expectedMedals: 17,
+  },
 ] as const;
 
 async function main() {

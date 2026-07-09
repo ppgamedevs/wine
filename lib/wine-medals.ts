@@ -13,7 +13,9 @@ const HIGH_IMPORTANCE_PATTERNS = [
   /\bsan francisco international wine\b/i,
   /\bcitadelles du vin\b/i,
   /\basia wine trophy\b/i,
-  /\bawc vienna\b/i,
+  /\bfrankfurt international wine trophy\b/i,
+  /\bconcours mondial de bruxelles\b/i,
+  /\bvinvest\b/i,
 ] as const;
 
 const MEDAL_LABEL: Record<WineMedal["medal"], string> = {

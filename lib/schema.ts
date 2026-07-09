@@ -373,6 +373,15 @@ export const wines = sqliteTable(
       .default(sql`'[]'`),
 
     valueScore: integer("value_score"),
+    valueScoreVersion: integer("value_score_version").default(2),
+    estimatedQuality: real("estimated_quality"),
+    qualityEffective: real("quality_effective"),
+    qualityFinal: real("quality_final"),
+    qualitySurplus: real("quality_surplus"),
+    rawSigmoidScore: real("raw_sigmoid_score"),
+    criticScore: real("critic_score"),
+    drinkabilityStart: integer("drinkability_start"),
+    drinkabilityEnd: integer("drinkability_end"),
     giftScore: integer("gift_score"),
     foodMatchScore: integer("food_match_score"),
     beginnerFriendly: integer("beginner_friendly", { mode: "boolean" })

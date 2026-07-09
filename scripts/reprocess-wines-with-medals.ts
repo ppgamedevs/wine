@@ -27,6 +27,10 @@ import {
   calculateValueScore,
   valueScoreInputFromWine,
 } from "../lib/scoring";
+import {
+  buildValueScoreV2Core,
+} from "../lib/scoring-v2";
+import { VALUE_SCORE_VERSION } from "../lib/scoring-v2/constants";
 import type { ProducerPageContent, WineMedal } from "../lib/schema";
 
 const DEFAULT_CONCURRENCY = 6;
@@ -41,6 +45,15 @@ interface WineRow {
   currentPrice: number | null;
   grapeVarieties: { name: string }[];
   medals: WineMedal[];
+  type: string;
+  cellarPotential: number | null;
+  acidity: number | null;
+  ratingAvg: number | null;
+  communityScore: number | null;
+  criticScore: number | null;
+  estimatedQuality: number | null;
+  drinkabilityStart: number | null;
+  drinkabilityEnd: number | null;
   producerContent: ProducerPageContent | null;
   descriptionEditorial: string | null;
   tastingNotes: string | null;
@@ -198,15 +211,44 @@ async function processWine(
       extractedMedals = await extractWineMedalsFromText(extractionInput);
     }
 
-    const newScore = calculateValueScore(
-      valueScoreInputFromWine({
-        priceAvg: wine.priceAvg,
-        currentPrice: wine.currentPrice,
-        grapeVarieties: wine.grapeVarieties,
-        region: wine.region,
-        medals: extractedMedals,
-      }),
-    );
+    const scoreInput = valueScoreInputFromWine({
+      priceAvg: wine.priceAvg,
+      currentPrice: wine.currentPrice,
+      grapeVarieties: wine.grapeVarieties,
+      region: wine.region,
+      medals: extractedMedals,
+      winery: wine.winery,
+      type: wine.type,
+      cellarPotential: wine.cellarPotential,
+      acidity: wine.acidity,
+      tasteProfile: wine.tasteProfile,
+      vintage: wine.vintage,
+      ratingAvg: wine.ratingAvg,
+      communityScore: wine.communityScore,
+      criticScore: wine.criticScore,
+      estimatedQuality: wine.estimatedQuality,
+      drinkabilityStart: wine.drinkabilityStart,
+      drinkabilityEnd: wine.drinkabilityEnd,
+    });
+    const core = buildValueScoreV2Core({
+      price: scoreInput.price,
+      grapeVarieties: scoreInput.grapeVarieties,
+      region: scoreInput.region,
+      wineryName: scoreInput.wineryName,
+      wineType: scoreInput.wineType,
+      cellarPotential: scoreInput.cellarPotential,
+      acidity: scoreInput.acidity,
+      tasteProfile: scoreInput.tasteProfile,
+      wineMedals: scoreInput.wineMedals,
+      criticScore: scoreInput.criticScore,
+      vintage: scoreInput.vintage,
+      ratingAvg: scoreInput.ratingAvg,
+      communityScore: scoreInput.communityScore,
+      drinkabilityStart: scoreInput.drinkabilityStart,
+      drinkabilityEnd: scoreInput.drinkabilityEnd,
+      estimatedQuality: scoreInput.estimatedQuality ?? scoreInput.baseQuality,
+    });
+    const newScore = calculateValueScore(scoreInput);
 
     const medalsUpdated = medalsChanged(wine.medals, extractedMedals);
     const scoreUpdated = oldScore !== newScore;
@@ -226,6 +268,14 @@ async function processWine(
         .set({
           medals: extractedMedals,
           valueScore: newScore,
+          valueScoreVersion: VALUE_SCORE_VERSION,
+          estimatedQuality: core.qHat,
+          qualityEffective: core.qEffective,
+          qualityFinal: core.qFinal,
+          qualitySurplus: core.qualitySurplus,
+          rawSigmoidScore: core.rawSigmoidScore,
+          drinkabilityStart: core.drinkabilityStart,
+          drinkabilityEnd: core.drinkabilityEnd,
           producerContent,
           ...(resolvedProducerPageUrl
             ? { producerPageUrl: resolvedProducerPageUrl }
@@ -277,6 +327,15 @@ async function main() {
       currentPrice: true,
       grapeVarieties: true,
       medals: true,
+      type: true,
+      cellarPotential: true,
+      acidity: true,
+      ratingAvg: true,
+      communityScore: true,
+      criticScore: true,
+      estimatedQuality: true,
+      drinkabilityStart: true,
+      drinkabilityEnd: true,
       producerContent: true,
       descriptionEditorial: true,
       tastingNotes: true,

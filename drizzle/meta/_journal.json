@@ -148,6 +148,13 @@
       "when": 1782644000000,
       "tag": "0021_wine_producer_content",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1782644200000,
+      "tag": "0022_value_score_v2",
+      "breakpoints": true
     }
   ]
 }

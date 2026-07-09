@@ -58,10 +58,225 @@ function parseMedalLevelFromText(raw: string): WineMedal["medal"] {
   if (lower.includes("double gold") || lower.includes("great gold") || lower.includes("grande medaille")) {
     return "double_gold";
   }
+  if (/\bcommended\b|\bcommende/i.test(lower)) {
+    return "other";
+  }
   if (/\b(gold|aur)\b/.test(lower)) return "gold";
   if (/\b(silver|argint)\b/.test(lower)) return "silver";
   if (/\b(bronze|bronz)\b/.test(lower)) return "bronze";
   return "other";
+}
+
+function normalizeRecasMedalToken(raw: string): string {
+  let token = raw.trim();
+  if (!token) return "";
+
+  if (/^https?:\/\//i.test(token) || /\/wp-content\//i.test(token)) {
+    const fileName = token.split("/").pop()?.replace(/\.[^.]+$/, "") ?? token;
+    token = fileName.replace(/-/g, " ");
+  }
+
+  return token
+    .replace(/\s*-\s*copie\s*\d*/gi, "")
+    .replace(/\.+$/g, "")
+    .replace(/_/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractYearFromRecasToken(token: string): number | null {
+  const typoYear = token.match(/\b(20\d{2}|19\d{2})\d{1,2}\b/);
+  if (typoYear?.[1]) {
+    const parsed = Number.parseInt(typoYear[1], 10);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+
+  const matches = [...token.matchAll(/\b(20\d{2}|19\d{2})\b/g)];
+  if (matches.length === 0) return null;
+  const last = matches[matches.length - 1]?.[1];
+  if (!last) return null;
+  const year = Number.parseInt(last, 10);
+  return Number.isFinite(year) ? year : null;
+}
+
+function isLikelyRecasMedalToken(normalized: string): boolean {
+  return /vinarium|iwcb|mundus|berliner|iwsc|iwc|vinalies|wine lover|decanter|frankfurt|bruxelles|brussels|vinvest|asia wine|balkans|trophy|medal|concours|contest|awards|commended|commende|\b(20\d{2}|19\d{2})\b|\b(aur|gold|silver|argint|bronze)\b/i.test(
+    normalized,
+  );
+}
+
+const RECAS_COMPETITION_RULES: Array<{
+  pattern: RegExp;
+  competition: string;
+  defaultMedal: WineMedal["medal"];
+  importance: WineMedal["importance"];
+  country?: string;
+}> = [
+  {
+    pattern: /decanter/i,
+    competition: "Decanter Wine Awards",
+    defaultMedal: "gold",
+    importance: "high",
+    country: "UK",
+  },
+  {
+    pattern: /vinarium|iwcb/i,
+    competition: "VINARIUM International Wine Contest",
+    defaultMedal: "gold",
+    importance: "high",
+    country: "Romania",
+  },
+  {
+    pattern: /mundus/i,
+    competition: "Mundus Vini",
+    defaultMedal: "gold",
+    importance: "high",
+    country: "Germany",
+  },
+  {
+    pattern: /vinalies/i,
+    competition: "Vinalies Internationales",
+    defaultMedal: "gold",
+    importance: "high",
+    country: "France",
+  },
+  {
+    pattern: /berliner/i,
+    competition: "Berliner Wein Trophy",
+    defaultMedal: "gold",
+    importance: "high",
+    country: "Germany",
+  },
+  {
+    pattern: /iwsc|iwc/i,
+    competition: "International Wine Challenge",
+    defaultMedal: "gold",
+    importance: "high",
+    country: "UK",
+  },
+  {
+    pattern: /frankfurt/i,
+    competition: "Frankfurt International Wine Trophy",
+    defaultMedal: "gold",
+    importance: "high",
+    country: "Germany",
+  },
+  {
+    pattern: /bruxelles|brussels/i,
+    competition: "Concours Mondial de Bruxelles",
+    defaultMedal: "silver",
+    importance: "high",
+    country: "Belgium",
+  },
+  {
+    pattern: /vinvest/i,
+    competition: "Vinvest Romania",
+    defaultMedal: "gold",
+    importance: "medium",
+    country: "Romania",
+  },
+  {
+    pattern: /asia wine trophy/i,
+    competition: "Asia Wine Trophy",
+    defaultMedal: "gold",
+    importance: "high",
+  },
+  {
+    pattern: /wine lover/i,
+    competition: "Wine Lovers Meeting",
+    defaultMedal: "gold",
+    importance: "medium",
+    country: "Romania",
+  },
+  {
+    pattern: /balkans/i,
+    competition: "Balkans International Wine Competition",
+    defaultMedal: "gold",
+    importance: "high",
+  },
+];
+
+function extractRecasMedalCarouselHtml(html: string): string {
+  const medalSwiper = html.match(
+    /id=["']medalSwiper["'][\s\S]*?elementor-swiper-button-prev/i,
+  );
+  if (medalSwiper?.[0]) return medalSwiper[0];
+
+  const medalHeading = html.match(
+    /Medalii[\s\S]*?swiper-wrapper[\s\S]*?elementor-swiper-button-prev/i,
+  );
+  return medalHeading?.[0] ?? html;
+}
+
+function collectRecasMedalTokens(carouselHtml: string): string[] {
+  const tokens: string[] = [];
+  const seen = new Set<string>();
+
+  const add = (value: string | undefined) => {
+    const trimmed = value?.trim();
+    if (!trimmed || seen.has(trimmed)) return;
+    seen.add(trimmed);
+    tokens.push(trimmed);
+  };
+
+  for (const match of carouselHtml.matchAll(
+    /data-elementor-lightbox-title=["']([^"']+)["']/gi,
+  )) {
+    add(match[1]);
+  }
+
+  for (const match of carouselHtml.matchAll(
+    /class=["'][^"']*swiper-slide-image[^"']*["'][^>]*alt=["']([^"']+)["']/gi,
+  )) {
+    add(match[1]);
+  }
+
+  for (const match of carouselHtml.matchAll(
+    /alt=["']([^"']+)["'][^>]*class=["'][^"']*swiper-slide-image/gi,
+  )) {
+    add(match[1]);
+  }
+
+  return tokens;
+}
+
+function parseRecasMedalToken(raw: string): WineMedal | null {
+  const normalized = normalizeRecasMedalToken(raw);
+  if (!normalized || !isLikelyRecasMedalToken(normalized)) {
+    return null;
+  }
+
+  const year = extractYearFromRecasToken(normalized);
+  let medalLevel = parseMedalLevelFromText(normalized);
+  const isCommended = /\bcommended\b|\bcommende/i.test(normalized);
+
+  for (const rule of RECAS_COMPETITION_RULES) {
+    if (!rule.pattern.test(normalized)) continue;
+
+    if (medalLevel === "other" && !isCommended) {
+      medalLevel = rule.defaultMedal;
+    }
+
+    return {
+      year,
+      competition: rule.competition,
+      medal: medalLevel,
+      importance: rule.importance,
+      ...(rule.country ? { country: rule.country } : {}),
+    };
+  }
+
+  if (/trophy|medal|concours|contest|awards/i.test(normalized)) {
+    const competition = normalized.replace(/^\d+\s+/, "").trim();
+    return {
+      year,
+      competition: competition || normalized,
+      medal: medalLevel === "other" ? "gold" : medalLevel,
+      importance: medalImportance(competition),
+    };
+  }
+
+  return null;
 }
 
 /** Medalii Avincis: text liniar „Silver Medal Decanter Wine Awards 2026, UK …”. */
@@ -97,116 +312,10 @@ export function parseAvincisMedalsFromPlain(plain: string): WineMedal[] {
   return medals;
 }
 
-function parseRecasMedalToken(token: string): WineMedal | null {
-  const alt = token.trim();
-  if (
-    !/vinarium|mundus|berliner|iwc|vinalies|wine.?lover|concours|trophy|decanter|balkans|medal|_20\d{2}|aur\b|gold|silver|bronze/i.test(
-      alt,
-    )
-  ) {
-    return null;
-  }
-
-  const yearMatch =
-    alt.match(/(?:^|[_\-\s])(20\d{2}|19\d{2})(?:[^\d]|$)/) ??
-    alt.match(/(20\d{2})\d{1,2}(?:\D|$)/) ??
-    alt.match(/\b(20\d{2}|19\d{2})\b/);
-  const year = yearMatch?.[1] ? Number.parseInt(yearMatch[1], 10) : null;
-
-  const rules: Array<{
-    pattern: RegExp;
-    competition: string;
-    medal: WineMedal["medal"];
-    importance: WineMedal["importance"];
-    country?: string;
-  }> = [
-    {
-      pattern: /vinarium|iwcb/i,
-      competition: "VINARIUM International Wine Contest",
-      medal: "gold",
-      importance: "high",
-      country: "Romania",
-    },
-    {
-      pattern: /mundus/i,
-      competition: "Mundus Vini",
-      medal: "gold",
-      importance: "high",
-      country: "Germany",
-    },
-    {
-      pattern: /vinalies/i,
-      competition: "Vinalies Internationales",
-      medal: "gold",
-      importance: "high",
-      country: "France",
-    },
-    {
-      pattern: /berliner/i,
-      competition: "Berliner Wein Trophy",
-      medal: "gold",
-      importance: "high",
-      country: "Germany",
-    },
-    {
-      pattern: /iwc/i,
-      competition: "International Wine Challenge",
-      medal: "gold",
-      importance: "high",
-      country: "UK",
-    },
-    {
-      pattern: /wine.?lover/i,
-      competition: "Wine Lovers Meeting",
-      medal: "gold",
-      importance: "medium",
-      country: "Romania",
-    },
-  ];
-
-  for (const rule of rules) {
-    if (rule.pattern.test(alt)) {
-      return {
-        year,
-        competition: rule.competition,
-        medal: parseMedalLevelFromText(alt) === "other" ? rule.medal : parseMedalLevelFromText(alt),
-        importance: rule.importance,
-        ...(rule.country ? { country: rule.country } : {}),
-      };
-    }
-  }
-
-  if (/gold|aur|silver|argint|bronze|bronz|medal/i.test(alt)) {
-    const competition = alt
-      .replace(/^\d+_/, "")
-      .replace(/[_-]+/g, " ")
-      .trim();
-    return {
-      year,
-      competition: competition || alt,
-      medal: parseMedalLevelFromText(alt),
-      importance: medalImportance(competition),
-    };
-  }
-
-  return null;
-}
-
-/** Medalii Recas: carusel cu alt/src pe imagini (toate slide-urile sunt in HTML). */
+/** Medalii Recas: carusel cu lightbox title / alt (toate slide-urile sunt in HTML). */
 export function parseRecasMedalsFromHtml(html: string): WineMedal[] {
-  const tokens = new Set<string>();
-
-  for (const match of html.matchAll(/(?:alt|src)=["']([^"']+)["']/gi)) {
-    const value = match[1]?.trim();
-    if (value) tokens.add(value);
-  }
-
-  for (const match of html.matchAll(
-    /data-elementor-lightbox-title=["']([^"']+)["']/gi,
-  )) {
-    const value = match[1]?.trim();
-    if (value) tokens.add(value);
-  }
+  const carouselHtml = extractRecasMedalCarouselHtml(html);
+  const tokens = collectRecasMedalTokens(carouselHtml);
 
   const medals: WineMedal[] = [];
   for (const token of tokens) {
