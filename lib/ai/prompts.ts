@@ -343,18 +343,26 @@ export function buildWineMedalsFromCatalogTextPrompt(wine: {
   tastingNotes: string | null;
   tasteProfile: string | null;
   thingsYouShouldKnow: string[];
+  sourceUrl?: string | null;
+  sourcePageText?: string | null;
 }): string {
   const insights =
     wine.thingsYouShouldKnow.length > 0
       ? wine.thingsYouShouldKnow.map((item) => `- ${item}`).join("\n")
       : "N/A";
 
-  return `Extrage medalii pentru vinul de mai jos din textul disponibil (descriere, note degustare, profil).
+  const sourceSection = wine.sourcePageText?.trim()
+    ? `Sursa produs (${wine.sourceUrl ?? "URL necunoscut"}):\n${wine.sourcePageText.trim()}`
+    : null;
+
+  return `Extrage medalii pentru vinul de mai jos din textul disponibil.
+Prioritizeaza sectiunea "Sursa produs" daca exista (pagina retailer/producator).
+Nu inventa premii care nu apar explicit in text.
 
 Nume: ${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}
 Crama: ${wine.wineryName ?? "N/A"}
 
-Descriere editoriala:
+${sourceSection ? `${sourceSection}\n\n` : ""}Descriere editoriala VinIntel:
 ${wine.descriptionEditorial?.trim() || "N/A"}
 
 Note degustare:
@@ -366,7 +374,7 @@ ${wine.tasteProfile?.trim() || "N/A"}
 Insight-uri:
 ${insights}
 
-Returneaza doar JSON cu campul medals. Nu inventa premii care nu apar in text.`;
+Returneaza doar JSON cu campul medals.`;
 }
 
 export const ANALYZE_WINE_LINK_SYSTEM_PROMPT = `Esti un expert somelier roman specializat in vinuri autohtone. Analizezi pagini de vinuri de pe site-uri romanesti.

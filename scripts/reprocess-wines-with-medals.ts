@@ -4,6 +4,7 @@
  *   npx tsx scripts/reprocess-wines-with-medals.ts
  *   npx tsx scripts/reprocess-wines-with-medals.ts --dry-run
  *   npx tsx scripts/reprocess-wines-with-medals.ts --concurrency=6 --limit=10
+ *   npx tsx scripts/reprocess-wines-with-medals.ts --no-fetch   # doar text catalog
  */
 import { asc } from "drizzle-orm";
 import "../lib/load-env";
@@ -13,6 +14,7 @@ import {
   extractWineMedalsFromText,
   hasMedalExtractionSourceText,
 } from "../lib/extract-wine-medals-from-text";
+import { fetchMedalSourcePageText } from "../lib/fetch-wine-medal-source-text";
 import { wines } from "../lib/schema";
 import {
   calculateValueScore,
@@ -36,6 +38,8 @@ interface WineRow {
   tastingNotes: string | null;
   tasteProfile: string | null;
   thingsYouShouldKnow: string[];
+  sourceUrl: string | null;
+  producerPageUrl: string | null;
   winery: { name: string } | null;
   region: { name: string } | null;
 }
@@ -48,6 +52,7 @@ interface ProcessResult {
   newMedalsCount: number;
   oldScore: number | null;
   newScore: number | null;
+  sourceFetched: boolean;
   error?: string;
 }
 
@@ -104,11 +109,38 @@ async function mapWithConcurrency<T, R>(
 async function processWine(
   wine: WineRow,
   dryRun: boolean,
+  fetchSources: boolean,
 ): Promise<ProcessResult> {
   const oldMedalsCount = wine.medals.length;
   const oldScore = wine.valueScore;
 
-  if (!hasMedalExtractionSourceText(wine)) {
+  let sourcePageText: string | null = null;
+  let sourceFetched = false;
+
+  if (fetchSources) {
+    const { combinedText, fetchedUrls } = await fetchMedalSourcePageText([
+      wine.sourceUrl,
+      wine.producerPageUrl,
+    ]);
+    if (combinedText.trim()) {
+      sourcePageText = combinedText;
+      sourceFetched = fetchedUrls.length > 0;
+    }
+  }
+
+  const extractionInput = {
+    name: wine.name,
+    vintage: wine.vintage,
+    wineryName: wine.winery?.name ?? null,
+    descriptionEditorial: wine.descriptionEditorial,
+    tastingNotes: wine.tastingNotes,
+    tasteProfile: wine.tasteProfile,
+    thingsYouShouldKnow: wine.thingsYouShouldKnow,
+    sourceUrl: wine.sourceUrl,
+    sourcePageText,
+  };
+
+  if (!hasMedalExtractionSourceText(extractionInput)) {
     return {
       wineId: wine.id,
       slug: wine.slug,
@@ -117,19 +149,12 @@ async function processWine(
       newMedalsCount: oldMedalsCount,
       oldScore,
       newScore: oldScore,
+      sourceFetched,
     };
   }
 
   try {
-    const extractedMedals = await extractWineMedalsFromText({
-      name: wine.name,
-      vintage: wine.vintage,
-      wineryName: wine.winery?.name ?? null,
-      descriptionEditorial: wine.descriptionEditorial,
-      tastingNotes: wine.tastingNotes,
-      tasteProfile: wine.tasteProfile,
-      thingsYouShouldKnow: wine.thingsYouShouldKnow,
-    });
+    const extractedMedals = await extractWineMedalsFromText(extractionInput);
 
     const newScore = calculateValueScore(
       valueScoreInputFromWine({
@@ -163,6 +188,7 @@ async function processWine(
       newMedalsCount: extractedMedals.length,
       oldScore,
       newScore,
+      sourceFetched,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -174,6 +200,7 @@ async function processWine(
       newMedalsCount: oldMedalsCount,
       oldScore,
       newScore: oldScore,
+      sourceFetched,
       error: message,
     };
   }
@@ -181,6 +208,7 @@ async function processWine(
 
 async function main() {
   const dryRun = process.argv.includes("--dry-run");
+  const fetchSources = !process.argv.includes("--no-fetch");
   const concurrency = parseConcurrencyArg();
   const limit = parseLimitArg();
 
@@ -199,6 +227,8 @@ async function main() {
       tastingNotes: true,
       tasteProfile: true,
       thingsYouShouldKnow: true,
+      sourceUrl: true,
+      producerPageUrl: true,
     },
     with: {
       winery: { columns: { name: true } },
@@ -212,18 +242,18 @@ async function main() {
   }
 
   console.log(
-    `[reprocess-medals] ${rows.length} vinuri, concurrency=${concurrency}${dryRun ? ", dry-run" : ""}`,
+    `[reprocess-medals] ${rows.length} vinuri, concurrency=${concurrency}, fetchSources=${fetchSources}${dryRun ? ", dry-run" : ""}`,
   );
 
   const results = await mapWithConcurrency(
     rows as WineRow[],
     concurrency,
     async (wine, index) => {
-      const result = await processWine(wine, dryRun);
+      const result = await processWine(wine, dryRun, fetchSources);
       const prefix = `[reprocess-medals] [${index + 1}/${rows.length}] ${wine.slug}`;
       if (result.status === "updated") {
         console.log(
-          `${prefix} medals ${result.oldMedalsCount}->${result.newMedalsCount}, score ${result.oldScore ?? "n/a"}->${result.newScore}`,
+          `${prefix} medals ${result.oldMedalsCount}->${result.newMedalsCount}, score ${result.oldScore ?? "n/a"}->${result.newScore}${result.sourceFetched ? " [source]" : ""}`,
         );
       } else if (result.status === "failed") {
         console.error(`${prefix} failed: ${result.error}`);
@@ -241,17 +271,22 @@ async function main() {
     (result) => result.newMedalsCount > result.oldMedalsCount,
   );
 
+  const withSourceFetch = results.filter((result) => result.sourceFetched);
+  const withMedalsFound = results.filter((result) => result.newMedalsCount > 0);
+
   const oldScores = results.map((result) => result.oldScore);
   const newScores = results.map((result) => result.newScore ?? result.oldScore);
   const avgBefore = averageScore(oldScores);
   const avgAfter = averageScore(newScores);
 
   console.log("\n[reprocess-medals] Raport final");
-  console.log(`  Total procesate:       ${results.length}`);
-  console.log(`  Actualizate:           ${updated.length}${dryRun ? " (simulat)" : ""}`);
-  console.log(`  Neschimbate:           ${unchanged.length}`);
-  console.log(`  Sarite (fara text):    ${skipped.length}`);
-  console.log(`  Esuate:                ${failed.length}`);
+  console.log(`  Total procesate:        ${results.length}`);
+  console.log(`  Cu pagina sursa fetch:  ${withSourceFetch.length}`);
+  console.log(`  Cu medalii extrase:     ${withMedalsFound.length}`);
+  console.log(`  Actualizate:            ${updated.length}${dryRun ? " (simulat)" : ""}`);
+  console.log(`  Neschimbate:            ${unchanged.length}`);
+  console.log(`  Sarite (fara text):     ${skipped.length}`);
+  console.log(`  Esuate:                 ${failed.length}`);
   console.log(`  Medalii noi (mai mult): ${receivedNewMedals.length}`);
   console.log(
     `  Medie Value Score:     ${avgBefore ?? "n/a"} -> ${avgAfter ?? "n/a"}`,

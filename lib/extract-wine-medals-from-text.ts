@@ -16,6 +16,8 @@ export interface ExtractWineMedalsInput {
   tastingNotes?: string | null;
   tasteProfile?: string | null;
   thingsYouShouldKnow?: string[];
+  sourceUrl?: string | null;
+  sourcePageText?: string | null;
 }
 
 export function hasMedalExtractionSourceText(
@@ -23,7 +25,8 @@ export function hasMedalExtractionSourceText(
 ): boolean {
   const insights = wine.thingsYouShouldKnow ?? [];
   return Boolean(
-    wine.descriptionEditorial?.trim() ||
+    wine.sourcePageText?.trim() ||
+      wine.descriptionEditorial?.trim() ||
       wine.tastingNotes?.trim() ||
       wine.tasteProfile?.trim() ||
       insights.some((item) => item.trim()),
@@ -51,6 +54,8 @@ export async function extractWineMedalsFromText(
       tastingNotes: wine.tastingNotes ?? null,
       tasteProfile: wine.tasteProfile ?? null,
       thingsYouShouldKnow: insights,
+      sourceUrl: wine.sourceUrl ?? null,
+      sourcePageText: wine.sourcePageText ?? null,
     }),
     temperature: 0.2,
   });
