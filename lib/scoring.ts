@@ -221,38 +221,53 @@ interface MedalBonusBreakdown {
   items: ValueScoreBreakdownItem[];
 }
 
-const MAJOR_COMPETITION_KEYWORDS = [
+const HIGH_PRESTIGE_COMPETITION_KEYWORDS = [
   "decanter",
   "balkans international",
+  "balkan international",
   "vinarium",
+  "vinarum",
   "iwsc",
   "decanter world wine awards",
 ] as const;
 
-function isGoldMedalLevel(medal: WineMedal["medal"]): boolean {
-  return medal === "gold" || medal === "double_gold";
+const MEDAL_BONUS_CAP = 42;
+const RECENT_MEDAL_MIN_YEAR = 2024;
+const RECENT_MEDAL_MAX_BONUS = 6;
+const RECENT_MEDAL_POINTS_EACH = 3;
+
+function basePointsForMedalLevel(medal: WineMedal["medal"]): number {
+  switch (medal) {
+    case "gold":
+    case "double_gold":
+      return 7;
+    case "silver":
+      return 4;
+    case "bronze":
+      return 2;
+    default:
+      return 2;
+  }
 }
 
-function isMajorCompetition(competition: string): boolean {
+function isHighPrestigeCompetition(competition: string): boolean {
   const lower = competition.toLowerCase();
-  return MAJOR_COMPETITION_KEYWORDS.some((keyword) => lower.includes(keyword));
+  return HIGH_PRESTIGE_COMPETITION_KEYWORDS.some((keyword) =>
+    lower.includes(keyword),
+  );
 }
 
 function pointsForSingleMedal(medal: WineMedal): number {
-  let points = isGoldMedalLevel(medal.medal) ? 6 : 3;
+  let points = basePointsForMedalLevel(medal.medal);
 
-  if (isMajorCompetition(medal.competition)) {
+  if (isHighPrestigeCompetition(medal.competition)) {
     points += 4;
-  }
-
-  if (medal.importance === "high") {
-    points += 2;
   }
 
   return points;
 }
 
-/** Bonus medalii per intrare, consistenta pe ani, plafon 28. */
+/** Bonus medalii: tip, prestigiu, consistenta, recenta. Plafon 42. */
 export function calculateMedalBonus(
   wineMedals: WineMedal[] | null | undefined,
 ): MedalBonusBreakdown {
@@ -265,20 +280,21 @@ export function calculateMedalBonus(
 
   let bonus = 0;
   let perMedalPoints = 0;
-  let goldCount = 0;
+  let highPrestigeCount = 0;
 
   for (const medal of medals) {
     const points = pointsForSingleMedal(medal);
     perMedalPoints += points;
     bonus += points;
-    if (isGoldMedalLevel(medal.medal)) {
-      goldCount += 1;
+
+    if (isHighPrestigeCompetition(medal.competition)) {
+      highPrestigeCount += 1;
     }
   }
 
   items.push({
     label: "Medalii si concursuri",
-    detail: `${medals.length} medalii (${goldCount} gold +6, rest +3; bonus concurs major +4; importance high +2)`,
+    detail: `${medals.length} medalii (gold +7, silver +4, bronze +2; ${highPrestigeCount} la concursuri high prestige +4)`,
     points: perMedalPoints,
   });
 
@@ -306,13 +322,29 @@ export function calculateMedalBonus(
     });
   }
 
+  const recentMedals = medals.filter(
+    (medal) => medal.year != null && medal.year >= RECENT_MEDAL_MIN_YEAR,
+  );
+  if (recentMedals.length > 0) {
+    const recentBonus = Math.min(
+      recentMedals.length * RECENT_MEDAL_POINTS_EACH,
+      RECENT_MEDAL_MAX_BONUS,
+    );
+    bonus += recentBonus;
+    items.push({
+      label: "Medalii recente",
+      detail: `${recentMedals.length} medalii din ${RECENT_MEDAL_MIN_YEAR}+ (+${RECENT_MEDAL_POINTS_EACH}/medalie, max ${RECENT_MEDAL_MAX_BONUS})`,
+      points: recentBonus,
+    });
+  }
+
   const rawTotal = bonus;
-  const total = Math.min(bonus, 28);
+  const total = Math.min(bonus, MEDAL_BONUS_CAP);
 
   if (total < rawTotal) {
     items.push({
       label: "Plafon bonus medalii",
-      detail: `Total brut ${rawTotal}, plafonat la 28`,
+      detail: `Total brut ${rawTotal}, plafonat la ${MEDAL_BONUS_CAP}`,
       points: total - rawTotal,
     });
   }
