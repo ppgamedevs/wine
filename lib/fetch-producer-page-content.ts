@@ -11,6 +11,7 @@ import {
 
 export function resolveProducerPageUrlsForWine(input: {
   name: string;
+  slug?: string | null;
   sourceUrl?: string | null;
   producerPageUrl?: string | null;
 }): string[] {
@@ -31,8 +32,13 @@ export function resolveProducerPageUrlsForWine(input: {
     add(input.sourceUrl);
   }
 
-  add(inferRecasProducerPageUrl(input.name, `${input.sourceUrl ?? ""} ${input.name}`));
-  add(inferAvincisProducerPageUrl(input.name, `${input.sourceUrl ?? ""} ${input.name}`));
+  const slugHint = input.slug?.replace(/^cramelere-recas-|^avincis-/, "") ?? "";
+  const inferenceContext = [input.sourceUrl, input.name, input.slug, slugHint]
+    .filter(Boolean)
+    .join(" ");
+
+  add(inferRecasProducerPageUrl(input.name, inferenceContext));
+  add(inferAvincisProducerPageUrl(input.name, inferenceContext));
 
   return [...urls];
 }

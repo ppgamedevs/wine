@@ -5,6 +5,10 @@
  *   npx tsx scripts/reprocess-wines-with-medals.ts --dry-run
  *   npx tsx scripts/reprocess-wines-with-medals.ts --concurrency=6 --limit=10
  *   npx tsx scripts/reprocess-wines-with-medals.ts --no-fetch   # doar text catalog
+ *
+ * Necesita lib/producer-page-extract.ts (extragere heuristica Avincis/Recas).
+ * Daca vezi doar 3 vinuri actualizate, ruleaza din nou dupa ce testul trece:
+ *   npx tsx scripts/test-producer-extract.ts
  */
 import { asc } from "drizzle-orm";
 import "../lib/load-env";
@@ -144,6 +148,7 @@ async function processWine(
   if (fetchSources) {
     const producerUrls = resolveProducerPageUrlsForWine({
       name: wine.name,
+      slug: wine.slug,
       sourceUrl: wine.sourceUrl,
       producerPageUrl: wine.producerPageUrl,
     });
@@ -292,7 +297,7 @@ async function main() {
   }
 
   console.log(
-    `[reprocess-medals] ${rows.length} vinuri, concurrency=${concurrency}, fetchSources=${fetchSources}${dryRun ? ", dry-run" : ""}`,
+    `[reprocess-medals] ${rows.length} vinuri, concurrency=${concurrency}, fetchSources=${fetchSources}, producerHeuristic=true${dryRun ? ", dry-run" : ""}`,
   );
 
   const results = await mapWithConcurrency(
