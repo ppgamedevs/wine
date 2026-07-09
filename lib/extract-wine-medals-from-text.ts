@@ -18,6 +18,15 @@ export interface ExtractWineMedalsInput {
   thingsYouShouldKnow?: string[];
   sourceUrl?: string | null;
   sourcePageText?: string | null;
+  /** Medalii deja extrase heuristic din HTML producator (prioritare). */
+  heuristicMedals?: WineMedal[];
+}
+
+export function mergeExtractedMedals(
+  heuristic: WineMedal[] | undefined,
+  llm: WineMedal[],
+): WineMedal[] {
+  return normalizeWineMedals([...(heuristic ?? []), ...llm]);
 }
 
 export function hasMedalExtractionSourceText(
@@ -60,5 +69,5 @@ export async function extractWineMedalsFromText(
     temperature: 0.2,
   });
 
-  return normalizeWineMedals(object.medals);
+  return mergeExtractedMedals(wine.heuristicMedals, normalizeWineMedals(object.medals));
 }

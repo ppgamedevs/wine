@@ -5,6 +5,7 @@ import {
   isSweetnessDessertFriendly,
   ROMANIAN_DESSERT_KEYWORDS,
 } from "@/lib/dessert-pairings";
+import { formatProducerContentForSommelier } from "@/lib/producer-page-extract";
 import { formatWineMedalsForSommelier } from "@/lib/wine-medals";
 import type { WineWithRelations } from "@/types";
 
@@ -315,6 +316,7 @@ export function buildWineContextBlock(wine: WineWithRelations): string {
     .map((p) => `${p.dish}${p.note ? `: ${p.note}` : ""}`)
     .join("; ");
   const medalsSummary = formatWineMedalsForSommelier(wine.medals);
+  const producerSummary = formatProducerContentForSommelier(wine.producerContent);
 
   const expert = wine.expertNotes
     ? `
@@ -337,6 +339,7 @@ Tip: ${wine.type} | Dulceata: ${wine.sweetness ?? "N/A"} | ${wine.priceAvg ?? "?
 Soiuri: ${grapes}
 Scoruri: Value ${wine.valueScore ?? "N/A"}, Gift ${wine.giftScore ?? "N/A"}, Food ${wine.foodMatchScore ?? "N/A"}
 ${medalsSummary ? `Medalii: ${medalsSummary}` : "Medalii: niciuna in baza de date"}
+${producerSummary ? `Producator (site): ${producerSummary}` : ""}
 Note: ${wine.tastingNotes ?? "N/A"}
 Pairing-uri mancare: ${pairings || "N/A"}
 Pairing-uri desert: ${dessertPairings || "N/A"}

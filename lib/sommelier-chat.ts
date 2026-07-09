@@ -2,6 +2,7 @@ import { buildWinePriceViewModel } from "@/lib/wine-price";
 import { CHAT_SOMMELIER_BASE_PROMPT } from "@/lib/ai/prompts";
 import { resolveWineImage } from "@/lib/wine-images";
 import { formatWineMedalsForSommelier } from "@/lib/wine-medals";
+import { formatProducerContentForSommelier } from "@/lib/producer-page-extract";
 import type { ChatWineRecommendation } from "@/lib/sommelier-chat-types";
 import { hybridRetrieve } from "@/lib/sommelier-rag";
 import {
@@ -159,6 +160,9 @@ export function buildChatSommelierSystemPrompt(
         .map((p) => p.dish)
         .join(", ");
       const medalsSummary = formatWineMedalsForSommelier(wine.medals);
+      const producerSummary = formatProducerContentForSommelier(
+        wine.producerContent,
+      );
 
       return [
         `${index + 1}. slug: ${wine.slug}`,
@@ -169,6 +173,7 @@ export function buildChatSommelierSystemPrompt(
         `   Soiuri: ${grapes || "N/A"}`,
         `   Value ${wine.valueScore ?? "N/A"}/100 | Food Match ${wine.foodMatchScore ?? "N/A"}/100`,
         medalsSummary ? `   Medalii: ${medalsSummary}` : null,
+        producerSummary ? `   Producator (site): ${producerSummary}` : null,
         foodNotes ? `   Pairing mancare: ${foodNotes}` : null,
         dessertNotes ? `   Pairing desert: ${dessertNotes}` : null,
       ]

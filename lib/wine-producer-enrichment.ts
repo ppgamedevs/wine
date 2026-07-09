@@ -717,6 +717,18 @@ export function inferAvincisProducerPageUrl(
     return `https://www.avincis.ro/orange-${vintage}-magazin-online-v52-ro.htm`;
   }
 
+  if (
+    /spumant/.test(ctx) &&
+    (/metoda\s+traditional|traditionala|extra\s+brut|met\s+tradic/i.test(ctx) ||
+      /metoda-traditionala|spumant-metoda/i.test(ctx))
+  ) {
+    return "https://www.avincis.ro/vin-spumant-metoda-traditionala-vin-avincis-42-ro.htm";
+  }
+
+  if (/cuvee.*amelie|amelie.*cuvee|cuvee-amelie/i.test(ctx)) {
+    return "https://www.avincis.ro/cuvee-amelie-vin-alb-dulce-vin-avincis-41-ro.htm";
+  }
+
   return null;
 }
 
@@ -852,7 +864,11 @@ export function inferRecasProducerPageUrl(
   }
 
   if (/la-stejari.*merlot|merlot.*la-stejari/i.test(retailContext)) {
-    return "https://cramelerecas.ro/vinuri/la-stejari-merlot/";
+    return "https://cramelerecas.ro/la-stejari-merlot/";
+  }
+
+  if (/la-stejari.*chardonnay|chardonnay.*la-stejari/i.test(retailContext)) {
+    return "https://cramelerecas.ro/la-stejari-chardonnay/";
   }
 
   if (/cuvee.*uberland|uberland.*cuvee/i.test(retailContext)) {

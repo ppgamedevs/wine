@@ -7,6 +7,7 @@ import {
   type WineLinkAnalysis,
 } from "@/lib/ai/schemas";
 import { db } from "@/lib/db";
+import { fetchProducerEnrichmentForWine } from "@/lib/fetch-producer-page-content";
 import { fetchPageWithResolution } from "@/lib/fetch-page-html";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import {
@@ -21,6 +22,7 @@ import {
   wines,
   DEFAULT_WINE_SOURCE_BADGE,
   type GrapeVarietyShare,
+  type ProducerPageContent,
   type WineSubmitType,
 } from "@/lib/schema";
 import { mapCsvCategoryToWineType } from "@/lib/wine-csv-schema";
@@ -390,10 +392,62 @@ function mergeAnalysisPageText(
 
 function producerFieldsForDb(
   producer: Awaited<ReturnType<typeof enrichWineFromProducerSite>>,
+  extras?: {
+    producerContent?: ProducerPageContent | null;
+    producerPageUrl?: string | null;
+  },
+) {
+  const producerPageUrl = extras?.producerPageUrl ?? producer.producerPageUrl;
+  return {
+    ...(producerPageUrl ? { producerPageUrl } : {}),
+    ...(producer.tastingSheetUrl ? { tastingSheetUrl: producer.tastingSheetUrl } : {}),
+    ...(extras?.producerContent ? { producerContent: extras.producerContent } : {}),
+  };
+}
+
+async function resolveWineMedalsAndProducerContent(input: {
+  wineName: string;
+  sourceUrl: string;
+  preferredProducerUrl: string | null;
+  llmMedals: WineLinkAnalysis["medals"];
+}): Promise<{
+  medals: ReturnType<typeof normalizeWineMedals>;
+  producerContent: ProducerPageContent | null;
+  producerPageUrl: string | null;
+}> {
+  try {
+    const enrichment = await fetchProducerEnrichmentForWine({
+      name: input.wineName,
+      sourceUrl: input.sourceUrl,
+      producerPageUrl: input.preferredProducerUrl,
+    });
+    const llmMedals = normalizeWineMedals(input.llmMedals);
+    return {
+      medals: enrichment.medals.length > 0 ? enrichment.medals : llmMedals,
+      producerContent: enrichment.content,
+      producerPageUrl:
+        enrichment.producerPageUrl ?? input.preferredProducerUrl,
+    };
+  } catch {
+    return {
+      medals: normalizeWineMedals(input.llmMedals),
+      producerContent: null,
+      producerPageUrl: input.preferredProducerUrl,
+    };
+  }
+}
+
+function mergeProducerDbFields(
+  base: ReturnType<typeof producerFieldsForDb>,
+  extras: {
+    producerContent: ProducerPageContent | null;
+    producerPageUrl: string | null;
+  },
 ) {
   return {
-    ...(producer.producerPageUrl ? { producerPageUrl: producer.producerPageUrl } : {}),
-    ...(producer.tastingSheetUrl ? { tastingSheetUrl: producer.tastingSheetUrl } : {}),
+    ...base,
+    ...(extras.producerPageUrl ? { producerPageUrl: extras.producerPageUrl } : {}),
+    ...(extras.producerContent ? { producerContent: extras.producerContent } : {}),
   };
 }
 
@@ -523,7 +577,6 @@ export async function analyzeAndSaveWineFromUrl(
   };
   const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
   const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
-  const normalizedMedals = normalizeWineMedals(analysis.medals);
   const product = applySourceProducerFacts(
     mergeExtractedWithAnalysis(analysis, extracted),
     html,
@@ -533,6 +586,13 @@ export async function analyzeAndSaveWineFromUrl(
     finalUrl,
     product.name,
   );
+  const { medals: resolvedMedals, producerContent, producerPageUrl: enrichedProducerUrl } =
+    await resolveWineMedalsAndProducerContent({
+      wineName: product.name,
+      sourceUrl,
+      preferredProducerUrl,
+      llmMedals: analysis.medals,
+    });
   const analysisForScoring =
     product.price != null ? { ...analysis, price: product.price } : analysis;
 
@@ -576,7 +636,7 @@ export async function analyzeAndSaveWineFromUrl(
       pageText,
       analysisForScoring,
       wineryId,
-      preferredProducerUrl,
+      enrichedProducerUrl ?? preferredProducerUrl,
     );
   const display = buildWineDisplayFacts({
     productName: product.name,
@@ -650,9 +710,12 @@ export async function analyzeAndSaveWineFromUrl(
       imageUrl: display.imageUrl,
       imageSource: display.imageSource,
       imageAlt: display.imageAlt,
-      medals: normalizedMedals,
+      medals: resolvedMedals,
       ...display.techSpecsPatch,
-      ...producerFields,
+      ...mergeProducerDbFields(producerFields, {
+        producerContent,
+        producerPageUrl: enrichedProducerUrl,
+      }),
     })
     .returning({ id: wines.id, slug: wines.slug });
 
@@ -699,7 +762,6 @@ export async function analyzeWineSubmissionFromUrl(
 
   const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
   const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
-  const normalizedMedals = normalizeWineMedals(analysis.medals);
   const product = applySourceProducerFacts(
     mergeExtractedWithAnalysis(analysis, extracted),
     html,
@@ -709,6 +771,13 @@ export async function analyzeWineSubmissionFromUrl(
     finalUrl,
     product.name,
   );
+  const { medals: resolvedMedals, producerContent, producerPageUrl: enrichedProducerUrl } =
+    await resolveWineMedalsAndProducerContent({
+      wineName: product.name,
+      sourceUrl,
+      preferredProducerUrl,
+      llmMedals: analysis.medals,
+    });
   const analysisForScoring =
     product.price != null ? { ...analysis, price: product.price } : analysis;
 
@@ -796,7 +865,7 @@ export async function analyzeWineSubmissionFromUrl(
     pageText,
     analysisForScoring,
     wineryId,
-    preferredProducerUrl,
+    enrichedProducerUrl ?? preferredProducerUrl,
   );
 
   const retailerLinks = buildStoredRetailerLinks(
@@ -835,9 +904,12 @@ export async function analyzeWineSubmissionFromUrl(
         type: resolved.wineType,
         wineryName: detectedWineryName,
       }),
-      medals: normalizedMedals,
+      medals: resolvedMedals,
       ...techSpecsPatch,
-      ...producerFields,
+      ...mergeProducerDbFields(producerFields, {
+        producerContent,
+        producerPageUrl: enrichedProducerUrl,
+      }),
     })
     .returning({ id: wines.id, slug: wines.slug });
 
@@ -904,7 +976,6 @@ export async function reanalyzeAndUpdateWine(
   };
   const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
   const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
-  const normalizedMedals = normalizeWineMedals(analysis.medals);
   const product = applySourceProducerFacts(
     mergeExtractedWithAnalysis(analysis, extracted),
     html,
@@ -914,6 +985,13 @@ export async function reanalyzeAndUpdateWine(
     finalUrl,
     product.name,
   );
+  const { medals: resolvedMedals, producerContent, producerPageUrl: enrichedProducerUrl } =
+    await resolveWineMedalsAndProducerContent({
+      wineName: product.name,
+      sourceUrl,
+      preferredProducerUrl,
+      llmMedals: analysis.medals,
+    });
   const analysisForScoring =
     product.price != null ? { ...analysis, price: product.price } : analysis;
 
@@ -956,7 +1034,7 @@ export async function reanalyzeAndUpdateWine(
     pageText,
     analysisForScoring,
     wineryId,
-    preferredProducerUrl,
+    enrichedProducerUrl ?? preferredProducerUrl,
   );
 
   const imagePatch =
@@ -993,10 +1071,13 @@ export async function reanalyzeAndUpdateWine(
         type: resolved.wineType,
         wineryName: detectedWineryName,
       }),
-      medals: normalizedMedals,
+      medals: resolvedMedals,
       ...imagePatch,
       ...techSpecsPatch,
-      ...producerFields,
+      ...mergeProducerDbFields(producerFields, {
+        producerContent,
+        producerPageUrl: enrichedProducerUrl,
+      }),
     })
     .where(eq(wines.id, wine.id));
 

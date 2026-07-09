@@ -14,13 +14,16 @@ import {
   extractWineMedalsFromText,
   hasMedalExtractionSourceText,
 } from "../lib/extract-wine-medals-from-text";
-import { fetchMedalSourcePageText } from "../lib/fetch-wine-medal-source-text";
+import {
+  fetchAndExtractProducerPages,
+  resolveProducerPageUrlsForWine,
+} from "../lib/fetch-producer-page-content";
 import { wines } from "../lib/schema";
 import {
   calculateValueScore,
   valueScoreInputFromWine,
 } from "../lib/scoring";
-import type { WineMedal } from "../lib/schema";
+import type { ProducerPageContent, WineMedal } from "../lib/schema";
 
 const DEFAULT_CONCURRENCY = 6;
 
@@ -34,6 +37,7 @@ interface WineRow {
   currentPrice: number | null;
   grapeVarieties: { name: string }[];
   medals: WineMedal[];
+  producerContent: ProducerPageContent | null;
   descriptionEditorial: string | null;
   tastingNotes: string | null;
   tasteProfile: string | null;
@@ -106,6 +110,23 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
+function producerContentChanged(
+  before: ProducerPageContent | null,
+  after: ProducerPageContent | null,
+): boolean {
+  return JSON.stringify(before ?? null) !== JSON.stringify(after ?? null);
+}
+
+function pickResolvedProducerPageUrl(
+  existing: string | null,
+  fetchedUrls: string[],
+): string | null {
+  const producerHost = fetchedUrls.find(
+    (url) => url.includes("avincis.ro") || url.includes("cramelerecas.ro"),
+  );
+  return producerHost ?? existing;
+}
+
 async function processWine(
   wine: WineRow,
   dryRun: boolean,
@@ -116,15 +137,27 @@ async function processWine(
 
   let sourcePageText: string | null = null;
   let sourceFetched = false;
+  let heuristicMedals: WineMedal[] = [];
+  let producerContent: ProducerPageContent | null = wine.producerContent;
+  let resolvedProducerPageUrl = wine.producerPageUrl;
 
   if (fetchSources) {
-    const { combinedText, fetchedUrls } = await fetchMedalSourcePageText([
-      wine.sourceUrl,
-      wine.producerPageUrl,
-    ]);
-    if (combinedText.trim()) {
-      sourcePageText = combinedText;
-      sourceFetched = fetchedUrls.length > 0;
+    const producerUrls = resolveProducerPageUrlsForWine({
+      name: wine.name,
+      sourceUrl: wine.sourceUrl,
+      producerPageUrl: wine.producerPageUrl,
+    });
+
+    if (producerUrls.length > 0) {
+      const extracted = await fetchAndExtractProducerPages(producerUrls);
+      sourcePageText = extracted.richText;
+      sourceFetched = extracted.fetchedUrls.length > 0;
+      heuristicMedals = extracted.medals;
+      producerContent = extracted.content;
+      resolvedProducerPageUrl = pickResolvedProducerPageUrl(
+        wine.producerPageUrl,
+        extracted.fetchedUrls,
+      );
     }
   }
 
@@ -138,6 +171,7 @@ async function processWine(
     thingsYouShouldKnow: wine.thingsYouShouldKnow,
     sourceUrl: wine.sourceUrl,
     sourcePageText,
+    heuristicMedals,
   };
 
   if (!hasMedalExtractionSourceText(extractionInput)) {
@@ -154,7 +188,10 @@ async function processWine(
   }
 
   try {
-    const extractedMedals = await extractWineMedalsFromText(extractionInput);
+    let extractedMedals = heuristicMedals;
+    if (extractedMedals.length === 0) {
+      extractedMedals = await extractWineMedalsFromText(extractionInput);
+    }
 
     const newScore = calculateValueScore(
       valueScoreInputFromWine({
@@ -168,7 +205,15 @@ async function processWine(
 
     const medalsUpdated = medalsChanged(wine.medals, extractedMedals);
     const scoreUpdated = oldScore !== newScore;
-    const changed = medalsUpdated || scoreUpdated;
+    const contentUpdated = producerContentChanged(
+      wine.producerContent,
+      producerContent,
+    );
+    const producerUrlUpdated =
+      resolvedProducerPageUrl != null &&
+      resolvedProducerPageUrl !== wine.producerPageUrl;
+    const changed =
+      medalsUpdated || scoreUpdated || contentUpdated || producerUrlUpdated;
 
     if (changed && !dryRun) {
       await db
@@ -176,6 +221,10 @@ async function processWine(
         .set({
           medals: extractedMedals,
           valueScore: newScore,
+          producerContent,
+          ...(resolvedProducerPageUrl
+            ? { producerPageUrl: resolvedProducerPageUrl }
+            : {}),
         })
         .where(eq(wines.id, wine.id));
     }
@@ -223,6 +272,7 @@ async function main() {
       currentPrice: true,
       grapeVarieties: true,
       medals: true,
+      producerContent: true,
       descriptionEditorial: true,
       tastingNotes: true,
       tasteProfile: true,

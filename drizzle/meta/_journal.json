@@ -141,6 +141,13 @@
       "when": 1782643800000,
       "tag": "0020_wine_medals",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1782644000000,
+      "tag": "0021_wine_producer_content",
+      "breakpoints": true
     }
   ]
 }

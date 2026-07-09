@@ -64,6 +64,15 @@ export interface WineMedal {
   importance?: "high" | "medium" | "low";
 }
 
+/** Viticultura, note si asocieri de pe site-ul producatorului. */
+export interface ProducerPageContent {
+  viticulture?: string;
+  tastingNotes?: string;
+  culinaryPairings?: string;
+  sourceUrls?: string[];
+  extractedAt?: string;
+}
+
 export const DEFAULT_WINE_SOURCE_BADGE =
   "Date factuale preluate din surse publice. Analiza si scorurile apartin VinIntel.ro";
 
@@ -399,6 +408,9 @@ export const wines = sqliteTable(
       .$type<WineMedal[]>()
       .notNull()
       .default(sql`'[]'`),
+    producerContent: text("producer_content", { mode: "json" })
+      .$type<ProducerPageContent | null>()
+      .default(sql`'null'`),
     sourceBadge: text("source_badge")
       .notNull()
       .default(DEFAULT_WINE_SOURCE_BADGE),
