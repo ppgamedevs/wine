@@ -55,6 +55,15 @@ export interface EditorialFoodPairingNote {
 /** Editorial dessert pairing notes for Romanian sweets. */
 export type EditorialDessertPairingNote = EditorialFoodPairingNote;
 
+/** Competition medal extracted from product or producer pages. */
+export interface WineMedal {
+  year?: number | null;
+  competition: string;
+  medal: "gold" | "silver" | "bronze" | "double_gold" | "best_in_class" | "other";
+  country?: string;
+  importance?: "high" | "medium" | "low";
+}
+
 export const DEFAULT_WINE_SOURCE_BADGE =
   "Date factuale preluate din surse publice. Analiza si scorurile apartin VinIntel.ro";
 
@@ -384,6 +393,10 @@ export const wines = sqliteTable(
     tasteProfile: text("taste_profile"),
     recommendedOccasions: text("recommended_occasions", { mode: "json" })
       .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    medals: text("medals", { mode: "json" })
+      .$type<WineMedal[]>()
       .notNull()
       .default(sql`'[]'`),
     sourceBadge: text("source_badge")

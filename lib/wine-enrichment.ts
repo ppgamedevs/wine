@@ -65,6 +65,7 @@ export function mergeEditorialScoresForWine(
     grapeVarieties,
     sweetness: wine.sweetness,
     dessertPairingCount: editorial.dessertPairings?.length ?? 0,
+    wineMedals: wine.medals ?? [],
   });
 
   return mergeAnalysisScores(

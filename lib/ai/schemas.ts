@@ -138,6 +138,53 @@ export type WineApprovalEmailSummary = z.infer<
   typeof wineApprovalEmailSummarySchema
 >;
 
+export const wineMedalLevelSchema = z.enum([
+  "gold",
+  "silver",
+  "bronze",
+  "double_gold",
+  "best_in_class",
+  "other",
+]);
+
+export const wineMedalImportanceSchema = z.enum(["high", "medium", "low"]);
+
+export const wineMedalSchema = z.object({
+  year: z
+    .number()
+    .int()
+    .min(1900)
+    .max(2030)
+    .nullable()
+    .describe("Anul editiei; null daca nu apare in pagina"),
+  competition: z
+    .string()
+    .min(2)
+    .describe("Numele complet al competitiei, ex. Decanter World Wine Awards"),
+  medal: z
+    .string()
+    .min(1)
+    .describe('Tip medalie: "Gold", "Silver", "Bronze" sau alt text din pagina'),
+  importance: wineMedalImportanceSchema.describe(
+    "high = Decanter, Balkans International, Vinarum, IWSC etc.; medium = national/regional; low = local",
+  ),
+  country: z
+    .string()
+    .optional()
+    .describe("Tara gazda, optional, daca apare in pagina"),
+});
+
+export type WineMedalOutput = z.infer<typeof wineMedalSchema>;
+
+export const wineMedalsOnlySchema = z.object({
+  medals: z
+    .array(wineMedalSchema)
+    .default([])
+    .describe("Toate medalii mentionate in text; array gol daca nu apar"),
+});
+
+export type WineMedalsOnlyOutput = z.infer<typeof wineMedalsOnlySchema>;
+
 const linkPairingSchema = z.union([
   z.string(),
   z.array(
@@ -192,6 +239,12 @@ export const wineLinkAnalysisSchema = z.object({
   thingsYouShouldKnow: z.array(z.string()).min(2).max(4),
   tasteProfile: z.string().min(10),
   foodPairingNotes: linkPairingSchema.optional(),
+  medals: z
+    .array(wineMedalSchema)
+    .default([])
+    .describe(
+      "Toate medalii mentionate explicit in pagina; array gol [] daca nu apar",
+    ),
 });
 
 export type WineLinkAnalysis = z.infer<typeof wineLinkAnalysisSchema>;

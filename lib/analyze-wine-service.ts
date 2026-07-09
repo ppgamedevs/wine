@@ -1,7 +1,7 @@
 import { generateObject } from "ai";
 import { eq, or } from "drizzle-orm";
 import { getSommelierModel } from "@/lib/ai/model";
-import { ANALYZE_WINE_LINK_SYSTEM_PROMPT } from "@/lib/ai/prompts";
+import { ANALYZE_WINE_LINK_SYSTEM_PROMPT, buildWineMedalExtractionUserPrompt } from "@/lib/ai/prompts";
 import {
   wineLinkAnalysisSchema,
   type WineLinkAnalysis,
@@ -40,6 +40,7 @@ import {
 import { buildWineSlug, normalizeSourceUrl, slugify } from "@/lib/wine-url";
 import { resolveStoredWineVintage } from "@/lib/wine-vintage";
 import { resolveWineSubmitContext } from "@/lib/wine-submit-context";
+import { normalizeWineMedals } from "@/lib/wine-medals";
 import { findExistingWine, findWineBySourceUrl } from "@/lib/wine-duplicate-detection";
 import {
   EXISTING_WINE_CATALOG_MESSAGE,
@@ -316,7 +317,7 @@ async function runLinkAnalysis(sourceUrl: string, pageText: string) {
     model: getSommelierModel(),
     schema: wineLinkAnalysisSchema,
     system: ANALYZE_WINE_LINK_SYSTEM_PROMPT,
-    prompt: `Analizeaza vinul de la acest link:\n${sourceUrl}\n\nContinut pagina (extras):\n${pageText}`,
+    prompt: buildWineMedalExtractionUserPrompt(sourceUrl, pageText),
     temperature: 0.35,
   });
 }
@@ -522,6 +523,7 @@ export async function analyzeAndSaveWineFromUrl(
   };
   const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
   const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
+  const normalizedMedals = normalizeWineMedals(analysis.medals);
   const product = applySourceProducerFacts(
     mergeExtractedWithAnalysis(analysis, extracted),
     html,
@@ -648,6 +650,7 @@ export async function analyzeAndSaveWineFromUrl(
       imageUrl: display.imageUrl,
       imageSource: display.imageSource,
       imageAlt: display.imageAlt,
+      medals: normalizedMedals,
       ...display.techSpecsPatch,
       ...producerFields,
     })
@@ -696,6 +699,7 @@ export async function analyzeWineSubmissionFromUrl(
 
   const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
   const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
+  const normalizedMedals = normalizeWineMedals(analysis.medals);
   const product = applySourceProducerFacts(
     mergeExtractedWithAnalysis(analysis, extracted),
     html,
@@ -831,6 +835,7 @@ export async function analyzeWineSubmissionFromUrl(
         type: resolved.wineType,
         wineryName: detectedWineryName,
       }),
+      medals: normalizedMedals,
       ...techSpecsPatch,
       ...producerFields,
     })
@@ -899,6 +904,7 @@ export async function reanalyzeAndUpdateWine(
   };
   const extracted = await extractProductFromHtml(html, finalUrl, { sourceUrl });
   const { object: analysis } = await runLinkAnalysis(finalUrl, pageText);
+  const normalizedMedals = normalizeWineMedals(analysis.medals);
   const product = applySourceProducerFacts(
     mergeExtractedWithAnalysis(analysis, extracted),
     html,
@@ -987,6 +993,7 @@ export async function reanalyzeAndUpdateWine(
         type: resolved.wineType,
         wineryName: detectedWineryName,
       }),
+      medals: normalizedMedals,
       ...imagePatch,
       ...techSpecsPatch,
       ...producerFields,

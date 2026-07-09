@@ -1,6 +1,7 @@
 import { buildWinePriceViewModel } from "@/lib/wine-price";
 import { CHAT_SOMMELIER_BASE_PROMPT } from "@/lib/ai/prompts";
 import { resolveWineImage } from "@/lib/wine-images";
+import { formatWineMedalsForSommelier } from "@/lib/wine-medals";
 import type { ChatWineRecommendation } from "@/lib/sommelier-chat-types";
 import { hybridRetrieve } from "@/lib/sommelier-rag";
 import {
@@ -149,7 +150,6 @@ export function buildChatSommelierSystemPrompt(
     .map((wine, index) => {
       const price = wine.currentPrice ?? wine.priceAvg;
       const grapes = wine.grapeVarieties.map((g) => g.name).join(", ");
-      const pricing = buildWinePriceViewModel(wine);
       const foodNotes = wine.foodPairingNotes
         .slice(0, 2)
         .map((p) => p.dish)
@@ -158,6 +158,7 @@ export function buildChatSommelierSystemPrompt(
         .slice(0, 3)
         .map((p) => p.dish)
         .join(", ");
+      const medalsSummary = formatWineMedalsForSommelier(wine.medals);
 
       return [
         `${index + 1}. slug: ${wine.slug}`,
@@ -167,6 +168,7 @@ export function buildChatSommelierSystemPrompt(
         `   Pret: ${price != null ? `${price} RON` : "indisponibil"}`,
         `   Soiuri: ${grapes || "N/A"}`,
         `   Value ${wine.valueScore ?? "N/A"}/100 | Food Match ${wine.foodMatchScore ?? "N/A"}/100`,
+        medalsSummary ? `   Medalii: ${medalsSummary}` : null,
         foodNotes ? `   Pairing mancare: ${foodNotes}` : null,
         dessertNotes ? `   Pairing desert: ${dessertNotes}` : null,
       ]
@@ -190,6 +192,8 @@ Format final obligatoriu (ultima linie, separata):
 RECOMMENDED_SLUGS: <slug1>, <slug2>
 
 Reguli finale:
+- Umor uscat da, vulgaritate nu. Redirectioneaza cereri inadecvate spre vin si pairing.
+- Prioritizeaza potrivirea culinara fata de Value Score maxim.
 - Nu include URL-uri in raspuns (nici Profitshare, nici eMAG).
 - Mentioneaza pretul aproximativ in RON in text, fara link de cumparare.
 - RECOMMENDED_SLUGS trebuie sa contina 1-2 slug-uri EXACTE din catalog, in ordinea recomandarilor.`;

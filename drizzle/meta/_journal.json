@@ -134,6 +134,13 @@
       "when": 1782643600000,
       "tag": "0019_stripe_subscriptions",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1782643800000,
+      "tag": "0020_wine_medals",
+      "breakpoints": true
     }
   ]
 }

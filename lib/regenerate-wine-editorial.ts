@@ -229,6 +229,7 @@ export async function applyDessertPairingsToWine(
     grapeVarieties: wine.grapeVarieties.map((grape) => grape.name),
     sweetness: wine.sweetness,
     dessertPairingCount: dessertPairings.length,
+    wineMedals: wine.medals ?? [],
   });
 
   const foodMatchScore = Math.max(

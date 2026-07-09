@@ -4,6 +4,7 @@ import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_NEUTRAL_MIN,
 } from "@/lib/value-score-thresholds";
+import type { WineMedal } from "@/lib/schema";
 
 export interface ScoreInput {
   price: number;
@@ -14,7 +15,7 @@ export interface ScoreInput {
   dessertPairingCount?: number;
   /** Calitate de baza 0-100 (LLM, note degustare sau import). */
   baseQuality?: number;
-  medals?: number;
+  wineMedals?: WineMedal[];
   criticScore?: number;
 }
 
@@ -24,7 +25,7 @@ export interface ValueScoreInput {
   region: string;
   /** 0-100 (din LLM sau note degustare). */
   baseQuality: number;
-  medals?: number;
+  wineMedals?: WineMedal[];
   criticScore?: number;
 }
 
@@ -215,6 +216,110 @@ export function isPremiumValueRegion(region: string): boolean {
   );
 }
 
+interface MedalBonusBreakdown {
+  total: number;
+  items: ValueScoreBreakdownItem[];
+}
+
+const MAJOR_COMPETITION_KEYWORDS = [
+  "decanter",
+  "balkans international",
+  "vinarium",
+  "iwsc",
+  "decanter world wine awards",
+] as const;
+
+function isGoldMedalLevel(medal: WineMedal["medal"]): boolean {
+  return medal === "gold" || medal === "double_gold";
+}
+
+function isMajorCompetition(competition: string): boolean {
+  const lower = competition.toLowerCase();
+  return MAJOR_COMPETITION_KEYWORDS.some((keyword) => lower.includes(keyword));
+}
+
+function pointsForSingleMedal(medal: WineMedal): number {
+  let points = isGoldMedalLevel(medal.medal) ? 6 : 3;
+
+  if (isMajorCompetition(medal.competition)) {
+    points += 4;
+  }
+
+  if (medal.importance === "high") {
+    points += 2;
+  }
+
+  return points;
+}
+
+/** Bonus medalii per intrare, consistenta pe ani, plafon 28. */
+export function calculateMedalBonus(
+  wineMedals: WineMedal[] | null | undefined,
+): MedalBonusBreakdown {
+  const medals = wineMedals ?? [];
+  const items: ValueScoreBreakdownItem[] = [];
+
+  if (medals.length === 0) {
+    return { total: 0, items };
+  }
+
+  let bonus = 0;
+  let perMedalPoints = 0;
+  let goldCount = 0;
+
+  for (const medal of medals) {
+    const points = pointsForSingleMedal(medal);
+    perMedalPoints += points;
+    bonus += points;
+    if (isGoldMedalLevel(medal.medal)) {
+      goldCount += 1;
+    }
+  }
+
+  items.push({
+    label: "Medalii si concursuri",
+    detail: `${medals.length} medalii (${goldCount} gold +6, rest +3; bonus concurs major +4; importance high +2)`,
+    points: perMedalPoints,
+  });
+
+  const years = new Set(
+    medals
+      .map((medal) => medal.year)
+      .filter((year): year is number => year != null),
+  );
+
+  if (years.size >= 3) {
+    bonus += 6;
+    items.push({
+      label: "Consistenta pe ani (3+)",
+      detail: `Medalii in ${years.size} ani diferiti`,
+      points: 6,
+    });
+  }
+
+  if (years.size >= 5) {
+    bonus += 4;
+    items.push({
+      label: "Consistenta pe ani (5+)",
+      detail: "Track record indelungat la concursuri",
+      points: 4,
+    });
+  }
+
+  const rawTotal = bonus;
+  const total = Math.min(bonus, 28);
+
+  if (total < rawTotal) {
+    items.push({
+      label: "Plafon bonus medalii",
+      detail: `Total brut ${rawTotal}, plafonat la 28`,
+      points: total - rawTotal,
+    });
+  }
+
+  return { total, items };
+}
+
 /**
  * Value Score VinIntel (0-100)
  * Inspirat din Vivino Value Check + QPR models profesionale
@@ -279,14 +384,10 @@ export function buildValueScoreBreakdown(wine: ValueScoreInput): ValueScoreBreak
     });
   }
 
-  if (wine.medals != null && wine.medals > 0) {
-    const medalPoints = Math.min(wine.medals * 3, 12);
-    score += medalPoints;
-    items.push({
-      label: "Medalii si concursuri",
-      detail: `${wine.medals} medalii (max +12)`,
-      points: medalPoints,
-    });
+  const medalBonus = calculateMedalBonus(wine.wineMedals);
+  if (medalBonus.total > 0) {
+    score += medalBonus.total;
+    items.push(...medalBonus.items);
   }
 
   if (wine.criticScore != null && Number.isFinite(wine.criticScore)) {
@@ -328,17 +429,18 @@ export function valueScoreInputFromWine(wine: {
   grapeVarieties: { name: string }[] | string[] | null;
   region?: { name: string } | null;
   valueScore?: number | null;
+  medals?: WineMedal[] | null;
 }): ValueScoreInput {
   const price = wine.currentPrice ?? wine.priceAvg ?? 0;
   const grapes = (wine.grapeVarieties ?? []).map((g) =>
     typeof g === "string" ? g : g.name,
   );
-
   return {
     price,
     isAutochthonous: isAutochthonousGrapeMix(grapes),
     region: wine.region?.name ?? "",
     baseQuality: defaultBaseQuality(price),
+    wineMedals: wine.medals ?? [],
   };
 }
 
@@ -365,7 +467,7 @@ export function calculateInitialScores(input: ScoreInput): InitialScores {
     isAutochthonous: isAutochthonousGrapeMix(grapeVarieties),
     region: input.region ?? "",
     baseQuality: input.baseQuality ?? defaultBaseQuality(price),
-    medals: input.medals,
+    wineMedals: input.wineMedals,
     criticScore: input.criticScore,
   });
 
