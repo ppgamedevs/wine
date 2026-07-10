@@ -112,7 +112,18 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
     patch.type = "orange";
   } else if (c?.color) {
     const mappedType = mapCsvCategoryToWineType(c.color);
-    if (mappedType) patch.type = mappedType;
+    const keepSparkling =
+      wine.type === "sparkling" &&
+      mappedType === "white" &&
+      /spumant|metod[aă]?\s*tradition|extra\s*brut/i.test(wine.name);
+    if (mappedType && !keepSparkling) {
+      patch.type = mappedType;
+    }
+  } else if (
+    wine.type !== "sparkling" &&
+    /spumant|metod[aă]?\s*tradition|extra\s*brut/i.test(displayName)
+  ) {
+    patch.type = "sparkling";
   }
 
   if (

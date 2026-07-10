@@ -57,7 +57,7 @@ const faq = [
   {
     question: "Cum caut un vin in catalog?",
     answer:
-      "Foloseste bara de cautare pentru nume, crama, regiune sau soi. Poti filtra rapid in lista afisata.",
+      "Foloseste filtrele dupa tip (alb, rosu, spumant), pret sau Value Score. Poti cauta si dupa nume, crama, regiune sau soi.",
   },
   {
     question: "Pot adauga un vin care lipseste?",
@@ -95,38 +95,44 @@ export default async function VinuriCatalogPage() {
       />
       <SiteHeader />
       <main className="flex-1">
-        <section className="border-b border-border/60 bg-secondary/20">
-          <div className="mx-auto max-w-4xl px-6 py-12 text-center lg:py-16">
-            <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
-              <Wine className="h-4 w-4" aria-hidden="true" />
-              {catalogWines.length} vinuri
-            </span>
-            <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Catalog vinuri romanesti
-            </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Toate vinurile verificate din baza VinIntel, ordonate dupa Value
-              Score. Cauta dupa nume, crama, regiune sau soi.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button
-                asChild
-                variant="outline"
-                className="border-wine/30 text-wine hover:bg-wine/10 hover:text-wine"
-              >
-                <Link href="/topuri">Vezi topuri populare</Link>
-              </Button>
-              <Button
-                asChild
-                className="bg-wine text-wine-foreground hover:bg-wine/90"
-              >
-                <Link href="/adauga-vin">Adauga un vin</Link>
-              </Button>
+        <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-[#faf6f0] via-background to-background">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-24 top-0 h-64 w-64 rounded-full bg-wine/5 blur-3xl"
+          />
+          <div className="mx-auto max-w-6xl px-6 py-12 lg:py-16">
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
+                <Wine className="h-4 w-4" aria-hidden="true" />
+                {catalogWines.length} vinuri verificate
+              </span>
+              <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                Catalog vinuri romanesti
+              </h1>
+              <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+                Exploreaza dupa tip (alb, rosu, spumant), compara Value Score-ul
+                si gaseste rapid vinuri care merita banii la pretul din magazine.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="border-wine/30 text-wine hover:bg-wine/10 hover:text-wine"
+                >
+                  <Link href="/topuri">Topuri populare</Link>
+                </Button>
+                <Button
+                  asChild
+                  className="bg-wine text-wine-foreground hover:bg-wine/90"
+                >
+                  <Link href="/adauga-vin">Adauga un vin</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
 
-        <div className="mx-auto max-w-6xl px-6 py-12">
+        <div className="mx-auto max-w-6xl px-6 py-10 lg:py-12">
           {catalogWines.length > 0 ? (
             <WineCatalogDirectory wines={catalogWines} />
           ) : (

@@ -30,7 +30,7 @@ export interface ProducerCanonicalFacts {
   acidity: number | null;
   sweetness: WineSweetnessLevel | null;
   imageUrl: string | null;
-  color: "alb" | "roze" | "rosu" | null;
+  color: "alb" | "roze" | "rosu" | "spumant" | null;
 }
 
 export interface ProducerEnrichment {
@@ -690,6 +690,10 @@ export function parseAvincisProducerFacts(
   const imageUrl = extractOgImage(html, pageUrl);
   const isOrange =
     /\borange\b/i.test(`${name ?? ""} ${pageUrl} ${plain.slice(0, 800)}`);
+  const isSpumant =
+    /spumant|metod[aă]?\s*tradition|metoda-tradition|extra\s*brut/i.test(
+      `${name ?? ""} ${pageUrl} ${plain.slice(0, 800)}`,
+    );
 
   if (
     !name &&
@@ -711,7 +715,7 @@ export function parseAvincisProducerFacts(
       ? parseSweetnessLabel(sweetnessMatch[1])
       : null,
     imageUrl,
-    color: isOrange ? null : "alb",
+    color: isOrange ? null : isSpumant ? "spumant" : "alb",
   };
 }
 

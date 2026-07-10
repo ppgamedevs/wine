@@ -64,6 +64,20 @@ export async function recalculateAllValueScores(
   let unchanged = 0;
 
   for (const wine of rows) {
+    const estimatedQuality =
+      predictEstimatedQualitySync(
+        buildFeatureInputFromWine({
+          type: wine.type,
+          vintage: wine.vintage,
+          grapeVarieties: wine.grapeVarieties,
+          region: wine.region,
+          winery: wine.winery,
+          acidity: wine.acidity,
+          cellarPotential: wine.cellarPotential,
+          medals: wine.medals,
+        }),
+      ) ?? wine.estimatedQuality ?? undefined;
+
     const input = valueScoreInputFromWine({
       priceAvg: wine.priceAvg,
       currentPrice: wine.currentPrice,
@@ -79,7 +93,7 @@ export async function recalculateAllValueScores(
       ratingAvg: wine.ratingAvg,
       communityScore: wine.communityScore,
       criticScore: wine.criticScore,
-      estimatedQuality: wine.estimatedQuality,
+      estimatedQuality: estimatedQuality ?? null,
       drinkabilityStart: wine.drinkabilityStart,
       drinkabilityEnd: wine.drinkabilityEnd,
     });
@@ -87,23 +101,11 @@ export async function recalculateAllValueScores(
     const newScore = calculateValueScore(input);
     scores.push(newScore);
 
-    const estimatedQuality =
-      predictEstimatedQualitySync(
-        buildFeatureInputFromWine({
-          type: wine.type,
-          vintage: wine.vintage,
-          grapeVarieties: wine.grapeVarieties,
-          region: wine.region,
-          winery: wine.winery,
-          acidity: wine.acidity,
-          cellarPotential: wine.cellarPotential,
-          medals: wine.medals,
-        }),
-      ) ?? input.baseQuality ?? 65;
+    const resolvedQuality = estimatedQuality ?? input.baseQuality ?? 65;
 
     const qualityChanged =
       wine.estimatedQuality == null ||
-      Math.abs(wine.estimatedQuality - (estimatedQuality ?? 65)) >= 0.1;
+      Math.abs(wine.estimatedQuality - resolvedQuality) >= 0.1;
 
     if (wine.valueScore === newScore && !qualityChanged) {
       unchanged += 1;
@@ -116,7 +118,7 @@ export async function recalculateAllValueScores(
         .set({
           valueScore: newScore,
           valueScoreVersion: VALUE_SCORE_ALGORITHM_VERSION,
-          estimatedQuality,
+          estimatedQuality: resolvedQuality,
         })
         .where(eq(wines.id, wine.id));
     }
