@@ -53,10 +53,7 @@ function BreakdownTable({
   wine: WineWithRelations;
 }) {
   const input = valueScoreInputFromWine(wine);
-  const breakdown = buildValueScoreBreakdown({
-    ...input,
-    percentileScore: wine.valueScore,
-  });
+  const breakdown = buildValueScoreBreakdown(input);
   const storedScore = wine.valueScore;
   const editorialSummary = wine.valueExplanation?.trim()
     ? splitValueExplanation(wine.valueExplanation).summary
@@ -68,10 +65,10 @@ function BreakdownTable({
         De ce am dat acest scor
       </h3>
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-        VinIntel Score 2.0 estimeaza calitatea intrinseca (Q) independent de pret,
-        aplica modificatori pentru terroir, medalii si potential, apoi compara
-        cu pretul printr-o relatie logaritmica. Scorul final foloseste
-        normalizare percentile pe piata romaneasca (2-99).
+        VinIntel Score combina calitatea estimata, eficienta pretului, bonusuri
+        pentru soiuri autohtone, regiuni premium, medalii (pondere logaritmica),
+        clasa mondiala si bonus de vintage in fereastra optima de consum.
+        Plafonarea finala este dinamica, legata de calitatea de baza.
       </p>
 
       {editorialSummary ? (
@@ -120,11 +117,10 @@ function BreakdownTable({
             ))}
             <tr className="bg-secondary/30">
               <td className="px-4 py-3 font-medium text-foreground" colSpan={2}>
-                Scor sigmoid brut
-                {breakdown.version === 2 ? " (inainte de percentile)" : null}
+                Subtotal algoritm
               </td>
               <td className="px-4 py-3 text-right font-semibold tabular-nums text-foreground">
-                {breakdown.rawSigmoidScore ?? breakdown.subtotal}
+                {breakdown.subtotal}
               </td>
             </tr>
             {breakdown.penaltyNote ? (

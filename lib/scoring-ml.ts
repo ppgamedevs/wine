@@ -1,6 +1,11 @@
 /**
- * ML quality estimation stub. Replace with internal microservice when deployed.
+ * Estimare calitate via model local antrenat (data/quality-model.json)
+ * sau microserviciu extern daca VALUE_SCORE_ML_URL este setat.
  */
+import type { QualityFeatureInput } from "@/lib/quality-model/types";
+import { buildFeatureInputFromWine } from "@/lib/quality-model/features";
+import { predictEstimatedQualitySync } from "@/lib/quality-model/predict";
+
 export interface MlQualityEstimateRequest {
   wineId?: number;
   slug?: string;
@@ -12,6 +17,7 @@ export interface MlQualityEstimateRequest {
   alcohol?: number | null;
   acidity?: number | null;
   cellarPotential?: number | null;
+  medals?: import("@/lib/schema").WineMedal[];
 }
 
 export interface MlQualityEstimateResponse {
@@ -22,9 +28,30 @@ export interface MlQualityEstimateResponse {
 
 const ML_SERVICE_URL = process.env.VALUE_SCORE_ML_URL;
 
+export function estimateQualityLocally(
+  request: MlQualityEstimateRequest,
+): number | null {
+  const features: QualityFeatureInput = buildFeatureInputFromWine({
+    type: request.wineType,
+    vintage: request.vintage,
+    grapeVarieties: request.grapeVarieties,
+    region: request.region,
+    winery: request.wineryName,
+    alcohol: request.alcohol,
+    acidity: request.acidity,
+    cellarPotential: request.cellarPotential,
+    medals: request.medals,
+  });
+
+  return predictEstimatedQualitySync(features);
+}
+
 export async function fetchMlEstimatedQuality(
   request: MlQualityEstimateRequest,
 ): Promise<number | null> {
+  const local = estimateQualityLocally(request);
+  if (local != null) return local;
+
   if (!ML_SERVICE_URL) return null;
 
   try {

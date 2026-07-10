@@ -62,7 +62,7 @@ export function formatCommunityVoteLabel(voteCount: number): string {
 }
 
 export const VININTEL_SCORE_EXPLANATION =
-  "Scor expert VinIntel 2.0: calitate intrinseca estimata, comparata cu pretul printr-o relatie logaritmica. Include terroir, medalii, potential si fereastra de consum. Nu este media utilizatorilor.";
+  "Scor expert VinIntel: raport calitate-pret, identitate romaneasca, medalii cu pondere logaritmica si bonus de vintage. Nu este media utilizatorilor.";
 
 export const COMMUNITY_SCORE_EXPLANATION =
   "Media notelor date de utilizatorii VinIntel, pe aceeasi scala 0-100. Contribuie cu votul tau dupa degustare.";

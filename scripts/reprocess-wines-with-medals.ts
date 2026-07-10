@@ -26,11 +26,9 @@ import { wines } from "../lib/schema";
 import {
   calculateValueScore,
   valueScoreInputFromWine,
+  VALUE_SCORE_ALGORITHM_VERSION,
 } from "../lib/scoring";
-import {
-  buildValueScoreV2Core,
-} from "../lib/scoring-v2";
-import { VALUE_SCORE_VERSION } from "../lib/scoring-v2/constants";
+import { recalculateAllValueScores } from "../lib/recalculate-value-scores";
 import type { ProducerPageContent, WineMedal } from "../lib/schema";
 
 const DEFAULT_CONCURRENCY = 6;
@@ -230,24 +228,6 @@ async function processWine(
       drinkabilityStart: wine.drinkabilityStart,
       drinkabilityEnd: wine.drinkabilityEnd,
     });
-    const core = buildValueScoreV2Core({
-      price: scoreInput.price,
-      grapeVarieties: scoreInput.grapeVarieties,
-      region: scoreInput.region,
-      wineryName: scoreInput.wineryName,
-      wineType: scoreInput.wineType,
-      cellarPotential: scoreInput.cellarPotential,
-      acidity: scoreInput.acidity,
-      tasteProfile: scoreInput.tasteProfile,
-      wineMedals: scoreInput.wineMedals,
-      criticScore: scoreInput.criticScore,
-      vintage: scoreInput.vintage,
-      ratingAvg: scoreInput.ratingAvg,
-      communityScore: scoreInput.communityScore,
-      drinkabilityStart: scoreInput.drinkabilityStart,
-      drinkabilityEnd: scoreInput.drinkabilityEnd,
-      estimatedQuality: scoreInput.estimatedQuality ?? scoreInput.baseQuality,
-    });
     const newScore = calculateValueScore(scoreInput);
 
     const medalsUpdated = medalsChanged(wine.medals, extractedMedals);
@@ -268,14 +248,7 @@ async function processWine(
         .set({
           medals: extractedMedals,
           valueScore: newScore,
-          valueScoreVersion: VALUE_SCORE_VERSION,
-          estimatedQuality: core.qHat,
-          qualityEffective: core.qEffective,
-          qualityFinal: core.qFinal,
-          qualitySurplus: core.qualitySurplus,
-          rawSigmoidScore: core.rawSigmoidScore,
-          drinkabilityStart: core.drinkabilityStart,
-          drinkabilityEnd: core.drinkabilityEnd,
+          valueScoreVersion: VALUE_SCORE_ALGORITHM_VERSION,
           producerContent,
           ...(resolvedProducerPageUrl
             ? { producerPageUrl: resolvedProducerPageUrl }
@@ -367,7 +340,7 @@ async function main() {
       const prefix = `[reprocess-medals] [${index + 1}/${rows.length}] ${wine.slug}`;
       if (result.status === "updated") {
         console.log(
-          `${prefix} medals ${result.oldMedalsCount}->${result.newMedalsCount}, score ${result.oldScore ?? "n/a"}->${result.newScore}${result.sourceFetched ? " [source]" : ""}`,
+          `${prefix} medals ${result.oldMedalsCount}->${result.newMedalsCount}, score ${result.oldScore ?? "n/a"}->${result.newScore ?? "n/a"}${result.sourceFetched ? " [source]" : ""}`,
         );
       } else if (result.status === "failed") {
         console.error(`${prefix} failed: ${result.error}`);
@@ -413,6 +386,13 @@ async function main() {
         `  ${result.slug}: ${result.oldMedalsCount} -> ${result.newMedalsCount} medalii`,
       );
     }
+  }
+
+  if (!dryRun && updated.length > 0) {
+    console.log("\n[reprocess-medals] Recalcul final pe catalog...");
+    await recalculateAllValueScores({
+      logPrefix: "[reprocess-medals]",
+    });
   }
 
   console.log("\n[reprocess-medals] done");

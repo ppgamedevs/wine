@@ -1,14 +1,17 @@
 import type { OverpricedRisk } from "@/types";
 import { dessertFoodMatchBoost } from "@/lib/dessert-pairings";
 import {
-  buildValueScoreV2Result,
-  type ValueScoreV2Input,
-} from "@/lib/scoring-v2";
+  inferDrinkabilityWindow,
+} from "@/lib/scoring-v2/quality-estimate";
+import { buildFeatureInputFromWine } from "@/lib/quality-model/features";
+import { predictEstimatedQualitySync } from "@/lib/quality-model/predict";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_NEUTRAL_MIN,
 } from "@/lib/value-score-thresholds";
 import type { WineMedal } from "@/lib/schema";
+
+export const VALUE_SCORE_ALGORITHM_VERSION = 1;
 
 export interface ScoreInput {
   price: number;
@@ -48,8 +51,6 @@ export interface ValueScoreInput {
   drinkabilityEnd?: number | null;
   estimatedQuality?: number | null;
   referenceYear?: number;
-  /** Scor percentile din batch recalc (optional). */
-  percentileScore?: number | null;
 }
 
 export interface InitialScores {
@@ -180,30 +181,52 @@ function inferOverpricedRisk(
   if (valueScore >= MIN_RECOMMENDED_VALUE_SCORE && price <= 80) return "low";
   if (valueScore < VALUE_SCORE_NEUTRAL_MIN) return "high";
   if (price > 80 && valueScore < MIN_RECOMMENDED_VALUE_SCORE) return "high";
-  if (valueScore <= 45 || price > 120) return "high";
+  if (valueScore <= 50 || price > 120) return "high";
   return "medium";
 }
 
-function toValueScoreV2Input(wine: ValueScoreInput): ValueScoreV2Input {
+function defaultBaseQuality(price: number): number {
+  if (price <= 35) return 72;
+  if (price <= 55) return 68;
+  if (price <= 85) return 65;
+  if (price <= 120) return 62;
+  return 58;
+}
+
+function resolveBaseQuality(wine: ValueScoreInput): number {
+  if (wine.estimatedQuality != null && Number.isFinite(wine.estimatedQuality)) {
+    return wine.estimatedQuality;
+  }
+
+  const mlQuality = predictEstimatedQualitySync(
+    buildFeatureInputFromWine({
+      type: wine.wineType,
+      vintage: wine.vintage,
+      grapeVarieties: wine.grapeVarieties,
+      region: wine.region,
+      winery: wine.wineryName,
+      alcohol: undefined,
+      acidity: wine.acidity,
+      cellarPotential: wine.cellarPotential,
+      medals: wine.wineMedals,
+    }),
+  );
+  if (mlQuality != null) {
+    return mlQuality;
+  }
+
+  return wine.baseQuality ?? defaultBaseQuality(wine.price);
+}
+
+function dynamicScoreBounds(baseQuality: number): { min: number; max: number } {
   return {
-    price: wine.price,
-    grapeVarieties: wine.grapeVarieties,
-    region: wine.region,
-    wineryName: wine.wineryName,
-    wineType: wine.wineType,
-    cellarPotential: wine.cellarPotential,
-    acidity: wine.acidity,
-    tasteProfile: wine.tasteProfile,
-    wineMedals: wine.wineMedals,
-    criticScore: wine.criticScore,
-    vintage: wine.vintage,
-    ratingAvg: wine.ratingAvg,
-    communityScore: wine.communityScore,
-    drinkabilityStart: wine.drinkabilityStart,
-    drinkabilityEnd: wine.drinkabilityEnd,
-    estimatedQuality: wine.estimatedQuality ?? wine.baseQuality,
-    referenceYear: wine.referenceYear,
+    min: Math.max(25, baseQuality - 40),
+    max: Math.min(98, baseQuality + 35),
   };
+}
+
+function clampScore(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, Math.round(value)));
 }
 
 const VALUE_SCORE_PREMIUM_REGIONS = [
@@ -277,9 +300,6 @@ const HIGH_PRESTIGE_COMPETITION_KEYWORDS = [
 ] as const;
 
 const MEDAL_BONUS_CAP = 38;
-const RECENT_MEDAL_MIN_YEAR = 2024;
-const RECENT_MEDAL_MAX_BONUS = 6;
-const RECENT_MEDAL_POINTS_EACH = 3;
 
 function basePointsForMedalLevel(medal: WineMedal["medal"]): number {
   switch (medal) {
@@ -312,7 +332,11 @@ function pointsForSingleMedal(medal: WineMedal): number {
   return points;
 }
 
-/** Bonus medalii: tip, prestigiu, consistenta, recenta. Plafon 38. */
+function getMedalWeight(medal: WineMedal): number {
+  return pointsForSingleMedal(medal);
+}
+
+/** Bonus medalii logaritmic: 8 x log2(1 + pondere), plafon 38. */
 export function calculateMedalBonus(
   wineMedals: WineMedal[] | null | undefined,
 ): MedalBonusBreakdown {
@@ -323,78 +347,87 @@ export function calculateMedalBonus(
     return { total: 0, items };
   }
 
-  let bonus = 0;
-  let perMedalPoints = 0;
-  let highPrestigeCount = 0;
+  const weightedMedals = medals.reduce(
+    (sum, medal) => sum + getMedalWeight(medal),
+    0,
+  );
+  const rawBonus = 8 * Math.log2(1 + weightedMedals);
+  const total = Math.min(MEDAL_BONUS_CAP, Math.round(rawBonus * 10) / 10);
 
-  for (const medal of medals) {
-    const points = pointsForSingleMedal(medal);
-    perMedalPoints += points;
-    bonus += points;
-
-    if (isHighPrestigeCompetition(medal.competition)) {
-      highPrestigeCount += 1;
-    }
-  }
+  const highPrestigeCount = medals.filter((medal) =>
+    isHighPrestigeCompetition(medal.competition),
+  ).length;
 
   items.push({
     label: "Medalii si concursuri",
-    detail: `${medals.length} medalii (gold +7, silver +4, bronze +2; ${highPrestigeCount} la concursuri high prestige +4)`,
-    points: perMedalPoints,
+    detail: `${medals.length} medalii, pondere ${Math.round(weightedMedals * 10) / 10}, 8 x log2(1 + w)`,
+    points: total,
   });
 
-  const years = new Set(
-    medals
-      .map((medal) => medal.year)
-      .filter((year): year is number => year != null),
-  );
-
-  if (years.size >= 3) {
-    bonus += 6;
-    items.push({
-      label: "Consistenta pe ani (3+)",
-      detail: `Medalii in ${years.size} ani diferiti`,
-      points: 6,
-    });
-  }
-
-  if (years.size >= 5) {
-    bonus += 4;
-    items.push({
-      label: "Consistenta pe ani (5+)",
-      detail: "Track record indelungat la concursuri",
-      points: 4,
-    });
-  }
-
-  const recentMedals = medals.filter(
-    (medal) => medal.year != null && medal.year >= RECENT_MEDAL_MIN_YEAR,
-  );
-  if (recentMedals.length > 0) {
-    const recentBonus = Math.min(
-      recentMedals.length * RECENT_MEDAL_POINTS_EACH,
-      RECENT_MEDAL_MAX_BONUS,
-    );
-    bonus += recentBonus;
-    items.push({
-      label: "Medalii recente",
-      detail: `${recentMedals.length} medalii din ${RECENT_MEDAL_MIN_YEAR}+ (+${RECENT_MEDAL_POINTS_EACH}/medalie, max ${RECENT_MEDAL_MAX_BONUS})`,
-      points: recentBonus,
-    });
-  }
-
-  const rawTotal = bonus;
-  const total = Math.min(bonus, MEDAL_BONUS_CAP);
-
-  if (total < rawTotal) {
+  if (rawBonus > MEDAL_BONUS_CAP) {
     items.push({
       label: "Plafon bonus medalii",
-      detail: `Total brut ${rawTotal}, plafonat la ${MEDAL_BONUS_CAP}`,
-      points: total - rawTotal,
+      detail: `Total brut ${Math.round(rawBonus * 10) / 10}, plafonat la ${MEDAL_BONUS_CAP}`,
+      points: total - rawBonus,
+    });
+  }
+
+  if (highPrestigeCount > 0) {
+    items.push({
+      label: "Concursuri high prestige",
+      detail: `${highPrestigeCount} medalii la concursuri de top (incluse in pondere)`,
+      points: 0,
     });
   }
 
   return { total, items };
+}
+
+function isInOptimalDrinkabilityWindow(wine: ValueScoreInput): boolean {
+  const window = inferDrinkabilityWindow({
+    vintage: wine.vintage,
+    wineType: wine.wineType,
+    cellarPotential: wine.cellarPotential,
+    drinkabilityStart: wine.drinkabilityStart,
+    drinkabilityEnd: wine.drinkabilityEnd,
+  });
+
+  if (window.start == null || window.end == null) return false;
+
+  const year = wine.referenceYear ?? new Date().getFullYear();
+  return year >= window.start && year <= window.end;
+}
+
+function calculateVintageBonus(wine: ValueScoreInput): {
+  bonus: number;
+  item: ValueScoreBreakdownItem | null;
+} {
+  if (!isInOptimalDrinkabilityWindow(wine)) {
+    return { bonus: 0, item: null };
+  }
+
+  const cellarYears = wine.cellarPotential ?? 0;
+  if (cellarYears <= 0) {
+    return { bonus: 0, item: null };
+  }
+
+  const bonus = Math.min(5, Math.round((cellarYears / 2) * 10) / 10);
+  const window = inferDrinkabilityWindow({
+    vintage: wine.vintage,
+    wineType: wine.wineType,
+    cellarPotential: wine.cellarPotential,
+    drinkabilityStart: wine.drinkabilityStart,
+    drinkabilityEnd: wine.drinkabilityEnd,
+  });
+
+  return {
+    bonus,
+    item: {
+      label: "Bonus vintage (fereastra optima)",
+      detail: `Consum optim ${window.start}-${window.end}, cellar ${cellarYears} ani`,
+      points: bonus,
+    },
+  };
 }
 
 /** Regiuni de elita pentru bonus terroir in Clasa Mondiala (+4). */
@@ -582,7 +615,7 @@ export function calculateWorldClassPotentialBonus(
 }
 
 /**
- * Value Score VinIntel 2.0 (0-100, normalizare percentile la recalcul batch).
+ * Value Score VinIntel (formula aditiva v1 + 3 imbunatatiri).
  */
 export function calculateValueScore(wine: ValueScoreInput): number {
   return buildValueScoreBreakdown(wine).finalScore;
@@ -599,57 +632,29 @@ export interface ValueScoreBreakdown {
   subtotal: number;
   penaltyNote: string | null;
   finalScore: number;
-  qHat?: number;
-  qEffective?: number;
-  qFinal?: number;
-  qualitySurplus?: number;
-  rawSigmoidScore?: number;
   version?: number;
+  scoreMin?: number;
+  scoreMax?: number;
 }
 
 /**
- * Transparent breakdown of VinIntel Score 2.0 factors for UI display.
+ * Transparent breakdown of VinIntel Score factors for UI display.
  */
 export function buildValueScoreBreakdown(wine: ValueScoreInput): ValueScoreBreakdown {
-  const v2Input = toValueScoreV2Input(wine);
-  const result = buildValueScoreV2Result(v2Input, {
-    percentileScore: wine.percentileScore,
-  });
-
-  const penaltyNote =
-    result.drinkabilityPenalty < 0
-      ? "Scor ajustat pentru fereastra optima de consum."
-      : null;
-
-  return {
-    items: result.items,
-    subtotal: Math.round(result.rawSigmoidScore),
-    penaltyNote,
-    finalScore: result.finalScore,
-    qHat: result.qHat,
-    qEffective: result.qEffective,
-    qFinal: result.qFinal,
-    qualitySurplus: result.qualitySurplus,
-    rawSigmoidScore: result.rawSigmoidScore,
-    version: result.version,
-  };
-}
-
-/** Legacy v1 breakdown (additive model, clamp 45-98). */
-export function buildValueScoreV1Breakdown(wine: ValueScoreInput & { baseQuality: number }): ValueScoreBreakdown {
+  const baseQuality = resolveBaseQuality(wine);
+  const enriched: ValueScoreInput = { ...wine, baseQuality };
   const items: ValueScoreBreakdownItem[] = [];
   let score = 0;
 
-  // Calitate + eficienta pret: 43% / 32% (compenseaza usor vs 40%/30%, fara supra-recompensare).
-  const qualityPoints = wine.baseQuality * 0.43;
+  const qualityPoints = baseQuality * 0.43;
   score += qualityPoints;
   items.push({
     label: "Calitate de baza",
-    detail: `${wine.baseQuality}/100 x 43%`,
+    detail: `${baseQuality}/100 x 43%`,
     points: Math.round(qualityPoints * 10) / 10,
   });
 
-  const priceEfficiency = Math.max(0, wine.baseQuality - wine.price / 4);
+  const priceEfficiency = Math.max(0, baseQuality - wine.price / 4);
   const efficiencyPoints = priceEfficiency * 0.32;
   score += efficiencyPoints;
   items.push({
@@ -676,7 +681,7 @@ export function buildValueScoreV1Breakdown(wine: ValueScoreInput & { baseQuality
     });
   }
 
-  const worldClassBonus = calculateWorldClassPotentialBonus(wine);
+  const worldClassBonus = calculateWorldClassPotentialBonus(enriched);
   if (worldClassBonus.total > 0) {
     score += worldClassBonus.total;
     items.push(...worldClassBonus.items);
@@ -710,16 +715,40 @@ export function buildValueScoreV1Breakdown(wine: ValueScoreInput & { baseQuality
     }
   }
 
+  const vintageBonus = calculateVintageBonus(enriched);
+  if (vintageBonus.bonus > 0 && vintageBonus.item) {
+    score += vintageBonus.bonus;
+    items.push(vintageBonus.item);
+  }
+
   const subtotal = Math.round(score);
-  const finalScore = Math.max(45, Math.min(98, Math.round(score)));
+  const bounds = dynamicScoreBounds(baseQuality);
+  const finalScore = clampScore(score, bounds.min, bounds.max);
+
+  if (finalScore !== subtotal) {
+    items.push({
+      label: "Plafonare dinamica",
+      detail: `Interval ${bounds.min}-${bounds.max} (baza calitate ${baseQuality})`,
+      points: finalScore - subtotal,
+    });
+  }
 
   return {
     items,
     subtotal,
     penaltyNote,
     finalScore,
-    version: 1,
+    version: VALUE_SCORE_ALGORITHM_VERSION,
+    scoreMin: bounds.min,
+    scoreMax: bounds.max,
   };
+}
+
+/** @deprecated Alias pentru compatibilitate; foloseste buildValueScoreBreakdown. */
+export function buildValueScoreV1Breakdown(
+  wine: ValueScoreInput & { baseQuality: number },
+): ValueScoreBreakdown {
+  return buildValueScoreBreakdown(wine);
 }
 
 export function valueScoreInputFromWine(wine: {
@@ -750,7 +779,7 @@ export function valueScoreInputFromWine(wine: {
     price,
     isAutochthonous: isAutochthonousGrapeMix(grapes),
     region: wine.region?.name ?? "",
-    baseQuality: wine.estimatedQuality ?? undefined,
+    baseQuality: wine.estimatedQuality ?? defaultBaseQuality(price),
     wineMedals: wine.medals ?? [],
     grapeVarieties: grapes,
     wineryName: wine.winery?.name,
@@ -783,8 +812,7 @@ export function calculateInitialScores(input: ScoreInput): InitialScores {
     price,
     isAutochthonous: isAutochthonousGrapeMix(grapeVarieties),
     region: input.region ?? "",
-    baseQuality: input.baseQuality,
-    estimatedQuality: input.baseQuality,
+    baseQuality: input.baseQuality ?? defaultBaseQuality(price),
     wineMedals: input.wineMedals,
     criticScore: input.criticScore,
     grapeVarieties,

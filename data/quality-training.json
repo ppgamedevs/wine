@@ -1,0 +1,753 @@
+[
+  {
+    "wineId": "149",
+    "slug": "cramele-recas-solo-quinta-roze-2025",
+    "name": "Solo Quinta Roze",
+    "label": 71.4,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "rose",
+      "vintage": 2025,
+      "grapeVarieties": [
+        "Merlot",
+        "Syrah",
+        "Fetească Neagră",
+        "Novac",
+        "Negru de Drăgășani"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13,
+      "acidity": 4.4,
+      "cellarPotential": 2,
+      "medalWeight": 21,
+      "isAutochthonous": true,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "150",
+    "slug": "cramele-recas-solo-quinta-alb-2025",
+    "name": "Solo Quinta Alb",
+    "label": 80,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2025,
+      "grapeVarieties": [],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13.5,
+      "acidity": 4.4,
+      "cellarPotential": 2,
+      "medalWeight": 200,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "153",
+    "slug": "cramele-recas-muse-night-2025",
+    "name": "Muse Night",
+    "label": 67,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "rose",
+      "vintage": 2025,
+      "grapeVarieties": [
+        "de fructe confiate din postgust. Cupaj Merlot",
+        "Fetească Neagră"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13.5,
+      "acidity": 4.1,
+      "cellarPotential": 2,
+      "medalWeight": 7,
+      "isAutochthonous": true,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "154",
+    "slug": "cramele-recas-sole-roze-2025",
+    "name": "Sole Roze",
+    "label": 74.8,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "rose",
+      "vintage": 2025,
+      "grapeVarieties": [
+        "Merlot",
+        "Fetească Neagră"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13.5,
+      "acidity": 4,
+      "cellarPotential": 2,
+      "medalWeight": 47,
+      "isAutochthonous": true,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "157",
+    "slug": "cramele-recas-castel-huniade-roze-2023",
+    "name": "Castel Huniade Roze",
+    "label": 76.7,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "rose",
+      "vintage": 2023,
+      "grapeVarieties": [],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13,
+      "acidity": 4.8,
+      "cellarPotential": 2,
+      "medalWeight": 74,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "160",
+    "slug": "cramele-recas-la-stejari-chardonnay-2020",
+    "name": "La Stejari Chardonnay",
+    "label": 74.3,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2020,
+      "grapeVarieties": [
+        "Chardonnay"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13,
+      "acidity": 4.8,
+      "cellarPotential": 2,
+      "medalWeight": 42,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "161",
+    "slug": "cramele-recas-conacul-ambrozy-sauvignon-blanc-2018",
+    "name": "Conacul Ambrozy Sauvignon Blanc",
+    "label": 74.7,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2018,
+      "grapeVarieties": [
+        "Sauvignon Blanc"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13,
+      "acidity": null,
+      "cellarPotential": 2,
+      "medalWeight": 46,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "165",
+    "slug": "cramele-recas-sole-chardonnay-2025",
+    "name": "Sole Chardonnay",
+    "label": 80,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2025,
+      "grapeVarieties": [
+        "Chardonnay"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13.5,
+      "acidity": 4.7,
+      "cellarPotential": 2,
+      "medalWeight": 174,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "166",
+    "slug": "cramele-recas-sole-feteasca-regala-2024",
+    "name": "Sole Fetească Regală",
+    "label": 76.3,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2024,
+      "grapeVarieties": [
+        "Fetească Regală"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13.5,
+      "acidity": 4.5,
+      "cellarPotential": 2,
+      "medalWeight": 67,
+      "isAutochthonous": true,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "167",
+    "slug": "cramele-recas-sole-orange-wine-2023",
+    "name": "Sole Orange Wine",
+    "label": 68.8,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "orange",
+      "vintage": 2023,
+      "grapeVarieties": [
+        "Chardonnay",
+        "Muscat Ottonel",
+        "Sauvignon Blanc"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 12,
+      "acidity": 4.3,
+      "cellarPotential": 2,
+      "medalWeight": 11,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "169",
+    "slug": "cramele-recas-sole-sauvignon-blanc-2025",
+    "name": "Sole Sauvignon Blanc",
+    "label": 75.8,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2025,
+      "grapeVarieties": [
+        "Sauvignon Blanc"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13,
+      "acidity": 4.9,
+      "cellarPotential": 2,
+      "medalWeight": 60,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "179",
+    "slug": "cramele-recas-castel-huniade-riesling-2023",
+    "name": "Castel Huniade Riesling",
+    "label": 72.6,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2023,
+      "grapeVarieties": [
+        "Riesling"
+      ],
+      "region": "Recas",
+      "wineryName": "Cramele Recas",
+      "alcohol": 12,
+      "acidity": 5.5,
+      "cellarPotential": 2,
+      "medalWeight": 28,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "181",
+    "slug": "cramele-recas-castel-huniade-feteasca-regala-2023",
+    "name": "Castel Huniade Fetească Regală",
+    "label": 78.1,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2023,
+      "grapeVarieties": [
+        "Fetească Regală"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 11.31,
+      "acidity": 4.5,
+      "cellarPotential": 2,
+      "medalWeight": 104,
+      "isAutochthonous": true,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "182",
+    "slug": "cramele-recas-castel-huniade-sauvignon-blanc-2023",
+    "name": "Castel Huniade Sauvignon Blanc",
+    "label": 75.5,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2023,
+      "grapeVarieties": [
+        "Sauvignon Blanc"
+      ],
+      "region": "Recas",
+      "wineryName": "Cramele Recas",
+      "alcohol": 12.5,
+      "acidity": 5.1,
+      "cellarPotential": 2,
+      "medalWeight": 56,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "183",
+    "slug": "cramele-recas-castel-huniade-muscat-ottonel-2022",
+    "name": "Castel Huniade Muscat Ottonel",
+    "label": 67,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2022,
+      "grapeVarieties": [
+        "Muscat Ottonel"
+      ],
+      "region": "DOC Recaș",
+      "wineryName": "Cramele Recas",
+      "alcohol": 11.6,
+      "acidity": 4.2,
+      "cellarPotential": 2,
+      "medalWeight": 7,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "184",
+    "slug": "cramele-recas-schwaben-wein-riesling-italian-2023",
+    "name": "Schwaben Wein Riesling Italian",
+    "label": 65,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2023,
+      "grapeVarieties": [
+        "Riesling Itali"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 12,
+      "acidity": 4.7,
+      "cellarPotential": 2,
+      "medalWeight": 4,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "185",
+    "slug": "cramele-recas-schwaben-wein-feteasca-regala-2023",
+    "name": "Schwaben Wein Fetească Regală",
+    "label": 74.3,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2023,
+      "grapeVarieties": [
+        "Fetească Regală"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 11,
+      "acidity": 4.4,
+      "cellarPotential": 2,
+      "medalWeight": 42,
+      "isAutochthonous": true,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "186",
+    "slug": "cramele-recas-schwaben-wein-muscat-ottonel-2022",
+    "name": "Schwaben Wein Muscat Ottonel",
+    "label": 72.1,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "white",
+      "vintage": 2022,
+      "grapeVarieties": [
+        "Muscat Ottonel"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 11.9,
+      "acidity": 4.7,
+      "cellarPotential": 2,
+      "medalWeight": 25,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "187",
+    "slug": "cramele-recas-la-stejari-merlot-2020",
+    "name": "La Stejari Merlot",
+    "label": 69.7,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2020,
+      "grapeVarieties": [
+        "Merlot"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 14.5,
+      "acidity": 5.6,
+      "cellarPotential": 4,
+      "medalWeight": 14,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "188",
+    "slug": "cramele-recas-la-stejari-cabernet-sauvignon-2018",
+    "name": "La Stejari Cabernet Sauvignon",
+    "label": 71.4,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2018,
+      "grapeVarieties": [
+        "Cabernet Sauvignon"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 14,
+      "acidity": 5.6,
+      "cellarPotential": 4,
+      "medalWeight": 21,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "189",
+    "slug": "cramele-recas-cuvee-uberland-2021",
+    "name": "Cuvée Überland",
+    "label": 77.7,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2021,
+      "grapeVarieties": [
+        "Merlot",
+        "Cabernet Sauvignon",
+        "Fetească Neagră",
+        "Negru de Drăgășani"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 14,
+      "acidity": 5.5,
+      "cellarPotential": 4,
+      "medalWeight": 94,
+      "isAutochthonous": true,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "190",
+    "slug": "cramele-recas-selene-cabernet-sauvignon-2024",
+    "name": "Selene Cabernet Sauvignon",
+    "label": 74.9,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2024,
+      "grapeVarieties": [
+        "Cabernet Sauvignon"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 14,
+      "acidity": 5.9,
+      "cellarPotential": 4,
+      "medalWeight": 49,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "191",
+    "slug": "cramele-recas-selene-feteasca-neagra-2024",
+    "name": "Selene Fetească Neagră",
+    "label": 79.7,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2024,
+      "grapeVarieties": [
+        "Fetească Neagră"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 14.7,
+      "acidity": 5,
+      "cellarPotential": 4,
+      "medalWeight": 149,
+      "isAutochthonous": true,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "192",
+    "slug": "cramele-recas-selene-merlot-2024",
+    "name": "Selene Merlot",
+    "label": 76,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2024,
+      "grapeVarieties": [
+        "Merlot"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 14.5,
+      "acidity": 5.7,
+      "cellarPotential": 4,
+      "medalWeight": 63,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "193",
+    "slug": "cramele-recas-selene-syrah-2021",
+    "name": "Selene Syrah",
+    "label": 73.5,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2021,
+      "grapeVarieties": [
+        "Syrah"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 14.5,
+      "acidity": 5.3,
+      "cellarPotential": 4,
+      "medalWeight": 35,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "194",
+    "slug": "cramele-recas-selene-cabernet-sauvignon-magnum-2024",
+    "name": "Selene Cabernet Sauvignon Magnum",
+    "label": 74.9,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2024,
+      "grapeVarieties": [
+        "Cabernet Sauvignon"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 14,
+      "acidity": 5.9,
+      "cellarPotential": 4,
+      "medalWeight": 49,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "201",
+    "slug": "cramele-recas-castel-huniade-feteasca-neagra-2024",
+    "name": "Castel Huniade Fetească Neagră",
+    "label": 70.5,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2024,
+      "grapeVarieties": [
+        "Fetească Neagră"
+      ],
+      "region": "Recas",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13.5,
+      "acidity": 5.3,
+      "cellarPotential": 2,
+      "medalWeight": 17,
+      "isAutochthonous": true,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "202",
+    "slug": "cramele-recas-castel-huniade-cabernet-sauvignon-2022",
+    "name": "Castel Huniade Cabernet Sauvignon",
+    "label": 69.7,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2022,
+      "grapeVarieties": [
+        "Cabernet Sauvignon"
+      ],
+      "region": "Banat",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13,
+      "acidity": 5.4,
+      "cellarPotential": 2,
+      "medalWeight": 14,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "203",
+    "slug": "cramele-recas-castel-huniade-merlot-2022",
+    "name": "Castel Huniade Merlot",
+    "label": 67,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "red",
+      "vintage": 2022,
+      "grapeVarieties": [
+        "Merlot"
+      ],
+      "region": "Recas",
+      "wineryName": "Cramele Recas",
+      "alcohol": 13.7,
+      "acidity": 5.4,
+      "cellarPotential": 2,
+      "medalWeight": 7,
+      "isAutochthonous": false,
+      "isPremiumRegion": false
+    }
+  },
+  {
+    "wineId": "208",
+    "slug": "avincis-orange-2022",
+    "name": "Orange",
+    "label": 68.8,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "orange",
+      "vintage": 2022,
+      "grapeVarieties": [
+        "Tămâioasă Românească",
+        "Fetească Regală",
+        "Crâmpoșie Selecționată"
+      ],
+      "region": "Dragasani",
+      "wineryName": "Avincis",
+      "alcohol": 13.5,
+      "acidity": null,
+      "cellarPotential": 2,
+      "medalWeight": 11,
+      "isAutochthonous": true,
+      "isPremiumRegion": true
+    }
+  },
+  {
+    "wineId": "210",
+    "slug": "avincis-spumant-avincis-metoda-traditionla-extra-brut-0-75l",
+    "name": "Spumant Avincis, Metoda Traditionla, Extra Brut, 0.75l",
+    "label": 75,
+    "labelSources": [
+      "bootstrap_medals"
+    ],
+    "features": {
+      "wineType": "sparkling",
+      "vintage": null,
+      "grapeVarieties": [],
+      "region": "Dragasani",
+      "wineryName": "Avincis",
+      "alcohol": null,
+      "acidity": null,
+      "cellarPotential": 2,
+      "medalWeight": 50,
+      "isAutochthonous": false,
+      "isPremiumRegion": true
+    }
+  }
+]

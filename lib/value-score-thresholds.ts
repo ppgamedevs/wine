@@ -1,24 +1,20 @@
 /**
- * Praguri Value Score 2.0 (scala 2-99, normalizare percentile).
- * Prag minim recomandare activa = 75/100
+ * Praguri Value Score (scala 0-100).
+ * Prag minim recomandare = 75/100
  */
 export const MIN_RECOMMENDED_VALUE_SCORE = 75;
 
-/** 55-74: raport onest; sub 55: sub medie. */
-export const VALUE_SCORE_NEUTRAL_MIN = 55;
+/** Sub 70: nu recomandam activ; 70-74: pret mediu; 75+: merita banii. */
+export const VALUE_SCORE_NEUTRAL_MIN = 70;
 
-/** Sub 35: pret nejustificat. */
-export const VALUE_SCORE_POOR_MIN = 35;
-
-/** 90+: valoare exceptionala (top ~10%). */
+/** 90+: valoare exceptionala. */
 export const VALUE_SCORE_EXCEPTIONAL_MIN = 90;
 
 export type ValueScoreVerdict =
   | "exceptional"
   | "recommended"
   | "neutral"
-  | "not_recommended"
-  | "poor";
+  | "not_recommended";
 
 export function getValueScoreVerdict(
   score: number | null | undefined,
@@ -27,8 +23,7 @@ export function getValueScoreVerdict(
   if (value >= VALUE_SCORE_EXCEPTIONAL_MIN) return "exceptional";
   if (value >= MIN_RECOMMENDED_VALUE_SCORE) return "recommended";
   if (value >= VALUE_SCORE_NEUTRAL_MIN) return "neutral";
-  if (value >= VALUE_SCORE_POOR_MIN) return "not_recommended";
-  return "poor";
+  return "not_recommended";
 }
 
 export function meetsRecommendationThreshold(
@@ -46,10 +41,8 @@ export function valueScoreVerdictLabel(
     case "recommended":
       return "Merita banii";
     case "neutral":
-      return "Raport onest";
+      return "Pret mediu";
     case "not_recommended":
-      return "Sub medie la pretul actual";
-    case "poor":
-      return "Pret nejustificat";
+      return "Nu prea merita la pretul actual";
   }
 }

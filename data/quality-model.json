@@ -1,0 +1,102 @@
+{
+  "metadata": {
+    "version": "ridge-v1",
+    "trainedAt": "2026-07-10T09:27:55.520Z",
+    "trainSize": 31,
+    "testSize": 6,
+    "testRmse": 0.96,
+    "labelWeights": {
+      "critic": 0.45,
+      "expert": 0.25,
+      "vivino": 0.15,
+      "consumer": 0.15
+    },
+    "featureNames": [
+      "bias",
+      "type_red",
+      "type_white",
+      "type_rose",
+      "type_sparkling",
+      "type_other",
+      "autochthonous",
+      "premium_region",
+      "vintage_age",
+      "alcohol",
+      "acidity",
+      "cellar_potential",
+      "medal_log",
+      "region_enc",
+      "winery_enc",
+      "grape_enc"
+    ]
+  },
+  "intercept": 73.1885,
+  "coefficients": {
+    "bias": 73.1885,
+    "type_red": -0.1229,
+    "type_white": 0.272,
+    "type_rose": -0.0608,
+    "type_sparkling": 0.0441,
+    "type_other": -0.1393,
+    "autochthonous": 0.0859,
+    "premium_region": -0.0313,
+    "vintage_age": -0.2637,
+    "alcohol": 0.2069,
+    "acidity": 0.0133,
+    "cellar_potential": 0.2423,
+    "medal_log": 2.1755,
+    "region_enc": 0.0071,
+    "winery_enc": -0.0045,
+    "grape_enc": 0.0437
+  },
+  "encodings": {
+    "globalMean": 73.32903225806453,
+    "region": {
+      "banat": 74.03333333333335,
+      "recas": 71.4,
+      "doc recas": 67,
+      "dragasani": 71.9
+    },
+    "winery": {
+      "cramele recas": 73.42758620689655,
+      "avincis": 71.9
+    },
+    "primaryGrape": {
+      "merlot": 72.76666666666667,
+      "unknown": 77.23333333333333,
+      "de fructe confiate din postgust. cupaj merlot": 67,
+      "chardonnay": 74.36666666666667,
+      "sauvignon blanc": 75.33333333333333,
+      "feteasca regala": 76.23333333333333,
+      "riesling": 72.6,
+      "muscat ottonel": 69.55,
+      "riesling itali": 65,
+      "cabernet sauvignon": 72.72500000000001,
+      "feteasca neagra": 75.1,
+      "syrah": 73.5,
+      "tamaioasa romaneasca": 68.8
+    }
+  },
+  "normalization": {
+    "vintageAge": {
+      "mean": 3.225806451612903,
+      "std": 1.8787380359433594
+    },
+    "alcohol": {
+      "mean": 13.135806451612902,
+      "std": 0.9644379081454929
+    },
+    "acidity": {
+      "mean": 5.0032258064516135,
+      "std": 0.5526965398303836
+    },
+    "cellarPotential": {
+      "mean": 2.5161290322580645,
+      "std": 0.875139352661325
+    },
+    "medalLog": {
+      "mean": 5.12161542991215,
+      "std": 1.3616217608536318
+    }
+  }
+}
