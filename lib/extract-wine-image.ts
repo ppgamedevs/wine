@@ -41,7 +41,6 @@ async function main() {
   const urls = [
     wine.producerPageUrl,
     wine.sourceUrl,
-    "https://cramelerecas.ro/muse-stars-rose-spumant/",
   ].filter((value, index, array): value is string => {
     if (!value?.trim()) return false;
     return array.indexOf(value) === index;

@@ -301,6 +301,20 @@ function resolveAvincisKnownSlugs(wineName: string): string[] {
     slugs.push("orange-avincis-wine-72-en");
   }
 
+  if (
+    norm.includes("spumant") &&
+    (norm.includes("metoda") ||
+      norm.includes("traditional") ||
+      norm.includes("traditionla") ||
+      norm.includes("extra brut"))
+  ) {
+    slugs.push("vin-spumant-metoda-traditionala-vin-avincis-42-ro");
+  }
+
+  if (norm.includes("cuvee") && norm.includes("amelie")) {
+    slugs.push("cuvee-amelie-vin-alb-dulce-vin-avincis-41-ro");
+  }
+
   return slugs;
 }
 
@@ -719,8 +733,10 @@ export function inferAvincisProducerPageUrl(
 
   if (
     /spumant/.test(ctx) &&
-    (/metoda\s+traditional|traditionala|extra\s+brut|met\s+tradic/i.test(ctx) ||
-      /metoda-traditionala|spumant-metoda/i.test(ctx))
+    (/metod[aă]?\s*tradition/i.test(ctx) ||
+      /metoda-tradition/i.test(ctx) ||
+      /spumant-metoda/i.test(ctx) ||
+      /extra\s*brut/i.test(ctx))
   ) {
     return "https://www.avincis.ro/vin-spumant-metoda-traditionala-vin-avincis-42-ro.htm";
   }
@@ -1113,6 +1129,32 @@ export async function enrichWineFromProducerSite(input: {
     combinedText,
     canonical,
   };
+}
+
+/** When eMAG letterboxes a bottle photo, prefer the producer catalogue PNG. */
+export function shouldPreferProducerImageOverEmag(input: {
+  wineName: string;
+  wineType: string;
+  currentImageUrl: string | null | undefined;
+  currentImageSource: string | null | undefined;
+  producerImageUrl: string;
+}): boolean {
+  if (!input.producerImageUrl.trim()) return false;
+  if (!input.currentImageUrl?.trim()) return true;
+  if (input.currentImageSource !== "emag") return false;
+
+  const norm = input.wineName.toLowerCase();
+  const producer = input.producerImageUrl.toLowerCase();
+
+  if (
+    producer.includes("avincis.ro/img/vinuri/sticla_") &&
+    (input.wineType === "sparkling" ||
+      /spumant|metod[aă]?\s*tradition|extra\s*brut/i.test(norm))
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 export function producerImageSourceFromUrl(pageUrl: string): string {

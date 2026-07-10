@@ -110,6 +110,27 @@ function extractWithPatterns(html: string, patterns: RegExp[]): string[] {
   return matches;
 }
 
+function normalizeEmagProductImageUrl(resolved: URL): string {
+  const host = resolved.hostname.toLowerCase();
+  if (!host.includes("akamaized.net")) {
+    return resolved.toString();
+  }
+
+  if (!/\/products\/\d+\/\d+\/images\//.test(resolved.pathname)) {
+    return resolved.toString();
+  }
+
+  const width = resolved.searchParams.get("width");
+  const height = resolved.searchParams.get("height");
+  if (width && height && width === height) {
+    // Square Akamai crops on tall bottle shots often add visible side bands.
+    resolved.searchParams.delete("width");
+    resolved.searchParams.delete("height");
+  }
+
+  return resolved.toString();
+}
+
 function normalizeImageUrl(raw: string, pageUrl: string): string | null {
   const trimmed = raw.trim().replace(/&amp;/g, "&");
   if (!trimmed || trimmed.startsWith("data:")) return null;
@@ -117,7 +138,7 @@ function normalizeImageUrl(raw: string, pageUrl: string): string | null {
   try {
     const resolved = new URL(trimmed, pageUrl);
     if (!["http:", "https:"].includes(resolved.protocol)) return null;
-    return resolved.toString();
+    return normalizeEmagProductImageUrl(resolved);
   } catch {
     return null;
   }

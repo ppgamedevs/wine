@@ -16,6 +16,7 @@ import {
   parseAvincisProducerFacts,
   parseRecasProducerFacts,
   producerImageSourceFromUrl,
+  shouldPreferProducerImageOverEmag,
 } from "./wine-producer-enrichment";
 import { buildWineSlug } from "./wine-url";
 import { wines, wineries } from "./schema";
@@ -114,7 +115,16 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
     if (mappedType) patch.type = mappedType;
   }
 
-  if (c?.imageUrl) {
+  if (
+    c?.imageUrl &&
+    shouldPreferProducerImageOverEmag({
+      wineName: displayName,
+      wineType: wine.type,
+      currentImageUrl: wine.imageUrl,
+      currentImageSource: wine.imageSource,
+      producerImageUrl: c.imageUrl,
+    })
+  ) {
     const displayType = (patch.type as typeof wine.type | undefined) ?? wine.type;
     patch.imageUrl = c.imageUrl;
     patch.imageSource = producerImageSourceFromUrl(producer.producerPageUrl);
@@ -131,7 +141,7 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
       where: eq(wines.slug, newSlug),
       columns: { id: true },
     });
-    if (!slugTaken || slugTaken.id === wine.id) {
+    if ((!slugTaken || slugTaken.id === wine.id) && wine.status !== "verified") {
       patch.slug = newSlug;
     }
   }
