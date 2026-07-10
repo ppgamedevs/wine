@@ -1,7 +1,10 @@
 import type { WineType } from "@/types";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
-  VALUE_SCORE_NEUTRAL_MIN,
+  VALUE_SCORE_EXCEPTIONAL_MIN,
+  VALUE_SCORE_FAIR_MIN,
+  VALUE_SCORE_MODEST_MIN,
+  VALUE_SCORE_VERY_GOOD_MIN,
   valueScoreVerdictLabel,
 } from "@/lib/value-score-thresholds";
 
@@ -71,7 +74,7 @@ export interface VinScoreMeta {
   label: string;
 }
 
-/** Color-coded score bands for VinIntel 0-100 scale. Prag minim recomandare = 75/100. */
+/** Color-coded score bands for VinIntel 0-100 scale (v2). */
 export function getVinScoreMeta(score: number | null | undefined): VinScoreMeta {
   if (score === null || score === undefined) {
     return {
@@ -81,7 +84,15 @@ export function getVinScoreMeta(score: number | null | undefined): VinScoreMeta 
     };
   }
 
-  if (score >= MIN_RECOMMENDED_VALUE_SCORE) {
+  if (score >= VALUE_SCORE_EXCEPTIONAL_MIN) {
+    return {
+      badgeClass: "bg-emerald-800 text-white shadow-sm",
+      ringClass: "ring-emerald-700/35",
+      label: valueScoreVerdictLabel(score),
+    };
+  }
+
+  if (score >= VALUE_SCORE_VERY_GOOD_MIN) {
     return {
       badgeClass: "bg-emerald-700 text-white shadow-sm",
       ringClass: "ring-emerald-600/30",
@@ -89,10 +100,26 @@ export function getVinScoreMeta(score: number | null | undefined): VinScoreMeta 
     };
   }
 
-  if (score >= VALUE_SCORE_NEUTRAL_MIN) {
+  if (score >= MIN_RECOMMENDED_VALUE_SCORE) {
+    return {
+      badgeClass: "bg-emerald-600/90 text-white shadow-sm",
+      ringClass: "ring-emerald-600/25",
+      label: valueScoreVerdictLabel(score),
+    };
+  }
+
+  if (score >= VALUE_SCORE_FAIR_MIN) {
     return {
       badgeClass: "bg-amber-500/20 text-amber-950 border border-amber-500/35",
       ringClass: "ring-amber-500/30",
+      label: valueScoreVerdictLabel(score),
+    };
+  }
+
+  if (score >= VALUE_SCORE_MODEST_MIN) {
+    return {
+      badgeClass: "bg-orange-500/15 text-orange-950 border border-orange-500/30",
+      ringClass: "ring-orange-500/25",
       label: valueScoreVerdictLabel(score),
     };
   }

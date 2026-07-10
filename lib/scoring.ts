@@ -3,15 +3,19 @@ import { dessertFoodMatchBoost } from "@/lib/dessert-pairings";
 import {
   inferDrinkabilityWindow,
 } from "@/lib/scoring-v2/quality-estimate";
+import {
+  calculateVinIntelScore,
+  type VinIntelScoreInput,
+} from "@/lib/scoring-v2/value-score";
 import { buildFeatureInputFromWine } from "@/lib/quality-model/features";
 import { predictEstimatedQualitySync } from "@/lib/quality-model/predict";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
-  VALUE_SCORE_NEUTRAL_MIN,
+  VALUE_SCORE_FAIR_MIN,
 } from "@/lib/value-score-thresholds";
 import type { WineMedal } from "@/lib/schema";
 
-export const VALUE_SCORE_ALGORITHM_VERSION = 1;
+export const VALUE_SCORE_ALGORITHM_VERSION = 2;
 
 export interface ScoreInput {
   price: number;
@@ -116,10 +120,7 @@ export function mergeAnalysisScores(
     foodMatchScore: llm.foodMatchScore ?? null,
   };
 
-  const valueScore = applyRuleBasedNudge(
-    ruleScores.valueScore,
-    llmSuggestions.valueScore,
-  );
+  const valueScore = ruleScores.valueScore;
   const giftScore = applyRuleBasedNudge(
     ruleScores.giftScore,
     llmSuggestions.giftScore,
@@ -179,7 +180,7 @@ function inferOverpricedRisk(
   valueScore: number,
 ): OverpricedRisk {
   if (valueScore >= MIN_RECOMMENDED_VALUE_SCORE && price <= 80) return "low";
-  if (valueScore < VALUE_SCORE_NEUTRAL_MIN) return "high";
+  if (valueScore < VALUE_SCORE_FAIR_MIN) return "high";
   if (price > 80 && valueScore < MIN_RECOMMENDED_VALUE_SCORE) return "high";
   if (valueScore <= 50 || price > 120) return "high";
   return "medium";
@@ -614,11 +615,40 @@ export function calculateWorldClassPotentialBonus(
   return { total, items };
 }
 
+function toVinIntelScoreInput(wine: ValueScoreInput): VinIntelScoreInput {
+  return {
+    price: wine.price,
+    grapeVarieties: wine.grapeVarieties,
+    region: wine.region,
+    wineryName: wine.wineryName,
+    wineType: wine.wineType,
+    cellarPotential: wine.cellarPotential,
+    acidity: wine.acidity,
+    tasteProfile: wine.tasteProfile,
+    wineMedals: wine.wineMedals,
+    criticScore: wine.criticScore,
+    vintage: wine.vintage,
+    ratingAvg: wine.ratingAvg,
+    communityScore: wine.communityScore,
+    drinkabilityStart: wine.drinkabilityStart,
+    drinkabilityEnd: wine.drinkabilityEnd,
+    referenceYear: wine.referenceYear,
+  };
+}
+
+export interface ValueScoreBatchContext {
+  peerPriors?: Map<string, number>;
+  expectedCurves?: Map<string, { intercept: number; logSlope: number }>;
+}
+
 /**
- * Value Score VinIntel (formula aditiva v1 + 3 imbunatatiri).
+ * Value Score VinIntel v2: calitate intrinseca + eficienta pret.
  */
-export function calculateValueScore(wine: ValueScoreInput): number {
-  return buildValueScoreBreakdown(wine).finalScore;
+export function calculateValueScore(
+  wine: ValueScoreInput,
+  batchContext?: ValueScoreBatchContext,
+): number {
+  return buildValueScoreBreakdown(wine, batchContext).finalScore;
 }
 
 export interface ValueScoreBreakdownItem {
@@ -635,12 +665,52 @@ export interface ValueScoreBreakdown {
   version?: number;
   scoreMin?: number;
   scoreMax?: number;
+  quality?: number;
+  priceEfficiency?: number;
+  expectedQualityAtPrice?: number;
+  qualityConfidence?: number;
+  confidenceLabel?: string;
+  provisional?: boolean;
 }
 
 /**
  * Transparent breakdown of VinIntel Score factors for UI display.
  */
-export function buildValueScoreBreakdown(wine: ValueScoreInput): ValueScoreBreakdown {
+export function buildValueScoreBreakdown(
+  wine: ValueScoreInput,
+  batchContext?: ValueScoreBatchContext,
+): ValueScoreBreakdown {
+  const result = calculateVinIntelScore(toVinIntelScoreInput(wine), {
+    peerPriors: batchContext?.peerPriors,
+    expectedCurves: batchContext?.expectedCurves,
+  });
+
+  const scoreMin = Math.max(35, result.quality - 20);
+  const scoreMax = Math.min(97, result.quality + 8);
+
+  return {
+    items: result.items,
+    subtotal: Math.round(result.rawScore),
+    penaltyNote: result.provisional
+      ? "Scor provizoriu: date insuficiente pentru o estimare stabila a calitatii."
+      : null,
+    finalScore: result.valueScore,
+    version: VALUE_SCORE_ALGORITHM_VERSION,
+    scoreMin,
+    scoreMax,
+    quality: result.quality,
+    priceEfficiency: result.priceEfficiency,
+    expectedQualityAtPrice: result.expectedQualityAtPrice,
+    qualityConfidence: result.qualityConfidence,
+    confidenceLabel: result.confidenceLabel,
+    provisional: result.provisional,
+  };
+}
+
+/** Formula aditiva v1 (legacy, doar pentru audit/comparatie). */
+export function buildValueScoreV1Breakdown(
+  wine: ValueScoreInput,
+): ValueScoreBreakdown {
   const baseQuality = resolveBaseQuality(wine);
   const enriched: ValueScoreInput = { ...wine, baseQuality };
   const items: ValueScoreBreakdownItem[] = [];
@@ -738,17 +808,11 @@ export function buildValueScoreBreakdown(wine: ValueScoreInput): ValueScoreBreak
     subtotal,
     penaltyNote,
     finalScore,
-    version: VALUE_SCORE_ALGORITHM_VERSION,
+    version: 1,
     scoreMin: bounds.min,
     scoreMax: bounds.max,
+    quality: baseQuality,
   };
-}
-
-/** @deprecated Alias pentru compatibilitate; foloseste buildValueScoreBreakdown. */
-export function buildValueScoreV1Breakdown(
-  wine: ValueScoreInput & { baseQuality: number },
-): ValueScoreBreakdown {
-  return buildValueScoreBreakdown(wine);
 }
 
 export function valueScoreInputFromWine(wine: {

@@ -47,6 +47,26 @@ function ScoreColumn({
   );
 }
 
+function MetricPill({
+  label,
+  value,
+  suffix,
+}: {
+  label: string;
+  value: number;
+  suffix?: string;
+}) {
+  return (
+    <div className="rounded-lg border border-border/70 bg-secondary/30 px-3 py-2">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="font-serif text-lg font-semibold tabular-nums text-foreground">
+        {value}
+        {suffix ?? "/100"}
+      </p>
+    </div>
+  );
+}
+
 function BreakdownTable({
   wine,
 }: {
@@ -65,11 +85,37 @@ function BreakdownTable({
         De ce am dat acest scor
       </h3>
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-        VinIntel Score combina calitatea estimata, eficienta pretului, bonusuri
-        pentru soiuri autohtone, regiuni premium, medalii (pondere logaritmica),
-        clasa mondiala si bonus de vintage in fereastra optima de consum.
-        Plafonarea finala este dinamica, legata de calitatea de baza.
+        VinIntel Value Score v2 separa calitatea intrinseca (Q) de eficienta
+        pretului. Q foloseste date de degustare, medalii validate, regiune,
+        cramă si vintage, fara a infera calitatea din pret. Eficienta pretului
+        masoara cat de bine se pozitioneaza vinul fata de nivelul obisnuit al
+        segmentului sau la acel pret.
       </p>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {breakdown.quality != null ? (
+          <MetricPill label="Calitate estimata (Q)" value={breakdown.quality} />
+        ) : null}
+        {breakdown.priceEfficiency != null ? (
+          <MetricPill
+            label="Eficienta pret"
+            value={breakdown.priceEfficiency}
+          />
+        ) : null}
+        <MetricPill
+          label="VinIntel Value Score"
+          value={storedScore ?? breakdown.finalScore}
+        />
+        {breakdown.confidenceLabel ? (
+          <div className="rounded-lg border border-border/70 bg-secondary/30 px-3 py-2">
+            <p className="text-xs text-muted-foreground">Increderea datelor</p>
+            <p className="font-medium text-foreground">
+              {breakdown.confidenceLabel}
+              {breakdown.provisional ? " (scor provizoriu)" : ""}
+            </p>
+          </div>
+        ) : null}
+      </div>
 
       {editorialSummary ? (
         <p className="max-w-3xl text-base leading-relaxed text-foreground/90">
@@ -117,7 +163,7 @@ function BreakdownTable({
             ))}
             <tr className="bg-secondary/30">
               <td className="px-4 py-3 font-medium text-foreground" colSpan={2}>
-                Subtotal algoritm
+                Scor brut combinat
               </td>
               <td className="px-4 py-3 text-right font-semibold tabular-nums text-foreground">
                 {breakdown.subtotal}
@@ -135,10 +181,7 @@ function BreakdownTable({
             ) : null}
             <tr className="bg-wine/5">
               <td className="px-4 py-3 font-serif text-base font-semibold text-foreground" colSpan={2}>
-                VinIntel Score final
-                {storedScore != null && storedScore !== breakdown.finalScore
-                  ? " (ajustat editorial)"
-                  : null}
+                VinIntel Value Score final
               </td>
               <td className="px-4 py-3 text-right">
                 <span className="font-serif text-lg font-bold text-wine">
@@ -178,7 +221,7 @@ export function WineDualScores({ wine }: { wine: WineWithRelations }) {
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
             {hasVinIntelScore ? (
               <ScoreColumn
-                title="VinIntel Score"
+                title="VinIntel Value Score"
                 badge={
                   <div className="flex flex-col items-start gap-2">
                     <VinScoreBadge score={wine.valueScore!} size="lg" />

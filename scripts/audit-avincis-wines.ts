@@ -130,7 +130,7 @@ function noteMismatch(
   const label = getValueScoreVerdict(valueScore);
   const exceptional = label === "exceptional";
   const recommended = label === "recommended" || exceptional;
-  const poor = label === "not_recommended";
+  const poor = label === "overpriced";
 
   if (exceptional && /mediu|nu prea|sub prag|alternative/i.test(text)) {
     return "text_too_negative_for_score";

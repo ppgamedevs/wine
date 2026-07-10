@@ -28,6 +28,7 @@ import {
   SITE,
   type FaqEntry,
 } from "@/lib/seo";
+import { VALUE_SCORE_BANDS } from "@/lib/value-score-thresholds";
 
 const PATH = "/cum-functioneaza-scorurile";
 
@@ -55,9 +56,9 @@ const scores = [
     summary:
       "Cat de bun este raportul calitate-pret. Cel mai important scor de pe platforma.",
     factors: [
-      "Calitatea perceputa (note de degustare, recenzii, premii) raportata la pret",
-      "Pozitionarea fata de vinuri similare ca stil si regiune",
-      "Consistenta intre vintage-uri si reputatia cramei",
+      "Calitate intrinseca estimata (Q): note, medalii validate, regiune, cramă, vintage",
+      "Eficienta pretului fata de vinuri similare la acel pret (70 = nivel obisnuit al segmentului)",
+      "Combinatie 72% calitate + 28% eficienta pret, cu plafon legat de Q real",
     ],
   },
   {
@@ -111,7 +112,7 @@ const faq: FaqEntry[] = [
   {
     question: "Cum este calculat Value Score?",
     answer:
-      "Value Score combina calitatea perceputa a vinului (note de degustare, recenzii independente, premii) cu pretul mediu in RON si pozitionarea fata de vinuri similare. Rezultatul este un numar de la 0 la 100, unde valorile mari inseamna un raport calitate-pret excelent.",
+      "Value Score v2 combina calitatea intrinseca (Q) cu eficienta pretului. Q estimeaza cat de bun este vinul fara a folosi pretul. Eficienta pretului masoara cat de bine se pozitioneaza fata de nivelul obisnuit al segmentului sau la acel pret. Rezultatul final este 72% Q + 28% eficienta pret.",
   },
   {
     question: "Sunt scorurile influentate de bani sau de crame?",
@@ -249,38 +250,18 @@ export default function ScoringMethodologyPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="font-semibold text-foreground">
-                      90 - 100
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      Exceptional. Printre cele mai bune alegeri din categoria sa.
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-semibold text-foreground">
-                      75 - 89
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      Foarte bun. O alegere sigura, recomandata cu incredere.
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-semibold text-foreground">
-                      60 - 74
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      Solid. Decent pentru pretul lui, dar exista si alternative.
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-semibold text-foreground">
-                      sub 60
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      Cu rezerve. La pretul actual, cauta alternative mai bune.
-                    </TableCell>
-                  </TableRow>
+                  {VALUE_SCORE_BANDS.map((band) => (
+                    <TableRow key={band.label}>
+                      <TableCell className="font-semibold text-foreground">
+                        {band.min === 0
+                          ? `sub ${band.max + 1}`
+                          : `${band.min} - ${band.max}`}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {band.label}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
