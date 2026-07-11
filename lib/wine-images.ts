@@ -12,6 +12,8 @@ const KNOWN_OPTIMIZED_HOSTS = [
   "cramelerecas.ro",
   "cotnari.ro",
   "avincis.ro",
+  "ballageza.com",
+  "www.ballageza.com",
   "liliac.ro",
   "budureasca.ro",
   "lacertawinery.ro",

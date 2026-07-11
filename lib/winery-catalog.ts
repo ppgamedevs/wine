@@ -135,7 +135,7 @@ Pe VinIntel listam vinurile Recas cu preturi in RON, scoruri de valoare si recom
       "Samburesti este una dintre podgoriile rosii de referinta ale Romaniei. Domeniile Samburesti produce vinuri corpolente, cu maturare in barrique, care au facut cunoscut Cabernet-ul oltenesc.",
   },
   "balla-geza": {
-    logoUrl: "https://ballageza.ro/wp-content/uploads/logo.png",
+    logoUrl: "https://www.ballageza.com/assets/site/img/logo/balla-geza.svg",
     tagline:
       "Crama din Minis, specializata in soiul autohton Cadarca si vinuri de pe terase de piatra.",
     story:

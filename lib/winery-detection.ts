@@ -21,6 +21,7 @@ export const KNOWN_WINERY_ALIASES: { name: string; aliases: string[] }[] = [
   { name: "Cramele Recas", aliases: ["recas", "recaș", "cramele recas", "cramele-recas", "domeniile recas", "domeniile-recas"] },
   { name: "Purcari", aliases: ["purcari", "chateau purcari", "vinaria purcari"] },
   { name: "Avincis", aliases: ["avincis"] },
+  { name: "Balla Geza", aliases: ["balla geza", "ballageza", "balla geza", "wine princess"] },
   { name: "Davino", aliases: ["davino"] },
   { name: "Cotnari", aliases: ["cotnari"] },
   { name: "Jidvei", aliases: ["jidvei"] },

@@ -1,3 +1,4 @@
+import { resolveBallaGezaWineFromCatalog } from "@/lib/ballageza-producer";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import type { WineMedal, ProducerPageContent } from "@/lib/schema";
 import {
@@ -333,6 +334,7 @@ export function extractProducerPageFromHtml(
   const richText = htmlToRichText(html);
   const isAvincis = pageUrl.includes("avincis.ro");
   const isRecas = pageUrl.includes("cramelerecas.ro");
+  const isBallaGeza = pageUrl.includes("ballageza.com");
 
   const medals = normalizeWineMedals(
     isAvincis
@@ -355,7 +357,9 @@ export function extractProducerPageFromHtml(
           if (start < 0) return null;
           return plain.slice(start, start + 1200).trim();
         })()
-      : null;
+      : isBallaGeza
+        ? (resolveBallaGezaWineFromCatalog(html, pageUrl)?.tastingNotes ?? null)
+        : null;
 
   const culinaryPairings = isRecas
     ? extractHtmlSectionByPattern(html, /Asocieri\s+culinare/i)

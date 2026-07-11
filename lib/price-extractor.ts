@@ -1,4 +1,8 @@
 import { generateObject } from "ai";
+import {
+  isBallaGezaUrl,
+  resolveBallaGezaWineFromCatalog,
+} from "@/lib/ballageza-producer";
 import { z } from "zod";
 import { getSommelierModel } from "@/lib/ai/model";
 import {
@@ -481,6 +485,26 @@ function needsLlmFallback(
   );
 }
 
+function extractBallaGezaProduct(
+  html: string,
+  finalUrl: string,
+): ExtractedProductData | null {
+  if (!isBallaGezaUrl(finalUrl)) return null;
+
+  const wine = resolveBallaGezaWineFromCatalog(html, finalUrl);
+  if (!wine) return null;
+
+  return {
+    sourceUrl: finalUrl,
+    finalUrl: wine.producerPageUrl,
+    name: wine.name,
+    price: null,
+    imageUrl: wine.imageUrl,
+    producer: "Balla Géza",
+    vintage: wine.vintage,
+  };
+}
+
 export async function extractProductFromHtml(
   html: string,
   finalUrl: string,
@@ -492,7 +516,12 @@ export async function extractProductFromHtml(
 
   let result = attachSourceContext(emptyProduct(sourceUrl, finalUrl), sourceUrl, finalUrl);
 
-  if (host.includes("emag.ro")) {
+  if (isBallaGezaUrl(finalUrl)) {
+    const ballageza = extractBallaGezaProduct(html, finalUrl);
+    if (ballageza) {
+      result = attachSourceContext(ballageza, sourceUrl, ballageza.finalUrl);
+    }
+  } else if (host.includes("emag.ro")) {
     result = attachSourceContext(extractEmagProduct(html, finalUrl), sourceUrl, finalUrl);
   } else {
     result = attachSourceContext(
@@ -504,6 +533,7 @@ export async function extractProductFromHtml(
 
   const shouldUseLlm =
     options.allowLlm !== false &&
+    !isBallaGezaUrl(finalUrl) &&
     (host.includes("emag.ro") ? needsLlmFallback(result, false) : true);
 
   if (shouldUseLlm) {

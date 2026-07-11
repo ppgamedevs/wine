@@ -31,6 +31,12 @@ import { generateAndApplyFullEditorial } from "@/lib/wine-enrichment";
 import { buildWineImageAlt } from "@/lib/wine-images";
 import { resolveTechSpecs, techSpecsForDb } from "@/lib/wine-tech-specs";
 import {
+  buildBallaGezaFocusedPageText,
+  inferBallaGezaProducerPageUrl,
+  isBallaGezaUrl,
+  parseBallaGezaProducerFacts,
+} from "@/lib/ballageza-producer";
+import {
   enrichWineFromProducerSite,
   inferAvincisProducerPageUrl,
   inferRecasProducerPageUrl,
@@ -58,7 +64,7 @@ function resolvePreferredProducerPageUrl(finalUrl: string): string | null {
   try {
     const parsed = new URL(finalUrl);
     const host = parsed.hostname.replace(/^www\./, "");
-    if (host.includes("cramelerecas.ro") || host.includes("avincis.ro")) {
+    if (host.includes("cramelerecas.ro") || host.includes("avincis.ro") || host.includes("ballageza.com")) {
       return finalUrl;
     }
 
@@ -76,8 +82,10 @@ function resolvePreferredProducerPageForImport(
     resolvePreferredProducerPageUrl(finalUrl) ??
     inferRecasProducerPageUrl("", finalUrl) ??
     inferAvincisProducerPageUrl("", finalUrl) ??
+    inferBallaGezaProducerPageUrl("", finalUrl) ??
     inferRecasProducerPageUrl(productName, finalUrl) ??
-    inferAvincisProducerPageUrl(productName, finalUrl)
+    inferAvincisProducerPageUrl(productName, finalUrl) ??
+    inferBallaGezaProducerPageUrl(productName, finalUrl)
   );
 }
 
@@ -91,7 +99,9 @@ function applySourceProducerFacts<T extends { name: string }>(
 
   const facts = finalUrl.includes("avincis.ro")
     ? parseAvincisProducerFacts(html, finalUrl)
-    : parseRecasProducerFacts(html, finalUrl);
+    : finalUrl.includes("ballageza.com")
+      ? parseBallaGezaProducerFacts(html, finalUrl)
+      : parseRecasProducerFacts(html, finalUrl);
   if (!facts?.name) return product;
 
   return { ...product, name: facts.name };
@@ -286,7 +296,10 @@ async function fetchSourcePageContent(sourceUrl: string): Promise<{
   redirectChain: string[];
 }> {
   const page = await fetchPageWithResolution(sourceUrl);
-  const pageText = stripHtml(page.html).slice(0, MAX_PAGE_CHARS);
+  const focusedText = isBallaGezaUrl(page.finalUrl)
+    ? buildBallaGezaFocusedPageText(page.html, page.finalUrl)
+    : null;
+  const pageText = (focusedText ?? stripHtml(page.html)).slice(0, MAX_PAGE_CHARS);
   return {
     html: page.html,
     pageText,

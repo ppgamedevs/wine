@@ -434,7 +434,7 @@ const winerySeed = [
     regionSlug: "minis",
     verified: false,
     foundedYear: 1999,
-    website: "https://ballageza.ro",
+    website: "https://www.ballageza.com",
     description:
       "Crama din Minis, specializata in soiul autohton Cadarca si vinuri de pe terase de piatra.",
   },

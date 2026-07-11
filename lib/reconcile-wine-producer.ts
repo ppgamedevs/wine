@@ -10,6 +10,9 @@ import { db } from "./db";
 import { generateAndApplyFullEditorial } from "./wine-enrichment";
 import { buildWineImageAlt } from "./wine-images";
 import {
+  inferBallaGezaProducerPageUrl,
+} from "./ballageza-producer";
+import {
   enrichWineFromProducerSite,
   inferAvincisProducerPageUrl,
   inferRecasProducerPageUrl,
@@ -45,16 +48,24 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
     if (wine.sourceUrl?.includes("avincis.ro")) {
       return wine.sourceUrl;
     }
+    if (wine.sourceUrl?.includes("ballageza.com")) {
+      return wine.sourceUrl;
+    }
     const inferredFromRetail = inferRecasProducerPageUrl("", retailUrl);
     if (inferredFromRetail) return inferredFromRetail;
     const inferredAvincis = inferAvincisProducerPageUrl(wine.name, retailUrl);
     if (inferredAvincis) return inferredAvincis;
+    const inferredBallaGeza = inferBallaGezaProducerPageUrl(wine.name, retailUrl);
+    if (inferredBallaGeza) return inferredBallaGeza;
     const inferred = inferRecasProducerPageUrl(wine.name, retailUrl);
     if (inferred) return inferred;
     if (wine.producerPageUrl?.includes("cramelerecas.ro")) {
       return wine.producerPageUrl;
     }
     if (wine.producerPageUrl?.includes("avincis.ro")) {
+      return wine.producerPageUrl;
+    }
+    if (wine.producerPageUrl?.includes("ballageza.com")) {
       return wine.producerPageUrl;
     }
     return null;

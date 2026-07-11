@@ -1,3 +1,8 @@
+import {
+  inferBallaGezaProducerPageUrl,
+  parseBallaGezaProducerFacts,
+  resolveBallaGezaWineFromCatalog,
+} from "@/lib/ballageza-producer";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import { extractPdfTextFromUrl } from "@/lib/pdf-text";
 import type { GrapeVarietyShare } from "@/lib/schema";
@@ -49,6 +54,7 @@ const WINERY_SITE_ALIASES: Record<string, string[]> = {
     "https://cramelerecas.ro",
   ],
   avincis: ["https://avincis.ro", "https://www.avincis.ro"],
+  "balla-geza": ["https://www.ballageza.com", "https://ballageza.com"],
 };
 
 function normalizeMatchText(text: string): string {
@@ -318,6 +324,26 @@ function resolveAvincisKnownSlugs(wineName: string): string[] {
   return slugs;
 }
 
+function resolveBallaGezaKnownSlugs(wineName: string): string[] {
+  const url = inferBallaGezaProducerPageUrl(wineName);
+  if (!url) return [];
+
+  try {
+    const pathname = new URL(url).pathname.replace(/\/+$/, "");
+    const segment = pathname.split("/").filter(Boolean).pop();
+    return segment ? [segment] : [];
+  } catch {
+    return [];
+  }
+}
+
+function buildBallaGezaUrlCandidates(baseUrl: string, slugSegment: string): string[] {
+  return [
+    new URL(`/ro/catalog/vinuri/${slugSegment}`, baseUrl).toString(),
+    new URL(`/catalog/vinuri/${slugSegment}`, baseUrl).toString(),
+  ];
+}
+
 function wineSlugCandidates(wineName: string, winerySlug?: string): string[] {
   const cleaned = wineName
     .replace(/\b\d{4}\b/g, " ")
@@ -338,7 +364,9 @@ function wineSlugCandidates(wineName: string, winerySlug?: string): string[] {
       ? resolveRecasKnownSlugs(wineName)
       : winerySlug === "avincis"
         ? resolveAvincisKnownSlugs(wineName)
-        : [];
+        : winerySlug === "balla-geza"
+          ? resolveBallaGezaKnownSlugs(wineName)
+          : [];
 
   return [...new Set([...known, slug, compact, seriesSlug].filter(Boolean))];
 }
@@ -408,7 +436,9 @@ function buildProductPageCandidates(
       ? ["/{slug}/", "/vinuri/{slug}/", "/vinuri/{slug}"]
       : winerySlug === "avincis"
         ? ["/{slug}.htm"]
-        : ["/vinuri/{slug}/", "/vinuri/{slug}"];
+        : winerySlug === "balla-geza"
+          ? ["/ro/catalog/vinuri/{slug}", "/catalog/vinuri/{slug}"]
+          : ["/vinuri/{slug}/", "/vinuri/{slug}"];
 
   const candidates: string[] = [];
   for (const slug of slugs) {
@@ -969,6 +999,9 @@ function scoreProducerPage(
   if (/aciditate|vol\.?\s*alc|clasificare|cupaj|arome/i.test(text)) score += 8;
   if (/fisa.*degustare|degustare/i.test(text)) score += 4;
   if (pageUrl.includes("/vinuri/")) score += 5;
+  if (pageUrl.includes("ballageza.com") && resolveBallaGezaWineFromCatalog(html, pageUrl, wineName)) {
+    score += 20;
+  }
 
   const knownSlugs = resolveRecasKnownSlugs(wineName);
   for (const slug of knownSlugs) {
@@ -1071,6 +1104,25 @@ export async function enrichWineFromProducerSite(input: {
     }
   }
 
+  if (
+    input.preferredPageUrl &&
+    input.winerySlug === "balla-geza" &&
+    input.preferredPageUrl.includes("ballageza.com")
+  ) {
+    const preferred = await fetchProducerHtml(input.preferredPageUrl);
+    const preferredFacts = preferred
+      ? parseBallaGezaProducerFacts(
+          preferred.html,
+          preferred.finalUrl,
+          input.wineName,
+        )
+      : null;
+    if (preferred && preferredFacts) {
+      bestPage = { ...preferred, score: 100 };
+      preferredLocked = true;
+    }
+  }
+
   if (!preferredLocked) {
     for (const base of bases) {
       const slugFromUrl =
@@ -1084,7 +1136,11 @@ export async function enrichWineFromProducerSite(input: {
             ? resolveAvincisKnownSlugs(input.wineName).flatMap((slug) =>
                 buildAvincisUrlCandidates(base, slug),
               )
-            : [];
+            : input.winerySlug === "balla-geza"
+              ? resolveBallaGezaKnownSlugs(input.wineName).flatMap((slug) =>
+                  buildBallaGezaUrlCandidates(base, slug),
+                )
+              : [];
 
       const candidates = [
         ...extraCandidates,
@@ -1123,7 +1179,13 @@ export async function enrichWineFromProducerSite(input: {
       ? parseRecasProducerFacts(bestPage.html, bestPage.finalUrl)
       : input.winerySlug === "avincis"
         ? parseAvincisProducerFacts(bestPage.html, bestPage.finalUrl)
-        : null;
+        : input.winerySlug === "balla-geza"
+          ? parseBallaGezaProducerFacts(
+              bestPage.html,
+              bestPage.finalUrl,
+              input.wineName,
+            )
+          : null;
 
   return {
     producerPageUrl: bestPage.finalUrl,
@@ -1169,6 +1231,9 @@ export function producerImageSourceFromUrl(pageUrl: string): string {
     }
     if (host.includes("avincis")) {
       return "avincis";
+    }
+    if (host.includes("ballageza")) {
+      return "ballageza";
     }
     const [label] = host.split(".");
     return label || host;
