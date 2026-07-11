@@ -3,6 +3,10 @@ import type { GrapeVarietyShare } from "@/lib/schema";
 import type { WineSweetnessLevel } from "@/lib/wine-tech-specs";
 import { slugify } from "@/lib/wine-url";
 
+/** Logo oficial Balla Geza (PNG), acelasi folosit la import pe paginile de produs. */
+export const BALLA_GEZA_WINERY_LOGO_URL =
+  "https://www.ballageza.com/assets/site/img/logo/BG_f.w.logo3.png";
+
 export interface BallaGezaCanonicalFacts {
   name: string | null;
   grapeVarieties: GrapeVarietyShare[];

@@ -8,13 +8,16 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WineryLogo } from "@/components/wineries/winery-logo";
+import { resolveWineryLogoUrl } from "@/lib/winery-catalog";
 import type { WineryListItem } from "@/types";
 
 export function WineryCard({ winery }: { winery: WineryListItem }) {
+  const logoUrl = resolveWineryLogoUrl(winery.slug, winery.logoUrl);
+
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-wine/30 hover:shadow-xl">
       <div className="flex items-start gap-4 p-5">
-        <WineryLogo name={winery.name} logoUrl={winery.logoUrl} size="card" />
+        <WineryLogo name={winery.name} logoUrl={logoUrl} size="card" />
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">

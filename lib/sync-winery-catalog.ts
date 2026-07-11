@@ -11,9 +11,16 @@ import { wineries } from "./schema";
 
 async function logoUrlWorks(url: string): Promise<boolean> {
   try {
-    const response = await fetch(url, { method: "HEAD", redirect: "follow" });
+    const response = await fetch(url, {
+      method: "HEAD",
+      redirect: "follow",
+      signal: AbortSignal.timeout(12_000),
+    });
     if (response.ok) return true;
-    const getResponse = await fetch(url, { redirect: "follow" });
+    const getResponse = await fetch(url, {
+      redirect: "follow",
+      signal: AbortSignal.timeout(12_000),
+    });
     return getResponse.ok;
   } catch {
     return false;

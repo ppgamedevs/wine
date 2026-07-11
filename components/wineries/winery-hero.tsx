@@ -14,6 +14,7 @@ import { PremiumBadge } from "@/components/wineries/premium-badge";
 import { WineryLogo } from "@/components/wineries/winery-logo";
 import {
   getWineryCatalogEnrichment,
+  resolveWineryLogoUrl,
 } from "@/lib/winery-catalog";
 import { trackWineryEvent } from "@/lib/winery-analytics-client";
 import { isWineryPremium, resolveWineryStory } from "@/lib/winery-premium";
@@ -61,7 +62,7 @@ export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHero
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           <WineryLogo
             name={winery.name}
-            logoUrl={winery.logoUrl}
+            logoUrl={resolveWineryLogoUrl(winery.slug, winery.logoUrl)}
             size="hero"
             priority
           />

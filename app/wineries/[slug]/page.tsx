@@ -13,6 +13,7 @@ import { WineryPremiumBanner } from "@/components/wineries/winery-premium-banner
 import { Button } from "@/components/ui/button";
 import { formatRon } from "@/lib/format";
 import { getAllWinerySlugs, getWineryBySlug, getWineryPublishedEvents } from "@/lib/queries";
+import { resolveWineryLogoUrl } from "@/lib/winery-catalog";
 import { isWineryPremium, canTrackWineryAnalytics } from "@/lib/winery-premium";
 import {
   absoluteUrl,
@@ -94,6 +95,7 @@ export async function generateMetadata({
   if (!winery) return { title: "Crama negasita" };
 
   const url = absoluteUrl(`/wineries/${winery.slug}`);
+  const logoUrl = resolveWineryLogoUrl(winery.slug, winery.logoUrl);
   const description =
     winery.description ??
     `${winery.name} din ${winery.region?.name ?? "Romania"}: ${winery.wines.length} vinuri, scoruri, preturi in RON si pairing-uri.`;
@@ -114,7 +116,7 @@ export async function generateMetadata({
       siteName: SITE.name,
       title: `${winery.name} | VinIntel`,
       description,
-      images: winery.logoUrl ? [{ url: winery.logoUrl }] : undefined,
+      images: logoUrl ? [{ url: logoUrl }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
@@ -141,6 +143,7 @@ export default async function WineryPage({ params }: WineryPageProps) {
   const stats = computeStats(winery);
   const faq = buildWineryFaq(winery);
   const url = absoluteUrl(`/wineries/${winery.slug}`);
+  const logoUrl = resolveWineryLogoUrl(winery.slug, winery.logoUrl);
 
   const wineryJsonLd = {
     "@context": "https://schema.org",
@@ -148,7 +151,7 @@ export default async function WineryPage({ params }: WineryPageProps) {
     name: winery.name,
     description: winery.description ?? undefined,
     url,
-    logo: winery.logoUrl ?? undefined,
+    logo: logoUrl ?? undefined,
     foundingDate: winery.foundedYear ? String(winery.foundedYear) : undefined,
     sameAs:
       winery.verified && winery.website ? [winery.website] : undefined,

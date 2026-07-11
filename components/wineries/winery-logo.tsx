@@ -1,5 +1,8 @@
+"use client";
+
 import { Building2 } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 type WineryLogoSize = "card" | "hero" | "inline";
@@ -43,7 +46,9 @@ export function WineryLogo({
   priority = false,
   className,
 }: WineryLogoProps) {
+  const [failed, setFailed] = useState(false);
   const config = SIZE_CONFIG[size];
+  const showLogo = Boolean(logoUrl?.trim()) && !failed;
 
   return (
     <div
@@ -53,14 +58,15 @@ export function WineryLogo({
         className,
       )}
     >
-      {logoUrl ? (
+      {showLogo ? (
         <Image
-          src={logoUrl}
+          src={logoUrl!.trim()}
           alt={name}
           fill
           priority={priority}
           sizes={config.sizes}
           className={cn("object-contain object-center", config.padding)}
+          onError={() => setFailed(true)}
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-wine/[0.06] text-wine">
