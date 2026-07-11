@@ -3,7 +3,7 @@ import { eq, inArray } from "drizzle-orm";
 import { db } from "../lib/db";
 import { regions, wines } from "../lib/schema";
 
-const WINE_IDS = [251];
+const WINE_IDS = [252, 253, 254, 255, 256, 257, 258];
 
 async function main() {
   const minis = await db.query.regions.findFirst({

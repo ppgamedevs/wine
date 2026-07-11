@@ -98,13 +98,25 @@ function parseVolumeMl(raw: string | null): number | null {
 export function buildBallaGezaWineUrl(input: {
   name: string;
   vintage: number | null;
+  category?: string | null;
 }): string {
   const slug = slugify(input.name.replace(/\s*&\s*/g, " "));
   if (!slug) return BALLAGEZA_CATALOG_BASE;
+
+  const categorySlug = input.category
+    ? slugify(input.category.replace(/\s+/g, " "))
+    : null;
+
   if (input.vintage == null) {
     return `${BALLAGEZA_CATALOG_BASE}/${slug}`;
   }
-  return `${BALLAGEZA_CATALOG_BASE}/${slug},${input.vintage}`;
+
+  const vintageSegment =
+    categorySlug && categorySlug !== "classic"
+      ? `${input.vintage}-${categorySlug}`
+      : String(input.vintage);
+
+  return `${BALLAGEZA_CATALOG_BASE}/${slug},${vintageSegment}`;
 }
 
 export function isBallaGezaUrl(url: string): boolean {
@@ -117,7 +129,7 @@ export function isBallaGezaUrl(url: string): boolean {
 
 export function parseBallaGezaUrlHint(
   pageUrl: string,
-): { slug: string; vintage: number | null } | null {
+): { slug: string; vintage: number | null; category: string | null } | null {
   try {
     const pathname = new URL(pageUrl).pathname.replace(/\/+$/, "");
     const segments = pathname.split("/").filter(Boolean);
@@ -126,17 +138,26 @@ export function parseBallaGezaUrlHint(
       return null;
     }
 
-    const [slugPart, vintagePart] = last.split(",");
+    const [slugPart, vintagePartRaw] = last.split(",");
     const slug = decodeURIComponent(slugPart ?? "").trim();
     if (!slug) return null;
 
-    const vintage = vintagePart?.trim()
-      ? Number.parseInt(vintagePart.trim(), 10)
+    const vintagePart = vintagePartRaw?.trim() ?? "";
+    const vintageMatch = vintagePart.match(/^(\d{4})/);
+    const categoryMatch = vintagePart.match(/^\d{4}-(.+)$/);
+
+    const vintage = vintageMatch?.[1]
+      ? Number.parseInt(vintageMatch[1], 10)
+      : null;
+
+    const category = categoryMatch?.[1]
+      ? normalizeMatchText(categoryMatch[1].replace(/-/g, " "))
       : null;
 
     return {
       slug,
       vintage: Number.isFinite(vintage ?? NaN) ? vintage : null,
+      category,
     };
   } catch {
     return null;
@@ -239,6 +260,7 @@ function parseBallaGezaModalBlock(
     producerPageUrl: buildBallaGezaWineUrl({
       name,
       vintage: Number.isFinite(vintage ?? NaN) ? vintage : null,
+      category,
     }),
   };
 }
@@ -262,7 +284,7 @@ export function parseAllBallaGezaWinesFromCatalog(html: string): BallaGezaWineRe
 
 function scoreWineMatch(
   wine: BallaGezaWineRecord,
-  hint: { slug: string; vintage: number | null },
+  hint: { slug: string; vintage: number | null; category: string | null },
   wineNameHint?: string | null,
 ): number {
   let score = 0;
@@ -272,7 +294,17 @@ function scoreWineMatch(
   if (wineNameHint && slugMatchesWine(wineSlugFromName(wineNameHint), wine.name)) {
     score += 20;
   }
-  if (wine.category?.toLowerCase() === "classic") score += 5;
+
+  if (hint.category) {
+    const wineCategory = normalizeMatchText(wine.category ?? "");
+    if (wineCategory.includes(hint.category) || hint.category.includes(wineCategory)) {
+      score += 25;
+    } else {
+      score -= 20;
+    }
+  } else if (wine.category?.toLowerCase() === "classic") {
+    score += 5;
+  }
 
   return score;
 }
@@ -345,6 +377,13 @@ export function parseBallaGezaProducerFacts(
     imageUrl: wine.imageUrl,
     color: wine.color,
   };
+}
+
+export function resolveBallaGezaLineSlugSuffix(pageUrl: string): string {
+  const hint = parseBallaGezaUrlHint(pageUrl);
+  if (!hint?.category || hint.category === "classic") return "";
+  const categorySlug = slugify(hint.category);
+  return categorySlug ? `-${categorySlug}` : "";
 }
 
 export function buildBallaGezaFocusedPageText(

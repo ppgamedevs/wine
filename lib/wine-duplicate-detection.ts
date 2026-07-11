@@ -2,6 +2,7 @@ import { and, eq, ne, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { wines, type WineSubmissionStatus } from "@/lib/schema";
 import { buildWineSlug, normalizeSourceUrl } from "@/lib/wine-url";
+import { parseBallaGezaUrlHint, resolveBallaGezaLineSlugSuffix } from "@/lib/ballageza-producer";
 
 export interface ExistingWineMatch {
   id: number;
@@ -152,6 +153,26 @@ async function findByRetailerProductId(
   };
 }
 
+function resolveCatalogLineKey(urlOrSlug: string): string {
+  if (urlOrSlug.includes("-kolna")) return "kolna";
+  if (urlOrSlug.includes("-stonewines")) return "stonewines";
+  if (urlOrSlug.includes("-editie-limitata")) return "editie-limitata";
+
+  const hint = parseBallaGezaUrlHint(urlOrSlug);
+  if (hint?.category && hint.category !== "classic") {
+    return hint.category;
+  }
+
+  return "classic";
+}
+
+function identityCatalogLineConflict(
+  inputUrl: string,
+  candidateSlug: string,
+): boolean {
+  return resolveCatalogLineKey(inputUrl) !== resolveCatalogLineKey(candidateSlug);
+}
+
 async function findByIdentity(input: FindExistingWineInput): Promise<ExistingWineMatch | null> {
   if (input.wineryId == null) return null;
 
@@ -183,6 +204,9 @@ async function findByIdentity(input: FindExistingWineInput): Promise<ExistingWin
         candidate.name,
       )
     ) {
+      continue;
+    }
+    if (identityCatalogLineConflict(input.finalUrl, candidate.slug)) {
       continue;
     }
 
@@ -231,11 +255,11 @@ export async function findExistingWine(
     if (byProduct) return byProduct;
   }
 
-  const slug = buildWineSlug({
+  const slug = `${buildWineSlug({
     producer: input.producer,
     name: input.name,
     vintage: input.vintage,
-  });
+  })}${resolveBallaGezaLineSlugSuffix(input.finalUrl)}`;
   const bySlug = await db.query.wines.findFirst({
     where: and(eq(wines.slug, slug), ne(wines.status, "rejected")),
     columns: { id: true, slug: true, status: true },

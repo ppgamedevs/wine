@@ -35,6 +35,7 @@ import {
   inferBallaGezaProducerPageUrl,
   isBallaGezaUrl,
   parseBallaGezaProducerFacts,
+  resolveBallaGezaLineSlugSuffix,
 } from "@/lib/ballageza-producer";
 import {
   enrichWineFromProducerSite,
@@ -662,11 +663,11 @@ export async function analyzeAndSaveWineFromUrl(
     wineryName: detectedWineryName,
     wineType: resolved.wineType,
   });
-  const slug = buildWineSlug({
+  const slug = `${buildWineSlug({
     producer: detectedWineryName,
     name: display.name,
     vintage: display.vintage,
-  });
+  })}${resolveBallaGezaLineSlugSuffix(finalUrl)}`;
 
   const existingMatch = await findExistingWine({
     sourceUrl,
@@ -867,11 +868,11 @@ export async function analyzeWineSubmissionFromUrl(
     html,
     detectedWineryName,
   );
-  const slug = buildWineSlug({
+  const slug = `${buildWineSlug({
     producer: detectedWineryName,
     name: product.name,
     vintage: resolvedVintage,
-  });
+  })}${resolveBallaGezaLineSlugSuffix(finalUrl)}`;
 
   const { techSpecsPatch, producerFields } = await resolveTechSpecsPatch(
     product.name,
