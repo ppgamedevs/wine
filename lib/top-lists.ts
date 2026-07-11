@@ -8,6 +8,8 @@ import {
 } from "@/lib/sommelier";
 import type { WineType, WineWithRelations } from "@/types";
 
+export type TopListRankMetric = "value" | "gift" | "relevance";
+
 export interface ResolvedTopList {
   slug: string;
   heading: string;
@@ -17,6 +19,8 @@ export interface ResolvedTopList {
   wines: WineWithRelations[];
   faq: FaqEntry[];
   breadcrumbName: string;
+  /** Metric used to order wines in this list (shown in the summary table). */
+  rankMetric: TopListRankMetric;
 }
 
 /** Romanian plural slug -> wine type enum. */
@@ -189,8 +193,9 @@ export function resolveTopList(
       intro:
         "Am ordonat cele mai bune vinuri romanesti dupa Value Score, indicatorul nostru care masoara raportul calitate-pret. Fiecare vin de mai jos a fost evaluat pe baza pretului mediu, a calitatii si a potrivirii cu mancarea romaneasca.",
       wines,
-      faq: buildGenericFaq("cele mai bune vinuri romanesti", wines),
+      faq: buildGenericFaq("cele mai bune vinuri romanesti", wines, "value"),
       breadcrumbName: "Cele mai bune vinuri romanesti",
+      rankMetric: "value",
     };
   }
 
@@ -206,8 +211,9 @@ export function resolveTopList(
       intro:
         "Cauti un vin pe care sa il oferi cadou? Lista de mai jos este ordonata dupa Gift Score, indicatorul care masoara cat de bine se prezinta un vin ca dar: ambalaj, prestigiul cramei si impresia generala.",
       wines,
-      faq: buildGenericFaq("vinuri cadou", wines),
+      faq: buildGenericFaq("vinuri cadou", wines, "gift"),
       breadcrumbName: "Vinuri cadou",
+      rankMetric: "gift",
     };
   }
 
@@ -227,8 +233,9 @@ export function resolveTopList(
       metaDescription: `Top vinuri ${plural} romanesti dupa Value Score, cu preturi in RON, scoruri si recomandari de pairing.`,
       intro: `Selectia noastra de vinuri ${plural} romanesti, ordonata dupa Value Score. ${wineTypeLabel[type]} de calitate, evaluate transparent dupa raportul calitate-pret.`,
       wines,
-      faq: buildGenericFaq(`vinuri ${plural} romanesti`, wines),
+      faq: buildGenericFaq(`vinuri ${plural} romanesti`, wines, "value"),
       breadcrumbName: `Vinuri ${plural}`,
+      rankMetric: "value",
     };
   }
 
@@ -257,8 +264,9 @@ export function resolveTopList(
       metaDescription: `Cele mai bune vinuri ${grapeName} din Romania, ordonate dupa Value Score, cu preturi in RON si pairing-uri.`,
       intro: `${grapeName} este unul dintre soiurile reprezentative pentru vinul romanesc. Mai jos gasesti cele mai bune vinuri ${grapeName}, ordonate dupa raportul calitate-pret.`,
       wines,
-      faq: buildGenericFaq(`vinuri ${grapeName}`, wines),
+      faq: buildGenericFaq(`vinuri ${grapeName}`, wines, "value"),
       breadcrumbName: grapeName,
+      rankMetric: "value",
     };
   }
 
@@ -283,6 +291,7 @@ export function resolveTopList(
       wines,
       faq: buildComboFaq(budget, occLabel, wines),
       breadcrumbName: `Sub ${budget} lei pentru ${occLabel}`,
+      rankMetric: "relevance",
     };
   }
 
@@ -311,28 +320,83 @@ export function resolveTopList(
       wines,
       faq: buildBudgetFaq(budget, wines),
       breadcrumbName: `Sub ${budget} lei`,
+      rankMetric: "value",
     };
   }
 
   return null;
 }
 
+export function topListRankSummary(list: ResolvedTopList): string {
+  switch (list.rankMetric) {
+    case "gift":
+      return `Top ${list.wines.length} optiuni, ordonate dupa Gift Score (cat de bine functioneaza ca dar).`;
+    case "relevance":
+      return `Top ${list.wines.length} optiuni, ordonate dupa potrivirea pentru ocazia aleasa.`;
+    default:
+      return `Top ${list.wines.length} optiuni, ordonate dupa Value Score (raport calitate-pret).`;
+  }
+}
+
+export function topListRankColumnLabel(
+  rankMetric: TopListRankMetric,
+): string {
+  switch (rankMetric) {
+    case "gift":
+      return "Gift";
+    case "relevance":
+      return "Potrivire";
+    default:
+      return "Value";
+  }
+}
+
+export function topListRankScore(
+  wine: WineWithRelations,
+  rankMetric: TopListRankMetric,
+): number | null {
+  switch (rankMetric) {
+    case "gift":
+      return wine.giftScore ?? null;
+    case "relevance":
+      return wine.foodMatchScore ?? wine.valueScore ?? null;
+    default:
+      return wine.valueScore ?? null;
+  }
+}
+
 function buildGenericFaq(
   topic: string,
   wines: WineWithRelations[],
+  rankMetric: TopListRankMetric,
 ): FaqEntry[] {
   const top = wines[0];
+  const scoreLabel =
+    rankMetric === "gift"
+      ? "Gift Score"
+      : rankMetric === "relevance"
+        ? "scor de potrivire"
+        : "Value Score";
+  const scoreValue =
+    rankMetric === "gift"
+      ? top?.giftScore
+      : top?.valueScore;
+
   return [
     {
       question: `Care sunt cele mai bune ${topic}?`,
       answer: top
-        ? `In acest moment, ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""} conduce clasamentul, cu Value Score ${top.valueScore ?? "N/A"}/100 la un pret de ${formatRon(top.priceAvg)}.`
+        ? `In acest moment, ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""} conduce clasamentul, cu ${scoreLabel} ${scoreValue ?? "N/A"}/100 la un pret de ${formatRon(top.priceAvg)}.`
         : `Lista este actualizata periodic in functie de preturi si evaluari.`,
     },
     {
       question: "Cum se calculeaza clasamentul?",
       answer:
-        "Folosim Value Score, un indicator de la 0 la 100 care masoara raportul calitate-pret, combinat cu date despre preturi actuale in RON si potrivirea cu mancarea romaneasca.",
+        rankMetric === "gift"
+          ? "Folosim Gift Score (0-100): cat de bine functioneaza vinul ca dar, tinand cont de prestigiu, prezentare, tipul vinului si impresia generala."
+          : rankMetric === "relevance"
+            ? "Combinam bugetul cu un scor de potrivire pentru ocazia aleasa: tip vin, pairing-uri, Value Score si alinierea cu cerintele mesei."
+            : "Folosim Value Score, un indicator de la 0 la 100 care masoara raportul calitate-pret, combinat cu date despre preturi actuale in RON si potrivirea cu mancarea romaneasca.",
     },
     {
       question: "Cat de des se actualizeaza lista?",

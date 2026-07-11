@@ -9,6 +9,8 @@ import { valueScoreTone, wineTypeLabel } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
 import { trackWineryEvent } from "@/lib/winery-analytics-client";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
+import type { TopListRankMetric } from "@/lib/top-lists";
+import { topListRankScore } from "@/lib/top-lists";
 import { resolveWineVintage } from "@/lib/wine-vintage";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
@@ -18,11 +20,13 @@ export function WineCard({
   priority = false,
   /** Prag minim recomandare = 75/100. Cand e setat, ascunde vinurile sub prag. */
   minValueScore = MIN_RECOMMENDED_VALUE_SCORE,
+  highlightScore = "value",
   trackAnalytics,
 }: {
   wine: WineWithRelations;
   priority?: boolean;
   minValueScore?: number | null;
+  highlightScore?: TopListRankMetric;
   trackAnalytics?: { wineryId: number; wineId: number };
 }) {
   if (
@@ -33,6 +37,13 @@ export function WineCard({
   }
 
   const displayVintage = resolveWineVintage(wine);
+  const badgeScore = topListRankScore(wine, highlightScore);
+  const badgeTitle =
+    highlightScore === "gift"
+      ? "Gift Score"
+      : highlightScore === "relevance"
+        ? "Scor potrivire"
+        : "Value Score";
 
   return (
     <motion.article
@@ -63,15 +74,15 @@ export function WineCard({
           {displayVintage ? ` ${displayVintage}` : ""}
         </span>
 
-        {wine.valueScore !== null && wine.valueScore !== undefined ? (
+        {badgeScore !== null && badgeScore !== undefined ? (
           <span
             className={cn(
               "absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm",
-              valueScoreTone(wine.valueScore),
+              valueScoreTone(badgeScore),
             )}
-            title="Value Score"
+            title={badgeTitle}
           >
-            {wine.valueScore}
+            {badgeScore}
             <span className="opacity-70">/100</span>
           </span>
         ) : null}

@@ -15,8 +15,8 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
 
   return (
     <section className="border-b border-border/60 bg-secondary/20">
-      <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-12 lg:py-14">
-        <div className="relative mx-auto w-full max-w-sm lg:mx-0 lg:max-w-none">
+      <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-10 lg:py-12">
+        <div className="relative mx-auto w-full max-w-[260px] sm:max-w-xs lg:mx-0 lg:max-w-sm">
           <WineImage
             slug={wine.slug}
             name={wine.name}
@@ -28,8 +28,8 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
             wineryName={wine.winery?.name}
             priority
             variant="hero"
-            sizes="(max-width: 1024px) 100vw, 42vw"
-            aspectClassName="relative aspect-[3/4] w-full max-h-[min(78vh,640px)]"
+            sizes="(max-width: 1024px) 72vw, 320px"
+            aspectClassName="relative aspect-[3/4] w-full max-h-[min(52vh,420px)]"
           />
         </div>
 

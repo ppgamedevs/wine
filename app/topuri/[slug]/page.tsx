@@ -30,6 +30,9 @@ import {
   resolveTopList,
   slugToLabel,
   TOP_LIST_SLUGS,
+  topListRankColumnLabel,
+  topListRankScore,
+  topListRankSummary,
 } from "@/lib/top-lists";
 
 export const revalidate = 3600;
@@ -152,8 +155,7 @@ export default async function TopListPage({ params }: TopListPageProps) {
               Clasament pe scurt
             </h2>
             <p className="mt-2 text-muted-foreground">
-              Top {list.wines.length} optiuni, ordonate dupa potrivire si raport
-              calitate-pret.
+              {topListRankSummary(list)}
             </p>
             <div className="mt-6 overflow-hidden rounded-2xl border border-border/70">
               <Table>
@@ -163,7 +165,9 @@ export default async function TopListPage({ params }: TopListPageProps) {
                     <TableHead>Vin</TableHead>
                     <TableHead className="hidden sm:table-cell">Crama</TableHead>
                     <TableHead className="text-right">Pret</TableHead>
-                    <TableHead className="text-right pr-6">Value</TableHead>
+                    <TableHead className="text-right pr-6">
+                      {topListRankColumnLabel(list.rankMetric)}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -188,7 +192,7 @@ export default async function TopListPage({ params }: TopListPageProps) {
                         {formatRon(wine.priceAvg)}
                       </TableCell>
                       <TableCell className="pr-6 text-right">
-                        {wine.valueScore ?? "-"}
+                        {topListRankScore(wine, list.rankMetric) ?? "-"}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -206,7 +210,12 @@ export default async function TopListPage({ params }: TopListPageProps) {
             </h2>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {list.wines.map((wine) => (
-                <WineCard key={wine.id} wine={wine} minValueScore={null} />
+                <WineCard
+                  key={wine.id}
+                  wine={wine}
+                  minValueScore={null}
+                  highlightScore={list.rankMetric}
+                />
               ))}
             </div>
           </section>

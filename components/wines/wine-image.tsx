@@ -110,7 +110,7 @@ export function WineImage({
               className={cn(
                 "object-contain transition-transform duration-700",
                 heroExternal
-                  ? "origin-center scale-[1.1] object-center sm:scale-[1.14]"
+                  ? "origin-center scale-[1.02] object-center sm:scale-[1.04]"
                   : "origin-bottom object-bottom",
                 !heroExternal && imageClassName,
               )}
