@@ -425,6 +425,10 @@ export function inferBudureascaProducerPageUrl(
   const combined = `${wineName} ${context}`.trim();
   if (!combined.trim()) return null;
 
+  if (/emag\.ro|profitshare\.ro|altex\.ro|flanco\.ro/i.test(combined)) {
+    return null;
+  }
+
   const withoutVintage = combined
     .replace(/\b20\d{2}\b/g, " ")
     .replace(/\b0[,.]?\d+\s*l\b/gi, " ")
