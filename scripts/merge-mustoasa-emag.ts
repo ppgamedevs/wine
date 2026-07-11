@@ -43,10 +43,10 @@ async function main() {
     priceRon: PRICE,
   };
 
-  if (!availability.some((entry) => entry.url.includes("/pd/D0WKZVYBM"))) {
+  if (!availability.some((entry) => entry.url?.includes("/pd/D0WKZVYBM"))) {
     availability.push(emagAvailability);
   }
-  if (!affiliateLinks.some((entry) => entry.url.includes("/pd/D0WKZVYBM"))) {
+  if (!affiliateLinks.some((entry) => entry.url?.includes("/pd/D0WKZVYBM"))) {
     affiliateLinks.push(emagAffiliate);
   }
 
