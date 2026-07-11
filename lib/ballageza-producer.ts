@@ -164,13 +164,24 @@ function slugMatchesWine(urlSlug: string, wineName: string): boolean {
   );
 }
 
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number.parseInt(code, 10)))
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
 function parseBallaGezaModalBlock(
   block: string,
   productId: number,
 ): BallaGezaWineRecord | null {
-  const name =
+  const nameRaw =
     block.match(/class="wine__name"[^>]*>\s*([^<]+?)\s*<\/div>/i)?.[1]?.trim() ??
     null;
+  const name = nameRaw ? decodeHtmlEntities(nameRaw) : null;
   if (!name) return null;
 
   const vintageRaw = parseListField(block, "An de producție");
