@@ -3,6 +3,10 @@ import {
   isBallaGezaUrl,
   resolveBallaGezaWineFromCatalog,
 } from "@/lib/ballageza-producer";
+import {
+  isBudureascaUrl,
+  parseBudureascaProductPage,
+} from "@/lib/budureasca-producer";
 import { z } from "zod";
 import { getSommelierModel } from "@/lib/ai/model";
 import {
@@ -485,6 +489,26 @@ function needsLlmFallback(
   );
 }
 
+function extractBudureascaProduct(
+  html: string,
+  finalUrl: string,
+): ExtractedProductData | null {
+  if (!isBudureascaUrl(finalUrl)) return null;
+
+  const wine = parseBudureascaProductPage(html, finalUrl);
+  if (!wine) return null;
+
+  return {
+    sourceUrl: finalUrl,
+    finalUrl: wine.producerPageUrl,
+    name: wine.name,
+    price: wine.price,
+    imageUrl: wine.imageUrl,
+    producer: "Budureasca",
+    vintage: wine.vintage,
+  };
+}
+
 function extractBallaGezaProduct(
   html: string,
   finalUrl: string,
@@ -521,6 +545,11 @@ export async function extractProductFromHtml(
     if (ballageza) {
       result = attachSourceContext(ballageza, sourceUrl, ballageza.finalUrl);
     }
+  } else if (isBudureascaUrl(finalUrl)) {
+    const budureasca = extractBudureascaProduct(html, finalUrl);
+    if (budureasca) {
+      result = attachSourceContext(budureasca, sourceUrl, budureasca.finalUrl);
+    }
   } else if (host.includes("emag.ro")) {
     result = attachSourceContext(extractEmagProduct(html, finalUrl), sourceUrl, finalUrl);
   } else {
@@ -534,6 +563,7 @@ export async function extractProductFromHtml(
   const shouldUseLlm =
     options.allowLlm !== false &&
     !isBallaGezaUrl(finalUrl) &&
+    !isBudureascaUrl(finalUrl) &&
     (host.includes("emag.ro") ? needsLlmFallback(result, false) : true);
 
   if (shouldUseLlm) {

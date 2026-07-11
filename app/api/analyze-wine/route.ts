@@ -6,7 +6,7 @@ export const maxDuration = 120;
 
 const requestSchema = z.object({
   url: z.string().min(8),
-  email: z.string().trim().email("Introdu o adresa de email valida."),
+  email: z.string().trim().email("Introdu o adresa de email valida.").optional(),
 });
 
 export async function POST(req: Request) {
@@ -15,10 +15,12 @@ export async function POST(req: Request) {
     const parsed = requestSchema.safeParse(body);
 
     if (!parsed.success) {
+      const urlIssue = parsed.error.flatten().fieldErrors.url?.[0];
       const emailIssue = parsed.error.flatten().fieldErrors.email?.[0];
       return Response.json(
         {
           error:
+            urlIssue ??
             emailIssue ??
             "Link invalid. Introdu un URL complet catre pagina vinului.",
         },

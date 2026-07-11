@@ -11,7 +11,6 @@ import {
   type FormEvent,
 } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { EASE_OUT } from "@/lib/motion";
 import type { SearchSuggestion } from "@/lib/queries";
 import {
@@ -41,7 +40,6 @@ export function SmartSearch({
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
-  const [email, setEmail] = useState("");
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -97,7 +95,7 @@ export function SmartSearch({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  async function analyzeWineUrl(url: string, notifyEmail: string) {
+  async function analyzeWineUrl(url: string) {
     setAnalyzing(true);
     setAnalysisError(null);
     setAnalysisSuccess(null);
@@ -107,7 +105,7 @@ export function SmartSearch({
       const res = await fetch("/api/analyze-wine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, email: notifyEmail }),
+        body: JSON.stringify({ url }),
       });
       const data: {
         error?: string;
@@ -125,7 +123,6 @@ export function SmartSearch({
 
       if (data.status === "pending_review") {
         setQuery("");
-        setEmail("");
         setAnalysisSuccess(data.message ?? WINE_PENDING_REVIEW_MESSAGE);
         return;
       }
@@ -157,12 +154,7 @@ export function SmartSearch({
     if (!trimmed) return;
 
     if (enableLinkAnalysis && isWineUrl(trimmed)) {
-      const trimmedEmail = email.trim();
-      if (!trimmedEmail) {
-        setAnalysisError("Introdu emailul pentru a fi notificat dupa aprobare.");
-        return;
-      }
-      await analyzeWineUrl(trimmed, trimmedEmail);
+      await analyzeWineUrl(trimmed);
       return;
     }
 
@@ -247,22 +239,6 @@ export function SmartSearch({
             )}
           </Button>
         </div>
-
-        {isUrl ? (
-          <Input
-            type="email"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              setAnalysisError(null);
-            }}
-            placeholder="Email pentru notificare dupa aprobare"
-            aria-label="Email pentru notificare dupa aprobare"
-            disabled={analyzing}
-            required
-            className="h-10 rounded-xl border-border/80 bg-background/80"
-          />
-        ) : null}
       </form>
 
       {analysisError ? (

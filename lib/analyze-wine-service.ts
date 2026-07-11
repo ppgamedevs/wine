@@ -38,6 +38,11 @@ import {
   resolveBallaGezaLineSlugSuffix,
 } from "@/lib/ballageza-producer";
 import {
+  inferBudureascaProducerPageUrl,
+  isBudureascaUrl,
+  parseBudureascaProducerFacts,
+} from "@/lib/budureasca-producer";
+import {
   enrichWineFromProducerSite,
   inferAvincisProducerPageUrl,
   inferRecasProducerPageUrl,
@@ -65,7 +70,7 @@ function resolvePreferredProducerPageUrl(finalUrl: string): string | null {
   try {
     const parsed = new URL(finalUrl);
     const host = parsed.hostname.replace(/^www\./, "");
-    if (host.includes("cramelerecas.ro") || host.includes("avincis.ro") || host.includes("ballageza.com")) {
+    if (host.includes("cramelerecas.ro") || host.includes("avincis.ro") || host.includes("ballageza.com") || host.includes("budureasca.ro")) {
       return finalUrl;
     }
 
@@ -84,9 +89,11 @@ function resolvePreferredProducerPageForImport(
     inferRecasProducerPageUrl("", finalUrl) ??
     inferAvincisProducerPageUrl("", finalUrl) ??
     inferBallaGezaProducerPageUrl("", finalUrl) ??
+    inferBudureascaProducerPageUrl("", finalUrl) ??
     inferRecasProducerPageUrl(productName, finalUrl) ??
     inferAvincisProducerPageUrl(productName, finalUrl) ??
-    inferBallaGezaProducerPageUrl(productName, finalUrl)
+    inferBallaGezaProducerPageUrl(productName, finalUrl) ??
+    inferBudureascaProducerPageUrl(productName, finalUrl)
   );
 }
 
@@ -102,7 +109,9 @@ function applySourceProducerFacts<T extends { name: string }>(
     ? parseAvincisProducerFacts(html, finalUrl)
     : finalUrl.includes("ballageza.com")
       ? parseBallaGezaProducerFacts(html, finalUrl)
-      : parseRecasProducerFacts(html, finalUrl);
+      : isBudureascaUrl(finalUrl)
+        ? parseBudureascaProducerFacts(html, finalUrl)
+        : parseRecasProducerFacts(html, finalUrl);
   if (!facts?.name) return product;
 
   return { ...product, name: facts.name };
@@ -755,7 +764,7 @@ export async function analyzeAndSaveWineFromUrl(
 
 export async function analyzeWineSubmissionFromUrl(
   rawUrl: string,
-  email: string,
+  email?: string,
 ): Promise<AnalyzeWineResult> {
   const submitContext = resolveWineSubmitContext(rawUrl);
   const { sourceUrl, submitType, sourceBadge } = submitContext;
@@ -889,6 +898,8 @@ export async function analyzeWineSubmissionFromUrl(
     resolved.checkedAt,
   );
 
+  const normalizedEmail = email?.trim().toLowerCase() ?? "";
+
   const [created] = await db
     .insert(wines)
     .values({
@@ -901,8 +912,8 @@ export async function analyzeWineSubmissionFromUrl(
       grapeVarieties: resolved.grapeVarieties,
       priceAvg: product.price ?? undefined,
       sourceUrl,
-      submittedBy: email.trim().toLowerCase(),
-      submittedEmail: email.trim().toLowerCase(),
+      submittedBy: normalizedEmail || undefined,
+      submittedEmail: normalizedEmail || undefined,
       submitType: "community",
       status: "user_submitted",
       sourceBadge,
@@ -935,7 +946,7 @@ export async function analyzeWineSubmissionFromUrl(
     "@/lib/wine-submission-notifications"
   );
   await saveWineSubmissionNotification({
-    email,
+    email: normalizedEmail,
     sourceUrl,
     wineId: created.id,
   });

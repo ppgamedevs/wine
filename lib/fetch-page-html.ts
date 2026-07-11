@@ -1,17 +1,34 @@
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 VinIntelBot/1.0";
 
+const BROWSER_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
 const MAX_REDIRECT_HOPS = 10;
 
-const FETCH_INIT: RequestInit = {
-  headers: {
-    Accept:
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-    "Accept-Language": "ro-RO,ro;q=0.9,en-US;q=0.8,en;q=0.7",
-    "User-Agent": USER_AGENT,
-  },
-  signal: AbortSignal.timeout(18_000),
-};
+function resolveUserAgent(url: string): string {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    if (host.includes("budureasca.ro")) {
+      return BROWSER_USER_AGENT;
+    }
+  } catch {
+    // ignore invalid URL
+  }
+  return USER_AGENT;
+}
+
+function buildFetchInit(url: string): RequestInit {
+  return {
+    headers: {
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+      "Accept-Language": "ro-RO,ro;q=0.9,en-US;q=0.8,en;q=0.7",
+      "User-Agent": resolveUserAgent(url),
+    },
+    signal: AbortSignal.timeout(18_000),
+  };
+}
 
 export interface FetchPageResult {
   html: string;
@@ -205,7 +222,7 @@ async function fetchEmagWithFallback(url: string): Promise<{
   const producerUrl = inferRecasProducerPageUrl("", url);
   if (producerUrl) {
     const producer = await fetch(producerUrl, {
-      ...FETCH_INIT,
+      ...buildFetchInit(producerUrl),
       redirect: "follow",
     });
     if (producer.ok) {
@@ -229,7 +246,7 @@ async function fetchRetailerDocument(url: string): Promise<{
   finalUrl: string;
 }> {
   const response = await fetch(url, {
-    ...FETCH_INIT,
+    ...buildFetchInit(url),
     redirect: "follow",
   });
 
@@ -256,7 +273,7 @@ async function resolveProfitshareUrl(
 
   for (let hop = 0; hop < MAX_REDIRECT_HOPS; hop += 1) {
     const response = await fetch(currentUrl, {
-      ...FETCH_INIT,
+      ...buildFetchInit(currentUrl),
       redirect: "manual",
     });
 
@@ -326,7 +343,7 @@ export async function fetchPageWithResolution(
   }
 
   const response = await fetch(sourceUrl, {
-    ...FETCH_INIT,
+    ...buildFetchInit(sourceUrl),
     redirect: "follow",
   });
 

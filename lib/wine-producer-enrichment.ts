@@ -3,6 +3,10 @@ import {
   parseBallaGezaProducerFacts,
   resolveBallaGezaWineFromCatalog,
 } from "@/lib/ballageza-producer";
+import {
+  inferBudureascaProducerPageUrl,
+  parseBudureascaProducerFacts,
+} from "@/lib/budureasca-producer";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import { extractPdfTextFromUrl } from "@/lib/pdf-text";
 import type { GrapeVarietyShare } from "@/lib/schema";
@@ -55,6 +59,7 @@ const WINERY_SITE_ALIASES: Record<string, string[]> = {
   ],
   avincis: ["https://avincis.ro", "https://www.avincis.ro"],
   "balla-geza": ["https://www.ballageza.com", "https://ballageza.com"],
+  budureasca: ["https://budureasca.ro", "https://www.budureasca.ro"],
 };
 
 function normalizeMatchText(text: string): string {
@@ -337,6 +342,28 @@ function resolveBallaGezaKnownSlugs(wineName: string): string[] {
   }
 }
 
+function resolveBudureascaKnownSlugs(wineName: string): string[] {
+  const url = inferBudureascaProducerPageUrl(wineName);
+  if (!url) return [];
+
+  try {
+    const pathname = new URL(url).pathname.replace(/\/+$/, "");
+    const segment = pathname.split("/").filter(Boolean).pop();
+    return segment ? [segment] : [];
+  } catch {
+    return [];
+  }
+}
+
+function buildBudureascaUrlCandidates(baseUrl: string, slug: string): string[] {
+  return [
+    new URL(`/${slug}/`, baseUrl).toString(),
+    new URL(`/vin-alb/${slug}/`, baseUrl).toString(),
+    new URL(`/vin-rosu/${slug}/`, baseUrl).toString(),
+    new URL(`/vin-roze/${slug}/`, baseUrl).toString(),
+  ];
+}
+
 function buildBallaGezaUrlCandidates(baseUrl: string, slugSegment: string): string[] {
   return [
     new URL(`/ro/catalog/vinuri/${slugSegment}`, baseUrl).toString(),
@@ -366,7 +393,9 @@ function wineSlugCandidates(wineName: string, winerySlug?: string): string[] {
         ? resolveAvincisKnownSlugs(wineName)
         : winerySlug === "balla-geza"
           ? resolveBallaGezaKnownSlugs(wineName)
-          : [];
+          : winerySlug === "budureasca"
+            ? resolveBudureascaKnownSlugs(wineName)
+            : [];
 
   return [...new Set([...known, slug, compact, seriesSlug].filter(Boolean))];
 }
@@ -438,7 +467,9 @@ function buildProductPageCandidates(
         ? ["/{slug}.htm"]
         : winerySlug === "balla-geza"
           ? ["/ro/catalog/vinuri/{slug}", "/catalog/vinuri/{slug}"]
-          : ["/vinuri/{slug}/", "/vinuri/{slug}"];
+          : winerySlug === "budureasca"
+            ? ["/{slug}/", "/vin-alb/{slug}/", "/vin-rosu/{slug}/", "/vin-roze/{slug}/"]
+            : ["/vinuri/{slug}/", "/vinuri/{slug}"];
 
   const candidates: string[] = [];
   for (const slug of slugs) {
@@ -1131,6 +1162,21 @@ export async function enrichWineFromProducerSite(input: {
     }
   }
 
+  if (
+    input.preferredPageUrl &&
+    input.winerySlug === "budureasca" &&
+    input.preferredPageUrl.includes("budureasca.ro")
+  ) {
+    const preferred = await fetchProducerHtml(input.preferredPageUrl);
+    const preferredFacts = preferred
+      ? parseBudureascaProducerFacts(preferred.html, preferred.finalUrl)
+      : null;
+    if (preferred && preferredFacts) {
+      bestPage = { ...preferred, score: 100 };
+      preferredLocked = true;
+    }
+  }
+
   if (!preferredLocked) {
     for (const base of bases) {
       const slugFromUrl =
@@ -1148,7 +1194,11 @@ export async function enrichWineFromProducerSite(input: {
               ? resolveBallaGezaKnownSlugs(input.wineName).flatMap((slug) =>
                   buildBallaGezaUrlCandidates(base, slug),
                 )
-              : [];
+              : input.winerySlug === "budureasca"
+                ? resolveBudureascaKnownSlugs(input.wineName).flatMap((slug) =>
+                    buildBudureascaUrlCandidates(base, slug),
+                  )
+                : [];
 
       const candidates = [
         ...extraCandidates,
@@ -1193,7 +1243,9 @@ export async function enrichWineFromProducerSite(input: {
               bestPage.finalUrl,
               input.wineName,
             )
-          : null;
+          : input.winerySlug === "budureasca"
+            ? parseBudureascaProducerFacts(bestPage.html, bestPage.finalUrl)
+            : null;
 
   return {
     producerPageUrl: bestPage.finalUrl,
@@ -1242,6 +1294,9 @@ export function producerImageSourceFromUrl(pageUrl: string): string {
     }
     if (host.includes("ballageza")) {
       return "ballageza";
+    }
+    if (host.includes("budureasca")) {
+      return "budureasca";
     }
     const [label] = host.split(".");
     return label || host;
