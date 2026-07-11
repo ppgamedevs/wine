@@ -61,8 +61,7 @@ export function formatCommunityVoteLabel(voteCount: number): string {
   return `bazat pe ${voteCount} voturi`;
 }
 
-export const VININTEL_SCORE_EXPLANATION =
-  "Scor expert VinIntel v2: combina calitatea intrinseca estimata (Q) cu eficienta pretului fata de vinuri similare. Nu include bonusuri duplicate pentru medalii sau soi autohton in scorul final.";
+export const VININTEL_SCORE_EXPLANATION = "";
 
 export const COMMUNITY_SCORE_EXPLANATION =
   "Media notelor date de utilizatorii VinIntel, pe aceeasi scala 0-100. Contribuie cu votul tau dupa degustare.";

@@ -112,7 +112,7 @@ const faq: FaqEntry[] = [
   {
     question: "Cum este calculat Value Score?",
     answer:
-      "Value Score v2 combina calitatea intrinseca (Q) cu eficienta pretului. Q estimeaza cat de bun este vinul fara a folosi pretul. Eficienta pretului masoara cat de bine se pozitioneaza fata de nivelul obisnuit al segmentului sau la acel pret. Rezultatul final este 72% Q + 28% eficienta pret.",
+      "Value Score combina calitatea intrinseca (Q) cu eficienta pretului. Q estimeaza cat de bun este vinul fara a folosi pretul. Eficienta pretului masoara cat de bine se pozitioneaza fata de nivelul obisnuit al segmentului sau la acel pret. Rezultatul final este 72% Q + 28% eficienta pret.",
   },
   {
     question: "Sunt scorurile influentate de bani sau de crame?",

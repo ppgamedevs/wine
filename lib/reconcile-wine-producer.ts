@@ -12,6 +12,7 @@ import { buildWineImageAlt } from "./wine-images";
 import {
   inferBallaGezaProducerPageUrl,
 } from "./ballageza-producer";
+import { inferBudureascaProducerPageUrl } from "./budureasca-producer";
 import {
   enrichWineFromProducerSite,
   inferAvincisProducerPageUrl,
@@ -51,12 +52,17 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
     if (wine.sourceUrl?.includes("ballageza.com")) {
       return wine.sourceUrl;
     }
+    if (wine.sourceUrl?.includes("budureasca.ro")) {
+      return wine.sourceUrl;
+    }
     const inferredFromRetail = inferRecasProducerPageUrl("", retailUrl);
     if (inferredFromRetail) return inferredFromRetail;
     const inferredAvincis = inferAvincisProducerPageUrl(wine.name, retailUrl);
     if (inferredAvincis) return inferredAvincis;
     const inferredBallaGeza = inferBallaGezaProducerPageUrl(wine.name, retailUrl);
     if (inferredBallaGeza) return inferredBallaGeza;
+    const inferredBudureasca = inferBudureascaProducerPageUrl(wine.name, retailUrl);
+    if (inferredBudureasca) return inferredBudureasca;
     const inferred = inferRecasProducerPageUrl(wine.name, retailUrl);
     if (inferred) return inferred;
     if (wine.producerPageUrl?.includes("cramelerecas.ro")) {
@@ -66,6 +72,9 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
       return wine.producerPageUrl;
     }
     if (wine.producerPageUrl?.includes("ballageza.com")) {
+      return wine.producerPageUrl;
+    }
+    if (wine.producerPageUrl?.includes("budureasca.ro")) {
       return wine.producerPageUrl;
     }
     return null;

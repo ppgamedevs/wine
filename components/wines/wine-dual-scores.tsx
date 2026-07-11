@@ -39,9 +39,11 @@ function ScoreColumn({
         </h3>
       </div>
       {badge}
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        {explanation}
-      </p>
+      {explanation.trim() ? (
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {explanation}
+        </p>
+      ) : null}
       {footer ? <div className="mt-auto pt-2">{footer}</div> : null}
     </div>
   );
@@ -85,9 +87,9 @@ function BreakdownTable({
         De ce am dat acest scor
       </h3>
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-        VinIntel Value Score v2 separa calitatea intrinseca (Q) de eficienta
+        VinIntel Value Score separa calitatea intrinseca (Q) de eficienta
         pretului. Q foloseste date de degustare, medalii validate, regiune,
-        cramă si vintage, fara a infera calitatea din pret. Eficienta pretului
+        crama si vintage, fara a infera calitatea din pret. Eficienta pretului
         masoara cat de bine se pozitioneaza vinul fata de nivelul obisnuit al
         segmentului sau la acel pret.
       </p>

@@ -418,6 +418,21 @@ export function parseBudureascaProducerFacts(
   };
 }
 
+const BUDUREASCA_KNOWN_PRODUCT_PATHS: Array<{ match: RegExp; path: string }> = [
+  { match: /shine\s*rose|shine\s*ros/i, path: "vin-spumant/shine-rose-nou" },
+  { match: /shine\s*alb/i, path: "vin-spumant/shine-alb-brut" },
+];
+
+function resolveBudureascaKnownProductPath(text: string): string | null {
+  const norm = normalizeMatchText(text);
+  for (const entry of BUDUREASCA_KNOWN_PRODUCT_PATHS) {
+    if (entry.match.test(norm)) {
+      return entry.path;
+    }
+  }
+  return null;
+}
+
 export function inferBudureascaProducerPageUrl(
   wineName: string,
   context = "",
@@ -427,6 +442,11 @@ export function inferBudureascaProducerPageUrl(
 
   if (/emag\.ro|profitshare\.ro|altex\.ro|flanco\.ro/i.test(combined)) {
     return null;
+  }
+
+  const knownPath = resolveBudureascaKnownProductPath(combined);
+  if (knownPath) {
+    return `${BUDUREASCA_BASE_URL}/${knownPath}/`;
   }
 
   const withoutVintage = combined

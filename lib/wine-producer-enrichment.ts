@@ -347,20 +347,25 @@ function resolveBudureascaKnownSlugs(wineName: string): string[] {
   if (!url) return [];
 
   try {
-    const pathname = new URL(url).pathname.replace(/\/+$/, "");
-    const segment = pathname.split("/").filter(Boolean).pop();
-    return segment ? [segment] : [];
+    const pathname = new URL(url).pathname.replace(/^\/+|\/+$/g, "");
+    return pathname ? [pathname] : [];
   } catch {
     return [];
   }
 }
 
-function buildBudureascaUrlCandidates(baseUrl: string, slug: string): string[] {
+function buildBudureascaUrlCandidates(baseUrl: string, slugOrPath: string): string[] {
+  const normalized = slugOrPath.replace(/^\/+|\/+$/g, "");
+  if (normalized.includes("/")) {
+    return [new URL(`/${normalized}/`, baseUrl).toString()];
+  }
+
   return [
-    new URL(`/${slug}/`, baseUrl).toString(),
-    new URL(`/vin-alb/${slug}/`, baseUrl).toString(),
-    new URL(`/vin-rosu/${slug}/`, baseUrl).toString(),
-    new URL(`/vin-roze/${slug}/`, baseUrl).toString(),
+    new URL(`/${normalized}/`, baseUrl).toString(),
+    new URL(`/vin-alb/${normalized}/`, baseUrl).toString(),
+    new URL(`/vin-rosu/${normalized}/`, baseUrl).toString(),
+    new URL(`/vin-roze/${normalized}/`, baseUrl).toString(),
+    new URL(`/vin-spumant/${normalized}/`, baseUrl).toString(),
   ];
 }
 
