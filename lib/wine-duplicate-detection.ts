@@ -62,6 +62,12 @@ function identityColorsConflict(
   return left !== right;
 }
 
+function extractCuveeLabel(name: string, url = ""): string | null {
+  const hay = normalizeIdentityText(`${name} ${url}`);
+  const match = hay.match(/\bcuvee\s+([a-z0-9]+)/);
+  return match?.[1] ?? null;
+}
+
 function identityBlendConflict(
   leftName: string,
   leftUrl: string,
@@ -77,6 +83,10 @@ function identityBlendConflict(
   const leftBlend = /\bcu\b/.test(left);
   const rightBlend = /\bcu\b/.test(right);
   if (leftBlend !== rightBlend) return true;
+
+  const leftCuvee = extractCuveeLabel(leftName, leftUrl);
+  const rightCuvee = extractCuveeLabel(rightName, rightUrl);
+  if (leftCuvee && rightCuvee && leftCuvee !== rightCuvee) return true;
 
   return false;
 }
@@ -119,7 +129,7 @@ function vintagesCompatible(
 async function findByRetailerProductId(
   productId: string,
 ): Promise<ExistingWineMatch | null> {
-  const pattern = `%${productId}%`;
+  const pattern = `%/pd/${productId}%`;
   const row = await db.query.wines.findFirst({
     where: and(
       ne(wines.status, "rejected"),
