@@ -967,13 +967,21 @@ export function inferRecasProducerPageUrl(
 }
 
 function extractPdfLinks(html: string, pageUrl: string): string[] {
+  if (pageUrl.includes("ballageza.com")) {
+    return [];
+  }
+
   const links = new Set<string>();
 
   for (const match of html.matchAll(/href=["']([^"']+\.pdf[^"']*)["']/gi)) {
     const raw = match[1]?.trim();
     if (!raw) continue;
     try {
-      links.add(new URL(raw, pageUrl).toString());
+      const resolved = new URL(raw, pageUrl).toString();
+      if (/risip|confidential|politic|cookie|gdpr|termeni/i.test(resolved)) {
+        continue;
+      }
+      links.add(resolved);
     } catch {
       // ignore invalid URL
     }
