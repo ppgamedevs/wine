@@ -15,7 +15,11 @@ import {
   inferImageSourceFromUrl,
 } from "@/lib/price-extractor";
 import { updatePrice } from "@/lib/price-tracker";
-import { detectRetailerLabel, resolveCatalogProductUrl } from "@/lib/retailer-links";
+import {
+  detectRetailerLabel,
+  isProfitshareUrl,
+  resolveCatalogProductUrl,
+} from "@/lib/retailer-links";
 import {
   regions,
   wineries,
@@ -61,7 +65,7 @@ import {
   WINE_ALREADY_PENDING_MESSAGE,
   WINE_PENDING_REVIEW_MESSAGE,
 } from "@/lib/wine-submission-messages";
-import { resolveWineryIdFromDetection, detectWineryNameFromCatalog } from "@/lib/winery-detection";
+import { resolveWineryIdFromDetection, detectWineryNameFromCatalog, KNOWN_WINERY_ALIASES } from "@/lib/winery-detection";
 import type { WineType, WineWithRelations } from "@/types";
 
 const MAX_PAGE_CHARS = 14_000;
@@ -115,6 +119,25 @@ function applySourceProducerFacts<T extends { name: string }>(
   if (!facts?.name) return product;
 
   return { ...product, name: facts.name };
+}
+
+function qualifiesAsRomanianCatalogWine(
+  analysis: Pick<WineLinkAnalysis, "isRomanianWine">,
+  product: { name: string; producer: string | null },
+  pageText: string,
+): boolean {
+  if (analysis.isRomanianWine) return true;
+
+  const haystack = `${product.producer ?? ""} ${product.name} ${pageText}`
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  return KNOWN_WINERY_ALIASES.some(
+    (winery) =>
+      haystack.includes(winery.name.toLowerCase()) ||
+      winery.aliases.some((alias) => haystack.includes(alias)),
+  );
 }
 
 export type AnalyzeWineApiWine = Omit<WineWithRelations, "embedding">;
@@ -239,9 +262,14 @@ function buildStoredRetailerLinks(
   fallbackRetailer: string,
   price: number | null | undefined,
   checkedAt: string,
+  sourceUrl?: string | null,
 ) {
   const retailerUrl = resolveCatalogProductUrl(finalUrl);
   const retailer = detectRetailerLabel(retailerUrl) ?? fallbackRetailer;
+  const affiliateUrl =
+    sourceUrl?.trim() && isProfitshareUrl(sourceUrl)
+      ? sourceUrl.trim()
+      : retailerUrl;
 
   return {
     retailer,
@@ -258,7 +286,7 @@ function buildStoredRetailerLinks(
     affiliateLinks: [
       {
         retailer,
-        url: retailerUrl,
+        url: affiliateUrl,
         priceRon: price ?? undefined,
       },
     ],
@@ -619,7 +647,7 @@ export async function analyzeAndSaveWineFromUrl(
   const analysisForScoring =
     product.price != null ? { ...analysis, price: product.price } : analysis;
 
-  if (!analysis.isRomanianWine) {
+  if (!qualifiesAsRomanianCatalogWine(analysis, product, pageText)) {
     return {
       status: "rejected",
       message:
@@ -705,6 +733,7 @@ export async function analyzeAndSaveWineFromUrl(
     detectedWineryName,
     product.price,
     resolved.checkedAt,
+    sourceUrl,
   );
 
   const status =
@@ -804,7 +833,7 @@ export async function analyzeWineSubmissionFromUrl(
   const analysisForScoring =
     product.price != null ? { ...analysis, price: product.price } : analysis;
 
-  if (!analysis.isRomanianWine) {
+  if (!qualifiesAsRomanianCatalogWine(analysis, product, pageText)) {
     return {
       status: "rejected",
       message:
@@ -896,6 +925,7 @@ export async function analyzeWineSubmissionFromUrl(
     detectedWineryName,
     product.price,
     resolved.checkedAt,
+    sourceUrl,
   );
 
   const normalizedEmail = email?.trim().toLowerCase() ?? "";
@@ -1020,7 +1050,7 @@ export async function reanalyzeAndUpdateWine(
   const analysisForScoring =
     product.price != null ? { ...analysis, price: product.price } : analysis;
 
-  if (!analysis.isRomanianWine) {
+  if (!qualifiesAsRomanianCatalogWine(analysis, product, pageText)) {
     return {
       status: "rejected",
       message:
@@ -1076,6 +1106,7 @@ export async function reanalyzeAndUpdateWine(
     detectedWineryName,
     product.price,
     resolved.checkedAt,
+    sourceUrl,
   );
 
   await db

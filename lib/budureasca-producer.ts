@@ -419,8 +419,60 @@ export function parseBudureascaProducerFacts(
 }
 
 const BUDUREASCA_KNOWN_PRODUCT_PATHS: Array<{ match: RegExp; path: string }> = [
-  { match: /shine\s*rose|shine\s*ros/i, path: "vin-spumant/shine-rose-nou" },
+  { match: /shine\s*rose|shine\s*ros/i, path: "vin-spumant/shine-rose" },
   { match: /shine\s*alb/i, path: "vin-spumant/shine-alb-brut" },
+  {
+    match: /prima\s*stilla\s*organic|organic\s*brut\s*natur/i,
+    path: "prima-stilla-organic",
+  },
+  {
+    match: /classic\s*blanc\s*noir|blanc\s*noir\s*extra\s*brut/i,
+    path: "vin-spumant/classic-blanc-noir",
+  },
+  {
+    match: /prima\s*stilla\s*rose|prima\s*stilla\s*ros/i,
+    path: "vin-spumant/prima-stilla-rose",
+  },
+  {
+    match: /prima\s*stilla\s*alb/i,
+    path: "vin-spumant/prima-stilla-alb",
+  },
+  {
+    match: /orange\s*wine|vin\s*orange/i,
+    path: "vin-editii-speciale/orange-wine",
+  },
+  {
+    match: /8\s*barrels|eight\s*barrels/i,
+    path: "vin-editii-speciale/8-barrels",
+  },
+  {
+    match: /dark\s*maiden|maiden.*feteasca\s*neagra/i,
+    path: "vin-editii-speciale/dark-maiden-feteasca-neagra",
+  },
+  {
+    match: /royal\s*maiden|maiden.*feteasca\s*regala/i,
+    path: "vin-editii-speciale/royal-maiden-feteasca-regala",
+  },
+  {
+    match: /dark\s*count.*cabernet|count.*cabernet\s*sauvignon/i,
+    path: "vin-editii-speciale/dark-count-of-transylvania-cabernet-sauvignon",
+  },
+  {
+    match: /dark\s*count.*pinot|count.*pinot\s*noir/i,
+    path: "vin-editii-speciale/dark-count-of-transylvania-pinot-noir",
+  },
+  {
+    match: /dark\s*count.*cs.?fn|count.*feteasca\s*neagra.*cabernet|cabernet.*feteasca\s*neagra.*demisec/i,
+    path: "vin-editii-speciale/dark-count-of-transylvania-cs-fn",
+  },
+  {
+    match: /\bbonom\b/i,
+    path: "vin-editii-speciale/bonom",
+  },
+  {
+    match: /vinoteca.*feteasca\s*neagra|origini\s*vinoteca/i,
+    path: "vin-vinoteca/vinoteca-feteasca-neagra-2011",
+  },
 ];
 
 function resolveBudureascaKnownProductPath(text: string): string | null {
