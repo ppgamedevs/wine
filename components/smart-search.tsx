@@ -19,6 +19,7 @@ import {
   WINE_PENDING_REVIEW_MESSAGE,
 } from "@/lib/wine-submission-messages";
 import { isWineUrl, looksLikeUrlAttempt } from "@/lib/wine-url";
+import { isSommelierQuery, sommelierQueryHref } from "@/lib/search-intent";
 import { cn } from "@/lib/utils";
 
 export const WINE_LINK_HELPER_TEXT =
@@ -158,6 +159,12 @@ export function SmartSearch({
       return;
     }
 
+    if (isSommelierQuery(trimmed)) {
+      setOpen(false);
+      router.push(sommelierQueryHref(trimmed));
+      return;
+    }
+
     setOpen(false);
     router.push(`/cauta?q=${encodeURIComponent(trimmed)}`);
   }
@@ -170,6 +177,7 @@ export function SmartSearch({
 
   const trimmed = query.trim();
   const isUrl = enableLinkAnalysis && isWineUrl(trimmed);
+  const isSommelier = !isUrl && isSommelierQuery(trimmed);
   const showLinkHelper =
     enableLinkAnalysis && !analysisSuccess && looksLikeUrlAttempt(trimmed);
   const showDropdown = open && trimmed.length >= 2 && !isUrl;
@@ -277,8 +285,9 @@ export function SmartSearch({
 
           {!loading && suggestions.length === 0 && (
             <div className="px-4 py-4 text-sm text-muted-foreground">
-              Niciun rezultat. Apasa Enter pentru cautare completa sau lipeste
-              un link de vin romanesc.
+              {isSommelier
+                ? "Intrebare despre vin? Apasa Enter pentru a intreba somelierul AI."
+                : "Niciun rezultat. Apasa Enter pentru cautare completa sau lipeste un link de vin romanesc."}
             </div>
           )}
 

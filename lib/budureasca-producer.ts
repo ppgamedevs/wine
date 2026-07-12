@@ -470,8 +470,56 @@ const BUDUREASCA_KNOWN_PRODUCT_PATHS: Array<{ match: RegExp; path: string }> = [
     path: "vin-editii-speciale/bonom",
   },
   {
-    match: /vinoteca.*feteasca\s*neagra|origini\s*vinoteca/i,
+    match: /vinoteca.*feteasca\s*neagra|origini\s*vinoteca.*feteasca/i,
     path: "vin-vinoteca/vinoteca-feteasca-neagra-2011",
+  },
+  {
+    match: /vinoteca.*pinot\s*noir|origini\s*vinoteca.*pinot/i,
+    path: "vin-vinoteca/vinoteca-pinot-noir-2011",
+  },
+  {
+    match: /vinoteca.*reserve|origini\s*vinoteca.*reserve/i,
+    path: "vin-vinoteca/vinoteca-reserve-2011",
+  },
+  {
+    match: /vinoteca.*noble\s*five|origini\s*vinoteca.*noble/i,
+    path: "vin-vinoteca/vinoteca-noble-five-2011",
+  },
+  {
+    match: /vinoteca.*cabernet.*dulce|origini\s*vinoteca.*cabernet.*dulce/i,
+    path: "vin-vinoteca/vinoteca-cabernet-sauvignon-dulce-2011",
+  },
+  {
+    match: /vinoteca.*tamaioasa|origini\s*vinoteca.*tamaioasa/i,
+    path: "vin-vinoteca/vinoteca-tamaioasa-romaneasca-2011",
+  },
+  {
+    match: /organic\s*rose|organic\s*ros[eé]/i,
+    path: "vin-organic/organic-rose",
+  },
+  {
+    match: /organic\s*chardonnay/i,
+    path: "vin-organic/organic-chardonnay",
+  },
+  {
+    match: /organic\s*sauvignon\s*blanc/i,
+    path: "vin-organic/organic-sauvignon-blanc",
+  },
+  {
+    match: /organic\s*feteasca\s*neagra\s*&?\s*shiraz|organic\s*fn\s*shiraz/i,
+    path: "vin-organic/organic-feteasca-neagra-shiraz",
+  },
+  {
+    match: /organic\s*feteasca\s*neagra/i,
+    path: "vin-organic/organic-feteasca-neagra",
+  },
+  {
+    match: /organic\s*shiraz/i,
+    path: "vin-organic/organic-shiraz",
+  },
+  {
+    match: /organic\s*merlot/i,
+    path: "vin-organic/organic-merlot",
   },
 ];
 

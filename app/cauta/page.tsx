@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { Building2, Search, Wine } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SmartSearch } from "@/components/smart-search";
 import { WineCard } from "@/components/wine-card";
 import { Button } from "@/components/ui/button";
 import { searchCatalog } from "@/lib/queries";
+import { isSommelierQuery, sommelierQueryHref } from "@/lib/search-intent";
 import { absoluteUrl, SITE } from "@/lib/seo";
 
 export const revalidate = 300;
@@ -44,6 +46,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q } = await searchParams;
   const query = q?.trim() ?? "";
   const hasQuery = query.length >= 2;
+
+  if (hasQuery && isSommelierQuery(query)) {
+    redirect(sommelierQueryHref(query));
+  }
+
   const results = hasQuery ? await searchCatalog(query) : null;
   const totalResults =
     (results?.wines.length ?? 0) + (results?.wineries.length ?? 0);
