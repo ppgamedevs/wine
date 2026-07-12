@@ -15,6 +15,13 @@ import {
 import type { WineWithRelations } from "@/types";
 
 const DEFAULT_BUDGET_MAX = 300;
+const NO_BUDGET_MAX = 9999;
+
+function detectAbsurdFoodRequest(text: string): boolean {
+  return /delfin|dolphin|balena|whale|urs polar|foca|foc[aă]|tigru|leu\s*(?:de\s*)?(?:munte|african)|carne\s+de\s+(?:caine|pisic)/i.test(
+    text,
+  );
+}
 
 function normalizeText(text: string): string {
   return text
@@ -43,29 +50,38 @@ export function parseChatToSommelierInput(
 
   let budgetMin = 0;
   let budgetMax = DEFAULT_BUDGET_MAX;
+  let budgetSpecified = false;
 
   const subMatch = combined.match(/sub\s*(\d{2,4})\s*(?:de\s*)?lei/);
   if (subMatch) {
     budgetMax = Number.parseInt(subMatch[1] ?? "", 10);
+    budgetSpecified = true;
   }
 
   const maxMatch = combined.match(/(?:maxim|maximum|pana la|max)\s*(\d{2,4})\s*lei/);
   if (maxMatch) {
     budgetMax = Number.parseInt(maxMatch[1] ?? "", 10);
+    budgetSpecified = true;
   }
 
   const rangeMatch = combined.match(/(\d{2,4})\s*[-–]\s*(\d{2,4})\s*lei/);
   if (rangeMatch) {
     budgetMin = Number.parseInt(rangeMatch[1] ?? "", 10);
     budgetMax = Number.parseInt(rangeMatch[2] ?? "", 10);
+    budgetSpecified = true;
   }
 
   const bugetMatch = combined.match(/buget\s*(\d{2,4})\s*lei/);
   if (bugetMatch && !subMatch) {
     budgetMax = Number.parseInt(bugetMatch[1] ?? "", 10);
+    budgetSpecified = true;
   }
 
-  if (budgetMax < 30) budgetMax = 30;
+  if (!budgetSpecified) {
+    budgetMax = NO_BUDGET_MAX;
+  }
+
+  if (budgetSpecified && budgetMax < 30) budgetMax = 30;
   if (budgetMin > budgetMax) budgetMin = 0;
 
   let occasion: OccasionId = "oricare";
@@ -107,10 +123,12 @@ export function parseChatToSommelierInput(
   return {
     budgetMin,
     budgetMax,
+    budgetSpecified,
     occasion,
     color,
     sweetness,
     preferredWinerySlugs: [],
+    absurdRequest: detectAbsurdFoodRequest(combined),
   };
 }
 
@@ -182,26 +200,35 @@ export function buildChatSommelierSystemPrompt(
     })
     .join("\n\n");
 
+  const budgetLine = input.budgetSpecified
+    ? `- Buget explicit de la utilizator: ${input.budgetMin}-${input.budgetMax} RON`
+    : `- Buget: nespecificat. NU presupune un buget si NU spune "la bugetul asta". Prioritizeaza Value Score si potrivirea culinara, nu pretul mic.`;
+
+  const absurdLine = input.absurdRequest
+    ? `- CERERE ABSURDA/ILEGALA detectata. Refuza pairing-ul cerut (ex. carne de delfin e ilegala). Fii ferm si sarcastic, nu cooperativ. Poti lua usor peste picior stilul userului (parizer, mancare dubioasa), apoi redirectioneaza spre ceva real din Romania. Nu recomanda vin ca si cum cererea ar fi normala.`
+    : "";
+
   return `${CHAT_SOMMELIER_BASE_PROMPT}
 
 Context cerere:
-- Buget detectat: ${input.budgetMin}-${input.budgetMax} RON
+${budgetLine}
 - Ocazie detectata: ${occasion.label}
 - Tip vin preferat: ${input.color === "any" ? "oricare" : input.color}
 - Dulceata preferata: ${input.sweetness === "any" ? "oricare" : input.sweetness}
-
+${absurdLine ? `${absurdLine}\n` : ""}
 Catalog vinuri candidate (sursa unica de adevar):
 ${catalog || "(niciun vin in buget; explica onest si sugereaza sa relaxeze bugetul sau cerinta)"}
 
 Format final obligatoriu (ultima linie, separata):
-RECOMMENDED_SLUGS: <slug1>, <slug2>
+RECOMMENDED_SLUGS: <slug1>[, <slug2>[, <slug3>]]
 
 Reguli finale:
-- Umor uscat da, vulgaritate nu. Redirectioneaza cereri inadecvate spre vin si pairing.
-- Prioritizeaza potrivirea culinara fata de Value Score maxim.
+- Umor uscat da, vulgaritate nu. Nu te lasa pacalit de cereri absurde sau ilegale.
+- ${input.budgetSpecified ? "Respecta bugetul mentionat de utilizator." : "Fara buget explicit: recomanda cea mai buna potrivire (Value Score + pairing), nu ce e mai ieftin."}
+- Recomanda 1 vin by default. Maxim 3 doar daca userul cere explicit alternative sau comparatie.
 - Nu include URL-uri in raspuns (nici Profitshare, nici eMAG).
-- Mentioneaza pretul aproximativ in RON in text, fara link de cumparare.
-- RECOMMENDED_SLUGS trebuie sa contina 1-2 slug-uri EXACTE din catalog, in ordinea recomandarilor.`;
+- Mentioneaza pretul aproximativ in RON in text doar pentru vinurile recomandate.
+- RECOMMENDED_SLUGS trebuie sa contina slug-uri EXACTE din catalog, in ordinea recomandarilor (1-3).`;
 }
 
 export function buildChatSommelierUserPrompt(

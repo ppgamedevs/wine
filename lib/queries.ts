@@ -19,6 +19,102 @@ export interface SearchSuggestion {
   vintage?: number | null;
 }
 
+export interface CatalogSearchWinery {
+  name: string;
+  slug: string;
+}
+
+export interface CatalogSearchResult {
+  wines: WineWithRelations[];
+  wineries: CatalogSearchWinery[];
+  query: string;
+}
+
+function normalizeSearchText(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function searchTokens(query: string): string[] {
+  return normalizeSearchText(query)
+    .split(/\s+/)
+    .filter((token) => token.length >= 2);
+}
+
+function matchesSearchTokens(haystack: string, tokens: string[]): boolean {
+  if (tokens.length === 0) return false;
+  const normalized = normalizeSearchText(haystack);
+  return tokens.every((token) => normalized.includes(token));
+}
+
+/**
+ * Full catalog search for the /cauta page (wines + wineries).
+ */
+export async function searchCatalog(
+  query: string,
+  limit = 24,
+): Promise<CatalogSearchResult> {
+  const trimmed = query.trim();
+  const tokens = searchTokens(trimmed);
+
+  if (tokens.length === 0) {
+    return { wines: [], wineries: [], query: trimmed };
+  }
+
+  const pattern = `%${trimmed.replace(/\s+/g, "%")}%`;
+
+  try {
+    const [wineRows, wineryRows] = await Promise.all([
+      db.query.wines.findMany({
+        with: { winery: true, region: true },
+        where: and(catalogWineCondition(), like(wines.name, pattern)),
+        orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
+        limit: limit * 2,
+      }),
+      db.query.wineries.findMany({
+        where: like(wineries.name, pattern),
+        orderBy: (table, { asc: orderAsc }) => [orderAsc(table.name)],
+        limit: 12,
+      }),
+    ]);
+
+    const normalizedWines = normalizeWineRows(wineRows as WineWithRelations[]);
+    const matchedWines = normalizedWines
+      .filter((wine) =>
+        matchesSearchTokens(
+          [
+            wine.name,
+            wine.winery?.name ?? "",
+            wine.region?.name ?? "",
+            wine.grapeVarieties.map((grape) => grape.name).join(" "),
+          ].join(" "),
+          tokens,
+        ),
+      )
+      .slice(0, limit);
+
+    const matchedWineries = wineryRows
+      .filter((winery) => matchesSearchTokens(winery.name, tokens))
+      .slice(0, 8)
+      .map((winery) => ({
+        name: winery.name,
+        slug: winery.slug,
+      }));
+
+    return {
+      wines: matchedWines,
+      wineries: matchedWineries,
+      query: trimmed,
+    };
+  } catch (error) {
+    console.error("searchCatalog failed", error);
+    return { wines: [], wineries: [], query: trimmed };
+  }
+}
+
 /**
  * Top wines for the homepage, ordered by value score. Joins winery + region.
  * Prag minim recomandare = 75/100.

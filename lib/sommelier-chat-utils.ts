@@ -1,15 +1,24 @@
 const RECOMMENDED_SLUGS_LINE = /^RECOMMENDED_SLUGS:\s*(.+)$/im;
 const URL_PATTERN = /https?:\/\/[^\s)\]>]+/gi;
 
+const MAX_RECOMMENDED_SLUGS = 3;
+
+function cleanSlugToken(token: string): string {
+  return token
+    .trim()
+    .replace(/^[-*`\s]+|[-*`\s]+$/g, "")
+    .replace(/^["']|["']$/g, "");
+}
+
 function parseSlugLine(line: string, candidateSlugs: string[]): string[] {
   const slugSet = new Set(candidateSlugs);
   const slugs: string[] = [];
 
   for (const token of line.split(/[,;]+/)) {
-    const slug = token.trim().replace(/^[-*]\s*/, "");
+    const slug = cleanSlugToken(token);
     if (!slug || !slugSet.has(slug) || slugs.includes(slug)) continue;
     slugs.push(slug);
-    if (slugs.length >= 2) break;
+    if (slugs.length >= MAX_RECOMMENDED_SLUGS) break;
   }
 
   return slugs;
@@ -22,13 +31,13 @@ function findMentionedSlugs(text: string, candidateSlugs: string[]): string[] {
   for (const slug of candidateSlugs) {
     if (!normalized.includes(slug) || slugs.includes(slug)) continue;
     slugs.push(slug);
-    if (slugs.length >= 2) break;
+    if (slugs.length >= MAX_RECOMMENDED_SLUGS) break;
   }
 
   return slugs;
 }
 
-/** Parse up to two wine slugs chosen by the LLM from its full response. */
+/** Parse up to three wine slugs chosen by the LLM from its full response. */
 export function extractRecommendedSlugs(
   llmText: string,
   candidateSlugs: string[],

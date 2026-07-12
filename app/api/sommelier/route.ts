@@ -49,10 +49,12 @@ export async function POST(req: Request) {
     const input: SommelierInput = {
       budgetMin: Math.min(data.budgetMin, data.budgetMax),
       budgetMax: data.budgetMax,
+      budgetSpecified: true,
       occasion: occasionId,
       color: data.color as ColorPreference,
       sweetness: data.sweetness as SweetnessPreference,
       preferredWinerySlugs: data.preferredWinerySlugs,
+      absurdRequest: false,
     };
 
     const candidates = await hybridRetrieve(input, 8);

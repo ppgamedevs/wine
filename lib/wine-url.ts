@@ -21,9 +21,27 @@ export function normalizeSourceUrl(raw: string): string {
   return normalized;
 }
 
+const BARE_DOMAIN_PATTERN =
+  /^[a-z0-9][a-z0-9-]*(?:\.[a-z0-9][a-z0-9-]*)+\.[a-z]{2,}(?:\/[^\s]*)?$/i;
+
+/** True when the user is typing or pasting something that looks like a URL. */
+export function looksLikeUrlAttempt(input: string): boolean {
+  const trimmed = input.trim();
+  if (!trimmed) return false;
+  if (/^https?:\/\//i.test(trimmed)) return true;
+  if (BARE_DOMAIN_PATTERN.test(trimmed)) return true;
+  if (/^(?:www\.)?[a-z0-9-]+\.(?:ro|com|eu|net|org)(?:\/|\s|$)/i.test(trimmed)) {
+    return true;
+  }
+  return false;
+}
+
 export function isWineUrl(input: string): boolean {
+  const trimmed = input.trim();
+  if (!trimmed || !looksLikeUrlAttempt(trimmed)) return false;
+
   try {
-    normalizeSourceUrl(input);
+    normalizeSourceUrl(trimmed);
     return true;
   } catch {
     return false;

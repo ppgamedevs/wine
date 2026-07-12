@@ -167,10 +167,12 @@ function rankForOccasion(
     {
       budgetMin: 0,
       budgetMax,
+      budgetSpecified: true,
       occasion,
       color: "any",
       sweetness: "any",
       preferredWinerySlugs: [],
+      absurdRequest: false,
     },
     limit,
   );

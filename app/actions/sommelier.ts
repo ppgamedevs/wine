@@ -61,10 +61,12 @@ export async function getSommelierRecommendations(
     const input: SommelierInput = {
       budgetMin: Math.max(0, Math.min(budgetMin, budgetMax)),
       budgetMax: Number.isFinite(budgetMax) ? Math.max(20, budgetMax) : 150,
+      budgetSpecified: true,
       occasion: parseOccasion(formData.get("occasion")),
       color: parseColor(formData.get("color")),
       sweetness: parseSweetness(formData.get("sweetness")),
       preferredWinerySlugs,
+      absurdRequest: false,
     };
 
     const allWines = await getWinesForSommelier();

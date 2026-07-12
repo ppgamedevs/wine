@@ -287,10 +287,12 @@ export function SommelierChat() {
     [],
   );
 
-  const { messages, sendMessage, status, error, stop } =
+  const { messages, sendMessage, status, error, stop, setMessages } =
     useChat<SommelierChatUiMessage>({
       transport,
     });
+
+  const fetchedRecommendationsRef = useRef(new Set<string>());
 
   const isBusy = status === "submitted" || status === "streaming";
   const hasMessages = messages.length > 0;
@@ -347,6 +349,62 @@ export function SommelierChat() {
     initialQuerySent.current = true;
     void sendMessage({ text: q });
   }, [searchParams, isBusy, messages.length, sendMessage]);
+
+  useEffect(() => {
+    if (status !== "ready") return;
+
+    void (async () => {
+      const pending = messages.filter(
+        (message) =>
+          message.role === "assistant" &&
+          getRecommendationsFromMessage(message).length === 0 &&
+          getTextFromMessage(message).trim().length > 0 &&
+          !fetchedRecommendationsRef.current.has(message.id),
+      );
+
+      if (pending.length === 0) return;
+
+      for (const message of pending) {
+        fetchedRecommendationsRef.current.add(message.id);
+        const rawText = getTextFromMessage(message);
+
+        try {
+          const res = await fetch("/api/sommelier/recommendations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: rawText }),
+          });
+          if (!res.ok) continue;
+
+          const data = (await res.json()) as {
+            recommendations?: ChatWineRecommendation[];
+          };
+          const recommendations = data.recommendations ?? [];
+          if (recommendations.length === 0) continue;
+
+          setMessages((current) =>
+            current.map((entry) =>
+              entry.id === message.id
+                ? {
+                    ...entry,
+                    parts: [
+                      ...entry.parts,
+                      {
+                        type: "data-recommendations" as const,
+                        id: `rec-${entry.id}`,
+                        data: recommendations,
+                      },
+                    ],
+                  }
+                : entry,
+            ),
+          );
+        } catch {
+          fetchedRecommendationsRef.current.delete(message.id);
+        }
+      }
+    })();
+  }, [messages, setMessages, status]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

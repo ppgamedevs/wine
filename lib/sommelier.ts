@@ -15,10 +15,14 @@ export type SweetnessPreference = "any" | "sec" | "demisec" | "demidulce" | "dul
 export interface SommelierInput {
   budgetMin: number;
   budgetMax: number;
+  /** True only when the user explicitly mentioned a budget or price limit. */
+  budgetSpecified: boolean;
   occasion: OccasionId;
   color: ColorPreference;
   sweetness: SweetnessPreference;
   preferredWinerySlugs: string[];
+  /** Illegal, unethical or absurd food pairing requests (dolphin, etc.). */
+  absurdRequest: boolean;
 }
 
 export type OccasionId =
@@ -206,7 +210,7 @@ function scoreWineRaw(
   const price = wine.priceAvg ?? null;
   let budgetFit: Recommendation["budgetFit"] = "ideal";
 
-  if (price !== null) {
+  if (price !== null && input.budgetSpecified) {
     if (price > input.budgetMax) {
       const overBy = (price - input.budgetMax) / input.budgetMax;
       if (overBy > 0.25) return null;
@@ -219,6 +223,8 @@ function scoreWineRaw(
       score += 8;
       budgetFit = "ideal";
     }
+  } else if (price !== null && !input.budgetSpecified) {
+    score += (value - 50) * 0.08;
   }
 
   const colorTypes = COLOR_TO_TYPES[input.color];

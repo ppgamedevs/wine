@@ -66,7 +66,8 @@ export async function POST(req: Request) {
         const recommendations = slugs
           .map((slug) => wineBySlug.get(slug))
           .filter((wine) => wine != null)
-          .map((wine) => serializeWineForChat(wine));
+          .map((wine) => serializeWineForChat(wine))
+          .slice(0, 3);
 
         if (recommendations.length > 0) {
           writer.write({

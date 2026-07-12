@@ -18,7 +18,7 @@ import {
   WINE_ALREADY_PENDING_MESSAGE,
   WINE_PENDING_REVIEW_MESSAGE,
 } from "@/lib/wine-submission-messages";
-import { isWineUrl } from "@/lib/wine-url";
+import { isWineUrl, looksLikeUrlAttempt } from "@/lib/wine-url";
 import { cn } from "@/lib/utils";
 
 export const WINE_LINK_HELPER_TEXT =
@@ -170,6 +170,8 @@ export function SmartSearch({
 
   const trimmed = query.trim();
   const isUrl = enableLinkAnalysis && isWineUrl(trimmed);
+  const showLinkHelper =
+    enableLinkAnalysis && !analysisSuccess && looksLikeUrlAttempt(trimmed);
   const showDropdown = open && trimmed.length >= 2 && !isUrl;
 
   return (
@@ -241,7 +243,7 @@ export function SmartSearch({
         </div>
       </form>
 
-      {analysisError ? (
+      {analysisError && isUrl ? (
         <p className="mt-2 text-left text-sm text-destructive">{analysisError}</p>
       ) : null}
 
@@ -254,7 +256,7 @@ export function SmartSearch({
         </p>
       ) : null}
 
-      {enableLinkAnalysis && !analysisSuccess ? (
+      {showLinkHelper ? (
         <p className="mt-2 text-left text-sm text-muted-foreground">
           {WINE_LINK_HELPER_TEXT}
         </p>
