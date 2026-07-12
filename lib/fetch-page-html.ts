@@ -5,6 +5,141 @@ const BROWSER_USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
 const MAX_REDIRECT_HOPS = 10;
+const JINA_READER_BASE = "https://r.jina.ai/";
+
+function isBudureascaHost(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return host === "budureasca.ro" || host === "www.budureasca.ro";
+  } catch {
+    return url.toLowerCase().includes("budureasca.ro");
+  }
+}
+
+function isCloudflareChallenge(html: string): boolean {
+  return /Just a moment/i.test(html) || /cf-browser-verification/i.test(html);
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function extractJinaOverview(markdown: string): string {
+  const body = markdown.split("Markdown Content:")[1] ?? markdown;
+  const paragraph = body.match(/\n\n([^#\n*][^\n]{40,})/)?.[1]?.trim();
+  return paragraph ?? "";
+}
+
+function buildBudureascaHtmlFromJina(markdown: string): string | null {
+  const trimmed = markdown.trim();
+  if (!trimmed) return null;
+
+  const title = trimmed.match(/^Title:\s*(.+)$/m)?.[1]?.trim();
+  if (!title) return null;
+
+  const overview = extractJinaOverview(trimmed);
+  return `<!DOCTYPE html><html><head>
+<meta property="og:title" content="${escapeHtml(title)}" />
+<title>${escapeHtml(title)}</title>
+</head><body>
+<h1 class="page-title"><span data-ui-id="page-title-wrapper">${escapeHtml(title)}</span></h1>
+<div class="product overview">${escapeHtml(overview)}</div>
+<article>${escapeHtml(trimmed)}</article>
+</body></html>`;
+}
+
+async function fetchViaSystemCurl(url: string): Promise<string | null> {
+  try {
+    const { execFile } = await import("node:child_process");
+    const { promisify } = await import("node:util");
+    const execFileAsync = promisify(execFile);
+    const curlBin = process.platform === "win32" ? "curl.exe" : "curl";
+    const { stdout } = await execFileAsync(
+      curlBin,
+      ["-sL", "-A", BROWSER_USER_AGENT, "--max-time", "20", url],
+      { encoding: "utf8", maxBuffer: 6 * 1024 * 1024 },
+    );
+
+    if (
+      typeof stdout === "string" &&
+      stdout.length > 1000 &&
+      !isCloudflareChallenge(stdout)
+    ) {
+      return stdout;
+    }
+  } catch {
+    // curl missing or blocked
+  }
+
+  return null;
+}
+
+async function fetchViaJinaReader(url: string): Promise<string | null> {
+  const readerUrl = `${JINA_READER_BASE}${url}`;
+  const response = await fetch(readerUrl, {
+    headers: { Accept: "text/plain" },
+    signal: AbortSignal.timeout(25_000),
+  });
+
+  if (!response.ok) return null;
+
+  const markdown = await response.text();
+  return buildBudureascaHtmlFromJina(markdown);
+}
+
+async function fetchBudureascaDocument(url: string): Promise<{
+  html: string;
+  finalUrl: string;
+}> {
+  try {
+    const response = await fetch(url, {
+      ...buildFetchInit(url),
+      redirect: "follow",
+    });
+
+    if (response.ok) {
+      const html = await response.text();
+      if (!isCloudflareChallenge(html)) {
+        return { html, finalUrl: response.url || url };
+      }
+    }
+  } catch {
+    // fall through to curl / jina
+  }
+
+  const curlHtml = await fetchViaSystemCurl(url);
+  if (curlHtml) {
+    return { html: curlHtml, finalUrl: url };
+  }
+
+  const jinaHtml = await fetchViaJinaReader(url);
+  if (jinaHtml) {
+    return { html: jinaHtml, finalUrl: url };
+  }
+
+  throw new Error(
+    "Pagina Budureasca este protejata de Cloudflare si nu a putut fi accesata acum. Incearca din nou peste cateva minute.",
+  );
+}
+
+async function fetchBudureascaPageWithResolution(
+  sourceUrl: string,
+): Promise<FetchPageResult> {
+  const document = await fetchBudureascaDocument(sourceUrl);
+  return {
+    html: document.html,
+    finalUrl: document.finalUrl,
+    sourceUrl,
+    redirectChain:
+      document.finalUrl !== sourceUrl
+        ? [sourceUrl, document.finalUrl]
+        : [sourceUrl],
+  };
+}
 
 function resolveUserAgent(url: string): string {
   try {
@@ -256,11 +391,20 @@ async function fetchRetailerDocument(url: string): Promise<{
       if (fallback) return fallback;
     }
 
+    if (isBudureascaHost(url) && (response.status === 403 || response.status === 503)) {
+      return fetchBudureascaDocument(url);
+    }
+
     throw new Error(`Pagina nu a putut fi accesata (${response.status}).`);
   }
 
+  const html = await response.text();
+  if (isBudureascaHost(url) && isCloudflareChallenge(html)) {
+    return fetchBudureascaDocument(url);
+  }
+
   return {
-    html: await response.text(),
+    html,
     finalUrl: response.url || url,
   };
 }
@@ -340,6 +484,10 @@ export async function fetchPageWithResolution(
 ): Promise<FetchPageResult> {
   if (isProfitshareUrl(sourceUrl)) {
     return resolveProfitshareUrl(sourceUrl);
+  }
+
+  if (isBudureascaHost(sourceUrl)) {
+    return fetchBudureascaPageWithResolution(sourceUrl);
   }
 
   const response = await fetch(sourceUrl, {

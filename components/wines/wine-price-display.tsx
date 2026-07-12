@@ -1,8 +1,9 @@
-import { BadgeCheck, ExternalLink } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RetailerPurchaseLink } from "@/components/wines/retailer-purchase-link";
+import { VerifyPriceButton } from "@/components/wines/verify-price-button";
 import { formatRon } from "@/lib/format";
 import { trackWineryEvent } from "@/lib/winery-analytics-client";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
@@ -150,21 +151,10 @@ export function WineCardPriceFooter({
             onTrackClick={onPurchaseClick}
           />
         ) : pricing.status !== "unavailable" && pricing.verifyPriceUrl ? (
-          <Button
-            asChild
-            size="sm"
-            variant="outline"
-            className="border-wine/30 text-wine hover:bg-wine/10"
-          >
-            <a
-              href={pricing.verifyPriceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Verifica pret
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </Button>
+          <VerifyPriceButton
+            url={pricing.verifyPriceUrl}
+            enabled={wine.winery?.verified === true}
+          />
         ) : (
           <span />
         )}

@@ -3,6 +3,31 @@ const URL_PATTERN = /https?:\/\/[^\s)\]>]+/gi;
 
 const MAX_RECOMMENDED_SLUGS = 3;
 
+/** Fix frequent LLM gender agreement mistakes in Romanian wine copy. */
+const ROMANIAN_GRAMMAR_FIXES: Array<[RegExp, string]> = [
+  [/\bunii\s+cupaje\b/gi, "unele cupaje"],
+  [/\bunii\s+vinuri\b/gi, "unele vinuri"],
+  [/\bunii\s+soiuri\b/gi, "unele soiuri"],
+  [/\bunii\s+sorturi\b/gi, "unele sorturi"],
+  [/\bunii\s+asambluri\b/gi, "unele asambluri"],
+  [
+    /\b(unele\s+(?:cupaje|vinuri|soiuri|sorturi|asambluri)[^.!?]{0,120}?)\biar\s+alții\b/gi,
+    "$1iar altele",
+  ],
+  [
+    /\b(unele\s+(?:cupaje|vinuri|soiuri|sorturi|asambluri)[^.!?]{0,120}?)\biar\s+altii\b/gi,
+    "$1iar altele",
+  ],
+];
+
+function fixRomanianGrammar(text: string): string {
+  let fixed = text;
+  for (const [pattern, replacement] of ROMANIAN_GRAMMAR_FIXES) {
+    fixed = fixed.replace(pattern, replacement);
+  }
+  return fixed;
+}
+
 function cleanSlugToken(token: string): string {
   return token
     .trim()
@@ -53,10 +78,12 @@ export function extractRecommendedSlugs(
 
 /** Strip machine-readable slug line and raw URLs from assistant chat text. */
 export function sanitizeAssistantChatText(text: string): string {
-  return text
-    .replace(RECOMMENDED_SLUGS_LINE, "")
-    .replace(URL_PATTERN, "")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  return fixRomanianGrammar(
+    text
+      .replace(RECOMMENDED_SLUGS_LINE, "")
+      .replace(URL_PATTERN, "")
+      .replace(/[ \t]+\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim(),
+  );
 }

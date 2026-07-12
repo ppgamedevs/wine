@@ -102,6 +102,28 @@ function parseRonPrice(raw: string | null | undefined): number | null {
   return plain != null ? Math.round(plain) : null;
 }
 
+function parseBudureascaSalePrice(html: string): number | null {
+  const productSection = html.slice(0, 25_000);
+  const plain = stripHtml(productSection).replace(/\s+/g, " ");
+  const amounts: number[] = [];
+
+  for (const match of plain.matchAll(/(\d{1,4})[,.](\d{2})[\s\u00a0]*Lei/gi)) {
+    const whole = Number.parseInt(match[1] ?? "0", 10);
+    const index = match.index ?? 0;
+    const contextBefore = plain.slice(Math.max(0, index - 10), index);
+    if (contextBefore.includes("+")) continue;
+    if (whole < 10) continue;
+    amounts.push(whole);
+  }
+
+  if (amounts.length === 0) return null;
+  if (amounts.length >= 2) {
+    return Math.min(...amounts);
+  }
+
+  return amounts[0] ?? null;
+}
+
 function extractMetaContent(html: string, keys: string[]): string | null {
   for (const key of keys) {
     const patterns = [
@@ -185,7 +207,8 @@ function parseGrapeVarieties(raw: string | null): GrapeVarietyShare[] {
   if (!raw?.trim()) return [];
 
   const names = raw
-    .split(/[,;]+|\n|•|-(?=[A-Za-zÀ-ž])/)
+    .split(/\*+/)
+    .flatMap((segment) => segment.split(/[,;\n]+/))
     .map((part) => part.trim())
     .filter((part) => part.length > 2 && part.length <= 50);
 
@@ -227,6 +250,8 @@ function extractTastingNotes(html: string): string | null {
 
 function inferLineFromName(name: string): string | null {
   const norm = normalizeMatchText(name);
+  if (norm.includes("magnum")) return "Magnum";
+  if (norm.includes("vine in flames")) return "Vine in Flames";
   if (norm.includes("origini")) return "Origini";
   if (norm.includes("premium")) return "Premium";
   if (norm.includes("clasic")) return "Clasic";
@@ -371,7 +396,16 @@ export function parseBudureascaProductPage(
   const volumeRaw = extractAttributeValue(html, "Cantitate");
 
   const price =
+    parseRonPrice(
+      html.match(
+        /data-price-type="finalPrice"[^>]*data-price-amount="([^"]+)"/i,
+      )?.[1] ??
+        html.match(
+          /data-price-amount="([^"]+)"[^>]*data-price-type="finalPrice"/i,
+        )?.[1],
+    ) ??
     parseRonPrice(extractMetaContent(html, ["product:price:amount"])) ??
+    parseBudureascaSalePrice(html) ??
     parseRonPrice(html.match(/class="[^"]*price[^"]*"[^>]*>([\s\S]*?)<\/span>/i)?.[1]) ??
     parseRonPrice(stripHtml(html).match(/(\d{1,4}[,.]\d{2})\s*Lei/i)?.[0]);
 
@@ -520,6 +554,54 @@ const BUDUREASCA_KNOWN_PRODUCT_PATHS: Array<{ match: RegExp; path: string }> = [
   {
     match: /organic\s*merlot/i,
     path: "vin-organic/organic-merlot",
+  },
+  {
+    match: /premium\s*merlot/i,
+    path: "vin-premium/premium-merlot",
+  },
+  {
+    match: /premium\s*cabernet\s*sauvignon/i,
+    path: "vin-premium/premium-cabernet-sauvignon",
+  },
+  {
+    match: /premium\s*zenovius/i,
+    path: "vin-premium/premium-zenovius",
+  },
+  {
+    match: /premium\s*chardonnay/i,
+    path: "vin-premium/premium-chardonnay",
+  },
+  {
+    match: /premium\s*sauvignon\s*blanc/i,
+    path: "vin-premium/premium-sauvignon-blanc",
+  },
+  {
+    match: /premium\s*feteasca\s*neagra/i,
+    path: "vin-premium/premium-feteasca-neagra",
+  },
+  {
+    match: /premium\s*rose|premium\s*ros[eé]/i,
+    path: "vin-premium/premium-rose",
+  },
+  {
+    match: /premium\s*fume|premium\s*fum[eé]/i,
+    path: "vin-premium/premium-fume",
+  },
+  {
+    match: /vine\s*in\s*flames\s*daphix|daphix/i,
+    path: "vin-vine-in-flames/vine-in-flames-daphix",
+  },
+  {
+    match: /vine\s*in\s*flames\s*pinot|vflames\s*pn/i,
+    path: "vin-vine-in-flames/vine-in-flames-pinot-noir",
+  },
+  {
+    match: /vine\s*in\s*flames\s*feteasca\s*regala|vflames\s*fr/i,
+    path: "vin-vine-in-flames/vine-in-flames-feteasca-regala",
+  },
+  {
+    match: /magnum\s*rose|magnum\s*ros[eé]|magn-ro/i,
+    path: "vin-magnum/magnum-rose",
   },
 ];
 
