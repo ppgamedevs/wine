@@ -1,5 +1,5 @@
 import type { WineType } from "@/types";
-import { upgradeBudureascaImageUrl } from "@/lib/budureasca-producer";
+import { upgradeBudureascaImageUrl } from "@/lib/budureasca-image-url";
 
 const PLACEHOLDER_HOSTS = ["images.unsplash.com", "picsum.photos"] as const;
 

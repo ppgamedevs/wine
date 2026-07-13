@@ -24,6 +24,7 @@ import {
   getWineryWineCount,
 } from "@/lib/queries";
 import { buildWineFullTitle } from "@/lib/wine-vintage";
+import { buildWineFaq } from "@/lib/wine-analysis";
 import { buildWineJsonLd, buildWineMetadataDescription } from "@/lib/wine-json-ld";
 import { absoluteUrl } from "@/lib/seo";
 import { resolveWineImage } from "@/lib/wine-images";

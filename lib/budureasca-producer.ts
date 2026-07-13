@@ -1,4 +1,5 @@
 import { stripHtml } from "@/lib/fetch-page-text-utils";
+import { upgradeBudureascaImageUrl } from "@/lib/budureasca-image-url";
 import { fetchPageHtml } from "@/lib/fetch-page-html";
 import type { GrapeVarietyShare } from "@/lib/schema";
 import type { WineSweetnessLevel } from "@/lib/wine-tech-specs";
@@ -149,30 +150,6 @@ function normalizeAbsoluteUrl(raw: string, pageUrl: string): string | null {
   }
 }
 
-/** Magento serves tiny thumbnails under /cache/{hash}/; strip for full resolution. */
-export function upgradeBudureascaImageUrl(
-  url: string | null | undefined,
-): string | null {
-  if (!url?.trim()) return null;
-  try {
-    const parsed = new URL(url.trim());
-    const host = parsed.hostname.toLowerCase();
-    if (host !== "budureasca.ro" && host !== "www.budureasca.ro") {
-      return url.trim();
-    }
-
-    const upgraded = parsed.pathname.replace(
-      /\/media\/catalog\/product\/cache\/[^/]+\/(.+)/,
-      "/media/catalog/product/$1",
-    );
-    if (upgraded === parsed.pathname) return url.trim();
-
-    parsed.pathname = upgraded;
-    return parsed.toString();
-  } catch {
-    return url.trim();
-  }
-}
 
 function extractOgImage(html: string, pageUrl: string): string | null {
   const raw =
