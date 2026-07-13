@@ -189,7 +189,7 @@ export default async function BestRomanianWinesHubPage() {
             >
               Verdict pentru fiecare vin
             </h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {list.wines.map((wine, index) => (
                 <TopListWineVerdict key={wine.id} wine={wine} position={index + 1} />
               ))}
