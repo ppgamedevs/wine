@@ -90,11 +90,12 @@ function parseRonPrice(raw: string | null | undefined): number | null {
 
 function parseSweetnessLabel(raw: string): WineSweetnessLevel | null {
   const norm = normalizeMatchText(raw.split("/")[0] ?? raw);
+  const compact = norm.replace(/\s+/g, "");
   if (norm.includes("brut") || norm.includes("extra brut")) return "sec";
-  if (norm.includes("demisec")) return "demisec";
-  if (norm.includes("demidulce") || norm.includes("medium sweet")) return "demidulce";
+  if (compact.includes("demisec") || norm.includes("demi sec")) return "demisec";
+  if (compact.includes("demidulce") || norm.includes("medium sweet")) return "demidulce";
   if (norm.includes("dulce") || norm.includes("sweet")) return "dulce";
-  if (norm.includes("sec")) return "sec";
+  if (norm.includes("sec") || norm.includes("dry")) return "sec";
   return null;
 }
 
@@ -199,21 +200,57 @@ function extractOgImage(html: string, pageUrl: string): string | null {
   return raw ? normalizeAbsoluteUrl(raw, pageUrl) : null;
 }
 
+const GABAI_GRAPE_ABBREVIATIONS: Record<string, string> = {
+  cs: "Cabernet Sauvignon",
+  m: "Merlot",
+  fn: "Fetească Neagră",
+};
+
+function expandGabaiGrapeAbbreviation(token: string): string {
+  const trimmed = token.trim();
+  const key = normalizeMatchText(trimmed);
+  return GABAI_GRAPE_ABBREVIATIONS[key] ?? trimmed;
+}
+
+function extractGabaiSpecLines(html: string): string[] {
+  const specBlock =
+    html.match(
+      /(?:Soi\s*\/?\s*Variety)[\s\S]*?(?=<h2[^>]*>\s*Informa|Informații suplimentare|<div class="et_pb_tab clearfix">)/i,
+    )?.[0] ?? null;
+
+  if (!specBlock) return [];
+
+  const brCount = (specBlock.match(/<br\s*\/?>/gi) ?? []).length;
+  if (brCount >= 2) {
+    return specBlock
+      .split(/<br\s*\/?>/i)
+      .map((line) => stripHtml(line).replace(/\s+/g, " ").trim())
+      .filter(Boolean);
+  }
+
+  const lines: string[] = [];
+  const leadingLine = specBlock.match(/^([\s\S]*?)<p[\s>]/i)?.[1];
+  if (leadingLine?.includes(":")) {
+    const text = stripHtml(leadingLine).replace(/\s+/g, " ").trim();
+    if (text) lines.push(text);
+  }
+
+  for (const match of specBlock.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)) {
+    const text = stripHtml(match[1] ?? "").replace(/\s+/g, " ").trim();
+    if (text.includes(":")) lines.push(text);
+  }
+
+  return lines;
+}
+
 function extractGabaiSpecMap(html: string): Record<string, string> {
-  const specSection =
-    html.match(/Soi\s*\/\s*Variety:[\s\S]*?<\/p>/i)?.[0] ??
-    html.match(/et_pb_tab_content[\s\S]*?Soi[\s\S]*?<\/p>/i)?.[0];
-
-  if (!specSection) return {};
-
   const map: Record<string, string> = {};
-  for (const line of specSection.split(/<br\s*\/?>/i)) {
-    const text = stripHtml(line).replace(/\s+/g, " ").trim();
+  for (const text of extractGabaiSpecLines(html)) {
     const kv = text.match(/^([^:]+):\s*(.+)$/);
     if (!kv?.[1] || !kv[2]) continue;
 
     const key = normalizeMatchText(kv[1]);
-    const value = stripHtml(kv[2]).replace(/\s+/g, " ").trim();
+    const value = kv[2].trim();
     if (!value) continue;
 
     if (key.includes("soi") || key.includes("variety")) {
@@ -226,7 +263,7 @@ function extractGabaiSpecMap(html: string): Record<string, string> {
       map.vintage = value;
     } else if (key.includes("alcool") || key.includes("abv")) {
       map.alcohol = value;
-    } else if (key.includes("volume")) {
+    } else if (key.includes("volume") || key.includes("volum")) {
       map.volume = value;
     }
   }
@@ -237,9 +274,18 @@ function extractGabaiSpecMap(html: string): Record<string, string> {
 function parseGrapeVarieties(raw: string | null): GrapeVarietyShare[] {
   if (!raw?.trim()) return [];
 
-  return raw
+  const cleaned = raw.replace(/\s+/g, " ").trim();
+  if (cleaned.includes("+")) {
+    return cleaned
+      .split("+")
+      .map((part) => expandGabaiGrapeAbbreviation(part))
+      .filter(Boolean)
+      .map((name) => ({ name }));
+  }
+
+  return cleaned
     .split(/[,;/]|(?:\s+si\s+)|(?:\s+și\s+)/i)
-    .map((part) => part.trim())
+    .map((part) => part.replace(/\s*\/\s*.+$/, "").trim())
     .filter(Boolean)
     .map((name) => ({ name }));
 }
