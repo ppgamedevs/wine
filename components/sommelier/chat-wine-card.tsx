@@ -10,6 +10,7 @@ import { VinScoreBadge } from "@/components/wines/vin-score-badge";
 import { formatRon, wineTypeLabel } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
 import type { ChatWineRecommendation } from "@/lib/sommelier-chat-types";
+import { buildWineFullTitle } from "@/lib/wine-vintage";
 import { cn } from "@/lib/utils";
 
 export function ChatWineCard({
@@ -19,7 +20,9 @@ export function ChatWineCard({
   wine: ChatWineRecommendation;
   index?: number;
 }) {
-  const displayName = wine.vintage ? `${wine.name} ${wine.vintage}` : wine.name;
+  const displayName = wine.vintage
+    ? buildWineFullTitle(wine.name, wine.vintage)
+    : wine.name;
   const purchaseHref = `/wines/${wine.slug}#price-heading`;
 
   return (

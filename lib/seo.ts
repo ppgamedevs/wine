@@ -1,6 +1,6 @@
 export const SITE = {
   name: "VinIntel",
-  url: "https://vinintel.ro",
+  url: "https://www.vinintel.ro",
   locale: "ro_RO",
   language: "ro-RO",
   description:

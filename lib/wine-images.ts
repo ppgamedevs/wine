@@ -1,4 +1,5 @@
 import type { WineType } from "@/types";
+import { upgradeBudureascaImageUrl } from "@/lib/budureasca-producer";
 
 const PLACEHOLDER_HOSTS = ["images.unsplash.com", "picsum.photos"] as const;
 
@@ -109,7 +110,7 @@ export function resolveWineImage(wine: {
     });
 
   const fromExternalSource = isExternalSourceImage(wine.imageSource);
-  const raw = wine.imageUrl?.trim();
+  const raw = upgradeBudureascaImageUrl(wine.imageUrl?.trim() ?? null);
 
   if (!raw) {
     return { src: null, alt, fromExternalSource: false, unoptimized: false };

@@ -115,6 +115,29 @@ export function resolveWineVintage(input: {
   return null;
 }
 
+export function stripEmbeddedVintageFromName(
+  name: string,
+  vintage: number | null | undefined,
+): string {
+  if (!name.trim() || vintage == null) return name.trim();
+
+  const stripped = name
+    .replace(new RegExp(`\\s${vintage}(?=\\s*\\(|$)`, "i"), "")
+    .trim();
+
+  return stripped || name.trim();
+}
+
+/** Title with a single trailing vintage (never duplicated). */
+export function buildWineFullTitle(
+  name: string,
+  vintage: number | null | undefined,
+): string {
+  const base = stripEmbeddedVintageFromName(name, vintage);
+  if (vintage == null) return base;
+  return `${base} ${vintage}`;
+}
+
 export function resolveStoredWineVintage(input: {
   vintage?: number | null;
   name: string;

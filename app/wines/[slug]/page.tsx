@@ -23,8 +23,9 @@ import {
   getWineBySlug,
   getWineryWineCount,
 } from "@/lib/queries";
-import { buildWineFaq } from "@/lib/wine-analysis";
+import { buildWineFullTitle } from "@/lib/wine-vintage";
 import { buildWineJsonLd, buildWineMetadataDescription } from "@/lib/wine-json-ld";
+import { absoluteUrl } from "@/lib/seo";
 import { resolveWineImage } from "@/lib/wine-images";
 import { EXISTING_WINE_CATALOG_MESSAGE } from "@/lib/wine-submission-messages";
 
@@ -51,9 +52,9 @@ export async function generateMetadata({
     return { title: "Vin negasit" };
   }
 
-  const title = `${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}`;
+  const title = buildWineFullTitle(wine.name, wine.vintage);
   const description = buildWineMetadataDescription(wine);
-  const url = `https://vinintel.ro/wines/${wine.slug}`;
+  const url = absoluteUrl(`/wines/${wine.slug}`);
   const { src: imageUrl, alt: imageAlt } = resolveWineImage(wine);
   const ogImages = imageUrl
     ? [{ url: imageUrl, width: 800, height: 600, alt: imageAlt }]

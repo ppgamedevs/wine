@@ -3,11 +3,12 @@ import { Suspense } from "react";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SommelierChat } from "@/components/sommelier/sommelier-chat";
+import { absoluteUrl } from "@/lib/seo";
 import AiSommelierLoading from "./loading";
 
 export const revalidate = 3600;
 
-const url = "https://vinintel.ro/ai-sommelier";
+const url = absoluteUrl("/ai-sommelier");
 const description =
   "Chat cu somelierul AI VinIntel: recomandari oneste de vinuri romanesti pentru orice ocazie, mancare, desert sau buget in RON.";
 

@@ -11,6 +11,7 @@ import {
   markWineSubmissionNotificationsSent,
   resolveWineSubmittedEmail,
 } from "@/lib/wine-submitter-email";
+import { scheduleIndexNowWine } from "@/lib/indexnow";
 
 export interface ApproveCommunityWineResult {
   slug: string;
@@ -101,6 +102,11 @@ export async function approveCommunityWine(
   } else {
     emailSkippedReason = "missing_submitted_email";
   }
+
+  scheduleIndexNowWine(
+    wineForEmail.slug,
+    wineForEmail.winery?.slug ?? null,
+  );
 
   return {
     slug: wine.slug,

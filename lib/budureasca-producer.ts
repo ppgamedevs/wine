@@ -149,12 +149,38 @@ function normalizeAbsoluteUrl(raw: string, pageUrl: string): string | null {
   }
 }
 
+/** Magento serves tiny thumbnails under /cache/{hash}/; strip for full resolution. */
+export function upgradeBudureascaImageUrl(
+  url: string | null | undefined,
+): string | null {
+  if (!url?.trim()) return null;
+  try {
+    const parsed = new URL(url.trim());
+    const host = parsed.hostname.toLowerCase();
+    if (host !== "budureasca.ro" && host !== "www.budureasca.ro") {
+      return url.trim();
+    }
+
+    const upgraded = parsed.pathname.replace(
+      /\/media\/catalog\/product\/cache\/[^/]+\/(.+)/,
+      "/media/catalog/product/$1",
+    );
+    if (upgraded === parsed.pathname) return url.trim();
+
+    parsed.pathname = upgraded;
+    return parsed.toString();
+  } catch {
+    return url.trim();
+  }
+}
+
 function extractOgImage(html: string, pageUrl: string): string | null {
   const raw =
     extractMetaContent(html, ["og:image", "twitter:image"]) ??
     html.match(/property="og:image:secure_url"\s+content="([^"]+)"/i)?.[1] ??
     null;
-  return raw ? normalizeAbsoluteUrl(raw, pageUrl) : null;
+  const absolute = raw ? normalizeAbsoluteUrl(raw, pageUrl) : null;
+  return upgradeBudureascaImageUrl(absolute);
 }
 
 function extractProductTitle(html: string): string | null {
@@ -602,6 +628,10 @@ const BUDUREASCA_KNOWN_PRODUCT_PATHS: Array<{ match: RegExp; path: string }> = [
   {
     match: /magnum\s*rose|magnum\s*ros[eé]|magn-ro/i,
     path: "vin-magnum/magnum-rose",
+  },
+  {
+    match: /magnum\s*feteasca\s*neagra|magn-fn/i,
+    path: "vin-magnum/magnum-feteasca-neagra",
   },
 ];
 

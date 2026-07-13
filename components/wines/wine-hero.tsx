@@ -6,12 +6,13 @@ import { SourceBadge } from "@/components/wines/source-badge";
 import { CommunityBadge } from "@/components/wines/community-badge";
 import { Badge } from "@/components/ui/badge";
 import { formatLongDate, wineTypeLabel } from "@/lib/format";
-import { resolveWineVintage } from "@/lib/wine-vintage";
+import { resolveWineVintage, stripEmbeddedVintageFromName } from "@/lib/wine-vintage";
 import { resolveWineFactualSource } from "@/lib/wine-source";
 import type { WineWithRelations } from "@/types";
 
 export function WineHero({ wine }: { wine: WineWithRelations }) {
   const displayVintage = resolveWineVintage(wine);
+  const displayName = stripEmbeddedVintageFromName(wine.name, displayVintage);
 
   return (
     <section className="border-b border-border/60 bg-secondary/20">
@@ -46,7 +47,7 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
               Vinuri
             </Link>
             <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="text-foreground">{wine.name}</span>
+            <span className="text-foreground">{displayName}</span>
           </nav>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -73,7 +74,7 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
           </div>
 
           <h1 className="mt-4 font-serif text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
-            {wine.name}
+            {displayName}
             {displayVintage ? (
               <span className="text-muted-foreground"> {displayVintage}</span>
             ) : null}

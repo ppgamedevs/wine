@@ -22,6 +22,7 @@ import {
   SITE,
   type FaqEntry,
 } from "@/lib/seo";
+import { buildWineryMakesOfferEntry } from "@/lib/wine-json-ld";
 import type { WineryWithWines } from "@/types";
 
 export const revalidate = 3600;
@@ -162,12 +163,9 @@ export default async function WineryPage({ params }: WineryPageProps) {
           addressCountry: "RO",
         }
       : undefined,
-    makesOffer: winery.wines.slice(0, 10).map((wine) => ({
-      "@type": "Offer",
-      itemOffered: { "@type": "Product", name: wine.name },
-      price: wine.priceAvg ?? undefined,
-      priceCurrency: "RON",
-    })),
+    makesOffer: winery.wines
+      .slice(0, 10)
+      .map((wine) => buildWineryMakesOfferEntry(wine)),
   };
 
   const itemListJsonLd = {

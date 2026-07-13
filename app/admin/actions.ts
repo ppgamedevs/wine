@@ -23,6 +23,7 @@ import {
   wines,
 } from "@/lib/schema";
 import { redirect } from "next/navigation";
+import { scheduleIndexNowWine, scheduleIndexNowWinery } from "@/lib/indexnow";
 
 const updateWineSchema = z.object({
   wineId: z.number().int().positive(),
@@ -145,6 +146,17 @@ export async function updateWineImageAction(wineId: number, imageUrl: string) {
     .update(wines)
     .set({ imageUrl: trimmed, imageSource: "manual" })
     .where(eq(wines.id, wineId));
+
+  const wine = await db.query.wines.findFirst({
+    where: eq(wines.id, wineId),
+    columns: { slug: true },
+    with: { winery: { columns: { slug: true } } },
+  });
+  if (wine?.slug) {
+    revalidateWine(wine.slug);
+    scheduleIndexNowWine(wine.slug, wine.winery?.slug ?? null);
+  }
+
   revalidateAdmin();
   return { ok: true as const };
 }
@@ -177,6 +189,16 @@ export async function updateWineEditorialAction(
       ...(things ? { thingsYouShouldKnow: things } : {}),
     })
     .where(eq(wines.id, parsed.data.wineId));
+
+  const wine = await db.query.wines.findFirst({
+    where: eq(wines.id, parsed.data.wineId),
+    columns: { slug: true },
+    with: { winery: { columns: { slug: true } } },
+  });
+  if (wine?.slug) {
+    revalidateWine(wine.slug);
+    scheduleIndexNowWine(wine.slug, wine.winery?.slug ?? null);
+  }
 
   revalidateAdmin();
   return { ok: true as const };
@@ -231,6 +253,7 @@ export async function updateWineryPremiumAction(
 
   revalidateWinery(existing.slug);
   revalidateAdmin();
+  scheduleIndexNowWinery(existing.slug);
 
   return {
     ok: true as const,
@@ -273,6 +296,7 @@ export async function generateEditorialContentAction(wineId: number) {
     const { slug, editorial } = await regenerateWineEditorialContent(wineId);
     revalidateWine(slug);
     revalidateAdmin();
+    scheduleIndexNowWine(slug);
 
     return {
       ok: true as const,
@@ -323,6 +347,7 @@ export async function reanalyzeWineAction(wineId: number) {
 
     if (result.slug) {
       revalidateWine(result.slug);
+      scheduleIndexNowWine(result.slug);
     }
     revalidateAdmin();
 

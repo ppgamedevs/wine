@@ -340,6 +340,7 @@ async function main() {
   let inserted = 0;
   let updated = 0;
   let skipped = 0;
+  const indexNowSlugs: string[] = [];
 
   if (dryRun) console.log("[dry-run] Nu se scrie in baza de date.");
 
@@ -438,15 +439,20 @@ async function main() {
             },
           })
           .returning({ id: wines.id });
-        if (result.length > 0) updated += 1;
+        if (result.length > 0) {
+          updated += 1;
+          indexNowSlugs.push(parsed.slug);
+        }
       } else {
         const result = await db
           .insert(wines)
           .values(values)
           .onConflictDoNothing()
           .returning({ id: wines.id });
-        if (result.length > 0) inserted += 1;
-        else skipped += 1;
+        if (result.length > 0) {
+          inserted += 1;
+          indexNowSlugs.push(parsed.slug);
+        } else skipped += 1;
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -458,6 +464,16 @@ async function main() {
   console.log(
     `Import finalizat: ${inserted} inserate, ${updated} actualizate, ${skipped} sarite, ${records.length} randuri totale.`,
   );
+
+  if (!dryRun && indexNowSlugs.length > 0) {
+    const { submitIndexNowWineSlugs } = await import("@/lib/indexnow");
+    const result = await submitIndexNowWineSlugs(indexNowSlugs);
+    if (result.ok) {
+      console.log(`[indexnow] ${result.submitted} URL-uri trimise.`);
+    } else {
+      console.warn(`[indexnow] ${result.message ?? "Trimitere esuata."}`);
+    }
+  }
 }
 
 main().catch((error) => {

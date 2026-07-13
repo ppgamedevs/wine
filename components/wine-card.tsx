@@ -11,7 +11,7 @@ import { trackWineryEvent } from "@/lib/winery-analytics-client";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import type { TopListRankMetric } from "@/lib/top-lists";
 import { topListRankScore } from "@/lib/top-lists";
-import { resolveWineVintage } from "@/lib/wine-vintage";
+import { resolveWineVintage, stripEmbeddedVintageFromName } from "@/lib/wine-vintage";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
 
@@ -37,6 +37,7 @@ export function WineCard({
   }
 
   const displayVintage = resolveWineVintage(wine);
+  const displayName = stripEmbeddedVintageFromName(wine.name, displayVintage);
   const badgeScore = topListRankScore(wine, highlightScore);
   const badgeTitle =
     highlightScore === "gift"
@@ -115,7 +116,7 @@ export function WineCard({
               }
             }}
           >
-            {wine.name}
+            {displayName}
           </Link>
         </h3>
 
