@@ -8,6 +8,10 @@ import {
   parseGabaiProductPage,
 } from "@/lib/gabai-producer";
 import {
+  isMurfatlarUrl,
+  parseMurfatlarProductPage,
+} from "@/lib/murfatlar-producer";
+import {
   isBudureascaUrl,
   parseBudureascaProductPage,
 } from "@/lib/budureasca-producer";
@@ -533,6 +537,26 @@ function extractGabaiProduct(
   };
 }
 
+function extractMurfatlarProduct(
+  html: string,
+  finalUrl: string,
+): ExtractedProductData | null {
+  if (!isMurfatlarUrl(finalUrl)) return null;
+
+  const wine = parseMurfatlarProductPage(html, finalUrl);
+  if (!wine) return null;
+
+  return {
+    sourceUrl: wine.sourceUrl,
+    finalUrl: wine.producerPageUrl,
+    name: wine.name,
+    price: null,
+    imageUrl: wine.imageUrl,
+    producer: "Murfatlar",
+    vintage: null,
+  };
+}
+
 function extractBallaGezaProduct(
   html: string,
   finalUrl: string,
@@ -579,6 +603,11 @@ export async function extractProductFromHtml(
     if (gabai) {
       result = attachSourceContext(gabai, sourceUrl, gabai.finalUrl);
     }
+  } else if (isMurfatlarUrl(finalUrl)) {
+    const murfatlar = extractMurfatlarProduct(html, finalUrl);
+    if (murfatlar) {
+      result = attachSourceContext(murfatlar, sourceUrl, murfatlar.finalUrl);
+    }
   } else if (host.includes("emag.ro")) {
     result = attachSourceContext(extractEmagProduct(html, finalUrl), sourceUrl, finalUrl);
   } else {
@@ -594,6 +623,7 @@ export async function extractProductFromHtml(
     !isBallaGezaUrl(finalUrl) &&
     !isBudureascaUrl(finalUrl) &&
     !isGabaiUrl(finalUrl) &&
+    !isMurfatlarUrl(finalUrl) &&
     (host.includes("emag.ro") ? needsLlmFallback(result, false) : true);
 
   if (shouldUseLlm) {

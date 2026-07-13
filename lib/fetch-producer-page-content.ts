@@ -8,6 +8,7 @@ import {
   inferBallaGezaProducerPageUrl,
 } from "@/lib/ballageza-producer";
 import { inferGabaiProducerPageUrl } from "@/lib/gabai-producer";
+import { inferMurfatlarProducerPageUrl } from "@/lib/murfatlar-producer";
 import {
   inferAvincisProducerPageUrl,
   inferRecasProducerPageUrl,
@@ -41,6 +42,9 @@ export function resolveProducerPageUrlsForWine(input: {
   if (input.sourceUrl?.includes("cramagabai.ro")) {
     add(input.sourceUrl);
   }
+  if (input.sourceUrl?.includes("murfatlar-vinul.ro")) {
+    add(input.sourceUrl.split("#")[0] ?? input.sourceUrl);
+  }
 
   const slugHint = input.slug?.replace(/^cramelere-recas-|^avincis-|^balla-geza-/, "") ?? "";
   const inferenceContext = [input.sourceUrl, input.name, input.slug, slugHint]
@@ -51,6 +55,7 @@ export function resolveProducerPageUrlsForWine(input: {
   add(inferAvincisProducerPageUrl(input.name, inferenceContext));
   add(inferBallaGezaProducerPageUrl(input.name, inferenceContext));
   add(inferGabaiProducerPageUrl(input.name, inferenceContext));
+  add(inferMurfatlarProducerPageUrl(input.name, inferenceContext));
 
   return [...urls];
 }

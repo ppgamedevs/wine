@@ -27,6 +27,7 @@ export const KNOWN_WINERY_ALIASES: { name: string; aliases: string[] }[] = [
   { name: "Jidvei", aliases: ["jidvei"] },
   { name: "Budureasca", aliases: ["budureasca"] },
   { name: "Crama Gabai", aliases: ["gabai", "crama gabai", "cramagabai", "crame gabai"] },
+  { name: "Murfatlar", aliases: ["murfatlar", "murfatlar vinul", "murfatlar-vinul", "vinul murfatlar"] },
   { name: "Liliac", aliases: ["liliac", "liliac winery"] },
   { name: "Lacerta", aliases: ["lacerta", "lacertawinery"] },
   { name: "Domeniile Averesti", aliases: ["averesti", "averești", "domeniile averesti"] },
