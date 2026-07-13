@@ -7,6 +7,10 @@ import {
   inferBudureascaProducerPageUrl,
   parseBudureascaProducerFacts,
 } from "@/lib/budureasca-producer";
+import {
+  inferGabaiProducerPageUrl,
+  parseGabaiProducerFacts,
+} from "@/lib/gabai-producer";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import { extractPdfTextFromUrl } from "@/lib/pdf-text";
 import type { GrapeVarietyShare } from "@/lib/schema";
@@ -60,6 +64,7 @@ const WINERY_SITE_ALIASES: Record<string, string[]> = {
   avincis: ["https://avincis.ro", "https://www.avincis.ro"],
   "balla-geza": ["https://www.ballageza.com", "https://ballageza.com"],
   budureasca: ["https://budureasca.ro", "https://www.budureasca.ro"],
+  "crama-gabai": ["https://cramagabai.ro", "https://www.cramagabai.ro"],
 };
 
 function normalizeMatchText(text: string): string {
@@ -345,13 +350,28 @@ function resolveBallaGezaKnownSlugs(wineName: string): string[] {
 function resolveBudureascaKnownSlugs(wineName: string): string[] {
   const url = inferBudureascaProducerPageUrl(wineName);
   if (!url) return [];
-
   try {
-    const pathname = new URL(url).pathname.replace(/^\/+|\/+$/g, "");
-    return pathname ? [pathname] : [];
+    const path = new URL(url).pathname.replace(/^\//, "").replace(/\/$/, "");
+    return path ? [path] : [];
   } catch {
     return [];
   }
+}
+
+function resolveGabaiKnownSlugs(wineName: string, contextUrl?: string | null): string[] {
+  const url = inferGabaiProducerPageUrl(wineName, contextUrl);
+  if (!url) return [];
+  try {
+    const slug = new URL(url).pathname.replace(/^\/product\//, "").replace(/\/$/, "");
+    return slug ? [slug] : [];
+  } catch {
+    return [];
+  }
+}
+
+function buildGabaiUrlCandidates(baseUrl: string, slug: string): string[] {
+  const normalizedBase = baseUrl.replace(/\/$/, "");
+  return [`${normalizedBase}/product/${slug}/`];
 }
 
 function buildBudureascaUrlCandidates(baseUrl: string, slugOrPath: string): string[] {
@@ -1182,6 +1202,21 @@ export async function enrichWineFromProducerSite(input: {
     }
   }
 
+  if (
+    input.preferredPageUrl &&
+    input.winerySlug === "crama-gabai" &&
+    input.preferredPageUrl.includes("cramagabai.ro")
+  ) {
+    const preferred = await fetchProducerHtml(input.preferredPageUrl);
+    const preferredFacts = preferred
+      ? parseGabaiProducerFacts(preferred.html, preferred.finalUrl)
+      : null;
+    if (preferred && preferredFacts) {
+      bestPage = { ...preferred, score: 100 };
+      preferredLocked = true;
+    }
+  }
+
   if (!preferredLocked) {
     for (const base of bases) {
       const slugFromUrl =
@@ -1203,7 +1238,12 @@ export async function enrichWineFromProducerSite(input: {
                 ? resolveBudureascaKnownSlugs(input.wineName).flatMap((slug) =>
                     buildBudureascaUrlCandidates(base, slug),
                   )
-                : [];
+                : input.winerySlug === "crama-gabai"
+                  ? resolveGabaiKnownSlugs(
+                      input.wineName,
+                      input.preferredPageUrl,
+                    ).flatMap((slug) => buildGabaiUrlCandidates(base, slug))
+                  : [];
 
       const candidates = [
         ...extraCandidates,
@@ -1250,7 +1290,9 @@ export async function enrichWineFromProducerSite(input: {
             )
           : input.winerySlug === "budureasca"
             ? parseBudureascaProducerFacts(bestPage.html, bestPage.finalUrl)
-            : null;
+            : input.winerySlug === "crama-gabai"
+              ? parseGabaiProducerFacts(bestPage.html, bestPage.finalUrl)
+              : null;
 
   return {
     producerPageUrl: bestPage.finalUrl,
@@ -1302,6 +1344,9 @@ export function producerImageSourceFromUrl(pageUrl: string): string {
     }
     if (host.includes("budureasca")) {
       return "budureasca";
+    }
+    if (host.includes("cramagabai")) {
+      return "gabai";
     }
     const [label] = host.split(".");
     return label || host;

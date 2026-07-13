@@ -47,6 +47,11 @@ import {
   parseBudureascaProducerFacts,
 } from "@/lib/budureasca-producer";
 import {
+  inferGabaiProducerPageUrl,
+  isGabaiUrl,
+  parseGabaiProducerFacts,
+} from "@/lib/gabai-producer";
+import {
   enrichWineFromProducerSite,
   inferAvincisProducerPageUrl,
   inferRecasProducerPageUrl,
@@ -74,7 +79,7 @@ function resolvePreferredProducerPageUrl(finalUrl: string): string | null {
   try {
     const parsed = new URL(finalUrl);
     const host = parsed.hostname.replace(/^www\./, "");
-    if (host.includes("cramelerecas.ro") || host.includes("avincis.ro") || host.includes("ballageza.com") || host.includes("budureasca.ro")) {
+    if (host.includes("cramelerecas.ro") || host.includes("avincis.ro") || host.includes("ballageza.com") || host.includes("budureasca.ro") || host.includes("cramagabai.ro")) {
       return finalUrl;
     }
 
@@ -92,10 +97,12 @@ function resolvePreferredProducerPageForImport(
     resolvePreferredProducerPageUrl(finalUrl) ??
     inferRecasProducerPageUrl("", finalUrl) ??
     inferAvincisProducerPageUrl("", finalUrl) ??
+    inferGabaiProducerPageUrl("", finalUrl) ??
     inferBallaGezaProducerPageUrl("", finalUrl) ??
     inferBudureascaProducerPageUrl("", finalUrl) ??
     inferRecasProducerPageUrl(productName, finalUrl) ??
     inferAvincisProducerPageUrl(productName, finalUrl) ??
+    inferGabaiProducerPageUrl(productName, finalUrl) ??
     inferBallaGezaProducerPageUrl(productName, finalUrl) ??
     inferBudureascaProducerPageUrl(productName, finalUrl)
   );
@@ -111,11 +118,13 @@ function applySourceProducerFacts<T extends { name: string }>(
 
   const facts = finalUrl.includes("avincis.ro")
     ? parseAvincisProducerFacts(html, finalUrl)
-    : finalUrl.includes("ballageza.com")
-      ? parseBallaGezaProducerFacts(html, finalUrl)
-      : isBudureascaUrl(finalUrl)
-        ? parseBudureascaProducerFacts(html, finalUrl)
-        : parseRecasProducerFacts(html, finalUrl);
+    : isGabaiUrl(finalUrl)
+      ? parseGabaiProducerFacts(html, finalUrl)
+      : finalUrl.includes("ballageza.com")
+        ? parseBallaGezaProducerFacts(html, finalUrl)
+        : isBudureascaUrl(finalUrl)
+          ? parseBudureascaProducerFacts(html, finalUrl)
+          : parseRecasProducerFacts(html, finalUrl);
   if (!facts?.name) return product;
 
   return { ...product, name: facts.name };

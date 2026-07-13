@@ -4,6 +4,10 @@ import {
   resolveBallaGezaWineFromCatalog,
 } from "@/lib/ballageza-producer";
 import {
+  isGabaiUrl,
+  parseGabaiProductPage,
+} from "@/lib/gabai-producer";
+import {
   isBudureascaUrl,
   parseBudureascaProductPage,
 } from "@/lib/budureasca-producer";
@@ -509,6 +513,26 @@ function extractBudureascaProduct(
   };
 }
 
+function extractGabaiProduct(
+  html: string,
+  finalUrl: string,
+): ExtractedProductData | null {
+  if (!isGabaiUrl(finalUrl)) return null;
+
+  const wine = parseGabaiProductPage(html, finalUrl);
+  if (!wine) return null;
+
+  return {
+    sourceUrl: finalUrl,
+    finalUrl: wine.producerPageUrl,
+    name: wine.name,
+    price: wine.price,
+    imageUrl: wine.imageUrl,
+    producer: "Crama Gabai",
+    vintage: wine.vintage,
+  };
+}
+
 function extractBallaGezaProduct(
   html: string,
   finalUrl: string,
@@ -550,6 +574,11 @@ export async function extractProductFromHtml(
     if (budureasca) {
       result = attachSourceContext(budureasca, sourceUrl, budureasca.finalUrl);
     }
+  } else if (isGabaiUrl(finalUrl)) {
+    const gabai = extractGabaiProduct(html, finalUrl);
+    if (gabai) {
+      result = attachSourceContext(gabai, sourceUrl, gabai.finalUrl);
+    }
   } else if (host.includes("emag.ro")) {
     result = attachSourceContext(extractEmagProduct(html, finalUrl), sourceUrl, finalUrl);
   } else {
@@ -564,6 +593,7 @@ export async function extractProductFromHtml(
     options.allowLlm !== false &&
     !isBallaGezaUrl(finalUrl) &&
     !isBudureascaUrl(finalUrl) &&
+    !isGabaiUrl(finalUrl) &&
     (host.includes("emag.ro") ? needsLlmFallback(result, false) : true);
 
   if (shouldUseLlm) {

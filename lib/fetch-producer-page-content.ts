@@ -7,6 +7,7 @@ import type { WineMedal, ProducerPageContent } from "@/lib/schema";
 import {
   inferBallaGezaProducerPageUrl,
 } from "@/lib/ballageza-producer";
+import { inferGabaiProducerPageUrl } from "@/lib/gabai-producer";
 import {
   inferAvincisProducerPageUrl,
   inferRecasProducerPageUrl,
@@ -37,6 +38,9 @@ export function resolveProducerPageUrlsForWine(input: {
   if (input.sourceUrl?.includes("ballageza.com")) {
     add(input.sourceUrl);
   }
+  if (input.sourceUrl?.includes("cramagabai.ro")) {
+    add(input.sourceUrl);
+  }
 
   const slugHint = input.slug?.replace(/^cramelere-recas-|^avincis-|^balla-geza-/, "") ?? "";
   const inferenceContext = [input.sourceUrl, input.name, input.slug, slugHint]
@@ -46,6 +50,7 @@ export function resolveProducerPageUrlsForWine(input: {
   add(inferRecasProducerPageUrl(input.name, inferenceContext));
   add(inferAvincisProducerPageUrl(input.name, inferenceContext));
   add(inferBallaGezaProducerPageUrl(input.name, inferenceContext));
+  add(inferGabaiProducerPageUrl(input.name, inferenceContext));
 
   return [...urls];
 }
