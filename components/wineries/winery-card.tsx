@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { WineryLogo } from "@/components/wineries/winery-logo";
 import { formatLongDate, formatRon } from "@/lib/format";
 import { resolveWineryLogoUrl } from "@/lib/winery-catalog";
+import { viewWineryAriaLabel } from "@/lib/winery-copy";
 import type { WineryListItem } from "@/types";
 
 export function WineryCard({ winery }: { winery: WineryListItem }) {
@@ -132,7 +133,7 @@ export function WineryCard({ winery }: { winery: WineryListItem }) {
           size="sm"
           className="group/btn -mr-2 text-wine hover:bg-wine/10 hover:text-wine"
         >
-          <Link href={`/wineries/${winery.slug}`} aria-label={`Vezi crama ${winery.name}`}>
+          <Link href={`/wineries/${winery.slug}`} aria-label={viewWineryAriaLabel(winery.name)}>
             Vezi crama
             <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-0.5" />
           </Link>

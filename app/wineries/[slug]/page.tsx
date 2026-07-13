@@ -23,6 +23,12 @@ import {
   type FaqEntry,
 } from "@/lib/seo";
 import { buildWineryMakesOfferEntry } from "@/lib/wine-json-ld";
+import {
+  CLAIM_WINERY_BUTTON_LABEL,
+  wineryLocationQuestion,
+  wineryRepresentativeQuestion,
+  wineryWinesHeading,
+} from "@/lib/winery-copy";
 import type { WineryWithWines } from "@/types";
 
 export const revalidate = 3600;
@@ -75,7 +81,7 @@ function buildWineryFaq(winery: WineryWithWines): FaqEntry[] {
         : `Actualizam constant lista de vinuri de la ${winery.name}.`,
     },
     {
-      question: `Unde se afla crama ${winery.name}?`,
+      question: wineryLocationQuestion(winery.name),
       answer: `${winery.name} se afla in regiunea ${regionName}${winery.foundedYear ? ` si a fost fondata in ${winery.foundedYear}` : ""}.`,
     },
     {
@@ -219,7 +225,7 @@ export default async function WineryPage({ params }: WineryPageProps) {
               id="wines-heading"
               className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
             >
-              Vinurile cramei {winery.name}
+              {wineryWinesHeading(winery.name)}
             </h2>
             <p className="mt-3 text-muted-foreground">
               Ordonate dupa Value Score, indicatorul nostru pentru raportul
@@ -265,7 +271,7 @@ export default async function WineryPage({ params }: WineryPageProps) {
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="h-5 w-5" aria-hidden="true" />
                     <h2 id="claim-heading" className="font-serif text-2xl font-bold">
-                      Reprezinti crama {winery.name}?
+                      {wineryRepresentativeQuestion(winery.name)}
                     </h2>
                   </div>
                   <p className="mt-3 text-wine-foreground/85">
@@ -279,7 +285,7 @@ export default async function WineryPage({ params }: WineryPageProps) {
                   className="shrink-0 bg-cream text-wine hover:bg-cream/90"
                 >
                   <Link href={`/claim-your-winery?crama=${winery.slug}`}>
-                    Revendica crama
+                    {CLAIM_WINERY_BUTTON_LABEL}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>

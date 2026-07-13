@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  wineryRepresentativeLead,
+  wineryVerificationContactPhrase,
+} from "@/lib/winery-copy";
 
 interface VerificationLeadFormProps {
   wineryName: string;
@@ -49,8 +53,8 @@ export function VerificationLeadForm({
           <div>
             <p className="font-medium text-foreground">Cerere trimisa</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Te contactam in 2-3 zile lucratoare pentru verificarea cramei{" "}
-              {wineryName}.
+              Te contactam in 2-3 zile lucratoare pentru{" "}
+              {wineryVerificationContactPhrase(wineryName)}.
             </p>
           </div>
         </CardContent>
@@ -70,7 +74,7 @@ export function VerificationLeadForm({
               Solicita verificare crama
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Esti reprezentant al cramei {wineryName}? Solicita verificarea
+              {wineryRepresentativeLead(wineryName)} Solicita verificarea
               oficiala pentru {wineName} si toate vinurile din portofoliu.
             </p>
             <form onSubmit={handleSubmit} className="mt-5 space-y-3">
