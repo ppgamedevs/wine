@@ -32,7 +32,7 @@ const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: "VinIntel - Vinuri romanesti. Clar. Onest. Rapid.",
+    default: "VinIntel – Ghid de vinuri romanesti, preturi si recomandari",
     template: "%s | VinIntel",
   },
   description: SITE.description,

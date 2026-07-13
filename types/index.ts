@@ -60,6 +60,18 @@ export interface WineryListItem extends Winery {
   wineCount: number;
   avgValueScore: number | null;
   priceRange: { min: number; max: number } | null;
+  bestWine: WineryWineHighlight | null;
+  bestUnder50: WineryWineHighlight | null;
+  bestUnder100: WineryWineHighlight | null;
+  topGrapes: string[];
+  lastPriceCheck: string | null;
+}
+
+export interface WineryWineHighlight {
+  slug: string;
+  name: string;
+  valueScore: number | null;
+  priceAvg: number | null;
 }
 
 export type {

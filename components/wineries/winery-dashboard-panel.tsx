@@ -12,6 +12,7 @@ import { PremiumBadge } from "@/components/wineries/premium-badge";
 import { WineryBillingPortalButton } from "@/components/wineries/winery-billing-portal-button";
 import { WineryViewsChart } from "@/components/wineries/winery-views-chart";
 import { Button } from "@/components/ui/button";
+import { absoluteUrl } from "@/lib/seo";
 import type { WineryDashboardStats } from "@/lib/winery-analytics-dashboard";
 
 interface WineryDashboardPanelProps {
@@ -181,6 +182,35 @@ export function WineryDashboardPanel({
           )}
         </section>
       </div>
+
+      <section className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
+        <h2 className="font-serif text-xl font-semibold text-foreground">
+          Badge embed pentru site-ul cramei
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Adauga badge-ul VinIntel pe site-ul cramei pentru a arata vizitatorilor ca profilul
+          este listat si verificat.
+        </p>
+        <div className="mt-4 rounded-2xl border border-border/60 bg-secondary/20 p-4">
+          <img
+            src={absoluteUrl(`/embed/winery/${winerySlug}/badge`)}
+            alt={`Profil ${wineryName} pe VinIntel`}
+            width={320}
+            height={80}
+            className="max-w-full"
+          />
+        </div>
+        <label className="mt-4 block text-sm font-medium text-foreground" htmlFor="embed-code">
+          Cod HTML
+        </label>
+        <textarea
+          id="embed-code"
+          readOnly
+          rows={3}
+          className="mt-2 w-full rounded-xl border border-border/70 bg-background px-3 py-2 font-mono text-xs text-muted-foreground"
+          value={`<a href="${absoluteUrl(`/wineries/${winerySlug}`)}" target="_blank" rel="noopener noreferrer"><img src="${absoluteUrl(`/embed/winery/${winerySlug}/badge`)}" alt="Profil verificat ${wineryName} pe VinIntel" width="320" height="80" loading="lazy" /></a>`}
+        />
+      </section>
     </div>
   );
 }

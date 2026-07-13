@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { WineryBillingPortalButton } from "@/components/wineries/winery-billing-portal-button";
 import { WineryDashboardPanel } from "@/components/wineries/winery-dashboard-panel";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";

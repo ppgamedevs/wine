@@ -153,9 +153,67 @@ export function buildProgrammaticLinks(wine: WineWithRelations) {
       .replace(/\s+/g, "-");
     links.push({
       label: `Vinuri pentru ${topDish.toLowerCase()}`,
-      href: `/perechi/${dishSlug}`,
+      href: `/vin-pentru/${dishSlug}`,
     });
   }
 
   return links;
+}
+
+export interface WineProsCons {
+  pros: string[];
+  cons: string[];
+}
+
+export function buildWineProsCons(wine: WineWithRelations): WineProsCons {
+  const pros: string[] = [];
+  const cons: string[] = [];
+  const value = wine.valueScore ?? 0;
+
+  if (value >= MIN_RECOMMENDED_VALUE_SCORE) {
+    pros.push(`Value Score ${value}/100: recomandare clara la acest pret.`);
+  } else if (value >= VALUE_SCORE_NEUTRAL_MIN) {
+    pros.push(`Value Score ${value}/100: alegere acceptabila, fara surprize majore.`);
+  }
+
+  if (wine.foodMatchScore && wine.foodMatchScore >= 75) {
+    pros.push(`Food Match ${wine.foodMatchScore}/100: se potriveste bine cu mancare romaneasca.`);
+  }
+
+  if (wine.giftScore && wine.giftScore >= 80) {
+    pros.push(`Gift Score ${wine.giftScore}/100: functioneaza bine ca dar.`);
+  }
+
+  if (wine.beginnerFriendly) {
+    pros.push("Profil accesibil pentru incepatori.");
+  }
+
+  if (wine.cellarPotential && wine.cellarPotential >= 5) {
+    pros.push(`Potential de invechire ${wine.cellarPotential} ani.`);
+  }
+
+  const risk = wine.overpricedRisk ?? "medium";
+  if (risk === "high") {
+    cons.push("Risc ridicat de suprapret fata de alternative similare.");
+  } else if (risk === "medium" && value < MIN_RECOMMENDED_VALUE_SCORE) {
+    cons.push("Pretul poate fi optimizat: exista optiuni cu scor mai bun.");
+  }
+
+  if (wine.alcohol != null && wine.alcohol >= 14.5) {
+    cons.push(`Alcool ${wine.alcohol}%: mai potrivit cu mancare consistenta.`);
+  }
+
+  if (value < VALUE_SCORE_NEUTRAL_MIN) {
+    cons.push(`Value Score sub ${VALUE_SCORE_NEUTRAL_MIN}/100: recomandam alternative.`);
+  }
+
+  if (!wine.priceAvg) {
+    cons.push("Pret indisponibil: verifica sursa inainte de cumparare.");
+  }
+
+  if (pros.length === 0) {
+    pros.push("Date limitate: urmeaza actualizarea preturilor si a scorurilor.");
+  }
+
+  return { pros: pros.slice(0, 4), cons: cons.slice(0, 4) };
 }

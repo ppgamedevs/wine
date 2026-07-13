@@ -1,16 +1,123 @@
 import "server-only";
 import { and, asc, count, desc, eq, gte, like, ne, or } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { grapeVarieties, wineryEvents, wineries, wines } from "@/lib/schema";
+import { grapeVarieties, regions, wineryEvents, wineries, wines } from "@/lib/schema";
 import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
 import { normalizeWineRow, normalizeWineRows } from "@/lib/normalize-wine";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import type {
+  Region,
+  Winery,
   WineryEvent,
   WineryListItem,
   WineryWithWines,
   WineWithRelations,
 } from "@/types";
+
+interface WineryWineSummaryRow {
+  slug: string;
+  name: string;
+  valueScore: number | null;
+  priceAvg: number | null;
+  status: string;
+  updatedAt: string;
+  grapeVarieties: WineWithRelations["grapeVarieties"];
+}
+
+function mapWineryToListItem(
+  base: Winery,
+  region: Region | null,
+  wineryWines: WineryWineSummaryRow[],
+): WineryListItem {
+  const visibleWines = wineryWines.filter((wine) => wine.status !== "rejected");
+
+  const valueScores = visibleWines
+    .map((w) => w.valueScore)
+    .filter((v): v is number => v !== null && v !== undefined);
+  const avgValueScore =
+    valueScores.length > 0
+      ? Math.round(valueScores.reduce((a, b) => a + b, 0) / valueScores.length)
+      : null;
+
+  const prices = visibleWines
+    .map((w) => w.priceAvg)
+    .filter((p): p is number => p !== null && p !== undefined);
+  const priceRange =
+    prices.length > 0
+      ? {
+          min: Math.round(Math.min(...prices)),
+          max: Math.round(Math.max(...prices)),
+        }
+      : null;
+
+  const sortedByValue = [...visibleWines].sort(
+    (a, b) => (b.valueScore ?? 0) - (a.valueScore ?? 0),
+  );
+  const bestWine = sortedByValue[0]
+    ? {
+        slug: sortedByValue[0].slug,
+        name: sortedByValue[0].name,
+        valueScore: sortedByValue[0].valueScore,
+        priceAvg: sortedByValue[0].priceAvg,
+      }
+    : null;
+
+  const under50 = visibleWines
+    .filter((w) => w.priceAvg != null && w.priceAvg <= 50)
+    .sort((a, b) => (b.valueScore ?? 0) - (a.valueScore ?? 0))[0];
+  const bestUnder50 = under50
+    ? {
+        slug: under50.slug,
+        name: under50.name,
+        valueScore: under50.valueScore,
+        priceAvg: under50.priceAvg,
+      }
+    : null;
+
+  const under100 = visibleWines
+    .filter((w) => w.priceAvg != null && w.priceAvg <= 100)
+    .sort((a, b) => (b.valueScore ?? 0) - (a.valueScore ?? 0))[0];
+  const bestUnder100 = under100
+    ? {
+        slug: under100.slug,
+        name: under100.name,
+        valueScore: under100.valueScore,
+        priceAvg: under100.priceAvg,
+      }
+    : null;
+
+  const grapeCounts = new Map<string, number>();
+  for (const wine of visibleWines) {
+    for (const grape of wine.grapeVarieties ?? []) {
+      const label = grape.name ?? grape.slug;
+      if (!label) continue;
+      grapeCounts.set(label, (grapeCounts.get(label) ?? 0) + 1);
+    }
+  }
+  const topGrapes = [...grapeCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([name]) => name);
+
+  const lastPriceCheck =
+    visibleWines
+      .map((w) => w.updatedAt)
+      .filter(Boolean)
+      .sort((a, b) => b.localeCompare(a))[0] ?? null;
+
+  return {
+    ...base,
+    region,
+    wineCount: visibleWines.length,
+    avgValueScore,
+    priceRange,
+    bestWine,
+    bestUnder50,
+    bestUnder100,
+    topGrapes,
+    lastPriceCheck,
+  };
+}
 
 export interface SearchSuggestion {
   type: "wine" | "winery";
@@ -194,47 +301,26 @@ export async function getWineriesIndex(): Promise<WineryListItem[]> {
       with: {
         region: true,
         wines: {
-          columns: { valueScore: true, priceAvg: true, status: true },
+          columns: {
+            slug: true,
+            name: true,
+            valueScore: true,
+            priceAvg: true,
+            status: true,
+            updatedAt: true,
+            grapeVarieties: true,
+          },
         },
       },
       orderBy: () => [asc(wineries.name)],
     });
 
-    return rows.map((row) => {
-      const { wines: wineryWines, region, ...base } = row;
-      const visibleWines = wineryWines.filter(
-        (wine) => wine.status !== "rejected",
-      );
-
-      const valueScores = visibleWines
-        .map((w) => w.valueScore)
-        .filter((v): v is number => v !== null && v !== undefined);
-      const avgValueScore =
-        valueScores.length > 0
-          ? Math.round(
-              valueScores.reduce((a, b) => a + b, 0) / valueScores.length,
-            )
-          : null;
-
-      const prices = visibleWines
-        .map((w) => w.priceAvg)
-        .filter((p): p is number => p !== null && p !== undefined);
-      const priceRange =
-        prices.length > 0
-          ? {
-              min: Math.round(Math.min(...prices)),
-              max: Math.round(Math.max(...prices)),
-            }
-          : null;
-
-      return {
-        ...base,
-        region: region ?? null,
-        wineCount: visibleWines.length,
-        avgValueScore,
-        priceRange,
-      } satisfies WineryListItem;
-    });
+    return rows
+      .map((row) => {
+        const { wines: wineryWines, region, ...base } = row;
+        return mapWineryToListItem(base, region ?? null, wineryWines);
+      })
+      .filter((winery) => winery.wineCount > 0);
   } catch (error) {
     console.error("getWineriesIndex failed", error);
     return [];
@@ -499,4 +585,116 @@ export async function getSearchSuggestions(
     console.error("getSearchSuggestions failed", error);
     return [];
   }
+}
+
+export interface RegionHubData {
+  region: Region;
+  wineries: WineryListItem[];
+  wines: WineWithRelations[];
+}
+
+export async function getAllRegionSlugs(): Promise<{ slug: string }[]> {
+  try {
+    const rows = await db
+      .select({ slug: regions.slug })
+      .from(regions)
+      .orderBy(asc(regions.name));
+    return rows;
+  } catch (error) {
+    console.error("getAllRegionSlugs failed", error);
+    return [];
+  }
+}
+
+export async function getFeaturedRegions(limit = 6): Promise<Region[]> {
+  try {
+    const rows = await db
+      .select()
+      .from(regions)
+      .orderBy(asc(regions.name))
+      .limit(limit);
+    return rows;
+  } catch (error) {
+    console.error("getFeaturedRegions failed", error);
+    return [];
+  }
+}
+
+export async function getRegionBySlug(slug: string): Promise<Region | null> {
+  try {
+    const row = await db.query.regions.findFirst({
+      where: eq(regions.slug, slug),
+    });
+    return row ?? null;
+  } catch (error) {
+    console.error("getRegionBySlug failed", error);
+    return null;
+  }
+}
+
+export async function getRegionHubData(slug: string): Promise<RegionHubData | null> {
+  const region = await getRegionBySlug(slug);
+  if (!region) return null;
+
+  try {
+    const [wineryRows, wineRows] = await Promise.all([
+      db.query.wineries.findMany({
+        where: eq(wineries.regionId, region.id),
+        with: {
+          region: true,
+          wines: {
+            columns: {
+              slug: true,
+              name: true,
+              valueScore: true,
+              priceAvg: true,
+              status: true,
+              updatedAt: true,
+              grapeVarieties: true,
+            },
+          },
+        },
+        orderBy: () => [asc(wineries.name)],
+      }),
+      db.query.wines.findMany({
+        where: and(eq(wines.regionId, region.id), catalogWineCondition()),
+        with: { winery: true, region: true },
+        orderBy: () => [desc(wines.valueScore)],
+        limit: 20,
+      }),
+    ]);
+
+    const mappedWineries: WineryListItem[] = wineryRows
+      .map((row) => {
+        const { wines: wineryWines, region: wRegion, ...base } = row;
+        const item = mapWineryToListItem(base, wRegion ?? null, wineryWines);
+        return item.wineCount > 0 ? item : null;
+      })
+      .filter((w): w is WineryListItem => w !== null);
+
+    return {
+      region,
+      wineries: mappedWineries,
+      wines: normalizeWineRows(wineRows),
+    };
+  } catch (error) {
+    console.error("getRegionHubData failed", error);
+    return null;
+  }
+}
+
+export async function getIndexableRegionSlugs(
+  minWines = 8,
+): Promise<string[]> {
+  const slugs = await getAllRegionSlugs();
+  const indexable: string[] = [];
+
+  for (const { slug } of slugs) {
+    const hub = await getRegionHubData(slug);
+    if (hub && hub.wines.length >= minWines) {
+      indexable.push(slug);
+    }
+  }
+
+  return indexable;
 }

@@ -1,0 +1,27 @@
+# VinIntel
+
+> Ghid inteligent al vinurilor romanesti: catalog cu preturi in RON, Value Score, topuri pe bugete si somelier AI.
+
+VinIntel este o platforma de recomandari de vinuri romanesti bazata pe date verificabile: pret, scoruri, pairing-uri si crame.
+
+## Pagini principale
+
+- [Homepage](https://www.vinintel.ro/)
+- [Catalog vinuri romanesti](https://www.vinintel.ro/vinuri)
+- [Cele mai bune vinuri romanesti](https://www.vinintel.ro/topuri/cele-mai-bune-vinuri-romanesti)
+- [Vinuri ieftine si bune sub 50 lei](https://www.vinintel.ro/topuri/vinuri-sub-50-lei)
+- [Crame din Romania](https://www.vinintel.ro/crame)
+- [AI Sommelier](https://www.vinintel.ro/ai-sommelier)
+- [Cum functioneaza scorurile](https://www.vinintel.ro/cum-functioneaza-scorurile)
+- [Adauga vin](https://www.vinintel.ro/adauga-vin)
+
+## Topuri utile
+
+- [Vinuri cadou](https://www.vinintel.ro/topuri/vinuri-cadou)
+- [Vinuri rosii](https://www.vinintel.ro/topuri/vinuri-rosii)
+- [Vinuri albe](https://www.vinintel.ro/topuri/vinuri-albe)
+- [Vin pentru sarmale](https://www.vinintel.ro/vin-pentru/sarmale)
+
+## Optional
+
+- [Sitemap](https://www.vinintel.ro/sitemap.xml)

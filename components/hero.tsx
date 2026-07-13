@@ -7,12 +7,16 @@ import Link from "next/link";
 import { SmartSearch } from "@/components/smart-search";
 import { EASE_OUT, staggerContainer } from "@/lib/motion";
 
+const pivotLinks = [
+  { label: "Catalog vinuri", href: "/vinuri" },
+  { label: "Cele mai bune", href: "/topuri/cele-mai-bune-vinuri-romanesti" },
+  { label: "Vin ieftin si bun", href: "/topuri/vinuri-sub-50-lei" },
+  { label: "Crame", href: "/crame" },
+];
+
 const suggestions = [
-  { label: "Sub 50 lei", href: "/topuri/vinuri-sub-50-lei" },
-  { label: "Pentru sarmale", href: "/topuri/vinuri-sub-50-lei-pentru-sarmale" },
-  { label: "Pentru desert", href: "/ai-sommelier?q=Vin+bun+pentru+cozonac" },
-  { label: "Feteasca Neagra", href: "/topuri/cele-mai-bune-feteasca-neagra" },
-  { label: "Vinuri cadou", href: "/topuri/vinuri-cadou" },
+  { label: "Pentru sarmale", href: "/vin-pentru/sarmale" },
+  { label: "Somelier AI", href: "/ai-sommelier" },
 ];
 
 export function Hero() {
@@ -76,7 +80,22 @@ export function Hero() {
 
           <motion.div
             variants={item}
-            className="mt-5 flex flex-wrap items-center justify-center gap-2"
+            className="mt-6 flex flex-wrap items-center justify-center gap-2"
+          >
+            {pivotLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-full border border-wine/30 bg-wine/5 px-4 py-2 text-sm font-medium text-wine transition-colors hover:bg-wine/10"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </motion.div>
+
+          <motion.div
+            variants={item}
+            className="mt-4 flex flex-wrap items-center justify-center gap-2"
           >
             <span className="text-sm text-muted-foreground">Cauta des:</span>
             {suggestions.map((suggestion) => (

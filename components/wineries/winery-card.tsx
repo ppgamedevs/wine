@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WineryLogo } from "@/components/wineries/winery-logo";
+import { formatLongDate, formatRon } from "@/lib/format";
 import { resolveWineryLogoUrl } from "@/lib/winery-catalog";
 import type { WineryListItem } from "@/types";
 
@@ -57,6 +58,56 @@ export function WineryCard({ winery }: { winery: WineryListItem }) {
           {winery.description}
         </p>
       ) : null}
+
+      <div className="space-y-2 px-5 pt-3 text-sm text-muted-foreground">
+        {winery.priceRange ? (
+          <p>
+            Pret:{" "}
+            <span className="font-medium text-foreground">
+              {formatRon(winery.priceRange.min)}
+              {winery.priceRange.max !== winery.priceRange.min
+                ? ` – ${formatRon(winery.priceRange.max)}`
+                : ""}
+            </span>
+          </p>
+        ) : null}
+        {winery.bestWine ? (
+          <p>
+            Cel mai bun:{" "}
+            <Link
+              href={`/wines/${winery.bestWine.slug}`}
+              className="font-medium text-wine hover:underline"
+            >
+              {winery.bestWine.name}
+            </Link>
+            {winery.bestWine.valueScore != null ? (
+              <span> ({winery.bestWine.valueScore}/100)</span>
+            ) : null}
+          </p>
+        ) : null}
+        {winery.bestUnder50 ? (
+          <p>
+            Sub 50 lei:{" "}
+            <Link
+              href={`/wines/${winery.bestUnder50.slug}`}
+              className="font-medium text-foreground hover:text-wine hover:underline"
+            >
+              {winery.bestUnder50.name}
+            </Link>
+          </p>
+        ) : null}
+        {winery.topGrapes.length > 0 ? (
+          <p className="line-clamp-1">
+            Soiuri:{" "}
+            <span className="text-foreground">{winery.topGrapes.join(", ")}</span>
+          </p>
+        ) : null}
+        {winery.lastPriceCheck ? (
+          <p className="text-xs">
+            Verificat: {formatLongDate(winery.lastPriceCheck)}
+          </p>
+        ) : null}
+      </div>
 
       <div className="mt-auto flex items-center justify-between gap-3 px-5 pb-5 pt-4">
         <div className="flex items-center gap-4 text-sm">

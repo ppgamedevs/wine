@@ -169,6 +169,30 @@ export function scheduleIndexNowWinery(slug: string): void {
   scheduleIndexNowPaths([`/wineries/${slug}`, "/crame"]);
 }
 
+export function scheduleIndexNowRegion(slug: string): void {
+  scheduleIndexNowPaths([`/regiuni/${slug}`, "/crame", "/sitemap.xml"]);
+}
+
+export function scheduleIndexNowGrapeVariety(slug: string): void {
+  scheduleIndexNowPaths([
+    `/soiuri/${slug}`,
+    `/topuri/cele-mai-bune-${slug}`,
+    "/sitemap.xml",
+  ]);
+}
+
+export function scheduleIndexNowDishPairing(slug: string): void {
+  scheduleIndexNowPaths([`/vin-pentru/${slug}`, "/sitemap.xml"]);
+}
+
+export function scheduleIndexNowStudy(slug: string): void {
+  scheduleIndexNowPaths([`/studii/${slug}`, "/topuri/vinuri-sub-50-lei", "/sitemap.xml"]);
+}
+
+export function scheduleIndexNowTopList(slug: string): void {
+  scheduleIndexNowPaths([`/topuri/${slug}`, "/topuri", "/sitemap.xml"]);
+}
+
 export function scheduleIndexNowWineSlugs(slugs: string[]): void {
   if (slugs.length === 0) return;
 

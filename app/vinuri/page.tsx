@@ -19,9 +19,9 @@ export const revalidate = 3600;
 const PATH = "/vinuri";
 
 export const metadata: Metadata = {
-  title: "Catalog vinuri romanesti",
+  title: "Vinuri romanesti: catalog, preturi si scoruri",
   description:
-    "Exploreaza catalogul VinIntel: vinuri romanesti cu Value Score, pret, crama si regiune. Cauta rapid si compara raportul calitate-pret.",
+    "Catalog complet de vinuri romanesti cu Value Score, preturi in RON, crama si regiune. Cauta rapid si compara raportul calitate-pret.",
   keywords: [
     "vinuri romanesti",
     "catalog vinuri",
@@ -35,14 +35,14 @@ export const metadata: Metadata = {
     locale: SITE.locale,
     url: absoluteUrl(PATH),
     siteName: SITE.name,
-    title: "Catalog vinuri romanesti | VinIntel",
+    title: "Vinuri romanesti: catalog, preturi si scoruri | VinIntel",
     description:
       "Toate vinurile romanesti din catalogul VinIntel, ordonate dupa Value Score.",
   },
   twitter: {
     card: "summary_large_image",
     site: SITE.twitter,
-    title: "Catalog vinuri romanesti | VinIntel",
+    title: "Vinuri romanesti: catalog, preturi si scoruri | VinIntel",
     description:
       "Toate vinurile romanesti din catalogul VinIntel, ordonate dupa Value Score.",
   },
@@ -107,7 +107,7 @@ export default async function VinuriCatalogPage() {
                 {catalogWines.length} vinuri verificate
               </span>
               <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                Catalog vinuri romanesti
+                Vinuri romanesti
               </h1>
               <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
                 Exploreaza dupa tip (alb, rosu, spumant), compara Value Score-ul

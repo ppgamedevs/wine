@@ -95,15 +95,20 @@ export async function generateMetadata({
 
   if (!winery) return { title: "Crama negasita" };
 
+  const wineCount = winery.wines.length;
   const url = absoluteUrl(`/wineries/${winery.slug}`);
   const logoUrl = resolveWineryLogoUrl(winery.slug, winery.logoUrl);
   const description =
     winery.description ??
-    `${winery.name} din ${winery.region?.name ?? "Romania"}: ${winery.wines.length} vinuri, scoruri, preturi in RON si pairing-uri.`;
+    `${winery.name} din ${winery.region?.name ?? "Romania"}: ${wineCount} vinuri, scoruri, preturi in RON si pairing-uri.`;
 
   return {
     title: winery.name,
     description,
+    robots:
+      wineCount === 0
+        ? { index: false, follow: true }
+        : { index: true, follow: true },
     keywords: [
       winery.name,
       "crama",

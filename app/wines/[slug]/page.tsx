@@ -13,6 +13,8 @@ import { WineScoreCards } from "@/components/wines/wine-score-cards";
 import { WineSpecsTable } from "@/components/wines/wine-specs-table";
 import { WineWineryLink } from "@/components/wines/wine-winery-link";
 import { WineWorthIt } from "@/components/wines/wine-worth-it";
+import { WineProsCons } from "@/components/wines/wine-pros-cons";
+import { WineDataFreshness } from "@/components/wines/wine-data-freshness";
 import { WineReportButton } from "@/components/wines/wine-report-button";
 import { WineCatalogNotice } from "@/components/wines/wine-catalog-notice";
 import { VerificationLeadForm } from "@/components/wines/verification-lead-form";
@@ -147,7 +149,9 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
           ) : null}
 
           <WineScoreCards wine={wine} />
+          <WineDataFreshness wine={wine} />
           <WineWorthIt wine={wine} />
+          <WineProsCons wine={wine} />
           {wine.winery ? (
             <WineWineryLink wine={wine} wineCount={wineryWineCount} />
           ) : null}

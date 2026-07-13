@@ -1,13 +1,19 @@
 import type { MetadataRoute } from "next";
 import {
   getGrapeVarietySlugs,
+  getIndexableRegionSlugs,
   getWinerySitemapEntries,
   getWineSitemapEntries,
   getWinesForSommelier,
 } from "@/lib/queries";
+import {
+  getAllDishPairingSlugs,
+  getDishPairingPage,
+  rankWinesForDish,
+} from "@/lib/dish-pairing-pages";
 import { getAllJournalArticles } from "@/lib/journal";
 import { absoluteUrl } from "@/lib/seo";
-import { getResolvableTopListSlugs } from "@/lib/top-lists";
+import { getResolvableTopListSlugs, MIN_INDEXABLE_TOP_LIST_WINES } from "@/lib/top-lists";
 
 export const revalidate = 3600;
 
@@ -64,6 +70,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     {
+      url: absoluteUrl("/adauga-vin"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
       url: absoluteUrl("/politica-confidentialitate"),
       lastModified: now,
       changeFrequency: "yearly",
@@ -115,11 +127,58 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   );
 
+  const regionSlugs = await getIndexableRegionSlugs(MIN_INDEXABLE_TOP_LIST_WINES);
+  const regionRoutes: MetadataRoute.Sitemap = regionSlugs.map((slug) => ({
+    url: absoluteUrl(`/regiuni/${slug}`),
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.65,
+  }));
+
+  const grapeSlugsForSoiuri = grapeSlugs.filter((slug) => {
+    const count = allWines.filter((w) =>
+      w.grapeVarieties.some((g) => g.slug === slug),
+    ).length;
+    return count >= MIN_INDEXABLE_TOP_LIST_WINES;
+  });
+  const soiuriRoutes: MetadataRoute.Sitemap = grapeSlugsForSoiuri.map((slug) => ({
+    url: absoluteUrl(`/soiuri/${slug}`),
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.65,
+  }));
+
+  const vinPentruRoutes: MetadataRoute.Sitemap = getAllDishPairingSlugs()
+    .filter((slug) => {
+      const config = getDishPairingPage(slug);
+      if (!config) return false;
+      return rankWinesForDish(allWines, config).length >= MIN_INDEXABLE_TOP_LIST_WINES;
+    })
+    .map((slug) => ({
+      url: absoluteUrl(`/vin-pentru/${slug}`),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }));
+
+  const studiiRoutes: MetadataRoute.Sitemap = [
+    {
+      url: absoluteUrl("/studii/cele-mai-bune-vinuri-sub-50-lei-2026"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+  ];
+
   return [
     ...staticRoutes,
     ...wineRoutes,
     ...wineryRoutes,
     ...topListRoutes,
+    ...regionRoutes,
+    ...soiuriRoutes,
+    ...vinPentruRoutes,
+    ...studiiRoutes,
     ...journalArticleRoutes,
   ];
 }

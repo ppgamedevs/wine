@@ -4,6 +4,31 @@ export interface TopListLink {
   slug: string;
 }
 
+/** Four Google cluster pivot pages plus high-intent programmatic hubs. */
+export const SEO_PIVOT_LINKS = [
+  { title: "Vinuri romanesti", href: "/vinuri", description: "Catalog complet" },
+  {
+    title: "Cele mai bune vinuri romanesti",
+    href: "/topuri/cele-mai-bune-vinuri-romanesti",
+    description: "Top general 2026",
+  },
+  {
+    title: "Vinuri ieftine si bune",
+    href: "/topuri/vinuri-sub-50-lei",
+    description: "Sub 50 lei",
+  },
+  { title: "Crame din Romania", href: "/crame", description: "Director crame" },
+] as const;
+
+export const REGION_HUB_LINKS = [
+  { title: "Dealu Mare", href: "/regiuni/dealu-mare" },
+  { title: "Dragasani", href: "/regiuni/dragasani" },
+  { title: "Dobrogea", href: "/regiuni/dobrogea" },
+  { title: "Transilvania", href: "/regiuni/transilvania" },
+  { title: "Moldova", href: "/regiuni/moldova" },
+  { title: "Banat", href: "/regiuni/banat" },
+] as const;
+
 export const TOP_LIST_INDEX_LINKS: TopListLink[] = [
   {
     title: "Cele mai bune vinuri romanesti",
@@ -14,6 +39,11 @@ export const TOP_LIST_INDEX_LINKS: TopListLink[] = [
     title: "Cele mai bune vinuri sub 50 lei",
     description: "Valoare maxima la buget mic",
     slug: "vinuri-sub-50-lei",
+  },
+  {
+    title: "Vinuri bune din supermarket",
+    description: "Disponibile la retaileri mari",
+    slug: "vinuri-bune-din-supermarket",
   },
   {
     title: "Vinuri sub 50 lei pentru sarmale",

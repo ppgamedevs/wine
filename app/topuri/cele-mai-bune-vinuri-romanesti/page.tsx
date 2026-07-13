@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WineCard } from "@/components/wine-card";
-import { BudgetPageSections } from "@/components/top-lists/budget-page-sections";
+import {
+  TopListHubSections,
+} from "@/components/top-lists/top-list-hub-sections";
+import { TopListQuickAnswer, TopListWineVerdict } from "@/components/top-lists/top-list-wine-verdict";
 import {
   Table,
   TableBody,
@@ -16,10 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatRon } from "@/lib/format";
-import {
-  getGrapeVarietySlugs,
-  getWinesForSommelier,
-} from "@/lib/queries";
+import { getWinesForSommelier } from "@/lib/queries";
 import {
   absoluteUrl,
   buildBreadcrumbJsonLd,
@@ -27,51 +26,27 @@ import {
   SITE,
 } from "@/lib/seo";
 import {
-  getResolvableTopListSlugs,
   resolveTopList,
   slugToLabel,
   TOP_LIST_SLUGS,
-  MIN_INDEXABLE_TOP_LIST_WINES,
   topListRankColumnLabel,
   topListRankScore,
   topListRankSummary,
 } from "@/lib/top-lists";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
 
-interface TopListPageProps {
-  params: Promise<{ slug: string }>;
-}
+const SLUG = "cele-mai-bune-vinuri-romanesti";
 
-export async function generateStaticParams() {
-  const [allWines, grapeSlugs] = await Promise.all([
-    getWinesForSommelier(),
-    getGrapeVarietySlugs(),
-  ]);
-
-  const slugs = getResolvableTopListSlugs(allWines, grapeSlugs);
-  return slugs.map((slug) => ({ slug }));
-}
-
-export async function generateMetadata({
-  params,
-}: TopListPageProps): Promise<Metadata> {
-  const { slug } = await params;
+export async function generateMetadata(): Promise<Metadata> {
   const allWines = await getWinesForSommelier();
-  const list = resolveTopList(slug, allWines);
-
+  const list = resolveTopList(SLUG, allWines);
   if (!list) return { title: "Top negasit" };
 
-  const url = absoluteUrl(`/topuri/${slug}`);
-  const indexable =
-    slug === "cele-mai-bune-vinuri-romanesti" ||
-    list.wines.length >= MIN_INDEXABLE_TOP_LIST_WINES;
-
+  const url = absoluteUrl(`/topuri/${SLUG}`);
   return {
     title: list.metaTitle,
     description: list.metaDescription,
-    ...(indexable ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       type: "website",
       locale: SITE.locale,
@@ -90,21 +65,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function TopListPage({ params }: TopListPageProps) {
-  const { slug } = await params;
+export default async function BestRomanianWinesHubPage() {
   const allWines = await getWinesForSommelier();
-  const list = resolveTopList(slug, allWines);
+  const list = resolveTopList(SLUG, allWines);
+  if (!list) return null;
 
-  if (!list) notFound();
-
-  if (
-    slug !== "cele-mai-bune-vinuri-romanesti" &&
-    list.wines.length < MIN_INDEXABLE_TOP_LIST_WINES
-  ) {
-    notFound();
-  }
-
-  const url = absoluteUrl(`/topuri/${slug}`);
+  const url = absoluteUrl(`/topuri/${SLUG}`);
+  const relatedSlugs = TOP_LIST_SLUGS.filter((s) => s !== SLUG).slice(0, 6);
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
@@ -124,18 +91,14 @@ export default async function TopListPage({ params }: TopListPageProps) {
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: "Acasa", path: "/" },
     { name: "Topuri", path: "/topuri" },
-    { name: list.breadcrumbName, path: `/topuri/${slug}` },
+    { name: list.breadcrumbName, path: `/topuri/${SLUG}` },
   ]);
-
-  const faqJsonLd = buildFaqJsonLd(list.faq);
-
-  const relatedSlugs = TOP_LIST_SLUGS.filter((s) => s !== slug).slice(0, 6);
 
   return (
     <>
       <JsonLd
-        data={[itemListJsonLd, breadcrumbJsonLd, faqJsonLd]}
-        id="toplist"
+        data={[itemListJsonLd, breadcrumbJsonLd, buildFaqJsonLd(list.faq)]}
+        id="toplist-hub"
       />
       <SiteHeader />
       <main className="flex-1">
@@ -147,6 +110,10 @@ export default async function TopListPage({ params }: TopListPageProps) {
             >
               <Link href="/" className="hover:text-wine">
                 Acasa
+              </Link>
+              <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+              <Link href="/topuri" className="hover:text-wine">
+                Topuri
               </Link>
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="text-foreground">{list.breadcrumbName}</span>
@@ -161,16 +128,16 @@ export default async function TopListPage({ params }: TopListPageProps) {
         </section>
 
         <div className="mx-auto max-w-5xl space-y-14 px-6 py-12">
+          <TopListQuickAnswer wines={list.wines} />
+
           <section aria-labelledby="summary-heading">
             <h2
               id="summary-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              Clasament pe scurt
+              Top general
             </h2>
-            <p className="mt-2 text-muted-foreground">
-              {topListRankSummary(list)}
-            </p>
+            <p className="mt-2 text-muted-foreground">{topListRankSummary(list)}</p>
             <div className="mt-6 overflow-hidden rounded-2xl border border-border/70">
               <Table>
                 <TableHeader>
@@ -215,6 +182,22 @@ export default async function TopListPage({ params }: TopListPageProps) {
             </div>
           </section>
 
+          <section aria-labelledby="verdicts-heading">
+            <h2
+              id="verdicts-heading"
+              className="font-serif text-2xl font-semibold text-foreground"
+            >
+              Verdict pentru fiecare vin
+            </h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {list.wines.map((wine, index) => (
+                <TopListWineVerdict key={wine.id} wine={wine} position={index + 1} />
+              ))}
+            </div>
+          </section>
+
+          <TopListHubSections allWines={allWines} />
+
           <section aria-labelledby="grid-heading">
             <h2
               id="grid-heading"
@@ -234,10 +217,6 @@ export default async function TopListPage({ params }: TopListPageProps) {
             </div>
           </section>
 
-          {slug === "vinuri-sub-50-lei" ? (
-            <BudgetPageSections allWines={allWines} budget={50} />
-          ) : null}
-
           <section aria-labelledby="faq-heading">
             <h2
               id="faq-heading"
@@ -251,9 +230,7 @@ export default async function TopListPage({ params }: TopListPageProps) {
                   key={item.question}
                   className="rounded-2xl border border-border/70 bg-card p-5 sm:p-6"
                 >
-                  <h3 className="font-medium text-foreground">
-                    {item.question}
-                  </h3>
+                  <h3 className="font-medium text-foreground">{item.question}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {item.answer}
                   </p>

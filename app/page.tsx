@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { FeaturedWines, FeaturedWinesSkeleton } from "@/components/featured-wines";
@@ -9,9 +10,25 @@ import { SiteHeader } from "@/components/site-header";
 import { TopLists } from "@/components/top-lists";
 import { ValueProps } from "@/components/value-props";
 import { Button } from "@/components/ui/button";
-import { buildFaqJsonLd, type FaqEntry } from "@/lib/seo";
+import { absoluteUrl, buildFaqJsonLd, SITE, type FaqEntry } from "@/lib/seo";
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  title: "VinIntel – Ghid de vinuri romanesti, preturi si recomandari",
+  description:
+    "Ghidul inteligent al vinurilor romanesti: catalog cu preturi in RON, Value Score, topuri pe bugete si somelier AI pentru orice ocazie.",
+  alternates: { canonical: absoluteUrl("/") },
+  openGraph: {
+    type: "website",
+    locale: SITE.locale,
+    url: absoluteUrl("/"),
+    siteName: SITE.name,
+    title: "VinIntel – Ghid de vinuri romanesti, preturi si recomandari",
+    description:
+      "Ghidul inteligent al vinurilor romanesti: catalog, topuri si somelier AI.",
+  },
+};
 
 const homeFaq: FaqEntry[] = [
   {
