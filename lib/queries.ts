@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { grapeVarieties, regions, wineryEvents, wineries, wines } from "@/lib/schema";
 import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
 import { normalizeWineRow, normalizeWineRows } from "@/lib/normalize-wine";
+import { MIN_INDEXABLE_TOP_LIST_WINES } from "@/lib/top-lists";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import type {
   Region,
@@ -618,12 +619,34 @@ export async function getAllRegionSlugs(): Promise<{ slug: string }[]> {
   }
 }
 
-export async function getFeaturedRegions(limit = 6): Promise<Region[]> {
+/**
+ * Regiuni "featured" pentru directoare publice (ex. /crame). Filtram strict la
+ * regiuni indexabile (>= MIN_INDEXABLE_TOP_LIST_WINES vinuri verificate), altfel
+ * am afisa carduri catre pagini /regiuni/[slug] care dau notFound() - o regiune
+ * nou creata (fara vinuri legate inca) nu are voie sa arate ca fiind "explorabila".
+ */
+export async function getFeaturedRegions(
+  limit = 6,
+  minWines = MIN_INDEXABLE_TOP_LIST_WINES,
+): Promise<Region[]> {
   try {
+    const wineCount = count(wines.id);
     const rows = await db
-      .select()
+      .select({
+        id: regions.id,
+        slug: regions.slug,
+        name: regions.name,
+        country: regions.country,
+        description: regions.description,
+        imageUrl: regions.imageUrl,
+        createdAt: regions.createdAt,
+        updatedAt: regions.updatedAt,
+      })
       .from(regions)
-      .orderBy(asc(regions.name))
+      .innerJoin(wines, and(eq(wines.regionId, regions.id), catalogWineCondition()))
+      .groupBy(regions.id)
+      .having(gte(wineCount, minWines))
+      .orderBy(desc(wineCount), asc(regions.name))
       .limit(limit);
     return rows;
   } catch (error) {
