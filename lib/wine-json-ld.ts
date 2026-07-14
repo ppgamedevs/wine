@@ -14,6 +14,8 @@ export type WineStructuredDataInput = Pick<
   | "vintage"
   | "tastingNotes"
   | "priceAvg"
+  | "currentPrice"
+  | "lowestPrice30d"
   | "ratingAvg"
   | "ratingCount"
   | "imageUrl"
@@ -29,15 +31,31 @@ function winePageUrl(slug: string): string {
   return absoluteUrl(`/wines/${slug}`);
 }
 
+/** Best available catalog price for schema.org Offer nodes. */
+export function resolveWineOfferPrice(
+  wine: Pick<
+    WineStructuredDataInput,
+    "currentPrice" | "priceAvg" | "lowestPrice30d"
+  >,
+): number | null {
+  const candidates = [wine.currentPrice, wine.priceAvg, wine.lowestPrice30d];
+  for (const value of candidates) {
+    if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+      return value;
+    }
+  }
+  return null;
+}
+
 function buildProductOffers(wine: WineStructuredDataInput, url: string) {
-  if (!wine.priceAvg) return undefined;
+  const price = resolveWineOfferPrice(wine);
 
   return {
     "@type": "Offer" as const,
-    price: wine.priceAvg,
+    url,
     priceCurrency: "RON",
     availability: "https://schema.org/InStock",
-    url,
+    ...(price != null ? { price } : {}),
   };
 }
 
@@ -57,20 +75,16 @@ function buildProductAggregateRating(wine: WineStructuredDataInput) {
 
 /**
  * Product node that satisfies Google Product snippets (needs offers, review, or aggregateRating).
- * Returns null when none of those fields are available.
+ * Always includes an Offer (with price when available) so winery catalog pages validate.
  */
 export function buildWineProductNode(
   wine: WineStructuredDataInput,
-): Record<string, unknown> | null {
+): Record<string, unknown> {
   const url = winePageUrl(wine.slug);
   const wineryName = wine.winery?.name;
   const { src: imageUrl } = resolveWineImage(wine);
   const offers = buildProductOffers(wine, url);
   const aggregateRating = buildProductAggregateRating(wine);
-
-  if (!offers && !aggregateRating) {
-    return null;
-  }
 
   return {
     "@type": "Product",
@@ -80,47 +94,35 @@ export function buildWineProductNode(
     ...(imageUrl ? { image: imageUrl } : {}),
     ...(wineryName ? { brand: { "@type": "Brand", name: wineryName } } : {}),
     category: "Wine",
-    ...(offers ? { offers } : {}),
+    offers,
     ...(aggregateRating ? { aggregateRating } : {}),
   };
 }
 
 export function buildWineProductJsonLd(
   wine: WineStructuredDataInput,
-): Record<string, unknown> | null {
-  const node = buildWineProductNode(wine);
-  if (!node) return null;
-
+): Record<string, unknown> {
   return {
     "@context": SCHEMA_CONTEXT,
-    ...node,
+    ...buildWineProductNode(wine),
   };
 }
 
-/** Offer entry for Winery.makesOffer; avoids invalid nested Product nodes. */
+/** Offer entry for Winery.makesOffer with a valid nested Product. */
 export function buildWineryMakesOfferEntry(
   wine: WineStructuredDataInput,
 ): Record<string, unknown> {
   const url = winePageUrl(wine.slug);
+  const price = resolveWineOfferPrice(wine);
   const productNode = buildWineProductNode(wine);
 
   return {
     "@type": "Offer",
     url,
-    ...(wine.priceAvg
-      ? {
-          price: wine.priceAvg,
-          priceCurrency: "RON",
-          availability: "https://schema.org/InStock",
-        }
-      : {}),
-    itemOffered:
-      productNode ??
-      ({
-        "@type": "Wine",
-        name: wine.name,
-        url,
-      } satisfies Record<string, unknown>),
+    priceCurrency: "RON",
+    availability: "https://schema.org/InStock",
+    ...(price != null ? { price } : {}),
+    itemOffered: productNode,
   };
 }
 
@@ -160,7 +162,7 @@ export function buildWineJsonLd(
     producer: wineryName
       ? { "@type": "Organization", name: wineryName }
       : undefined,
-    ...(offers ? { offers } : {}),
+    offers,
     ...(aggregateRating ? { aggregateRating } : {}),
   };
 
@@ -204,19 +206,15 @@ export function buildWineJsonLd(
     ],
   };
 
-  return [
-    wineSchema,
-    ...(productSchema ? [productSchema] : []),
-    faqSchema,
-    breadcrumbSchema,
-  ];
+  return [wineSchema, productSchema, faqSchema, breadcrumbSchema];
 }
 
 export function buildWineMetadataDescription(wine: WineWithRelations): string {
+  const price = resolveWineOfferPrice(wine);
   const parts = [
     `${buildWineFullTitle(wine.name, wine.vintage)}`,
     wine.winery?.name ? `de la ${wine.winery.name}` : null,
-    wine.priceAvg ? `la ${formatRon(wine.priceAvg)}` : null,
+    price != null ? `la ${formatRon(price)}` : null,
     wine.valueScore ? `Value Score ${wine.valueScore}/100` : null,
     wine.foodPairings?.[0]?.dish
       ? `potrivit pentru ${wine.foodPairings[0].dish.toLowerCase()}`
