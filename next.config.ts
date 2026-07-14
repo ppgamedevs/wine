@@ -29,6 +29,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "budureasca.ro" },
       { protocol: "https", hostname: "cramagabai.ro" },
       { protocol: "https", hostname: "www.cramagabai.ro" },
+      { protocol: "https", hostname: "murfatlar-vinul.ro" },
+      { protocol: "https", hostname: "www.murfatlar-vinul.ro" },
       { protocol: "https", hostname: "www.lacertawinery.ro" },
       { protocol: "https", hostname: "www.jidvei.ro" },
       { protocol: "https", hostname: "**.emag.ro" },

@@ -80,6 +80,17 @@ Portofoliul acopera Feteasca Regala, Riesling Italian, Cabernet Sauvignon si cup
 
 ${vinintelClosing("Crama Gabai")}`,
   },
+  murfatlar: {
+    logoUrl: "https://murfatlar-vinul.ro/wp-content/uploads/2023/03/Asset-1@2x.png",
+    visitUrl: "https://murfatlar-vinul.ro/experienta/",
+    tagline:
+      "Cel mai vechi si mai cunoscut nume al viticulturii romanesti, cu podgoria istorica de la malul Marii Negre.",
+    story: `Murfatlar este sinonim cu vinul romanesc pentru multe generatii. Podgoria dobrogeana, scaldata de soare si racorita de briza Marii Negre, ofera un microclimat aparte, cu soluri calcaroase care dau vinurilor o mineralitate distincta si o coacere generoasa a strugurilor.
+
+Portofoliul actual imbina traditia gamelor clasice, precum Sec de Murfatlar si Lacrima lui Ovidiu, cu linii mai noi precum Sable Noble, unde soiuri romanesti si internationale sunt asamblate in cupaje accesibile. Crama pastreaza si o parte din istoria vinurilor dulci si a distilatelor, alaturi de o gama larga de vinuri de zi cu zi.
+
+${vinintelClosing("Murfatlar")}`,
+  },
   liliac: {
     logoUrl: "https://liliac.com/media/254/logo-setting-image",
     visitUrl: "https://liliac.com/ro/visit",

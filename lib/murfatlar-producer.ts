@@ -229,16 +229,82 @@ function extractAppellation(html: string): string | null {
   return match?.[0]?.replace(/\s+/g, " ").trim() ?? null;
 }
 
-function extractPageImage(html: string, pageUrl: string): string | null {
-  const match =
-    html.match(/<img[^>]+src=["'](https:\/\/murfatlar-vinul\.ro\/wp-content\/uploads\/[^"']+)["']/i)?.[1] ??
-    html.match(/<img[^>]+src=["']([^"']+wp-content\/uploads[^"']+)["']/i)?.[1];
-  if (!match) return null;
-  try {
-    return new URL(match, pageUrl).toString();
-  } catch {
-    return null;
+/** Site chrome assets that show up in wp-content/uploads but are never bottle photos. */
+const NON_PRODUCT_IMAGE_PATTERN =
+  /^(asset|new-project|layer-|screenshot|group_|logo)/i;
+
+function extractProductImageCandidates(
+  html: string,
+  pageUrl: string,
+): Array<{ url: string; filename: string }> {
+  const candidates: Array<{ url: string; filename: string }> = [];
+  const seen = new Set<string>();
+
+  for (const match of html.matchAll(
+    /<img[^>]+src=["']([^"']+wp-content\/uploads[^"']+)["']/gi,
+  )) {
+    const raw = match[1];
+    if (!raw) continue;
+
+    let absolute: string;
+    try {
+      absolute = new URL(raw, pageUrl).toString();
+    } catch {
+      continue;
+    }
+    if (seen.has(absolute)) continue;
+    seen.add(absolute);
+
+    const filename = decodeURIComponent(
+      absolute.split("/").pop()?.split("?")[0] ?? "",
+    );
+    if (NON_PRODUCT_IMAGE_PATTERN.test(filename)) continue;
+
+    candidates.push({ url: absolute, filename });
   }
+
+  return candidates;
+}
+
+const ALL_COLOR_KEYWORDS: Record<NonNullable<MurfatlarWineVariant["color"]>, string[]> = {
+  rosu: ["rosu", "rosii", "red"],
+  roze: ["roze", "roz", "rose"],
+  alb: ["alb", "white"],
+};
+
+function colorKeywordsPresent(normalizedFilename: string): number {
+  return Object.values(ALL_COLOR_KEYWORDS).filter((keywords) =>
+    keywords.some((keyword) => normalizedFilename.includes(keyword)),
+  ).length;
+}
+
+function findImageForColor(
+  candidates: Array<{ url: string; filename: string }>,
+  rangeSlug: string,
+  color: MurfatlarWineVariant["color"],
+): string | null {
+  if (!color) return null;
+  const keywords = ALL_COLOR_KEYWORDS[color];
+
+  const rangeMatches = candidates.filter((candidate) =>
+    normalizeMatchText(candidate.filename).includes(rangeSlug),
+  );
+  const pool = rangeMatches.length > 0 ? rangeMatches : candidates;
+
+  const matches = pool
+    .map((candidate) => ({
+      candidate,
+      norm: normalizeMatchText(candidate.filename),
+    }))
+    .filter(({ norm }) => keywords.some((keyword) => norm.includes(keyword)))
+    .sort((a, b) => colorKeywordsPresent(a.norm) - colorKeywordsPresent(b.norm));
+
+  return matches[0]?.candidate.url ?? null;
+}
+
+function extractPageImage(html: string, pageUrl: string): string | null {
+  const candidates = extractProductImageCandidates(html, pageUrl);
+  return candidates[0]?.url ?? null;
 }
 
 function extractVariantSections(html: string): Array<{ index: number; html: string }> {
@@ -335,7 +401,9 @@ export function parseMurfatlarProductVariants(
 
   const producerPageUrl = normalizeMurfatlarProductUrl(pageUrl);
   const appellation = extractAppellation(html);
-  const fallbackImage = extractPageImage(html, pageUrl);
+  const imageCandidates = extractProductImageCandidates(html, pageUrl);
+  const fallbackImage = imageCandidates[0]?.url ?? null;
+  const rangeSlug = normalizeMatchText(rangeName);
   const sections = extractVariantSections(html);
   const variants: MurfatlarWineVariant[] = [];
 
@@ -347,6 +415,8 @@ export function parseMurfatlarProductVariants(
     const variantKey = variantKeyForColor(color, index);
     const suffix = colorLabel(color);
     const name = suffix ? `${rangeName} ${suffix}` : rangeName;
+    const variantImage =
+      findImageForColor(imageCandidates, rangeSlug, color) ?? fallbackImage;
 
     variants.push({
       rangeName,
@@ -359,7 +429,7 @@ export function parseMurfatlarProductVariants(
       producerPageUrl,
       sourceUrl: `${producerPageUrl}#${variantKey}`,
       variantKey,
-      imageUrl: fallbackImage,
+      imageUrl: variantImage,
       appellation,
     });
   });
