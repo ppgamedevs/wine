@@ -61,7 +61,7 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
       return wine.sourceUrl;
     }
     if (wine.sourceUrl?.includes("murfatlar-vinul.ro")) {
-      return wine.sourceUrl.split("#")[0] ?? wine.sourceUrl;
+      return wine.sourceUrl;
     }
     const inferredFromRetail = inferRecasProducerPageUrl("", retailUrl);
     if (inferredFromRetail) return inferredFromRetail;
@@ -103,6 +103,7 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
     winerySlug: wine.winery.slug,
     wineName: wine.name,
     preferredPageUrl,
+    sourceUrl: wine.sourceUrl,
   });
 
   if (!producer.producerPageUrl) {

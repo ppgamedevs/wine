@@ -540,10 +540,13 @@ function extractGabaiProduct(
 function extractMurfatlarProduct(
   html: string,
   finalUrl: string,
+  sourceUrl?: string,
 ): ExtractedProductData | null {
-  if (!isMurfatlarUrl(finalUrl)) return null;
+  const lookupUrl =
+    sourceUrl && isMurfatlarUrl(sourceUrl) ? sourceUrl : finalUrl;
+  if (!isMurfatlarUrl(lookupUrl)) return null;
 
-  const wine = parseMurfatlarProductPage(html, finalUrl);
+  const wine = parseMurfatlarProductPage(html, lookupUrl);
   if (!wine) return null;
 
   return {
@@ -603,8 +606,8 @@ export async function extractProductFromHtml(
     if (gabai) {
       result = attachSourceContext(gabai, sourceUrl, gabai.finalUrl);
     }
-  } else if (isMurfatlarUrl(finalUrl)) {
-    const murfatlar = extractMurfatlarProduct(html, finalUrl);
+  } else if (isMurfatlarUrl(finalUrl) || (sourceUrl && isMurfatlarUrl(sourceUrl))) {
+    const murfatlar = extractMurfatlarProduct(html, finalUrl, sourceUrl);
     if (murfatlar) {
       result = attachSourceContext(murfatlar, sourceUrl, murfatlar.finalUrl);
     }

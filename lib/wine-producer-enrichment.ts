@@ -13,6 +13,7 @@ import {
 } from "@/lib/gabai-producer";
 import {
   inferMurfatlarProducerPageUrl,
+  isMurfatlarUrl,
   parseMurfatlarProducerFacts,
 } from "@/lib/murfatlar-producer";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
@@ -1152,6 +1153,8 @@ export async function enrichWineFromProducerSite(input: {
   wineName: string;
   /** Cand sursa importului este pagina producatorului, o folosim ca adevar. */
   preferredPageUrl?: string | null;
+  /** URL complet al sursei (inclusiv hash Murfatlar pentru variante). */
+  sourceUrl?: string | null;
 }): Promise<ProducerEnrichment> {
   const bases = websiteCandidates(input.wineryWebsite, input.winerySlug);
   if (bases.length === 0) return emptyEnrichment();
@@ -1244,8 +1247,16 @@ export async function enrichWineFromProducerSite(input: {
     input.preferredPageUrl.includes("murfatlar-vinul.ro")
   ) {
     const preferred = await fetchProducerHtml(input.preferredPageUrl);
+    const lookupUrl =
+      input.sourceUrl && isMurfatlarUrl(input.sourceUrl)
+        ? input.sourceUrl
+        : input.preferredPageUrl;
     const preferredFacts = preferred
-      ? parseMurfatlarProducerFacts(preferred.html, preferred.finalUrl, input.wineName)
+      ? parseMurfatlarProducerFacts(
+          preferred.html,
+          lookupUrl,
+          input.wineName,
+        )
       : null;
     if (preferred && preferredFacts) {
       bestPage = { ...preferred, score: 100 };
@@ -1336,7 +1347,9 @@ export async function enrichWineFromProducerSite(input: {
               : input.winerySlug === "murfatlar"
                 ? parseMurfatlarProducerFacts(
                     bestPage.html,
-                    bestPage.finalUrl,
+                    input.sourceUrl && isMurfatlarUrl(input.sourceUrl)
+                      ? input.sourceUrl
+                      : bestPage.finalUrl,
                     input.wineName,
                   )
                 : null;

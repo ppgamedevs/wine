@@ -8,14 +8,32 @@ export function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+function murfatlarVariantHashFromUrl(url: URL): string {
+  const key = url.hash.replace(/^#/, "").toLowerCase();
+  if (!key) return "";
+  if (key === "rosu" || key === "roze" || key === "alb" || key.startsWith("variant-")) {
+    return key;
+  }
+  return "";
+}
+
+function shouldPreserveSourceHash(url: URL): boolean {
+  const host = url.hostname.toLowerCase().replace(/^www\./, "");
+  if (host !== "murfatlar-vinul.ro") return false;
+  return murfatlarVariantHashFromUrl(url).length > 0;
+}
+
 export function normalizeSourceUrl(raw: string): string {
   const withProtocol = raw.trim().startsWith("http")
     ? raw.trim()
     : `https://${raw.trim()}`;
   const url = new URL(withProtocol);
-  url.hash = "";
+  const preserveHash = shouldPreserveSourceHash(url);
+  if (!preserveHash) {
+    url.hash = "";
+  }
   let normalized = url.toString();
-  if (normalized.endsWith("/")) {
+  if (!preserveHash && normalized.endsWith("/")) {
     normalized = normalized.slice(0, -1);
   }
   return normalized;

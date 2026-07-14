@@ -429,6 +429,7 @@ async function resolveProducerEnrichment(
   wineryId: number,
   wineName: string,
   preferredPageUrl?: string | null,
+  sourceUrl?: string | null,
 ) {
   const winery = await db.query.wineries.findFirst({
     where: eq(wineries.id, wineryId),
@@ -441,6 +442,7 @@ async function resolveProducerEnrichment(
       winerySlug: "",
       wineName,
       preferredPageUrl,
+      sourceUrl,
     });
   }
 
@@ -449,6 +451,7 @@ async function resolveProducerEnrichment(
     winerySlug: winery.slug,
     wineName,
     preferredPageUrl,
+    sourceUrl,
   });
 }
 
@@ -526,11 +529,13 @@ async function resolveTechSpecsPatch(
   analysis: WineLinkAnalysis,
   wineryId: number,
   preferredPageUrl?: string | null,
+  sourceUrl?: string | null,
 ) {
   const producer = await resolveProducerEnrichment(
     wineryId,
     wineName,
     preferredPageUrl,
+    sourceUrl,
   );
   const enrichedPageText = mergeAnalysisPageText(
     retailerPageText,
@@ -706,6 +711,7 @@ export async function analyzeAndSaveWineFromUrl(
       analysisForScoring,
       wineryId,
       enrichedProducerUrl ?? preferredProducerUrl,
+      sourceUrl,
     );
   const display = buildWineDisplayFacts({
     productName: product.name,
@@ -936,6 +942,7 @@ export async function analyzeWineSubmissionFromUrl(
     analysisForScoring,
     wineryId,
     enrichedProducerUrl ?? preferredProducerUrl,
+    sourceUrl,
   );
 
   const retailerLinks = buildStoredRetailerLinks(
@@ -1108,6 +1115,7 @@ export async function reanalyzeAndUpdateWine(
     analysisForScoring,
     wineryId,
     enrichedProducerUrl ?? preferredProducerUrl,
+    sourceUrl,
   );
 
   const imagePatch =

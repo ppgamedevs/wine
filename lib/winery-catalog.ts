@@ -69,6 +69,17 @@ Parte a grupului Carl Reh, crama combina experienta de vinificatie international
 
 ${vinintelClosing("Oprisor")}`,
   },
+  "crama-gabai": {
+    logoUrl: "https://cramagabai.ro/wp-content/uploads/2019/05/gb.png",
+    visitUrl: "https://cramagabai.ro/degustare/",
+    tagline:
+      "Crama de familie din Dobrogea, langa Constanta, cu vinuri accesibile din soiuri romanesti si internationale.",
+    story: `La Valu lui Traian, in podgoria dobrogeana de langa Murfatlar, Crama Gabai lucreaza viile cu grija de familie si transforma recolta in vinuri clare, usor de inteles la masa. Caldura si lumina din sud-estul Romaniei dau albe proaspete, roze expresive si rosii cu structura, de la sticle de zi cu zi la formaturi de colectie.
+
+Portofoliul acopera Feteasca Regala, Riesling Italian, Cabernet Sauvignon si cupaje atent gandite, cu preturi care incep accesibil si urca spre editii limitate in magnum. Crama primeste vizitatori pentru degustari si povesteste deschis cum se nasc vinurile in vie.
+
+${vinintelClosing("Crama Gabai")}`,
+  },
   liliac: {
     logoUrl: "https://liliac.com/media/254/logo-setting-image",
     visitUrl: "https://liliac.com/ro/visit",
@@ -93,7 +104,7 @@ Crama propune atat vinuri dulci clasice, cat si interpretari mai usor de baut pe
 ${vinintelClosing("Cotnari")}`,
   },
   budureasca: {
-    logoUrl: "https://www.budureasca.ro/media/logo/default/logo.png",
+    logoUrl: "https://www.budureasca.ro/media/logo/default/logo.jpg",
     visitUrl: "https://budureasca.ro/vizite",
     tagline:
       "Crama din Valea Calugareasca, in inima podgoriei Dealu Mare, cu o gama larga premiata.",

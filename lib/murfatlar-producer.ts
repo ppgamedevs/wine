@@ -408,13 +408,31 @@ export function matchMurfatlarVariant(
   return variants[0] ?? null;
 }
 
+export function matchMurfatlarVariantByHash(
+  variants: MurfatlarWineVariant[],
+  hash: string,
+): MurfatlarWineVariant | null {
+  const key = hash.replace(/^#/, "").toLowerCase();
+  if (!key) return null;
+  return variants.find((variant) => variant.variantKey === key) ?? null;
+}
+
 export function parseMurfatlarProductPage(
   html: string,
   pageUrl: string,
   wineName?: string | null,
 ): MurfatlarWineVariant | null {
-  const variants = parseMurfatlarProductVariants(html, pageUrl);
+  const variants = parseMurfatlarProductVariants(html, pageUrl.split("#")[0] ?? pageUrl);
   if (variants.length === 0) return null;
+
+  try {
+    const hash = new URL(pageUrl).hash;
+    const byHash = matchMurfatlarVariantByHash(variants, hash);
+    if (byHash) return byHash;
+  } catch {
+    // ignore invalid URLs
+  }
+
   if (wineName) return matchMurfatlarVariant(variants, wineName);
   return variants[0] ?? null;
 }

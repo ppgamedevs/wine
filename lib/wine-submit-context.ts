@@ -4,6 +4,7 @@ import {
   type WineSubmissionStatus,
   type WineSubmitType,
 } from "@/lib/schema";
+import { normalizeSourceUrl } from "@/lib/wine-url";
 
 export interface WineSubmitContext {
   submitType: WineSubmitType;
@@ -14,12 +15,7 @@ export interface WineSubmitContext {
 }
 
 function normalizeStoredSourceUrl(url: URL): string {
-  url.hash = "";
-  let normalized = url.toString();
-  if (normalized.endsWith("/")) {
-    normalized = normalized.slice(0, -1);
-  }
-  return normalized;
+  return normalizeSourceUrl(url.toString());
 }
 
 export function isAffiliateSourceUrl(rawUrl: string): boolean {
