@@ -23,6 +23,10 @@ import {
 import { wineTypeGradient, wineTypeLabel } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
 import {
+  MIN_RECOMMENDED_VALUE_SCORE,
+  VALUE_SCORE_EXCEPTIONAL_MIN,
+} from "@/lib/value-score-thresholds";
+import {
   catalogSectionHeading,
   countWinesByType,
   DEFAULT_CATALOG_FILTERS,
@@ -254,8 +258,12 @@ export function WineCatalogDirectory({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toate scorurile</SelectItem>
-                <SelectItem value="recommended">Merita banii (75+)</SelectItem>
-                <SelectItem value="exceptional">Exceptionale (90+)</SelectItem>
+                <SelectItem value="recommended">
+                  Merita pretul ({MIN_RECOMMENDED_VALUE_SCORE}+)
+                </SelectItem>
+                <SelectItem value="exceptional">
+                  Exceptionale ({VALUE_SCORE_EXCEPTIONAL_MIN}+)
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -299,12 +307,14 @@ export function WineCatalogDirectory({
         </Badge>
         {filters.verdict === "recommended" ? (
           <span className="text-sm text-muted-foreground">
-            Afisam vinuri cu Value Score 75+ (merita banii)
+            Afisam vinuri cu Value Score {MIN_RECOMMENDED_VALUE_SCORE}+ (merita
+            pretul)
           </span>
         ) : null}
         {filters.verdict === "exceptional" ? (
           <span className="text-sm text-muted-foreground">
-            Afisam vinuri cu Value Score 90+ (valoare exceptionala)
+            Afisam vinuri cu Value Score {VALUE_SCORE_EXCEPTIONAL_MIN}+ (valoare
+            exceptionala)
           </span>
         ) : null}
       </div>

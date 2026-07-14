@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { WineEditorialOutput } from "@/lib/ai/schemas";
 import { db } from "@/lib/db";
+import { EditorialFactCheckError } from "@/lib/editorial-fact-guard";
 import {
   extractProductFromUrl,
   inferImageSourceFromUrl,
@@ -11,10 +12,12 @@ import {
   loadWineForEditorial,
 } from "@/lib/regenerate-wine-editorial";
 import { wines } from "@/lib/schema";
+import { recordScoreSnapshot } from "@/lib/score-history";
 import {
   calculateInitialScores,
   formatScoreProvenance,
   mergeAnalysisScores,
+  VALUE_SCORE_ALGORITHM_VERSION,
   type MergedAnalysisScores,
 } from "@/lib/scoring";
 import { sanitizeEditorialText } from "@/lib/editorial-text";
@@ -127,6 +130,17 @@ export async function applyEditorialAndScoresToWine(
       cellarPotential: mergedScores.cellarPotential,
     })
     .where(eq(wines.id, wineId));
+
+  await recordScoreSnapshot({
+    wineId,
+    valueScore: mergedScores.valueScore,
+    giftScore: mergedScores.giftScore,
+    foodMatchScore: mergedScores.foodMatchScore,
+    overpricedRisk: mergedScores.overpricedRisk,
+    algorithmVersion: VALUE_SCORE_ALGORITHM_VERSION,
+    changeReason: "editorial_regeneration",
+    changedBy: "system:editorial",
+  });
 }
 
 export async function generateAndApplyFullEditorialIfMissing(
@@ -151,6 +165,53 @@ export async function generateAndApplyFullEditorialIfMissing(
   return true;
 }
 
+/**
+ * Aplica doar scorurile bazate pe reguli (fara text editorial) cand generarea
+ * AI a fost respinsa de fact-guard. E preferabil un vin fara descriere fata
+ * de un vin cu descriere ce introduce fapte nesustinute (soiuri/regiuni/medalii
+ * inventate) - regula #1 din politica editoriala.
+ */
+async function applyRuleBasedScoresOnly(wine: WineForEditorial): Promise<void> {
+  const category = mapWineTypeToScoreCategory(wine.type);
+  const price = wine.currentPrice ?? wine.priceAvg ?? 50;
+  const grapeVarieties = wine.grapeVarieties.map((grape) => grape.name);
+
+  const ruleScores = calculateInitialScores({
+    price: price > 0 ? price : 50,
+    category,
+    region: wine.region?.name,
+    grapeVarieties,
+    sweetness: wine.sweetness,
+    dessertPairingCount: wine.dessertPairings?.length ?? 0,
+    wineMedals: wine.medals ?? [],
+  });
+
+  const mergedScores = mergeAnalysisScores(ruleScores, price > 0 ? price : 50);
+
+  await db
+    .update(wines)
+    .set({
+      valueScore: mergedScores.valueScore,
+      giftScore: mergedScores.giftScore,
+      foodMatchScore: mergedScores.foodMatchScore,
+      overpricedRisk: mergedScores.overpricedRisk,
+      beginnerFriendly: mergedScores.beginnerFriendly,
+      cellarPotential: mergedScores.cellarPotential,
+    })
+    .where(eq(wines.id, wine.id));
+
+  await recordScoreSnapshot({
+    wineId: wine.id,
+    valueScore: mergedScores.valueScore,
+    giftScore: mergedScores.giftScore,
+    foodMatchScore: mergedScores.foodMatchScore,
+    overpricedRisk: mergedScores.overpricedRisk,
+    algorithmVersion: VALUE_SCORE_ALGORITHM_VERSION,
+    changeReason: "editorial_regeneration",
+    changedBy: "system:editorial-fallback-rule-based",
+  });
+}
+
 export async function generateAndApplyFullEditorial(
   wineId: number,
 ): Promise<void> {
@@ -165,9 +226,17 @@ export async function generateAndApplyFullEditorial(
     );
   }
 
-  const editorial = await generateFullEditorialForWine(wine);
-  const mergedScores = mergeEditorialScoresForWine(wine, editorial);
-  await applyEditorialAndScoresToWine(wineId, editorial, mergedScores);
+  try {
+    const editorial = await generateFullEditorialForWine(wine);
+    const mergedScores = mergeEditorialScoresForWine(wine, editorial);
+    await applyEditorialAndScoresToWine(wineId, editorial, mergedScores);
+  } catch (error) {
+    if (error instanceof EditorialFactCheckError) {
+      await applyRuleBasedScoresOnly(wine);
+      return;
+    }
+    throw error;
+  }
 }
 
 export async function extractAndSaveWineImageIfMissing(

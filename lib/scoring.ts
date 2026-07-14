@@ -669,6 +669,8 @@ export interface ValueScoreBreakdown {
   priceEfficiency?: number;
   expectedQualityAtPrice?: number;
   qualityConfidence?: number;
+  confidencePercent?: number;
+  confidenceScoreCeiling?: number;
   confidenceLabel?: string;
   provisional?: boolean;
 }
@@ -702,6 +704,8 @@ export function buildValueScoreBreakdown(
     priceEfficiency: result.priceEfficiency,
     expectedQualityAtPrice: result.expectedQualityAtPrice,
     qualityConfidence: result.qualityConfidence,
+    confidencePercent: result.confidencePercent,
+    confidenceScoreCeiling: result.confidenceScoreCeiling,
     confidenceLabel: result.confidenceLabel,
     provisional: result.provisional,
   };

@@ -340,9 +340,21 @@ export async function getWinerySitemapEntries(): Promise<
   { slug: string; updatedAt: string }[]
 > {
   try {
-    return await db
-      .select({ slug: wineries.slug, updatedAt: wineries.updatedAt })
-      .from(wineries);
+    const rows = await db.query.wineries.findMany({
+      columns: { slug: true, updatedAt: true },
+      with: {
+        wines: {
+          columns: { id: true },
+          where: (wine, { ne }) => ne(wine.status, "rejected"),
+          limit: 1,
+        },
+      },
+    });
+
+    // Wineries with zero wines are noindexed on-page; keep the sitemap in sync.
+    return rows
+      .filter((row) => row.wines.length > 0)
+      .map((row) => ({ slug: row.slug, updatedAt: row.updatedAt }));
   } catch (error) {
     console.error("getWinerySitemapEntries failed", error);
     return [];

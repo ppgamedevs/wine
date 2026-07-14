@@ -38,6 +38,10 @@ export async function generateMetadata({
       siteName: SITE.name,
       title: `${title} | VinIntel`,
     },
+    twitter: {
+      card: "summary",
+      title: `${title} | VinIntel`,
+    },
     robots: query ? { index: false, follow: true } : undefined,
   };
 }

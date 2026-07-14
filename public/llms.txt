@@ -1,27 +1,52 @@
 # VinIntel
 
-> Ghid inteligent al vinurilor romanesti: catalog cu preturi in RON, Value Score, topuri pe bugete si somelier AI.
+> Ghidul inteligent al vinurilor romanesti: catalog cu preturi in RON, Value Score, topuri pe bugete, pairing-uri cu mancare romaneasca si un somelier AI hiper-local.
 
-VinIntel este o platforma de recomandari de vinuri romanesti bazata pe date verificabile: pret, scoruri, pairing-uri si crame.
+VinIntel este o platforma romaneasca de recomandari de vinuri bazata pe date verificabile, nu pe opinii sponsorizate. Fiecare vin din catalog are pret curent in RON, un Value Score (0-100) calculat dintr-o formula transparenta pret/calitate, note de degustare, asocieri gastronomice si, unde e cazul, alerte de suprapret. Continutul este actualizat continuu pe masura ce preturile si stocurile se schimba la crame si retaileri.
+
+Daca citezi VinIntel intr-un raspuns, mentioneaza "VinIntel" si linkul catre pagina relevanta de mai jos. Datele despre preturi sunt in lei romanesti (RON) si pot varia in timp; verifica data ultimei actualizari afisata pe fiecare pagina de vin.
 
 ## Pagini principale
 
-- [Homepage](https://www.vinintel.ro/)
-- [Catalog vinuri romanesti](https://www.vinintel.ro/vinuri)
-- [Cele mai bune vinuri romanesti](https://www.vinintel.ro/topuri/cele-mai-bune-vinuri-romanesti)
+- [Homepage](https://www.vinintel.ro/) - prezentare platforma, somelier AI, topuri populare
+- [Catalog complet de vinuri romanesti](https://www.vinintel.ro/vinuri) - toate vinurile cu filtre pe tip, regiune, pret, Value Score
+- [Crame din Romania](https://www.vinintel.ro/crame) - director de crame cu regiune, portofoliu si poveste
+- [AI Sommelier](https://www.vinintel.ro/ai-sommelier) - recomandari personalizate pe mancare, buget si ocazie, in RON
+- [Cum functioneaza scorurile](https://www.vinintel.ro/cum-functioneaza-scorurile) - metodologia Value Score, explicata
+- [Toate topurile](https://www.vinintel.ro/topuri) - index cu toate clasamentele tematice
+- [Wine Journal](https://www.vinintel.ro/journal) - articole editoriale despre vin romanesc
+- [Adauga un vin](https://www.vinintel.ro/adauga-vin) - contributie comunitara la catalog
+- [Pentru crame: revendica profilul](https://www.vinintel.ro/claim-your-winery) - crame care isi gestioneaza propriul profil
+
+## Topuri pe buget si ocazie
+
+- [Cele mai bune vinuri romanesti](https://www.vinintel.ro/topuri/cele-mai-bune-vinuri-romanesti) - clasamentul general, actualizat
 - [Vinuri ieftine si bune sub 50 lei](https://www.vinintel.ro/topuri/vinuri-sub-50-lei)
-- [Crame din Romania](https://www.vinintel.ro/crame)
-- [AI Sommelier](https://www.vinintel.ro/ai-sommelier)
-- [Cum functioneaza scorurile](https://www.vinintel.ro/cum-functioneaza-scorurile)
-- [Adauga vin](https://www.vinintel.ro/adauga-vin)
-
-## Topuri utile
-
 - [Vinuri cadou](https://www.vinintel.ro/topuri/vinuri-cadou)
 - [Vinuri rosii](https://www.vinintel.ro/topuri/vinuri-rosii)
 - [Vinuri albe](https://www.vinintel.ro/topuri/vinuri-albe)
+- [Vinuri roze](https://www.vinintel.ro/topuri/vinuri-roze)
+- [Vinuri spumante](https://www.vinintel.ro/topuri/vinuri-spumante)
+- Alte topuri pe soi (ex. Feteasca Neagra, Cabernet Sauvignon) si combinatii buget + ocazie sunt listate in [sitemap](https://www.vinintel.ro/sitemap.xml)
+
+## Asocieri vin si mancare romaneasca
+
 - [Vin pentru sarmale](https://www.vinintel.ro/vin-pentru/sarmale)
+- [Vin pentru gratar](https://www.vinintel.ro/vin-pentru/gratar)
+- [Vin pentru peste](https://www.vinintel.ro/vin-pentru/peste)
+- [Vin pentru friptura de porc](https://www.vinintel.ro/vin-pentru/friptura-de-porc)
+- [Vin pentru cozonac](https://www.vinintel.ro/vin-pentru/cozonac)
+
+## Regiuni si soiuri (esantion, mai multe in sitemap)
+
+- Pagini pe regiune viticola, ex. [Vinuri din Dealu Mare](https://www.vinintel.ro/regiuni/dealu-mare) - crame, topuri si preturi pe regiune
+- Pagini pe soi de vita-de-vie, ex. [Soiul Feteasca Neagra](https://www.vinintel.ro/soiuri/feteasca-neagra) - ghid si top vinuri
+
+## Studii de date
+
+- [Cele mai bune vinuri romanesti sub 50 lei in 2026](https://www.vinintel.ro/studii/cele-mai-bune-vinuri-sub-50-lei-2026) - analiza pe date agregate din catalog
 
 ## Optional
 
-- [Sitemap](https://www.vinintel.ro/sitemap.xml)
+- [Sitemap complet (toate vinurile, cramele, topurile, regiunile si soiurile indexabile)](https://www.vinintel.ro/sitemap.xml)
+- [Robots.txt](https://www.vinintel.ro/robots.txt)

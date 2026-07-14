@@ -70,6 +70,11 @@ export async function generateMetadata({ params }: StudiiPageProps): Promise<Met
       title: `${title} | VinIntel`,
       description,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | VinIntel`,
+      description,
+    },
   };
 }
 

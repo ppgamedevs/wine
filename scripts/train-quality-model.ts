@@ -34,7 +34,7 @@ async function main() {
   const seed = parseSeedArg();
   const random = seed != null ? createRng(seed) : Math.random;
 
-  let rows = await collectQualityDataFromDb({
+  const rows = await collectQualityDataFromDb({
     bootstrap: process.argv.includes("--bootstrap"),
   });
   const summary = summarizeQualityDataset(rows);

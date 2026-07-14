@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { GrapeVarietyShare } from "@/lib/schema";
 import type { WineType } from "@/types";
+import { getMaxValidWineVintage } from "@/lib/wine-vintage";
 
 function normalizeCategory(value: unknown): unknown {
   if (typeof value !== "string") return value;
@@ -36,7 +37,7 @@ export const wineCsvRowSchema = z.object({
   winery_slug: z.string().trim().optional(),
   region: z.string().trim().min(2),
   region_slug: z.string().trim().optional(),
-  vintage: z.coerce.number().int().min(1900).max(2030),
+  vintage: z.coerce.number().int().min(1900).max(getMaxValidWineVintage()),
   price: z.coerce.number().positive(),
   category: csvCategorySchema,
   grape_varieties: z.string().trim().optional(),

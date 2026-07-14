@@ -1,5 +1,15 @@
 const MIN_WINE_VINTAGE = 1990;
-const MAX_WINE_VINTAGE = 2030;
+
+/**
+ * Anul maxim valid pentru un vintage NU este un an fix hardcodat (risc: se
+ * demodeaza si respinge/accepta gresit an de an), ci "anul curent + 1":
+ * unele crame lanseaza vinul noii recolte inainte de finalul anului
+ * calendaristic, dar un vintage din viitor mai indepartat este aproape
+ * sigur o eroare de extractie sau introducere.
+ */
+export function getMaxValidWineVintage(referenceYear?: number): number {
+  return (referenceYear ?? new Date().getFullYear()) + 1;
+}
 
 const LABELED_VINTAGE_PATTERNS = [
   /(?:pentru\s+)?vintage\s+(20\d{2}|19\d{2})/i,
@@ -13,11 +23,14 @@ const LABELED_VINTAGE_PATTERNS = [
 
 const BARE_VINTAGE_PATTERN = /\b(19[89]\d|20[0-3]\d)\b/g;
 
-export function isValidWineVintage(year: number): boolean {
+export function isValidWineVintage(
+  year: number,
+  referenceYear?: number,
+): boolean {
   return (
     Number.isInteger(year) &&
     year >= MIN_WINE_VINTAGE &&
-    year <= MAX_WINE_VINTAGE
+    year <= getMaxValidWineVintage(referenceYear)
   );
 }
 

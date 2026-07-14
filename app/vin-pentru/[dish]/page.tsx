@@ -57,6 +57,11 @@ export async function generateMetadata({ params }: VinPentruPageProps): Promise<
       title: `${config.metaTitle} | VinIntel`,
       description: config.metaDescription,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: `${config.metaTitle} | VinIntel`,
+      description: config.metaDescription,
+    },
   };
 }
 

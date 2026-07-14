@@ -19,6 +19,10 @@ import {
 } from "@/lib/ai/schemas";
 import { db } from "@/lib/db";
 import { sanitizeEditorialText } from "@/lib/editorial-text";
+import {
+  EditorialFactCheckError,
+  validateEditorialAgainstFacts,
+} from "@/lib/editorial-fact-guard";
 import { calculateInitialScores } from "@/lib/scoring";
 import { wines } from "@/lib/schema";
 import type { WineType } from "@/types";
@@ -127,10 +131,24 @@ async function regenerateEditorialObject(wine: WineWithRelations) {
   });
 }
 
+function factsFromWine(wine: WineWithRelations) {
+  return {
+    grapeVarieties: wine.grapeVarieties.map((grape) => grape.name),
+    regionName: wine.region?.name ?? null,
+    medals: wine.medals ?? [],
+  };
+}
+
 export async function generateFullEditorialForWine(
   wine: WineWithRelations,
 ): Promise<WineEditorialOutput> {
   const { object } = await generateEditorialObject(wine);
+
+  const check = await validateEditorialAgainstFacts(object, factsFromWine(wine));
+  if (!check.ok) {
+    throw new EditorialFactCheckError(check.violations);
+  }
+
   return object;
 }
 
@@ -153,6 +171,14 @@ export async function regenerateWineEditorialContent(
   }
 
   const { object: editorial } = await regenerateEditorialObject(wine);
+
+  const check = await validateEditorialAgainstFacts(
+    editorial,
+    factsFromWine(wine),
+  );
+  if (!check.ok) {
+    throw new EditorialFactCheckError(check.violations);
+  }
 
   await db
     .update(wines)

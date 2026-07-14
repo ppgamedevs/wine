@@ -49,7 +49,11 @@ function filterWinesByGrape(
   );
 }
 
-function buildGrapeFaq(grapeName: string, wines: WineWithRelations[]): FaqEntry[] {
+function buildGrapeFaq(
+  grapeName: string,
+  wines: WineWithRelations[],
+  topListSlug: string,
+): FaqEntry[] {
   const top = wines[0];
   return [
     {
@@ -64,7 +68,7 @@ function buildGrapeFaq(grapeName: string, wines: WineWithRelations[]): FaqEntry[
     },
     {
       question: "Unde vad clasamentul complet?",
-      answer: `Consulta topul dedicat sau catalogul VinIntel filtrat dupa soi.`,
+      answer: `Clasamentul complet de vinuri ${grapeName} este pe vinintel.ro/topuri/${topListSlug}.`,
     },
   ];
 }
@@ -87,6 +91,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: SoiuriPageProps): Promise<Metadata> {
   const { slug } = await params;
   const grapeName = deslugify(slug);
+  const allWines = await getWinesForSommelier();
+  const grapeWines = filterWinesByGrape(allWines, slug, grapeName);
+
+  if (grapeWines.length < MIN_INDEXABLE_TOP_LIST_WINES) {
+    return { title: "Soi negasit", robots: { index: false, follow: true } };
+  }
+
   const title = `Soiul ${grapeName}: ghid si top vinuri romanesti`;
   const description = `Ghid despre ${grapeName}: caracteristici, regiuni si cele mai bune vinuri romanesti cu preturi in RON.`;
   const url = absoluteUrl(`/soiuri/${slug}`);
@@ -103,6 +114,11 @@ export async function generateMetadata({ params }: SoiuriPageProps): Promise<Met
       title: `${title} | VinIntel`,
       description,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | VinIntel`,
+      description,
+    },
   };
 }
 
@@ -115,8 +131,8 @@ export default async function SoiuriPage({ params }: SoiuriPageProps) {
   if (grapeWines.length < MIN_INDEXABLE_TOP_LIST_WINES) notFound();
 
   const topWines = getTopWinesByValue(grapeWines, 5);
-  const faq = buildGrapeFaq(grapeName, topWines);
   const topListSlug = `cele-mai-bune-${slug}`;
+  const faq = buildGrapeFaq(grapeName, topWines, topListSlug);
 
   const itemListJsonLd = {
     "@context": "https://schema.org",

@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { recalculateSingleWineValueScore } from "@/lib/recalculate-value-scores";
 import { wines, type PriceHistoryEntry } from "@/lib/schema";
 
 const HISTORY_RETENTION_DAYS = 90;
@@ -125,6 +126,18 @@ export async function updatePrice(
       priceAvg: normalizedPrice,
     })
     .where(eq(wines.id, wineId));
+
+  // Value Score depinde de pret (eficienta pret). Fara aceasta recalculare,
+  // scorul stocat ar ramane calculat pe pretul vechi, in contradictie cu
+  // pretul nou afisat pe pagina - exact tipul de neconcordanta interzis.
+  try {
+    await recalculateSingleWineValueScore(wineId, {
+      priceOverride: normalizedPrice,
+      changeReason: "price_update",
+    });
+  } catch (error) {
+    console.error("recalculateSingleWineValueScore failed after price update", error);
+  }
 
   return {
     wineId,

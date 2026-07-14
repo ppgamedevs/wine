@@ -38,6 +38,13 @@ export const organizationJsonLd = {
     "@type": "Country",
     name: "Romania",
   },
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    email: "somelier@vinintel.ro",
+    areaServed: "RO",
+    availableLanguage: ["Romanian"],
+  },
 };
 
 export const websiteJsonLd = {
@@ -51,6 +58,7 @@ export const websiteJsonLd = {
     "@type": "Organization",
     name: SITE.name,
     url: SITE.url,
+    logo: absoluteUrl("/icon.svg"),
   },
   potentialAction: {
     "@type": "SearchAction",

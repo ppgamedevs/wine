@@ -11,22 +11,36 @@ import { TopLists } from "@/components/top-lists";
 import { ValueProps } from "@/components/value-props";
 import { Button } from "@/components/ui/button";
 import { absoluteUrl, buildFaqJsonLd, SITE, type FaqEntry } from "@/lib/seo";
+import {
+  MIN_RECOMMENDED_VALUE_SCORE,
+  VALUE_SCORE_FAIR_MIN,
+} from "@/lib/value-score-thresholds";
 
 export const revalidate = 3600;
 
+const HOME_TITLE = "VinIntel – Ghid de vinuri romanesti, preturi si recomandari";
+const HOME_DESCRIPTION =
+  "Ghidul inteligent al vinurilor romanesti: catalog cu preturi in RON, Value Score, topuri pe bugete si somelier AI pentru orice ocazie.";
+
 export const metadata: Metadata = {
-  title: "VinIntel – Ghid de vinuri romanesti, preturi si recomandari",
-  description:
-    "Ghidul inteligent al vinurilor romanesti: catalog cu preturi in RON, Value Score, topuri pe bugete si somelier AI pentru orice ocazie.",
+  // `absolute` skips the root title template so the brand name isn't duplicated
+  // (the title already contains "VinIntel").
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
   alternates: { canonical: absoluteUrl("/") },
   openGraph: {
     type: "website",
     locale: SITE.locale,
     url: absoluteUrl("/"),
     siteName: SITE.name,
-    title: "VinIntel – Ghid de vinuri romanesti, preturi si recomandari",
+    title: HOME_TITLE,
     description:
       "Ghidul inteligent al vinurilor romanesti: catalog, topuri si somelier AI.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
   },
 };
 
@@ -39,7 +53,7 @@ const homeFaq: FaqEntry[] = [
   {
     question: "Ce inseamna Value Score?",
     answer:
-      "Value Score este un indicator de la 0 la 100 care arata cat de bun este un vin raportat la pretul cerut. Peste 75 merita banii, intre 70 si 74 este pret mediu, sub 70 recomandam alternative.",
+      `Value Score este un indicator de la 0 la 100 care arata cat de bun este un vin raportat la pretul cerut, calculat dintr-o formula transparenta (calitate estimata + eficienta pretului), nu dintr-un vot al utilizatorilor. Peste ${MIN_RECOMMENDED_VALUE_SCORE} merita pretul, intre ${VALUE_SCORE_FAIR_MIN} si ${MIN_RECOMMENDED_VALUE_SCORE - 1} este pret corect, sub ${VALUE_SCORE_FAIR_MIN} exista probabil alternative mai bune. Increderea datelor este afisata separat: scorurile bazate pe date insuficiente sunt plafonate si marcate ca provizorii.`,
   },
   {
     question: "Cum gasesc un vin pentru o anumita mancare sau ocazie?",

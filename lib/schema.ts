@@ -549,6 +549,18 @@ export const wineReports = sqliteTable(
 /*                              Scores history                                 */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Motivul pentru care a fost inregistrat un snapshot de scor. Pastrat ca sa
+ * putem reconstitui "de ce s-a schimbat scorul" fara sa ghicim din diff-uri.
+ */
+export type ScoreChangeReason =
+  | "initial"
+  | "recalculation"
+  | "price_update"
+  | "editorial_regeneration"
+  | "admin_override"
+  | "data_migration";
+
 export const scoresHistory = sqliteTable(
   "scores_history",
   {
@@ -563,6 +575,22 @@ export const scoresHistory = sqliteTable(
     overpricedRisk: text("overpriced_risk", {
       enum: ["low", "medium", "high"],
     }),
+    /** Versiunea algoritmului de scoring folosita la acest calcul (reproducibilitate). */
+    algorithmVersion: integer("algorithm_version"),
+    /** Increderea datelor (0-100%) la momentul calcularii, separat de scor. */
+    confidencePercent: integer("confidence_percent"),
+    changeReason: text("change_reason", {
+      enum: [
+        "initial",
+        "recalculation",
+        "price_update",
+        "editorial_regeneration",
+        "admin_override",
+        "data_migration",
+      ],
+    }),
+    /** "system" pentru joburi automate, sau identificatorul adminului. */
+    changedBy: text("changed_by"),
     recordedAt: text("recorded_at")
       .notNull()
       .default(sql`(current_timestamp)`),
@@ -745,6 +773,7 @@ export const winesRelations = relations(wines, ({ one, many }) => ({
     references: [regions.id],
   }),
   scoresHistory: many(scoresHistory),
+  scoreOverrides: many(scoreOverrides),
   ratings: many(ratings),
   wineVotes: many(wineVotes),
   reports: many(wineReports),
@@ -757,6 +786,70 @@ export const scoresHistoryRelations = relations(scoresHistory, ({ one }) => ({
     references: [wines.id],
   }),
 }));
+
+/* -------------------------------------------------------------------------- */
+/*                          Manual override audit log                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Campurile pe care un admin le poate suprascrie manual. Nu include camp
+ * pentru date brute de sursa: override-urile ating doar valori calculate/
+ * editoriale, niciodata `sourceUrl`, `priceHistory` sau alte date brute.
+ */
+export type ScoreOverrideField =
+  | "valueScore"
+  | "giftScore"
+  | "foodMatchScore"
+  | "criticScore"
+  | "overpricedRisk";
+
+/**
+ * Audit trail pentru orice override manual de scor din admin. Cerinta de
+ * business: fiecare override trebuie sa aiba valoare veche, valoare noua,
+ * motiv, responsabil si timestamp, si (optional) o data de expirare dupa
+ * care override-ul nu mai trebuie considerat valid la urmatoarea recalculare.
+ * Niciodata nu suprascriem aceasta tabela - e append-only.
+ */
+export const scoreOverrides = sqliteTable(
+  "score_overrides",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    field: text("field", {
+      enum: [
+        "valueScore",
+        "giftScore",
+        "foodMatchScore",
+        "criticScore",
+        "overpricedRisk",
+      ],
+    }).notNull(),
+    previousValue: text("previous_value"),
+    newValue: text("new_value"),
+    reason: text("reason").notNull(),
+    changedBy: text("changed_by").notNull().default("admin"),
+    expiresAt: text("expires_at"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("score_overrides_wine_idx").on(table.wineId),
+    index("score_overrides_created_idx").on(table.createdAt),
+  ],
+);
+
+export const scoreOverridesRelations = relations(
+  scoreOverrides,
+  ({ one }) => ({
+    wine: one(wines, {
+      fields: [scoreOverrides.wineId],
+      references: [wines.id],
+    }),
+  }),
+);
 
 export const usersRelations = relations(users, ({ many }) => ({
   ratings: many(ratings),

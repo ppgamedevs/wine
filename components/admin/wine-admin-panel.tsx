@@ -238,6 +238,9 @@ export function WineAdminPanel({
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
+            <Link href="/admin/data-quality">Data quality</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
             <Link href="/admin/wineries">Crame Premium</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
@@ -807,8 +810,11 @@ function EditWineDialog({
     giftScore?: number;
     foodMatchScore?: number;
     thingsYouShouldKnow?: string;
+    overrideReason?: string;
   }) => void;
 }) {
+  const [reasonError, setReasonError] = useState<string | null>(null);
+
   if (!wine) return null;
 
   const aiBusy = aiLoading !== null;
@@ -826,6 +832,31 @@ function EditWineDialog({
           onSubmit={(event) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
+            const nextValueScore = Number(
+              formData.get("valueScore") || wine.valueScore,
+            );
+            const nextGiftScore = Number(
+              formData.get("giftScore") || wine.giftScore,
+            );
+            const nextFoodMatchScore = Number(
+              formData.get("foodMatchScore") || wine.foodMatchScore,
+            );
+            const overrideReason = String(
+              formData.get("overrideReason") ?? "",
+            ).trim();
+            const scoreChanged =
+              nextValueScore !== wine.valueScore ||
+              nextGiftScore !== wine.giftScore ||
+              nextFoodMatchScore !== wine.foodMatchScore;
+
+            if (scoreChanged && !overrideReason) {
+              setReasonError(
+                "Motivul e obligatoriu cand modifici manual un scor (audit override).",
+              );
+              return;
+            }
+            setReasonError(null);
+
             onSave({
               wineId: wine.id,
               descriptionEditorial: String(
@@ -833,14 +864,13 @@ function EditWineDialog({
               ),
               valueExplanation: String(formData.get("valueExplanation") ?? ""),
               tasteProfile: String(formData.get("tasteProfile") ?? ""),
-              valueScore: Number(formData.get("valueScore") || wine.valueScore),
-              giftScore: Number(formData.get("giftScore") || wine.giftScore),
-              foodMatchScore: Number(
-                formData.get("foodMatchScore") || wine.foodMatchScore,
-              ),
+              valueScore: nextValueScore,
+              giftScore: nextGiftScore,
+              foodMatchScore: nextFoodMatchScore,
               thingsYouShouldKnow: String(
                 formData.get("thingsYouShouldKnow") ?? "",
               ),
+              overrideReason: overrideReason || undefined,
             });
             onOpenChange(false);
           }}
@@ -895,6 +925,26 @@ function EditWineDialog({
               name="foodMatchScore"
               defaultValue={wine.foodMatchScore ?? 70}
             />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="overrideReason">
+              Motiv override scor (obligatoriu daca schimbi un scor de mai sus)
+            </Label>
+            <Input
+              id="overrideReason"
+              name="overrideReason"
+              placeholder="ex: corectie manuala pe baza degustarii VinIntel din 12.06"
+            />
+            {reasonError ? (
+              <p className="text-xs font-medium text-destructive">
+                {reasonError}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Fiecare override manual e inregistrat in audit trail (valoare
+                veche, valoare noua, motiv, admin, data).
+              </p>
+            )}
           </div>
           <Field
             label="Descriere editoriala"

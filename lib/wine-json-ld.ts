@@ -25,6 +25,8 @@ export type WineStructuredDataInput = Pick<
   | "alcohol"
   | "winery"
   | "region"
+  | "createdAt"
+  | "updatedAt"
 >;
 
 function winePageUrl(slug: string): string {
@@ -96,6 +98,8 @@ export function buildWineProductNode(
     category: "Wine",
     offers,
     ...(aggregateRating ? { aggregateRating } : {}),
+    ...(wine.createdAt ? { releaseDate: wine.createdAt } : {}),
+    ...(wine.updatedAt ? { dateModified: wine.updatedAt } : {}),
   };
 }
 
@@ -164,6 +168,8 @@ export function buildWineJsonLd(
       : undefined,
     offers,
     ...(aggregateRating ? { aggregateRating } : {}),
+    ...(wine.createdAt ? { datePublished: wine.createdAt } : {}),
+    ...(wine.updatedAt ? { dateModified: wine.updatedAt } : {}),
   };
 
   const productSchema = buildWineProductJsonLd(wine);

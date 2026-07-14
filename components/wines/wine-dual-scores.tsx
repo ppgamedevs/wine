@@ -113,7 +113,10 @@ function BreakdownTable({
             <p className="text-xs text-muted-foreground">Increderea datelor</p>
             <p className="font-medium text-foreground">
               {breakdown.confidenceLabel}
-              {breakdown.provisional ? " (scor provizoriu)" : ""}
+              {breakdown.confidencePercent != null
+                ? ` (${breakdown.confidencePercent}%)`
+                : ""}
+              {breakdown.provisional ? " · scor provizoriu" : ""}
             </p>
           </div>
         ) : null}

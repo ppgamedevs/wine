@@ -21,7 +21,9 @@ import { clamp, round1, roundScore } from "@/lib/scoring-v2/math";
 import {
   calculateQualityConfidence,
   confidenceLabel,
+  confidencePercent,
   isProvisionalScore,
+  resolveConfidenceScoreCeiling,
 } from "@/lib/scoring-v2/quality-confidence";
 import { resolvePeerQualityPrior } from "@/lib/scoring-v2/peer-prior";
 
@@ -43,6 +45,10 @@ export interface VinIntelScoreResult {
   modelQuality: number;
   peerQualityPrior: number;
   qualityConfidence: number;
+  /** Increderea (0-100%) folosita pentru plafonul de scor si pentru UI. */
+  confidencePercent: number;
+  /** Scorul maxim permis la acest nivel de incredere (vezi CONFIDENCE_SCORE_CEILINGS). */
+  confidenceScoreCeiling: number;
   quality: number;
   expectedQualityAtPrice: number;
   valueDelta: number;
@@ -106,31 +112,47 @@ export function calculateVinIntelScore(
       qualityConfidence,
     );
 
+    const noPriceConfidencePercent = confidencePercent(qualityConfidence);
+    const noPriceCeiling = resolveConfidenceScoreCeiling(
+      noPriceConfidencePercent,
+    );
+    const noPriceValueScore = Math.min(Math.round(quality), noPriceCeiling);
+    const noPriceItems: VinIntelScoreBreakdownItem[] = [
+      {
+        label: "Calitate estimata (Q)",
+        detail: "Pret indisponibil: afisam doar calitatea intrinseca",
+        points: quality,
+      },
+      {
+        label: "Eficienta pret",
+        detail: medalBoostApplied > 0 ? "Nu se calculeaza fara pret" : "Nu se calculeaza fara pret",
+        points: 0,
+      },
+    ];
+    if (noPriceValueScore < Math.round(quality)) {
+      noPriceItems.push({
+        label: "Plafon incredere date",
+        detail: `Increderea datelor (${noPriceConfidencePercent}%) limiteaza scorul maxim la ${noPriceCeiling}/100`,
+        points: noPriceValueScore - Math.round(quality),
+      });
+    }
+
     return {
       version: VALUE_SCORE_VERSION,
       modelQuality,
       peerQualityPrior,
       qualityConfidence,
+      confidencePercent: noPriceConfidencePercent,
+      confidenceScoreCeiling: noPriceCeiling,
       quality,
       expectedQualityAtPrice: 0,
       valueDelta: 0,
       priceEfficiency: PRICE_EFFICIENCY_BASE,
       rawScore: quality,
-      valueScore: Math.round(quality),
+      valueScore: noPriceValueScore,
       provisional: true,
       confidenceLabel: confidenceLabel(qualityConfidence),
-      items: [
-        {
-          label: "Calitate estimata (Q)",
-          detail: "Pret indisponibil: afisam doar calitatea intrinseca",
-          points: quality,
-        },
-        {
-          label: "Eficienta pret",
-          detail: medalBoostApplied > 0 ? "Nu se calculeaza fara pret" : "Nu se calculeaza fara pret",
-          points: 0,
-        },
-      ],
+      items: noPriceItems,
     };
   }
 
@@ -223,13 +245,27 @@ export function calculateVinIntelScore(
 
   const minScore = Math.max(FINAL_SCORE_MIN, quality - QUALITY_FLOOR_OFFSET);
   const maxScore = Math.min(FINAL_SCORE_MAX, quality + QUALITY_CEILING_OFFSET);
-  const valueScore = roundScore(clamp(rawScore, minScore, maxScore));
+  const qualityClampedScore = roundScore(clamp(rawScore, minScore, maxScore));
 
-  if (valueScore !== Math.round(rawScore)) {
+  if (qualityClampedScore !== Math.round(rawScore)) {
     items.push({
       label: "Plafonare calitate",
       detail: `Interval permis ${Math.round(minScore)}-${Math.round(maxScore)} (Q=${quality})`,
-      points: valueScore - Math.round(rawScore),
+      points: qualityClampedScore - Math.round(rawScore),
+    });
+  }
+
+  const scoreConfidencePercent = confidencePercent(qualityConfidence);
+  const confidenceCeiling = resolveConfidenceScoreCeiling(
+    scoreConfidencePercent,
+  );
+  const valueScore = Math.min(qualityClampedScore, confidenceCeiling);
+
+  if (valueScore < qualityClampedScore) {
+    items.push({
+      label: "Plafon incredere date",
+      detail: `Increderea datelor (${scoreConfidencePercent}%) limiteaza scorul maxim la ${confidenceCeiling}/100`,
+      points: valueScore - qualityClampedScore,
     });
   }
 
@@ -240,6 +276,8 @@ export function calculateVinIntelScore(
     modelQuality,
     peerQualityPrior,
     qualityConfidence,
+    confidencePercent: scoreConfidencePercent,
+    confidenceScoreCeiling: confidenceCeiling,
     quality,
     expectedQualityAtPrice: expected,
     valueDelta,

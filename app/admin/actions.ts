@@ -24,6 +24,15 @@ import {
 } from "@/lib/schema";
 import { redirect } from "next/navigation";
 import { scheduleIndexNowWine, scheduleIndexNowWinery } from "@/lib/indexnow";
+import { recordScoreOverride, recordScoreSnapshot } from "@/lib/score-history";
+import { VALUE_SCORE_ALGORITHM_VERSION } from "@/lib/scoring";
+
+/**
+ * "admin" e singurul identificator disponibil azi: autentificarea foloseste
+ * o parola partajata (vezi lib/admin-auth.ts), nu conturi individuale.
+ * Documentat ca limitare in raportul final.
+ */
+const ADMIN_CHANGED_BY = "admin";
 
 const updateWineSchema = z.object({
   wineId: z.number().int().positive(),
@@ -34,6 +43,12 @@ const updateWineSchema = z.object({
   giftScore: z.coerce.number().int().min(1).max(100).optional(),
   foodMatchScore: z.coerce.number().int().min(1).max(100).optional(),
   thingsYouShouldKnow: z.string().optional(),
+  /**
+   * Obligatoriu doar cand se modifica manual un scor (valueScore/giftScore/
+   * foodMatchScore). Cerinta de business: niciun override de scor nu poate
+   * fi silentios - trebuie sa aiba un motiv explicit, auditat.
+   */
+  overrideReason: z.string().optional(),
 });
 
 const updateWineryPremiumSchema = z.object({
@@ -170,6 +185,37 @@ export async function updateWineEditorialAction(
     return { ok: false as const, error: "Date invalide." };
   }
 
+  const existing = await db.query.wines.findFirst({
+    where: eq(wines.id, parsed.data.wineId),
+    columns: {
+      valueScore: true,
+      giftScore: true,
+      foodMatchScore: true,
+      overpricedRisk: true,
+      priceAvg: true,
+      currentPrice: true,
+    },
+  });
+  if (!existing) {
+    return { ok: false as const, error: "Vin negasit." };
+  }
+
+  const scoreFieldsChanged =
+    (parsed.data.valueScore != null &&
+      parsed.data.valueScore !== existing.valueScore) ||
+    (parsed.data.giftScore != null &&
+      parsed.data.giftScore !== existing.giftScore) ||
+    (parsed.data.foodMatchScore != null &&
+      parsed.data.foodMatchScore !== existing.foodMatchScore);
+
+  if (scoreFieldsChanged && !parsed.data.overrideReason?.trim()) {
+    return {
+      ok: false as const,
+      error:
+        "Modificarea manuala a unui scor necesita un motiv (audit override).",
+    };
+  }
+
   const things = parsed.data.thingsYouShouldKnow
     ? parsed.data.thingsYouShouldKnow
         .split("\n")
@@ -189,6 +235,43 @@ export async function updateWineEditorialAction(
       ...(things ? { thingsYouShouldKnow: things } : {}),
     })
     .where(eq(wines.id, parsed.data.wineId));
+
+  if (scoreFieldsChanged) {
+    const reason = parsed.data.overrideReason!.trim();
+    const overrideEntries: Array<[
+      "valueScore" | "giftScore" | "foodMatchScore",
+      number | null,
+      number | undefined,
+    ]> = [
+      ["valueScore", existing.valueScore, parsed.data.valueScore],
+      ["giftScore", existing.giftScore, parsed.data.giftScore],
+      ["foodMatchScore", existing.foodMatchScore, parsed.data.foodMatchScore],
+    ];
+
+    for (const [field, previousValue, newValue] of overrideEntries) {
+      if (newValue == null || newValue === previousValue) continue;
+      await recordScoreOverride({
+        wineId: parsed.data.wineId,
+        field,
+        previousValue,
+        newValue,
+        reason,
+        changedBy: ADMIN_CHANGED_BY,
+      });
+    }
+
+    await recordScoreSnapshot({
+      wineId: parsed.data.wineId,
+      priceAvg: existing.currentPrice ?? existing.priceAvg,
+      valueScore: parsed.data.valueScore ?? existing.valueScore,
+      giftScore: parsed.data.giftScore ?? existing.giftScore,
+      foodMatchScore: parsed.data.foodMatchScore ?? existing.foodMatchScore,
+      overpricedRisk: existing.overpricedRisk,
+      algorithmVersion: VALUE_SCORE_ALGORITHM_VERSION,
+      changeReason: "admin_override",
+      changedBy: ADMIN_CHANGED_BY,
+    });
+  }
 
   const wine = await db.query.wines.findFirst({
     where: eq(wines.id, parsed.data.wineId),

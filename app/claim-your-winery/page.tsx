@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     description:
       "Verifica datele cramei tale, actualizeaza vinurile si castiga incredere in fata cumparatorilor.",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Revendica-ti crama | VinIntel",
+    description:
+      "Verifica datele cramei tale, actualizeaza vinurile si castiga incredere in fata cumparatorilor.",
+  },
 };
 
 const benefits: {

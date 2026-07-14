@@ -154,13 +154,38 @@ export function scheduleIndexNowPaths(paths: string[]): void {
   );
 }
 
+export interface IndexNowWineContext {
+  winerySlug?: string | null;
+  regionSlug?: string | null;
+  grapeSlugs?: string[];
+  dishSlugs?: string[];
+}
+
+/**
+ * Notify Bing/Yandex about a wine change and every programmatic hub page
+ * whose content depends on it (winery, region, grape variety, dish pairing).
+ */
 export function scheduleIndexNowWine(
   slug: string,
-  winerySlug?: string | null,
+  context?: string | null | IndexNowWineContext,
 ): void {
+  const {
+    winerySlug = null,
+    regionSlug = null,
+    grapeSlugs = [],
+    dishSlugs = [],
+  } = typeof context === "object" && context !== null
+    ? context
+    : { winerySlug: context };
+
   const paths = [`/wines/${slug}`, "/vinuri", "/sitemap.xml"];
-  if (winerySlug) {
-    paths.push(`/wineries/${winerySlug}`);
+  if (winerySlug) paths.push(`/wineries/${winerySlug}`);
+  if (regionSlug) paths.push(`/regiuni/${regionSlug}`);
+  for (const grapeSlug of grapeSlugs) {
+    paths.push(`/soiuri/${grapeSlug}`, `/topuri/cele-mai-bune-${grapeSlug}`);
+  }
+  for (const dishSlug of dishSlugs) {
+    paths.push(`/vin-pentru/${dishSlug}`);
   }
   scheduleIndexNowPaths(paths);
 }

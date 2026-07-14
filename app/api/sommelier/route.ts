@@ -1,4 +1,4 @@
-import { streamObject } from "ai";
+import { generateObject } from "ai";
 import { z } from "zod";
 import { getSommelierModel } from "@/lib/ai/model";
 import {
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
       wineContext,
     );
 
-    const result = streamObject({
+    const result = await generateObject({
       model: getModel(),
       schema: sommelierResponseSchema,
       system: SOMMELIER_SYSTEM_PROMPT,
@@ -91,7 +91,19 @@ export async function POST(req: Request) {
       temperature: 0.4,
     });
 
-    return result.toTextStreamResponse();
+    // Nu inventam vinuri: orice wineSlug care nu exista in candidatii
+    // recuperati pentru aceasta cerere (indiferent de motiv - halucinatie,
+    // format gresit) este eliminat aici, inainte de a raspunde. Asta se
+    // aplica indiferent daca endpoint-ul e apelat din UI sau direct.
+    const candidateSlugs = new Set(candidates.map((wine) => wine.slug));
+    const validatedRecommendations = result.object.recommendations.filter(
+      (rec) => candidateSlugs.has(rec.wineSlug),
+    );
+
+    return Response.json({
+      summary: result.object.summary,
+      recommendations: validatedRecommendations,
+    });
   } catch (error) {
     console.error("POST /api/sommelier failed", error);
     const message =

@@ -19,6 +19,12 @@ export const metadata: Metadata = {
     description:
       "Flywheel comunitate: link, analiza AI, scoruri si pagina de vin in cateva secunde.",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Adauga un vin romanesc | VinIntel",
+    description:
+      "Flywheel comunitate: link, analiza AI, scoruri si pagina de vin in cateva secunde.",
+  },
 };
 
 export default function AddWinePage() {

@@ -89,6 +89,22 @@ export function getAllDishPairingSlugs(): string[] {
   return DISH_PAIRING_PAGES.map((page) => page.slug);
 }
 
+/**
+ * Matches a free-text dish/food-pairing name (e.g. from wine.foodPairings)
+ * to a dedicated /vin-pentru/[slug] page via its pairingKeywords, for safe
+ * internal linking. Returns null when there is no confident match, so callers
+ * never link to a page that doesn't exist.
+ */
+export function matchDishPairingSlug(dishName: string): string | null {
+  const normalized = dishName.toLowerCase();
+  const match = DISH_PAIRING_PAGES.find(
+    (page) =>
+      normalized.includes(page.dishName.toLowerCase()) ||
+      page.pairingKeywords.some((keyword) => normalized.includes(keyword)),
+  );
+  return match?.slug ?? null;
+}
+
 export function rankWinesForDish(
   wines: WineWithRelations[],
   config: DishPairingPageConfig,

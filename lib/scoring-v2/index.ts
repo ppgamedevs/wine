@@ -1,4 +1,7 @@
-export { VALUE_SCORE_VERSION } from "@/lib/scoring-v2/constants";
+export {
+  VALUE_SCORE_VERSION,
+  CONFIDENCE_SCORE_CEILINGS,
+} from "@/lib/scoring-v2/constants";
 export {
   buildExpectedQualityCurvesFromCatalog,
   expectedQualityAtPrice,
@@ -21,7 +24,9 @@ export {
 export {
   calculateQualityConfidence,
   confidenceLabel,
+  confidencePercent,
   isProvisionalScore,
+  resolveConfidenceScoreCeiling,
 } from "@/lib/scoring-v2/quality-confidence";
 export { inferDrinkabilityWindow } from "@/lib/scoring-v2/quality-estimate";
 export {

@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { getMaxValidWineVintage } from "@/lib/wine-vintage";
+
+/** Vintage viitor peste acest prag e aproape sigur o eroare de extractie. */
+const MAX_VALID_VINTAGE = getMaxValidWineVintage();
 
 export const expertRecommendationSchema = z.object({
   wineSlug: z.string().describe("Slug-ul vinului din baza de date"),
@@ -154,7 +158,7 @@ export const wineMedalSchema = z.object({
     .number()
     .int()
     .min(1900)
-    .max(2030)
+    .max(MAX_VALID_VINTAGE)
     .nullable()
     .describe("Anul editiei; null daca nu apare in pagina"),
   competition: z
@@ -201,7 +205,7 @@ export const wineLinkAnalysisSchema = z.object({
   reasonIfNotRomanian: z.string().optional(),
   name: z.string().min(2),
   producer: z.string().min(2),
-  vintage: z.number().int().min(1900).max(2030).nullable(),
+  vintage: z.number().int().min(1900).max(MAX_VALID_VINTAGE).nullable(),
   price: z.number().positive().nullable(),
   category: z.string().optional(),
   grapeVarieties: z.array(z.string()).default([]),

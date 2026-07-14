@@ -1,13 +1,13 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 interface LegacyPairingRedirectProps {
   params: Promise<{ dish: string }>;
 }
 
-/** Legacy URL: /perechi/[dish] -> /vin-pentru/[dish] */
+/** Legacy URL: /perechi/[dish] -> /vin-pentru/[dish] (permanent, consolidates link equity). */
 export default async function LegacyPairingRedirect({
   params,
 }: LegacyPairingRedirectProps) {
   const { dish } = await params;
-  redirect(`/vin-pentru/${dish}`);
+  permanentRedirect(`/vin-pentru/${dish}`);
 }

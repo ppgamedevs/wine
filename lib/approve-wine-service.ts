@@ -12,6 +12,8 @@ import {
   resolveWineSubmittedEmail,
 } from "@/lib/wine-submitter-email";
 import { scheduleIndexNowWine } from "@/lib/indexnow";
+import { matchDishPairingSlug } from "@/lib/dish-pairing-pages";
+import { slugify } from "@/lib/wine-url";
 
 export interface ApproveCommunityWineResult {
   slug: string;
@@ -103,10 +105,16 @@ export async function approveCommunityWine(
     emailSkippedReason = "missing_submitted_email";
   }
 
-  scheduleIndexNowWine(
-    wineForEmail.slug,
-    wineForEmail.winery?.slug ?? null,
-  );
+  scheduleIndexNowWine(wineForEmail.slug, {
+    winerySlug: wineForEmail.winery?.slug ?? null,
+    regionSlug: wineForEmail.region?.slug ?? null,
+    grapeSlugs: (wineForEmail.grapeVarieties ?? []).map((g) =>
+      g.slug ?? slugify(g.name),
+    ),
+    dishSlugs: (wineForEmail.foodPairings ?? [])
+      .map((p) => matchDishPairingSlug(p.dish))
+      .filter((slug): slug is string => Boolean(slug)),
+  });
 
   return {
     slug: wine.slug,

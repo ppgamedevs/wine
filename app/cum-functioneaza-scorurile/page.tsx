@@ -28,6 +28,7 @@ import {
   SITE,
   type FaqEntry,
 } from "@/lib/seo";
+import { CONFIDENCE_SCORE_CEILINGS } from "@/lib/scoring-v2/constants";
 import { VALUE_SCORE_BANDS } from "@/lib/value-score-thresholds";
 
 const PATH = "/cum-functioneaza-scorurile";
@@ -42,6 +43,12 @@ export const metadata: Metadata = {
     locale: SITE.locale,
     url: absoluteUrl(PATH),
     siteName: SITE.name,
+    title: "Cum functioneaza scorurile | VinIntel",
+    description:
+      "Metodologia transparenta din spatele scorurilor VinIntel pentru vinurile romanesti.",
+  },
+  twitter: {
+    card: "summary_large_image",
     title: "Cum functioneaza scorurile | VinIntel",
     description:
       "Metodologia transparenta din spatele scorurilor VinIntel pentru vinurile romanesti.",
@@ -87,6 +94,19 @@ const scores = [
   },
 ];
 
+/**
+ * Etichetele trebuie sa corespunda exact pragurilor (`minConfidencePercent`)
+ * folosite de `confidenceLabel()` din `lib/scoring-v2/quality-confidence.ts`,
+ * ca pagina publica sa nu contrazica logica reala de calcul.
+ */
+const CONFIDENCE_LABELS: Record<number, string> = {
+  85: "Incredere foarte ridicata",
+  70: "Incredere ridicata",
+  50: "Incredere moderata",
+  30: "Incredere scazuta",
+  0: "Date insuficiente",
+};
+
 const indicators = [
   {
     icon: BookOpen,
@@ -128,6 +148,11 @@ const faq: FaqEntry[] = [
     question: "Ce inseamna un scor sub 50?",
     answer:
       "Un scor sub 50 nu inseamna ca vinul este slab, ci ca, la pretul actual, exista alternative cu un raport calitate-pret mai bun. Pentru ocazii speciale, Gift Score si Food Match pot conta mai mult decat Value Score.",
+  },
+  {
+    question: "De ce un vin cu date insuficiente nu poate avea scor foarte mare?",
+    answer:
+      "Increderea datelor este calculata separat de scor si limiteaza plafonul maxim posibil. Un vin fara producator, regiune, soi sau medalii confirmate primeste automat incredere scazuta, iar scorul sau este plafonat (de exemplu maxim 69/100 pentru date insuficiente) si marcat ca provizoriu. Lipsa de date nu poate niciodata sa produca un scor exceptional.",
   },
 ];
 
@@ -265,6 +290,66 @@ export default function ScoringMethodologyPage() {
                 </TableBody>
               </Table>
             </div>
+          </section>
+
+          <section aria-labelledby="confidence-heading">
+            <h2
+              id="confidence-heading"
+              className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
+            >
+              Increderea datelor, separat de scor
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Value Score arata cat de buna e valoarea la pretul curent, dar nu
+              spune cat de solide sunt datele din spatele lui. De aceea calculam
+              separat un procent de <strong>incredere (0-100%)</strong>, afisat
+              alaturi de scor, niciodata combinat intr-un singur numar. Un vin
+              cu date sarace (fara producator, regiune, soi, medalii sau note
+              verificate) primeste automat o incredere scazuta.
+            </p>
+            <p className="mt-3 text-muted-foreground">
+              Increderea scazuta reduce plafonul maxim al scorului, indiferent
+              cat de bine ar iesi calculul de calitate estimata. Practic, un vin
+              cu date insuficiente <strong>nu poate ajunge la un scor de 90+</strong>
+              doar pentru ca lipsesc informatii, pentru ca lipsa de date nu este
+              un semnal pozitiv. Cand increderea este sub pragul de scor
+              provizoriu, marcam scorul explicit ca <strong>provizoriu</strong> pe
+              pagina vinului.
+            </p>
+            <div className="mt-6 overflow-hidden rounded-2xl border border-border/70">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-48">Incredere date</TableHead>
+                    <TableHead>Scor maxim posibil</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {CONFIDENCE_SCORE_CEILINGS.map((tier) => (
+                    <TableRow key={tier.minConfidencePercent}>
+                      <TableCell className="font-semibold text-foreground">
+                        {CONFIDENCE_LABELS[tier.minConfidencePercent] ??
+                          `${tier.minConfidencePercent}%+`}{" "}
+                        <span className="text-muted-foreground font-normal">
+                          ({tier.minConfidencePercent}%
+                          {tier.minConfidencePercent === 85 ? "+" : "-..."})
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {tier.maxScore === 97 ? "Fara plafon suplimentar" : `Maxim ${tier.maxScore}/100`}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Increderea creste odata cu numarul de campuri fiabile disponibile:
+              soi, regiune, crama, medalii verificate, scoruri de critic, note
+              de degustare confirmate si prospetimea pretului observat. Un
+              override manual de scor din admin este intotdeauna vizibil,
+              motivat si auditat separat, niciodata silentios.
+            </p>
           </section>
 
           <section aria-labelledby="indicators-heading">
