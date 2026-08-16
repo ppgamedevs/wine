@@ -94,7 +94,14 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   {
     id: "cheese",
     label: "Branza",
-    synonyms: ["branza", "cascaval", "telemea", "branza matura"],
+    synonyms: [
+      "branza",
+      "branzeturi",
+      "cascaval",
+      "telemea",
+      "branza matura",
+      "branzeturi maturate",
+    ],
   },
   {
     id: "pasta",
@@ -142,6 +149,9 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
       "craciun",
       "friptura",
       "masa traditionala",
+      "miel",
+      "carne de miel",
+      "lamb",
     ],
   },
 ];

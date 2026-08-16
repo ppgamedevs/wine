@@ -214,7 +214,7 @@ function dedupeVariants(variants: MurfatlarWineVariant[]): MurfatlarWineVariant[
   return unique;
 }
 
-function extractTastingNotes(sectionHtml: string): string {
+export function extractMurfatlarSectionText(sectionHtml: string): string {
   const text = stripHtml(sectionHtml).replace(/\s+/g, " ").trim();
   return text.slice(0, 1200);
 }
@@ -425,7 +425,7 @@ export function parseMurfatlarProductVariants(
       sweetness,
       grapeVarieties: grapes,
       volumeMl: extractVolumeMl(section.html),
-      tastingNotes: extractTastingNotes(section.html),
+      tastingNotes: extractMurfatlarSectionText(section.html),
       producerPageUrl,
       sourceUrl: `${producerPageUrl}#${variantKey}`,
       variantKey,

@@ -26,6 +26,36 @@ export function assertFoodEvidencePatchHasNoScores(
   }
 }
 
+export interface StoredScoreSnapshot {
+  id: number;
+  valueScore: number | null;
+  giftScore: number | null;
+  foodMatchScore: number | null;
+}
+
+export function compareScoreSnapshots(
+  before: StoredScoreSnapshot[],
+  after: StoredScoreSnapshot[],
+): { identical: boolean; diffs: number } {
+  const afterById = new Map(after.map((row) => [row.id, row]));
+  let diffs = 0;
+  for (const row of before) {
+    const next = afterById.get(row.id);
+    if (!next) {
+      diffs += 1;
+      continue;
+    }
+    if (
+      row.valueScore !== next.valueScore ||
+      row.giftScore !== next.giftScore ||
+      row.foodMatchScore !== next.foodMatchScore
+    ) {
+      diffs += 1;
+    }
+  }
+  return { identical: diffs === 0 && before.length === after.length, diffs };
+}
+
 export const FOOD_EVIDENCE_LEVELS = [
   "strong",
   "moderate",
@@ -98,9 +128,9 @@ export function isGenericAllPurposeLanguage(text: string): boolean {
 
 export function isLaundryListText(text: string): boolean {
   const categories = categorizeFoodText(text);
-  if (categories.length >= 5) return true;
   const hits = text.match(LAUNDRY_HINTS) ?? [];
   const uniqueHits = new Set(hits.map((hit) => hit.toLowerCase()));
+  if (categories.length >= 6) return true;
   if (uniqueHits.size >= 6) return true;
   if (categories.length >= 4 && isGenericAllPurposeLanguage(text)) return true;
   return false;

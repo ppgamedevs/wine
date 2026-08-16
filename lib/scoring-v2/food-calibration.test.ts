@@ -5,7 +5,10 @@ import {
   scoreWineForOccasion,
   type OccasionMatchWine,
 } from "@/lib/recommendation/occasion-match";
-import { assertFoodEvidencePatchHasNoScores } from "@/lib/food-evidence";
+import {
+  assertFoodEvidencePatchHasNoScores,
+  compareScoreSnapshots,
+} from "@/lib/food-evidence";
 import { calculateFoodVersatility } from "@/lib/scoring-v2/food-versatility";
 import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
 import { publicFoodScoreDisplay } from "@/lib/scoring-v2/public-secondary-display";
@@ -101,6 +104,20 @@ describe("Food calibration pairs", () => {
       foodPairings: [{ dish: "peste" }],
     });
     expect(broad.score - narrow.score).toBeGreaterThanOrEqual(8);
+  });
+
+  it("score snapshots must stay identical after culinary writes", () => {
+    const before = [
+      { id: 1, valueScore: 80, giftScore: 70, foodMatchScore: 60 },
+      { id: 2, valueScore: 71, giftScore: 55, foodMatchScore: 48 },
+    ];
+    expect(compareScoreSnapshots(before, before).identical).toBe(true);
+    expect(
+      compareScoreSnapshots(before, [
+        { id: 1, valueScore: 80, giftScore: 70, foodMatchScore: 61 },
+        { id: 2, valueScore: 71, giftScore: 55, foodMatchScore: 48 },
+      ]).identical,
+    ).toBe(false);
   });
 
   it("food evidence patches cannot include score columns", () => {

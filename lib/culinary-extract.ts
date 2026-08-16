@@ -74,6 +74,7 @@ const CULINARY_STOP_PATTERNS: RegExp[] = [
   /cookieuri necesare/i,
   /setari cookies/i,
   /viewed_cookie_policy/i,
+  /cramele recas(\s+cramele recas)+/i,
 ];
 
 const TASTING_NOTE_LEAK_PATTERNS: RegExp[] = [
@@ -233,6 +234,100 @@ export function extractCulinarySectionFromHtml(
   }
 
   return empty;
+}
+
+function foldDiacritics(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+const CULINARY_CUE_RE =
+  /recomandari\s+culinare|asocieri\s+culinare|asociere\s+culinara|asocieri\s+gastronomice|food\s*pairing|\bpairing\b|\basociere[a]?\b|\basocieri\b|recomandat[ae]?\b|se\s+recomanda|recomandam|accompan|alaturi\s+de|potrivit[a]?\s+(cu|la|si)|ideal\s+(cu|la|pentru|in)|merge\s+bine\s+(cu|la)|servit[a]?\s+cu|servire\s+cu/i;
+
+const SERVING_TEMP_ONLY_RE =
+  /servire[a]?\s+la\s+\d+|temperatura\s+de\s+servire|servi[t]?\s+la\s+\d+\s*(c|°|grade)/i;
+
+const CULINARY_LABEL_BLOCK_RE =
+  /(?:recomandari\s+culinare|asocieri\s+culinare|asociere\s+culinara|asocieri\s+gastronomice|food\s*pairing|gastronomie)\s*:?\s*([^.!?]{8,400}[.!]?)/i;
+
+function emptyCulinarySection(): CulinarySectionExtract {
+  return {
+    found: false,
+    text: "",
+    heading: null,
+    chromeRejected: false,
+    tastingNoteRejected: false,
+    laundryListRejected: false,
+    genericLanguageRejected: false,
+    sourceExcerpt: "",
+  };
+}
+
+function finalizeCulinarySection(
+  text: string,
+  heading: string | null,
+): CulinarySectionExtract {
+  const cleaned = sanitizeCulinaryText(text);
+  if (!cleaned) return { ...emptyCulinarySection(), heading };
+
+  const chromeRejected = isCulinaryChromeText(cleaned);
+  const tastingNoteRejected = isTastingNoteLeak(cleaned);
+  const laundryListRejected = isLaundryListText(cleaned);
+  const genericLanguageRejected = isGenericAllPurposeLanguage(cleaned);
+  const usable =
+    !chromeRejected &&
+    !tastingNoteRejected &&
+    !laundryListRejected &&
+    !genericLanguageRejected &&
+    categorizeFoodText(cleaned).length > 0;
+
+  return {
+    found: usable,
+    text: usable ? cleaned : "",
+    heading,
+    chromeRejected,
+    tastingNoteRejected,
+    laundryListRejected,
+    genericLanguageRejected,
+    sourceExcerpt: cleaned.slice(0, 280),
+  };
+}
+
+/**
+ * Culinary recovery from PDF text or producer overview paragraphs.
+ * Requires an explicit culinary cue. Does not infer from tasting notes.
+ */
+export function extractCulinarySectionFromPlainText(
+  text: string,
+): CulinarySectionExtract {
+  const cleaned = sanitizeCulinaryText(text.replace(/\s+/g, " ").trim());
+  if (!cleaned) return emptyCulinarySection();
+
+  const labeled = cleaned.match(CULINARY_LABEL_BLOCK_RE)?.[1]?.trim();
+  if (labeled && categorizeFoodText(labeled).length > 0) {
+    return finalizeCulinarySection(labeled, "labeled");
+  }
+
+  const sentences = cleaned.split(/(?<=[.!?])\s+/);
+  const culinarySentences = sentences.filter((sentence) => {
+    const folded = foldDiacritics(sentence);
+    if (!CULINARY_CUE_RE.test(folded)) return false;
+    if (SERVING_TEMP_ONLY_RE.test(folded) && categorizeFoodText(sentence).length === 0) {
+      return false;
+    }
+    return categorizeFoodText(sentence).length > 0;
+  });
+
+  if (culinarySentences.length === 0) {
+    return {
+      ...emptyCulinarySection(),
+      tastingNoteRejected: isTastingNoteLeak(cleaned),
+      laundryListRejected: isLaundryListText(cleaned),
+      chromeRejected: isCulinaryChromeText(cleaned),
+      sourceExcerpt: cleaned.slice(0, 280),
+    };
+  }
+
+  return finalizeCulinarySection(culinarySentences.join(" "), "sentence");
 }
 
 const DISH_SPLIT_RE = /[,;•·\n]|(\ssi\s)|(\ssau\s)/i;

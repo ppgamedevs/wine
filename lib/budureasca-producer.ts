@@ -233,7 +233,7 @@ function parseVolumeMl(raw: string | null): number | null {
   return null;
 }
 
-function extractTastingNotes(html: string): string | null {
+export function extractBudureascaOverviewText(html: string): string | null {
   const shortDesc =
     html.match(/class="[^"]*product\.overview[^"]*"[^>]*>([\s\S]*?)<\/div>/i)?.[1] ??
     html.match(/itemprop="description"[^>]*>([\s\S]*?)<\/div>/i)?.[1] ??
@@ -430,7 +430,7 @@ export function parseBudureascaProductPage(
     volumeMl: parseVolumeMl(volumeRaw),
     price,
     imageUrl: extractOgImage(html, pageUrl),
-    tastingNotes: extractTastingNotes(html),
+    tastingNotes: extractBudureascaOverviewText(html),
     producerPageUrl: normalizeBudureascaProductUrl(pageUrl),
     sku,
   };

@@ -290,7 +290,7 @@ function parseGrapeVarieties(raw: string | null): GrapeVarietyShare[] {
     .map((name) => ({ name }));
 }
 
-function extractTastingNotes(html: string): string | null {
+export function extractGabaiDescriptionText(html: string): string | null {
   const wcDescription = html.match(
     /et_pb_wc_description[\s\S]*?<div class="et_pb_module_inner">([\s\S]*?)<\/div>/i,
   )?.[1];
@@ -412,7 +412,7 @@ export function parseGabaiProductPage(
       : 750,
     price: extractGabaiPrice(html),
     imageUrl: extractOgImage(html, pageUrl),
-    tastingNotes: extractTastingNotes(html),
+    tastingNotes: extractGabaiDescriptionText(html),
     producerPageUrl: normalizeGabaiProductUrl(pageUrl),
     sku,
     appellation,
