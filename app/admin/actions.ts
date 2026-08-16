@@ -26,6 +26,7 @@ import { redirect } from "next/navigation";
 import { scheduleIndexNowWine, scheduleIndexNowWinery } from "@/lib/indexnow";
 import { recordScoreOverride, recordScoreSnapshot } from "@/lib/score-history";
 import { VALUE_SCORE_ALGORITHM_VERSION } from "@/lib/scoring";
+import type { FoodCategoryId } from "@/lib/food-taxonomy";
 
 /**
  * "admin" e singurul identificator disponibil azi: autentificarea foloseste
@@ -64,6 +65,7 @@ const updateWineryPremiumSchema = z.object({
 function revalidateAdmin() {
   revalidatePath("/admin/wines");
   revalidatePath("/admin/wineries");
+  revalidatePath("/admin/pairing-curation");
 }
 
 function revalidateWine(slug: string) {
@@ -446,6 +448,81 @@ export async function reanalyzeWineAction(wineId: number) {
         error instanceof Error
           ? error.message
           : "Re-analiza a esuat. Incearca din nou.",
+    };
+  }
+}
+
+const approvePairingsSchema = z.object({
+  wineId: z.number().int().positive(),
+  drafts: z
+    .array(
+      z.object({
+        dish: z.string().min(2).max(80),
+        category: z.string().min(2),
+        rationale: z.string().min(8).max(400),
+        basis: z.array(
+          z.enum([
+            "producer_evidence",
+            "verified_style",
+            "technical_data",
+            "editorial_judgment",
+          ]),
+        ),
+        confidence: z.enum(["HIGH", "MEDIUM", "LOW"]),
+        strength: z.enum(["strong", "good", "possible"]),
+        styleOnlyWarning: z.boolean(),
+      }),
+    )
+    .min(1)
+    .max(5),
+});
+
+export async function approveCuratedPairingsAction(input: {
+  wineId: number;
+  drafts: Array<{
+    dish: string;
+    category: string;
+    rationale: string;
+    basis: Array<
+      | "producer_evidence"
+      | "verified_style"
+      | "technical_data"
+      | "editorial_judgment"
+    >;
+    confidence: "HIGH" | "MEDIUM" | "LOW";
+    strength: "strong" | "good" | "possible";
+    styleOnlyWarning: boolean;
+  }>;
+}): Promise<{ ok: true; message: string } | { ok: false; error: string }> {
+  await assertAdmin();
+
+  const parsed = approvePairingsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Date de aprobare invalide." };
+  }
+
+  const { approveCuratedPairingsForWine } = await import(
+    "@/lib/pairing-curation-apply"
+  );
+  try {
+    const result = await approveCuratedPairingsForWine({
+      wineId: parsed.data.wineId,
+      drafts: parsed.data.drafts.map((draft) => ({
+        ...draft,
+        category: draft.category as FoodCategoryId,
+      })),
+      adminAuthenticated: true,
+    });
+    revalidateWine(result.slug);
+    revalidateAdmin();
+    return {
+      ok: true,
+      message: `Aprobate ${result.approvedCount} asocieri VinIntel. Scorurile stocate nu s-au schimbat.`,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Aprobarea a esuat.",
     };
   }
 }

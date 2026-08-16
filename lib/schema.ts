@@ -18,10 +18,27 @@ export interface GrapeVarietyShare {
   percentage?: number;
 }
 
+export type FoodPairingSource = "vinintel_curated";
+
+export type FoodPairingBasis =
+  | "producer_evidence"
+  | "verified_style"
+  | "technical_data"
+  | "editorial_judgment";
+
+export type FoodPairingStrength = "strong" | "good" | "possible";
+
 export interface FoodPairing {
   dish: string;
   note?: string;
+  /** Legacy optional number. New curated pairings do not set this. */
   score?: number;
+  category?: string;
+  source?: FoodPairingSource;
+  curatedAt?: string;
+  curatedBy?: string;
+  basis?: FoodPairingBasis[];
+  strength?: FoodPairingStrength;
 }
 
 export interface AvailabilityEntry {

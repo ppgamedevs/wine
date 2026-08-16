@@ -43,6 +43,7 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
     synonyms: [
       "carne la gratar",
       "carne rosie la gratar",
+      "carne de vita la gratar",
       "vita la gratar",
       "mici",
       "mititei",
@@ -89,7 +90,15 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   {
     id: "fish",
     label: "Peste",
-    synonyms: ["peste", "somon", "scrumbie", "fructe de mare", "marinare"],
+    synonyms: [
+      "peste",
+      "peste alb",
+      "somon",
+      "peste gras",
+      "scrumbie",
+      "fructe de mare",
+      "marinare",
+    ],
   },
   {
     id: "cheese",
@@ -101,6 +110,7 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
       "telemea",
       "branza matura",
       "branzeturi maturate",
+      "branzeturi proaspete",
     ],
   },
   {
@@ -116,7 +126,7 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   {
     id: "vegetable",
     label: "Legume",
-    synonyms: ["legume", "salata", "vegetarian", "ciuperci"],
+    synonyms: ["legume", "salata", "salate", "vegetarian", "ciuperci", "aperitive"],
   },
   {
     id: "dessert",

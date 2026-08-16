@@ -144,6 +144,9 @@ export default async function AdminDataQualityPage({
           <Button asChild variant="outline" size="sm">
             <Link href="/admin/wines">Admin vinuri</Link>
           </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/admin/pairing-curation">Pairing curation</Link>
+          </Button>
         </div>
       </div>
 

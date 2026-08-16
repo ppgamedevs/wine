@@ -241,6 +241,9 @@ export function WineAdminPanel({
             <Link href="/admin/data-quality">Data quality</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
+            <Link href="/admin/pairing-curation">Pairing curation</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
             <Link href="/admin/wineries">Crame Premium</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
