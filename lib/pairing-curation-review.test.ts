@@ -6,6 +6,8 @@ import {
   applyApprovedPairingsToCards,
   approvalSuccessMessage,
   formatCuratedAt,
+  canApproveCurationSelection,
+  NO_NEW_CURATION_DRAFTS_MESSAGE,
   reviewPairingMeta,
   clearKeyedStateForSlug,
   draftSelectionKey,
@@ -105,8 +107,18 @@ describe("pairing curation review session", () => {
 
   it("existing pairing review copy leads with rationale, not raw metadata", () => {
     expect(reviewPairingMeta("good", ["verified_style", "editorial_judgment"])).toBe(
-      "Good · Stil verificat",
+      "Recomandare: Good · Stil verificat",
     );
+    expect(reviewPairingMeta("good", ["verified_style"])).not.toContain(
+      "vinintel_curated",
+    );
+    expect(reviewPairingMeta("good", ["verified_style"])).not.toContain(
+      "verified_style",
+    );
+    expect(canApproveCurationSelection(0, 1)).toBe(false);
+    expect(canApproveCurationSelection(2, 0)).toBe(false);
+    expect(canApproveCurationSelection(2, 1)).toBe(true);
+    expect(NO_NEW_CURATION_DRAFTS_MESSAGE).toContain("deja revizuite");
     expect(formatCuratedAt("2026-08-16T18:03:50.827Z")).toContain("2026");
   });
 

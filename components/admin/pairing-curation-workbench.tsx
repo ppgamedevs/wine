@@ -4,22 +4,23 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { approveCuratedPairingsAction } from "@/app/admin/actions";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { CurationCard } from "@/lib/pairing-curation-cards";
 import { basisProvenanceLabel } from "@/lib/curated-evidence";
 import {
   draftMatchesExistingPairing,
   partitionPairingDrafts,
-} from "@/lib/pairing-curation";
+} from "@/lib/pairing-curation-match";
 import { previewCurationImpact } from "@/lib/pairing-curation-preview";
 import {
   PAIRING_REVIEW_SKIP_STORAGE_KEY,
   addSkippedSlug,
   applyApprovedPairingsToCards,
   approvalSuccessMessage,
+  canApproveCurationSelection,
   clearKeyedStateForSlug,
-  formatCuratedAt,
+  NO_NEW_CURATION_DRAFTS_MESSAGE,
+  reviewApprovedAtLabel,
   reviewPairingMeta,
   draftSelectionKey,
   mergeServerCardsPreserveOrder,
@@ -95,8 +96,8 @@ export function PairingCurationWorkbench({
   const slugs = lockedSlugsRef.current;
   const card = localCards.find((item) => item.slug === activeSlug) ?? localCards[0];
 
-  const { newDrafts, alreadyApprovedDrafts } = useMemo(() => {
-    if (!card) return { newDrafts: [], alreadyApprovedDrafts: [] };
+  const { newDrafts } = useMemo(() => {
+    if (!card) return { newDrafts: [] };
     return partitionPairingDrafts(card.drafts, card.existingPairings);
   }, [card]);
 
@@ -249,7 +250,10 @@ export function PairingCurationWorkbench({
           <Button
             type="button"
             size="sm"
-            disabled={pending || newDrafts.length === 0}
+            disabled={
+              pending ||
+              !canApproveCurationSelection(newDrafts.length, selectedDrafts.length)
+            }
             onClick={approveSelected}
           >
             {pending ? "Se salveaza..." : "Aproba selectia"}
@@ -345,7 +349,7 @@ export function PairingCurationWorkbench({
             <ul className="mt-3 space-y-3">
               {card.existingPairings.map((pairing) => {
                 const meta = reviewPairingMeta(pairing.strength, pairing.basis);
-                const curatedAt = formatCuratedAt(pairing.curatedAt);
+                const approvedAt = reviewApprovedAtLabel(pairing.curatedAt);
                 return (
                   <li
                     key={pairing.dish}
@@ -354,18 +358,14 @@ export function PairingCurationWorkbench({
                     <p className="text-sm font-medium">{pairing.dish}</p>
                     {pairing.note ? (
                       <p className="mt-1 text-sm text-foreground/90">
-                        „{pairing.note}”
+                        {pairing.note}
                       </p>
                     ) : null}
                     {meta ? (
                       <p className="mt-1 text-sm text-muted-foreground">{meta}</p>
                     ) : null}
-                    {pairing.curatedBy || curatedAt ? (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {[pairing.curatedBy, curatedAt]
-                          .filter((item): item is string => Boolean(item))
-                          .join(" · ")}
-                      </p>
+                    {approvedAt ? (
+                      <p className="mt-1 text-xs text-muted-foreground">{approvedAt}</p>
                     ) : null}
                   </li>
                 );
@@ -383,7 +383,7 @@ export function PairingCurationWorkbench({
           ))}
           {newDrafts.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Nu exista propuneri noi. Asocierile existente sunt listate mai sus.
+              {NO_NEW_CURATION_DRAFTS_MESSAGE}
             </p>
           ) : null}
           {newDrafts.map((draft) => {
@@ -460,25 +460,6 @@ export function PairingCurationWorkbench({
               </label>
             );
           })}
-          {alreadyApprovedDrafts.map((draft) => (
-            <div
-              key={draftSelectionKey(card.slug, draft.dish)}
-              className="rounded-xl border border-border bg-muted/40 p-4 opacity-70"
-            >
-              <div className="flex items-start gap-3">
-                <input type="checkbox" checked disabled className="mt-1" />
-                <div className="flex-1 space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium">{draft.dish}</p>
-                    <Badge variant="secondary">Deja aprobat</Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {draft.category} · corespunde unei asocieri VinIntel existente
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
         </section>
       </div>
     </div>

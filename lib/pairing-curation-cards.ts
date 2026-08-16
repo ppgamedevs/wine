@@ -1,11 +1,11 @@
 import {
   generatePairingDrafts,
-  partitionPairingDrafts,
   previewCurationImpact,
   validatePairingDrafts,
   type PairingDraft,
   type ScoreImpactPreview,
 } from "@/lib/pairing-curation";
+import { partitionPairingDrafts } from "@/lib/pairing-curation-match";
 import type { FoodCategoryId } from "@/lib/food-taxonomy";
 import type { WineWithRelations } from "@/types";
 
@@ -89,7 +89,7 @@ export function buildCurationCard(wine: WineWithRelations): CurationCard {
       basis: pairing.basis,
       strength: pairing.strength,
     })),
-    drafts,
+    drafts: newDrafts,
     warnings: issues.map((issue) => issue.message),
     impact: previewCurationImpact(wine, newDrafts),
     previewWine: wine,

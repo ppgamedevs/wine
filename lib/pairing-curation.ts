@@ -25,6 +25,11 @@ import {
   previewCurationImpact,
   type ScoreImpactPreview,
 } from "@/lib/pairing-curation-preview";
+import {
+  EDITORIAL_DISHES,
+  draftMatchesExistingPairing,
+  foldPairingText,
+} from "@/lib/pairing-curation-match";
 import type { PairingDraft } from "@/lib/pairing-curation-types";
 import type {
   FoodPairing,
@@ -36,32 +41,12 @@ import type { WineWithRelations } from "@/types";
 
 export const PAIRING_CURATOR_ID = "admin";
 
-export const EDITORIAL_DISHES: Array<{
-  dish: string;
-  category: FoodCategoryId;
-  aliases: string[];
-}> = [
-  { dish: "Sarmale", category: "sarmale", aliases: ["sarma", "sarmalute"] },
-  { dish: "Mici", category: "grilled_meat", aliases: ["mititei"] },
-  { dish: "Carne de vita la gratar", category: "grilled_meat", aliases: ["vita la gratar"] },
-  { dish: "Ceafa de porc", category: "pork", aliases: ["porc", "cotlet"] },
-  { dish: "Carne de miel", category: "festive_traditional", aliases: ["miel"] },
-  { dish: "Pasare", category: "poultry", aliases: ["pui", "rata"] },
-  { dish: "Peste alb", category: "fish", aliases: [] },
-  { dish: "Somon", category: "fish", aliases: ["peste gras"] },
-  { dish: "Fructe de mare", category: "fish", aliases: [] },
-  { dish: "Paste", category: "pasta", aliases: ["spaghetti"] },
-  { dish: "Pizza", category: "pizza", aliases: [] },
-  { dish: "Branzeturi proaspete", category: "cheese", aliases: ["telemea"] },
-  { dish: "Branzeturi maturate", category: "cheese", aliases: ["branza matura"] },
-  { dish: "Legume", category: "vegetable", aliases: [] },
-  { dish: "Salate", category: "vegetable", aliases: ["salata"] },
-  { dish: "Aperitive", category: "vegetable", aliases: [] },
-  { dish: "Cozonac", category: "dessert", aliases: [] },
-  { dish: "Pasca", category: "dessert", aliases: [] },
-  { dish: "Desert cu fructe", category: "dessert", aliases: [] },
-  { dish: "Desert cu ciocolata", category: "chocolate", aliases: ["ciocolata"] },
-];
+export {
+  EDITORIAL_DISHES,
+  draftMatchesExistingPairing,
+  partitionPairingDrafts,
+  prepareApprovalDrafts,
+} from "@/lib/pairing-curation-match";
 
 export type { PairingDraft, ProposalConfidence } from "@/lib/pairing-curation-types";
 
@@ -86,61 +71,7 @@ const KEY_OCCASIONS: OccasionId[] = [
 ];
 
 function fold(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function dishAliasFolds(dish: string): string[] {
-  const folded = fold(dish);
-  const row = EDITORIAL_DISHES.find(
-    (item) =>
-      fold(item.dish) === folded ||
-      item.aliases.some((alias) => fold(alias) === folded),
-  );
-  if (!row) return [folded];
-  return [fold(row.dish), ...row.aliases.map((alias) => fold(alias))];
-}
-
-function pairingCategoryKey(item: { dish: string; category?: string }): string | null {
-  if (item.category?.trim()) return fold(item.category);
-  return categorizeFoodText(item.dish)[0] ?? null;
-}
-
-export function draftMatchesExistingPairing(
-  draft: { dish: string; category: string },
-  existing: Array<{ dish: string; category?: string }>,
-): boolean {
-  const draftDishes = new Set(dishAliasFolds(draft.dish));
-  const draftCategory = fold(draft.category) || pairingCategoryKey(draft);
-  return existing.some((pairing) => {
-    if (dishAliasFolds(pairing.dish).some((dish) => draftDishes.has(dish))) {
-      return true;
-    }
-    const existingCategory = pairingCategoryKey(pairing);
-    return Boolean(
-      draftCategory && existingCategory && draftCategory === existingCategory,
-    );
-  });
-}
-
-export function partitionPairingDrafts<T extends { dish: string; category: string }>(
-  drafts: T[],
-  existing: Array<{ dish: string; category?: string }>,
-): { newDrafts: T[]; alreadyApprovedDrafts: T[] } {
-  const newDrafts: T[] = [];
-  const alreadyApprovedDrafts: T[] = [];
-  for (const draft of drafts) {
-    if (draftMatchesExistingPairing(draft, existing)) {
-      alreadyApprovedDrafts.push(draft);
-    } else {
-      newDrafts.push(draft);
-    }
-  }
-  return { newDrafts, alreadyApprovedDrafts };
+  return foldPairingText(value);
 }
 
 function grapeNames(wine: WineWithRelations): string[] {

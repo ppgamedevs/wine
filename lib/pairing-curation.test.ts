@@ -6,6 +6,7 @@ import {
   generatePairingDrafts,
   isVinIntelCuratedPairing,
   partitionPairingDrafts,
+  prepareApprovalDrafts,
   previewCurationImpact,
   publicPairingAttribution,
   publicProducerAttribution,
@@ -16,7 +17,8 @@ import {
   wineCurationStatus,
   type PairingDraft,
 } from "@/lib/pairing-curation";
-import { draftFromEdit } from "@/lib/pairing-curation-cards";
+import { buildCurationCard, draftFromEdit } from "@/lib/pairing-curation-cards";
+import { compareScoreSnapshots } from "@/lib/food-evidence";
 import { categorizeFoodItems } from "@/lib/food-taxonomy";
 import { getSecondaryScoringMode } from "@/lib/scoring-v2/secondary-scoring-mode";
 import type { WineWithRelations } from "@/types";
@@ -206,6 +208,155 @@ describe("pairing curation", () => {
       [draft({ dish: "Peste alb", category: "fish" })],
     );
     expect(issues.some((issue) => issue.code === "already_approved")).toBe(true);
+  });
+
+  it("A: existing Aperitive hides duplicate Aperitive draft", () => {
+    const item = wine({
+      slug: "frizzy-aperitive",
+      type: "sparkling",
+      sweetness: "sec",
+      foodPairings: [
+        {
+          dish: "Aperitive",
+          note: "Un spumant sec si usor este o alegere potrivita pentru aperitive.",
+          category: "vegetable",
+          source: "vinintel_curated",
+        },
+      ],
+    });
+    const card = buildCurationCard(item);
+    expect(card.drafts.some((row) => row.dish === "Aperitive")).toBe(false);
+    expect(
+      draftMatchesExistingPairing(
+        { dish: "Aperitive", category: "vegetable" },
+        item.foodPairings,
+      ),
+    ).toBe(true);
+  });
+
+  it("B: existing normalized synonym also hides duplicate", () => {
+    const existing = [{ dish: "Mici", category: "grilled_meat" }];
+    expect(
+      draftMatchesExistingPairing(
+        draft({ dish: "Mititei", category: "grilled_meat" }),
+        existing,
+      ),
+    ).toBe(true);
+    const { newDrafts, alreadyApprovedDrafts } = partitionPairingDrafts(
+      [draft({ dish: "Mititei", category: "grilled_meat" })],
+      existing,
+    );
+    expect(newDrafts).toEqual([]);
+    expect(alreadyApprovedDrafts).toHaveLength(1);
+  });
+
+  it("C: server rejects stale duplicate approval", () => {
+    const existing = toApprovedFoodPairings(
+      [draft({ dish: "Aperitive", category: "vegetable" })],
+      [],
+    );
+    expect(() =>
+      prepareApprovalDrafts(
+        [draft({ dish: "Aperitive", category: "vegetable" })],
+        existing,
+      ),
+    ).toThrow(/deja aprobate/);
+  });
+
+  it("D: existing pairing is not deleted or overwritten", () => {
+    const existing = [
+      {
+        dish: "Aperitive",
+        note: "Saved reviewer text",
+        category: "vegetable",
+        source: "vinintel_curated" as const,
+        curatedAt: "2026-08-16T18:03:50.827Z",
+        curatedBy: "admin",
+        strength: "good" as const,
+      },
+    ];
+    const next = toApprovedFoodPairings(
+      [
+        draft({
+          dish: "Aperitive",
+          category: "vegetable",
+          rationale: "This must not replace the saved reviewer text.",
+        }),
+      ],
+      existing,
+    );
+    expect(next).toHaveLength(1);
+    expect(next[0]).toEqual(existing[0]);
+  });
+
+  it("E: approved reviewer-edited rationale survives refresh", () => {
+    const saved =
+      "Un spumant sec si usor este o alegere potrivita pentru aperitive.";
+    const item = wine({
+      slug: "frizzy-saved",
+      type: "sparkling",
+      sweetness: "sec",
+      foodPairings: [
+        {
+          dish: "Aperitive",
+          note: saved,
+          category: "vegetable",
+          source: "vinintel_curated",
+        },
+        {
+          dish: "Fructe de mare",
+          note: "Stilul spumant si sec il face o alegere potrivita pentru fructe de mare.",
+          category: "fish",
+          source: "vinintel_curated",
+        },
+      ],
+    });
+    const generated = generatePairingDrafts(item);
+    const card = buildCurationCard(item);
+    expect(card.existingPairings[0]?.note).toBe(saved);
+    expect(generated.some((row) => row.rationale === saved)).toBe(false);
+    expect(card.drafts).toHaveLength(0);
+  });
+
+  it("F: wine with all drafts already approved shows empty-complete state", () => {
+    const item = wine({
+      slug: "frizzy-complete",
+      type: "sparkling",
+      sweetness: "sec",
+      foodPairings: [
+        { dish: "Aperitive", category: "vegetable", source: "vinintel_curated" },
+        { dish: "Fructe de mare", category: "fish", source: "vinintel_curated" },
+      ],
+    });
+    const card = buildCurationCard(item);
+    expect(card.drafts).toEqual([]);
+    expect(card.existingPairings).toHaveLength(2);
+  });
+
+  it("G: wine with one approved and one new proposal shows only the new proposal", () => {
+    const item = wine({
+      slug: "frizzy-partial",
+      type: "sparkling",
+      sweetness: "sec",
+      foodPairings: [
+        { dish: "Aperitive", category: "vegetable", source: "vinintel_curated" },
+      ],
+    });
+    const card = buildCurationCard(item);
+    expect(card.drafts.map((row) => row.dish)).toEqual(["Fructe de mare"]);
+    expect(card.existingPairings.map((row) => row.dish)).toEqual(["Aperitive"]);
+  });
+
+  it("H: Value/Gift/Food stored scores remain unchanged", () => {
+    const before = [
+      { id: 1, valueScore: 69, giftScore: 64, foodMatchScore: 74 },
+    ];
+    const patch = buildCurationWritePatch(
+      toApprovedFoodPairings([draft({ dish: "Aperitive", category: "vegetable" })], []),
+    );
+    expect(Object.keys(patch)).toEqual(["foodPairings"]);
+    expect(compareScoreSnapshots(before, before).identical).toBe(true);
+    expect(getSecondaryScoringMode()).toBe("shadow");
   });
 
   it("same category cannot be approved twice", () => {

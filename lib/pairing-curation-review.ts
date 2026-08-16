@@ -3,6 +3,7 @@
  * Queue identity is slug-stable. Curated status comes from persisted pairings.
  */
 import type { CurationCard } from "@/lib/pairing-curation-cards";
+import { partitionPairingDrafts } from "@/lib/pairing-curation-match";
 
 export const PAIRING_REVIEW_SKIP_STORAGE_KEY = "vinintel-pairing-review-skipped";
 
@@ -106,10 +107,26 @@ export function reviewBasisLabel(basis?: string[]): string | null {
   return "Judecata editoriala";
 }
 
+export const NO_NEW_CURATION_DRAFTS_MESSAGE =
+  "Toate propunerile disponibile au fost deja revizuite pentru acest vin.";
+
 export function reviewPairingMeta(strength?: string, basis?: string[]): string | null {
-  return [reviewStrengthLabel(strength), reviewBasisLabel(basis)]
+  const detail = [reviewStrengthLabel(strength), reviewBasisLabel(basis)]
     .filter((item): item is string => Boolean(item))
-    .join(" · ") || null;
+    .join(" · ");
+  return detail ? `Recomandare: ${detail}` : null;
+}
+
+export function reviewApprovedAtLabel(value?: string): string | null {
+  const formatted = formatCuratedAt(value);
+  return formatted ? `Aprobat la ${formatted}` : null;
+}
+
+export function canApproveCurationSelection(
+  newDraftCount: number,
+  selectedCount: number,
+): boolean {
+  return newDraftCount > 0 && selectedCount > 0;
 }
 
 export function formatCuratedAt(value?: string): string | null {
@@ -158,9 +175,14 @@ export function applyApprovedPairingsToCards(
   slug: string,
   pairings: CurationCard["existingPairings"],
 ): CurationCard[] {
-  return cards.map((card) =>
-    card.slug === slug ? { ...card, existingPairings: pairings } : card,
-  );
+  return cards.map((card) => {
+    if (card.slug !== slug) return card;
+    return {
+      ...card,
+      existingPairings: pairings,
+      drafts: partitionPairingDrafts(card.drafts, pairings).newDrafts,
+    };
+  });
 }
 
 export function mergeServerCardsPreserveOrder(
