@@ -12,6 +12,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { requireAdmin } from "@/lib/admin-auth";
+import { db } from "@/lib/db";
+import type { ProducerPageContent } from "@/lib/schema";
+import {
+  classifyRecoveryStatus,
+  evidenceStatusLabel,
+  recommendIssueAction,
+  type RecoveryStatus,
+} from "@/lib/evidence-recovery-status";
 import {
   groupIssuesByWine,
   isPublicationBlockingIssue,
@@ -37,11 +45,20 @@ const SEVERITY_LABEL: Record<IntegritySeverity, string> = {
   low: "Scazut",
 };
 
+const RECOVERY_LABEL: Record<RecoveryStatus, string> = {
+  evidence_recoverable: "Evidenta recuperabila",
+  no_source_evidence: "Fara evidenta de sursa",
+  source_conflict: "Conflict de surse",
+  ready_for_cleanup: "Gata de cleanup deterministic",
+  human_review: "Revizuire umana",
+};
+
 interface DataQualityPageProps {
   searchParams: Promise<{
     severity?: string;
     code?: string;
     q?: string;
+    status?: string;
   }>;
 }
 
@@ -66,10 +83,39 @@ export default async function AdminDataQualityPage({
 
   const filters = await searchParams;
   const report = await runIntegrityScan();
+  const wineRows = await db.query.wines.findMany({
+    columns: {
+      id: true,
+      slug: true,
+      producerPageUrl: true,
+      tastingSheetUrl: true,
+      sourceUrl: true,
+      tastingNotes: true,
+      producerContent: true,
+      descriptionEditorial: true,
+      tasteProfile: true,
+    },
+  });
+  const wineById = new Map(wineRows.map((row) => [row.id, row]));
+
   const filteredIssues = report.issues.filter((issue) =>
     matchesFilters(issue, filters),
   );
-  const groups = groupIssuesByWine(filteredIssues);
+  const groups = groupIssuesByWine(filteredIssues).filter((group) => {
+    if (!filters.status) return true;
+    const wine = wineById.get(group.wineId);
+    const status = classifyRecoveryStatus({
+      producerPageUrl: wine?.producerPageUrl,
+      tastingSheetUrl: wine?.tastingSheetUrl,
+      sourceUrl: wine?.sourceUrl,
+      tastingNotes: wine?.tastingNotes,
+      producerContentText: Boolean(
+        wine?.producerContent?.tastingNotes || wine?.producerContent?.viticulture,
+      ),
+      issues: group.issues,
+    });
+    return status === filters.status;
+  });
   const blockingVerified = groupIssuesByWine(
     report.issues.filter(
       (issue) => isPublicationBlockingIssue(issue),
@@ -114,7 +160,7 @@ export default async function AdminDataQualityPage({
       </div>
 
       <form
-        className="grid gap-3 rounded-2xl border border-border/70 bg-card p-5 sm:grid-cols-4"
+        className="grid gap-3 rounded-2xl border border-border/70 bg-card p-5 sm:grid-cols-5"
         method="get"
       >
         <label className="space-y-1 text-sm">
@@ -155,6 +201,21 @@ export default async function AdminDataQualityPage({
             ))}
           </select>
         </label>
+        <label className="space-y-1 text-sm">
+          <span className="text-muted-foreground">Stare evidenta</span>
+          <select
+            name="status"
+            defaultValue={filters.status ?? ""}
+            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          >
+            <option value="">Toate</option>
+            {(Object.keys(RECOVERY_LABEL) as RecoveryStatus[]).map((status) => (
+              <option key={status} value={status}>
+                {RECOVERY_LABEL[status]}
+              </option>
+            ))}
+          </select>
+        </label>
         <div className="flex items-end gap-2">
           <Button type="submit" size="sm">
             Filtreaza
@@ -182,7 +243,7 @@ export default async function AdminDataQualityPage({
             Niciun vin cu probleme blocking in scanul curent.
           </p>
         ) : (
-          <WineGroupTable groups={blockingVerified} />
+          <WineGroupTable groups={blockingVerified} wineById={wineById} />
         )}
       </section>
 
@@ -198,7 +259,7 @@ export default async function AdminDataQualityPage({
             Nicio problema pentru filtrele curente.
           </p>
         ) : (
-          <WineGroupTable groups={groups} />
+          <WineGroupTable groups={groups} wineById={wineById} />
         )}
       </section>
 
@@ -260,7 +321,87 @@ export default async function AdminDataQualityPage({
   );
 }
 
-function WineGroupTable({ groups }: { groups: WineIssueGroup[] }) {
+type AdminWineRow = {
+  id: number;
+  slug: string;
+  producerPageUrl: string | null;
+  tastingSheetUrl: string | null;
+  sourceUrl: string | null;
+  tastingNotes: string | null;
+  producerContent: ProducerPageContent | null;
+  descriptionEditorial: string | null;
+  tasteProfile: string | null;
+};
+
+function IssueRecoveryList({
+  group,
+  wine,
+}: {
+  group: WineIssueGroup;
+  wine: AdminWineRow | undefined;
+}) {
+  const official = Boolean(wine?.producerPageUrl || wine?.tastingSheetUrl);
+  const evidenceLabel = evidenceStatusLabel({
+    producerPageUrl: wine?.producerPageUrl,
+    tastingSheetUrl: wine?.tastingSheetUrl,
+    producerContentText: Boolean(
+      wine?.producerContent?.tastingNotes || wine?.producerContent?.viticulture,
+    ),
+    tastingNotes: wine?.tastingNotes,
+  });
+  const recovery = classifyRecoveryStatus({
+    producerPageUrl: wine?.producerPageUrl,
+    tastingSheetUrl: wine?.tastingSheetUrl,
+    sourceUrl: wine?.sourceUrl,
+    tastingNotes: wine?.tastingNotes,
+    producerContentText: Boolean(
+      wine?.producerContent?.tastingNotes || wine?.producerContent?.viticulture,
+    ),
+    issues: group.issues,
+  });
+  const legacy = [wine?.tasteProfile, wine?.descriptionEditorial]
+    .filter(Boolean)
+    .join(" ")
+    .slice(0, 180);
+
+  return (
+    <ul className="space-y-2">
+      <li className="text-xs">
+        <Badge variant="outline">{RECOVERY_LABEL[recovery]}</Badge>
+      </li>
+      {group.issues.slice(0, 4).map((issue, index) => {
+        const action = recommendIssueAction({
+          issue,
+          officialSource: official,
+          evidenceResolved: false,
+        });
+        return (
+          <li key={`${issue.code}-${index}`}>
+            <span className="font-medium text-foreground">{issue.code}</span>
+            {": "}
+            {issue.message}
+            <span className="block text-xs">
+              Text vechi: {legacy || "n/a"}
+            </span>
+            <span className="block text-xs">Evidenta: {evidenceLabel}</span>
+            <span className="block text-xs">
+              Sursa: {wine?.tastingSheetUrl || wine?.producerPageUrl || "n/a"}
+            </span>
+            <span className="block text-xs">Actiune: {action}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function WineGroupTable({
+  groups,
+  wineById,
+}: {
+  groups: WineIssueGroup[];
+  wineById: Map<number, AdminWineRow>;
+}) {
   return (
     <div className="overflow-hidden rounded-2xl border border-border/70">
       <Table>
@@ -291,25 +432,10 @@ function WineGroupTable({ groups }: { groups: WineIssueGroup[] }) {
               <TableCell>{group.medium}</TableCell>
               <TableCell>{group.low}</TableCell>
               <TableCell className="max-w-xl text-sm text-muted-foreground">
-                <ul className="space-y-1">
-                  {group.issues.slice(0, 4).map((issue, index) => (
-                    <li key={`${issue.code}-${index}`}>
-                      <span className="font-medium text-foreground">
-                        {issue.code}
-                      </span>
-                      {": "}
-                      {issue.message}
-                      {issue.explanation ? (
-                        <span className="block text-xs">
-                          {issue.explanation}
-                          {issue.evidenceSummary
-                            ? ` Evidenta: ${issue.evidenceSummary}.`
-                            : ""}
-                        </span>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
+                <IssueRecoveryList
+                  group={group}
+                  wine={wineById.get(group.wineId)}
+                />
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">

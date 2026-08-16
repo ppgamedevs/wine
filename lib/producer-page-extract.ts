@@ -1,6 +1,11 @@
 import { resolveBallaGezaWineFromCatalog } from "@/lib/ballageza-producer";
+import {
+  extractEvidenceFromSourceText,
+  extractedFactsFromEvidence,
+} from "@/lib/evidence-extract";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import type { WineMedal, ProducerPageContent } from "@/lib/schema";
+import { classifySourceUrl } from "@/lib/source-trust";
 import {
   isHighImportanceCompetition,
   normalizeMedalLevel,
@@ -365,12 +370,19 @@ export function extractProducerPageFromHtml(
     ? extractHtmlSectionByPattern(html, /Asocieri\s+culinare/i)
     : null;
 
+  const sourceText = [viticulture, tastingNotes, culinaryPairings, richText]
+    .filter(Boolean)
+    .join("\n");
+  const extracted = extractEvidenceFromSourceText(sourceText);
   const content: ProducerPageContent = {
     ...(viticulture ? { viticulture } : {}),
     ...(tastingNotes ? { tastingNotes } : {}),
     ...(culinaryPairings ? { culinaryPairings } : {}),
     sourceUrls: [pageUrl],
     extractedAt: new Date().toISOString(),
+    sourceType: classifySourceUrl(pageUrl),
+    extractionMethod: "deterministic",
+    facts: extractedFactsFromEvidence(extracted),
   };
 
   return {
@@ -408,6 +420,12 @@ export function mergeProducerPageExtracts(
     culinaryPairings ??= extract.content.culinaryPairings;
   }
 
+  const mergedSource = [viticulture, tastingNotes, culinaryPairings, ...richParts]
+    .filter(Boolean)
+    .join("\n");
+  const extracted = extractEvidenceFromSourceText(mergedSource);
+  const firstUrl = [...sourceUrls][0] ?? "";
+
   return {
     medals: normalizeWineMedals(allMedals),
     content: {
@@ -416,6 +434,9 @@ export function mergeProducerPageExtracts(
       ...(culinaryPairings ? { culinaryPairings } : {}),
       sourceUrls: [...sourceUrls],
       extractedAt: new Date().toISOString(),
+      sourceType: classifySourceUrl(firstUrl),
+      extractionMethod: "deterministic",
+      facts: extractedFactsFromEvidence(extracted),
     },
     richText: richParts.join("\n\n").slice(0, 28_000),
   };

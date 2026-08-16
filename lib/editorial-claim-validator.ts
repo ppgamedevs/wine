@@ -11,6 +11,7 @@ import {
 export const TRUTH_ISSUE_CODES = {
   UNSUPPORTED_TANNIN_CLAIM: "UNSUPPORTED_TANNIN_CLAIM",
   UNSUPPORTED_OAK_CLAIM: "UNSUPPORTED_OAK_CLAIM",
+  UNSUPPORTED_OAK_DETAIL: "UNSUPPORTED_OAK_DETAIL",
   UNSUPPORTED_ACIDITY_CLAIM: "UNSUPPORTED_ACIDITY_CLAIM",
   UNSUPPORTED_SENSORY_CLAIM: "UNSUPPORTED_SENSORY_CLAIM",
   TYPE_EDITORIAL_CONTRADICTION: "TYPE_EDITORIAL_CONTRADICTION",
@@ -90,7 +91,10 @@ const TANNIN_SPECIFIC =
   /\b(tanin(?:uri|ul|urile)?|tannin)\b.{0,40}(ferme|puternic|robust|echilibr|fine|catifel|prezent|structura)/;
 const TANNIN_ANY = /\btanin(?:uri|ul|urile)?\b|\btannin\b/;
 const OAK_SPECIFIC =
-  /\b(barrique|baric|stejar|butoi|invechit in lemn|note de vanilie)\b/;
+  /\b(barrique|baric|stejar|butoi|invechit in lemn|maturat in lemn)\b/;
+const OAK_DURATION = /(\d{1,2})\s*(?:de\s+)?luni/;
+const OAK_ORIGIN =
+  /\b(stejar francez|baric francez|barrique francez|prima folosinta|primul ciclu)\b/;
 const ACIDITY_SPECIFIC =
   /\baciditate\b.{0,24}(ridicat|vie|ascutit|scazut|proaspet|buna|excelent|marcata)/;
 const RED_FRUIT_SPECIFIC =
@@ -287,12 +291,13 @@ export function validateEditorialClaims(
     }
   }
 
-  if (
-    OAK_SPECIFIC.test(text) &&
-    (isWineSpecific(text) || OAK_SPECIFIC.test(taste)) &&
-    !evidenceHasDescriptor(evidence, "oak") &&
-    !evidence.productionMethods.has("oak_ageing")
-  ) {
+  const oakMentioned =
+    OAK_SPECIFIC.test(text) && (isWineSpecific(text) || OAK_SPECIFIC.test(taste));
+  const oakSupported =
+    evidenceHasDescriptor(evidence, "oak") ||
+    evidence.productionMethods.has("oak_ageing");
+
+  if (oakMentioned && !oakSupported) {
     issues.push(
       issue(
         TRUTH_ISSUE_CODES.UNSUPPORTED_OAK_CLAIM,
@@ -302,6 +307,45 @@ export function validateEditorialClaims(
         true,
       ),
     );
+  } else if (oakMentioned && oakSupported) {
+    const source = evidence.sourceText;
+    if (OAK_DURATION.test(text) && !OAK_DURATION.test(source)) {
+      issues.push(
+        issue(
+          TRUTH_ISSUE_CODES.UNSUPPORTED_OAK_DETAIL,
+          "high",
+          "Durata de stejar este pretinsa, dar sursa confirma doar prezenta stejarului.",
+          "Mentiunea de stejar nu valideaza luni exacte, originea baricului sau vanilia.",
+          true,
+        ),
+      );
+    }
+    if (OAK_ORIGIN.test(text) && !OAK_ORIGIN.test(source)) {
+      issues.push(
+        issue(
+          TRUTH_ISSUE_CODES.UNSUPPORTED_OAK_DETAIL,
+          "high",
+          "Originea sau ciclul baricului nu apare in sursa.",
+          "Stejar confirmat nu inseamna baric francez de prima folosinta.",
+          true,
+        ),
+      );
+    }
+    if (
+      /\bvanilie\b/.test(text) &&
+      !evidenceHasDescriptor(evidence, "vanilla") &&
+      !/\bvanilie\b/.test(source)
+    ) {
+      issues.push(
+        issue(
+          TRUTH_ISSUE_CODES.UNSUPPORTED_OAK_DETAIL,
+          "high",
+          "Vanilia este pretinsa fara sa apara in evidenta de degustare.",
+          "Un claim de stejar nu autorizeaza automat vanilie.",
+          true,
+        ),
+      );
+    }
   }
 
   if (

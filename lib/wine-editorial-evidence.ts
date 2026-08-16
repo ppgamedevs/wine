@@ -111,19 +111,19 @@ const DESCRIPTOR_ALIASES: Record<string, string[]> = {
     "zmeura",
     "capsuni",
   ],
-  white_fruit: ["fructe albe", "par", "piersic", "caise", "gutuie"],
+  white_fruit: ["fructe albe", "piersic", "caise", "gutuie"],
   citrus: ["citrice", "lamaie", "grepfrut", "lime"],
-  floral: ["floral", "flori", "tei", "salcam", "trandafir"],
-  spice: ["piper", "condiment", "spices"],
+  floral: ["floral", "flori de", "flori de tei", "salcam", "trandafir"],
+  spice: ["piper negru", "condiment", "spices"],
   vanilla: ["vanilie", "vanilla"],
-  smoke: ["fum", "afumat", "smoke"],
+  smoke: ["afumat", "note afumate", "smoke"],
   oxidative: ["oxidativ"],
   body: ["corpolent", "corp plin", "medium body", "light body"],
   carbonation: ["perlage", "bule", "efervescent", "spumant"],
 };
 
 const PRODUCTION_ALIASES: Record<string, string[]> = {
-  oak_ageing: ["barrique", "baric", "stejar", "butoi", "invechit in lemn"],
+  oak_ageing: ["barrique", "baric", "stejar", "butoi", "invechit in lemn", "maturat in lemn"],
   lees: ["drojdie", "lies", "batonnage"],
   skin_contact: ["maceratie", "pielite", "skin contact"],
   fermentation: ["fermentatie", "fermented"],
@@ -144,13 +144,25 @@ const AGEING_ALIASES: Record<string, string[]> = {
   decant: ["decant"],
 };
 
+function phraseInSource(source: string, phrase: string): boolean {
+  const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${escaped}\\b`).test(source);
+}
+
 function collectSourceText(input: WineEvidenceInput): string {
   const producer = input.producerContent;
+  const facts = producer?.facts;
   return [
     input.tastingNotes ?? "",
     producer?.tastingNotes ?? "",
     producer?.viticulture ?? "",
     producer?.culinaryPairings ?? "",
+    facts?.oakAged ? "stejar barrique baric" : "",
+    facts?.tanninMentioned ? "tanin taninuri" : "",
+    facts?.oakDurationMonths != null
+      ? `${facts.oakDurationMonths} luni baric stejar`
+      : "",
+    ...(facts?.descriptors ?? []),
   ]
     .map((part) => normalizeEditorialText(part))
     .join(" \n ");
@@ -162,7 +174,7 @@ function extractKeys(
 ): Set<string> {
   const found = new Set<string>();
   for (const [key, phrases] of Object.entries(aliases)) {
-    if (phrases.some((phrase) => source.includes(phrase))) {
+    if (phrases.some((phrase) => phraseInSource(source, phrase))) {
       found.add(key);
     }
   }

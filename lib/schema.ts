@@ -64,6 +64,24 @@ export interface WineMedal {
   importance?: "high" | "medium" | "low";
 }
 
+/** Fapte extrase explicit dintr-o sursa (pagina/fisa), nu din inferenta. */
+export interface ProducerExtractedFacts {
+  alcohol?: number;
+  acidity?: number;
+  sugar?: number;
+  sweetness?: string;
+  vintage?: number;
+  grapes?: string[];
+  type?: string;
+  oakAged?: true;
+  oakDurationMonths?: number;
+  tanninMentioned?: true;
+  cellarPotentialYears?: number;
+  drinkabilityStart?: number;
+  drinkabilityEnd?: number;
+  descriptors?: string[];
+}
+
 /** Viticultura, note si asocieri de pe site-ul producatorului. */
 export interface ProducerPageContent {
   viticulture?: string;
@@ -71,6 +89,11 @@ export interface ProducerPageContent {
   culinaryPairings?: string;
   sourceUrls?: string[];
   extractedAt?: string;
+  /** tasting_sheet | producer_page | producer_catalog | retailer | marketplace */
+  sourceType?: string;
+  /** deterministic | constrained_llm. Sursa ramane URL-ul, nu modelul. */
+  extractionMethod?: "deterministic" | "constrained_llm";
+  facts?: ProducerExtractedFacts;
 }
 
 export const DEFAULT_WINE_SOURCE_BADGE =

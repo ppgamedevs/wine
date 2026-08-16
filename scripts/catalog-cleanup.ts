@@ -39,6 +39,15 @@ async function main() {
     console.log(`  ${code}: ${count}`);
   }
 
+  console.log(
+    `\nPlan deterministic: propozitii=${report.counts.sentencesRemovable} campuri=${report.counts.fieldsClearable} pairing=${report.counts.pairingNotesRemovable}`,
+  );
+  if (report.planned.length > 0) {
+    console.log(`\nReparatii planificate (${report.planned.length}), primele 20:`);
+    for (const item of report.planned.slice(0, 20)) {
+      console.log(`  - ${item.slug}: ${item.actions.join("; ")}`);
+    }
+  }
   if (report.repaired.length > 0) {
     console.log(`\nReparatii aplicate (${report.repaired.length}):`);
     for (const item of report.repaired.slice(0, 30)) {

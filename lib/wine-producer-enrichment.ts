@@ -1155,6 +1155,10 @@ export async function enrichWineFromProducerSite(input: {
   preferredPageUrl?: string | null;
   /** URL complet al sursei (inclusiv hash Murfatlar pentru variante). */
   sourceUrl?: string | null;
+  /** Nu intra in crawl daca lock-ul pe URL-ul preferat esueaza. */
+  lockOnly?: boolean;
+  /** Pastreaza doar slug-urile cunoscute ale parserului dedicat, fara candidati generici. */
+  skipGenericCandidates?: boolean;
 }): Promise<ProducerEnrichment> {
   const bases = websiteCandidates(input.wineryWebsite, input.winerySlug);
   if (bases.length === 0) return emptyEnrichment();
@@ -1264,6 +1268,10 @@ export async function enrichWineFromProducerSite(input: {
     }
   }
 
+  if (!preferredLocked && input.lockOnly && input.preferredPageUrl) {
+    return emptyEnrichment();
+  }
+
   if (!preferredLocked) {
     for (const base of bases) {
       const slugFromUrl =
@@ -1299,7 +1307,9 @@ export async function enrichWineFromProducerSite(input: {
 
       const candidates = [
         ...extraCandidates,
-        ...buildProductPageCandidates(base, input.wineName, input.winerySlug),
+        ...(input.skipGenericCandidates
+          ? []
+          : buildProductPageCandidates(base, input.wineName, input.winerySlug)),
       ];
       for (const candidate of candidates) {
         const page = await fetchProducerHtml(candidate);

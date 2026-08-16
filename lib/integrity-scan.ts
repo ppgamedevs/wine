@@ -19,6 +19,7 @@ import type {
   ProducerPageContent,
   WineMedal,
 } from "@/lib/schema";
+import { detectSourceConflicts } from "@/lib/source-conflicts";
 import { VALUE_SCORE_EXCEPTIONAL_MIN } from "@/lib/value-score-thresholds";
 import { isValidWineVintage } from "@/lib/wine-vintage";
 
@@ -471,7 +472,12 @@ const PUBLICATION_BLOCKING_CODES = new Set([
   "AGEING_EDITORIAL_CONTRADICTION",
   "UNSUPPORTED_TANNIN_CLAIM",
   "UNSUPPORTED_OAK_CLAIM",
+  "UNSUPPORTED_OAK_DETAIL",
   "UNSUPPORTED_SENSORY_CLAIM",
+  "SOURCE_CONFLICT_GRAPES",
+  "SOURCE_CONFLICT_SWEETNESS",
+  "SOURCE_CONFLICT_VINTAGE",
+  "SOURCE_CONFLICT_TYPE",
   "NO_DATA_BUT_SPECIFIC_CLAIMS",
   "EXPERT_NOTE_UNSUPPORTED",
   "EDITORIAL_PAIRING_UNSUPPORTED",
@@ -562,6 +568,24 @@ export function detectEditorialTruthIssues(
 
     for (const claim of claims) {
       issues.push(claimIssueToIntegrity(wine, claim));
+    }
+
+    const extractedFacts = wine.producerContent?.facts;
+    if (extractedFacts) {
+      issues.push(
+        ...detectSourceConflicts(
+          {
+            id: wine.id,
+            slug: wine.slug,
+            alcohol: wine.alcohol,
+            sweetness: wine.sweetness,
+            vintage: wine.vintage,
+            type: wine.type,
+            grapeVarieties: wine.grapeVarieties,
+          },
+          extractedFacts,
+        ),
+      );
     }
 
     if (looksLikeQualityAdjectiveProse(wine.tasteProfile)) {
