@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import {
   ArrowUpDown,
   Search,
-  SlidersHorizontal,
   Sparkles,
   X,
 } from "lucide-react";
@@ -27,14 +26,19 @@ import {
   VALUE_SCORE_EXCEPTIONAL_MIN,
 } from "@/lib/value-score-thresholds";
 import {
+  CATALOG_SORT_OPTIONS,
+  catalogActiveFilterChips,
   catalogSectionHeading,
+  countWinesBySweetness,
   countWinesByType,
   DEFAULT_CATALOG_FILTERS,
   filterCatalogWines,
   groupCatalogWinesByType,
+  hasActiveCatalogFilters,
   type CatalogFilterState,
   type CatalogPriceBand,
   type CatalogSort,
+  type CatalogSweetnessFilter,
   type CatalogTypeFilter,
   type CatalogVerdictFilter,
 } from "@/lib/wine-catalog-filters";
@@ -56,8 +60,9 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+        "inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
         active
           ? "border-wine bg-wine text-wine-foreground shadow-sm"
           : "border-border/70 bg-background text-muted-foreground hover:border-wine/40 hover:text-foreground",
@@ -75,6 +80,25 @@ function FilterChip({
         </span>
       ) : null}
     </button>
+  );
+}
+
+function ChipRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -154,14 +178,12 @@ export function WineCatalogDirectory({
   );
 
   const typeOptions = useMemo(
-    () =>
-      countWinesByType(wines, {
-        query: filters.query,
-        sort: filters.sort,
-        verdict: filters.verdict,
-        priceBand: filters.priceBand,
-      }),
-    [wines, filters.query, filters.sort, filters.verdict, filters.priceBand],
+    () => countWinesByType(wines, filters),
+    [wines, filters],
+  );
+  const sweetnessOptions = useMemo(
+    () => countWinesBySweetness(wines, filters),
+    [wines, filters],
   );
 
   const filtered = useMemo(
@@ -174,12 +196,8 @@ export function WineCatalogDirectory({
     [filtered, filters.type],
   );
 
-  const hasActiveFilters =
-    filters.query.trim().length > 0 ||
-    filters.type !== "all" ||
-    filters.verdict !== "all" ||
-    filters.priceBand !== "all" ||
-    filters.sort !== "value-desc";
+  const active = hasActiveCatalogFilters(filters);
+  const activeChips = catalogActiveFilterChips(filters);
 
   function patchFilters(patch: Partial<CatalogFilterState>) {
     setFilters((current) => ({ ...current, ...patch }));
@@ -187,6 +205,14 @@ export function WineCatalogDirectory({
 
   function resetFilters() {
     setFilters(DEFAULT_CATALOG_FILTERS);
+  }
+
+  function clearChip(key: (typeof activeChips)[number]["key"]) {
+    if (key === "type") patchFilters({ type: "all" });
+    if (key === "sweetness") patchFilters({ sweetness: "all" });
+    if (key === "priceBand") patchFilters({ priceBand: "all" });
+    if (key === "verdict") patchFilters({ verdict: "all" });
+    if (key === "query") patchFilters({ query: "" });
   }
 
   return (
@@ -206,13 +232,9 @@ export function WineCatalogDirectory({
         />
       </div>
 
-      <div className="sticky top-[4.25rem] z-40 -mx-6 border-y border-border/60 bg-background/95 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        <div className="mx-auto max-w-6xl space-y-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <SlidersHorizontal className="h-4 w-4 text-wine" aria-hidden="true" />
-            Tip vin
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="sticky top-[4.25rem] z-40 -mx-6 border-y border-border/60 bg-background/95 px-6 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="mx-auto max-w-6xl space-y-3">
+          <ChipRow label="Culoare / tip">
             {typeOptions.map((option) => (
               <FilterChip
                 key={option.id}
@@ -225,7 +247,22 @@ export function WineCatalogDirectory({
                 {option.label}
               </FilterChip>
             ))}
-          </div>
+          </ChipRow>
+
+          <ChipRow label="Dulceata">
+            {sweetnessOptions.map((option) => (
+              <FilterChip
+                key={option.id}
+                active={filters.sweetness === option.id}
+                count={option.count}
+                onClick={() =>
+                  patchFilters({ sweetness: option.id as CatalogSweetnessFilter })
+                }
+              >
+                {option.label}
+              </FilterChip>
+            ))}
+          </ChipRow>
 
           <div className="flex flex-wrap items-center gap-3">
             <Select
@@ -234,15 +271,33 @@ export function WineCatalogDirectory({
                 patchFilters({ sort: value as CatalogSort })
               }
             >
-              <SelectTrigger size="sm" className="min-w-[10rem]">
+              <SelectTrigger size="sm" className="min-w-[10rem]" aria-label="Sortare">
                 <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
                 <SelectValue placeholder="Sortare" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="value-desc">Value Score (cel mai bun)</SelectItem>
-                <SelectItem value="price-asc">Pret crescator</SelectItem>
-                <SelectItem value="price-desc">Pret descrescator</SelectItem>
-                <SelectItem value="name-asc">Nume A-Z</SelectItem>
+                {CATALOG_SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={filters.priceBand}
+              onValueChange={(value) =>
+                patchFilters({ priceBand: value as CatalogPriceBand })
+              }
+            >
+              <SelectTrigger size="sm" className="min-w-[8rem]" aria-label="Pret">
+                <SelectValue placeholder="Pret" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Orice pret</SelectItem>
+                <SelectItem value="under50">Sub 50 RON</SelectItem>
+                <SelectItem value="50-100">50-100 RON</SelectItem>
+                <SelectItem value="over100">Peste 100 RON</SelectItem>
               </SelectContent>
             </Select>
 
@@ -252,7 +307,7 @@ export function WineCatalogDirectory({
                 patchFilters({ verdict: value as CatalogVerdictFilter })
               }
             >
-              <SelectTrigger size="sm" className="min-w-[9rem]">
+              <SelectTrigger size="sm" className="min-w-[9rem]" aria-label="Recomandare">
                 <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
                 <SelectValue placeholder="Recomandare" />
               </SelectTrigger>
@@ -267,24 +322,7 @@ export function WineCatalogDirectory({
               </SelectContent>
             </Select>
 
-            <Select
-              value={filters.priceBand}
-              onValueChange={(value) =>
-                patchFilters({ priceBand: value as CatalogPriceBand })
-              }
-            >
-              <SelectTrigger size="sm" className="min-w-[8rem]">
-                <SelectValue placeholder="Pret" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Orice pret</SelectItem>
-                <SelectItem value="under50">Sub 50 RON</SelectItem>
-                <SelectItem value="50-100">50-100 RON</SelectItem>
-                <SelectItem value="over100">Peste 100 RON</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {hasActiveFilters ? (
+            {active ? (
               <Button
                 type="button"
                 variant="ghost"
@@ -305,6 +343,18 @@ export function WineCatalogDirectory({
           {filtered.length}{" "}
           {filtered.length === 1 ? "vin gasit" : "vinuri gasite"}
         </Badge>
+        {activeChips.map((chip) => (
+          <button
+            key={`${chip.key}-${chip.label}`}
+            type="button"
+            onClick={() => clearChip(chip.key)}
+            className="inline-flex items-center gap-1 rounded-full border border-wine/30 bg-wine/5 px-2.5 py-1 text-xs font-medium text-wine"
+          >
+            {chip.label}
+            <X className="h-3 w-3" aria-hidden="true" />
+            <span className="sr-only">Sterge filtrul {chip.label}</span>
+          </button>
+        ))}
         {filters.verdict === "recommended" ? (
           <span className="text-sm text-muted-foreground">
             Afisam vinuri cu Value Score {MIN_RECOMMENDED_VALUE_SCORE}+ (merita
@@ -347,11 +397,10 @@ export function WineCatalogDirectory({
       ) : (
         <div className="rounded-3xl border border-dashed border-border bg-secondary/20 px-6 py-16 text-center">
           <p className="font-serif text-xl text-foreground">
-            Niciun vin nu corespunde filtrelor
+            Niciun vin nu corespunde combinatiei alese
           </p>
           <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-            Incearca alt tip de vin, relaxeaza filtrele de pret sau cauta dupa
-            nume, crama ori regiune.
+            Incearca alta dulceata, culoare sau un buget mai larg.
           </p>
           <Button
             type="button"

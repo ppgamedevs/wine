@@ -1,11 +1,13 @@
-import { wineTypeLabel } from "@/lib/format";
+import { wineSweetnessLabel, wineTypeLabel } from "@/lib/format";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_EXCEPTIONAL_MIN,
 } from "@/lib/value-score-thresholds";
-import type { WineType, WineWithRelations } from "@/types";
+import type { WineSweetness, WineType, WineWithRelations } from "@/types";
 
 export type CatalogTypeFilter = "all" | WineType;
+
+export type CatalogSweetnessFilter = "all" | WineSweetness;
 
 export type CatalogSort =
   | "value-desc"
@@ -20,6 +22,7 @@ export type CatalogPriceBand = "all" | "under50" | "50-100" | "over100";
 export interface CatalogFilterState {
   query: string;
   type: CatalogTypeFilter;
+  sweetness: CatalogSweetnessFilter;
   sort: CatalogSort;
   verdict: CatalogVerdictFilter;
   priceBand: CatalogPriceBand;
@@ -28,10 +31,18 @@ export interface CatalogFilterState {
 export const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
   query: "",
   type: "all",
+  sweetness: "all",
   sort: "value-desc",
   verdict: "all",
   priceBand: "all",
 };
+
+export const CATALOG_SORT_OPTIONS: Array<{ id: CatalogSort; label: string }> = [
+  { id: "value-desc", label: "Value Score (cel mai bun)" },
+  { id: "price-asc", label: "Pret crescator" },
+  { id: "price-desc", label: "Pret descrescator" },
+  { id: "name-asc", label: "Nume A-Z" },
+];
 
 /** Display order for grouped catalog sections. */
 export const CATALOG_TYPE_ORDER: WineType[] = [
@@ -43,10 +54,53 @@ export const CATALOG_TYPE_ORDER: WineType[] = [
   "dessert",
 ];
 
+export const CATALOG_SWEETNESS_ORDER: WineSweetness[] = [
+  "sec",
+  "demisec",
+  "demidulce",
+  "dulce",
+];
+
+export const CATALOG_TYPE_CHIP_LABEL: Record<CatalogTypeFilter, string> = {
+  all: "Toate",
+  red: "Rosu",
+  white: "Alb",
+  rose: "Roze",
+  sparkling: "Spumant",
+  orange: "Orange",
+  dessert: "Desert",
+};
+
+export const CATALOG_SWEETNESS_CHIP_LABEL: Record<CatalogSweetnessFilter, string> = {
+  all: "Toate",
+  sec: wineSweetnessLabel.sec,
+  demisec: wineSweetnessLabel.demisec,
+  demidulce: wineSweetnessLabel.demidulce,
+  dulce: wineSweetnessLabel.dulce,
+};
+
+export const CATALOG_PRICE_BAND_LABEL: Record<CatalogPriceBand, string> = {
+  all: "Orice pret",
+  under50: "Sub 50 RON",
+  "50-100": "50-100 RON",
+  over100: "Peste 100 RON",
+};
+
 export interface CatalogTypeOption {
   id: CatalogTypeFilter;
   label: string;
   count: number;
+}
+
+export interface CatalogSweetnessOption {
+  id: CatalogSweetnessFilter;
+  label: string;
+  count: number;
+}
+
+export interface CatalogActiveChip {
+  key: "type" | "sweetness" | "priceBand" | "verdict" | "query";
+  label: string;
 }
 
 function winePrice(wine: WineWithRelations): number | null {
@@ -99,6 +153,32 @@ function matchesPriceBand(
   return price > 100;
 }
 
+function matchesType(wine: WineWithRelations, type: CatalogTypeFilter): boolean {
+  return type === "all" || wine.type === type;
+}
+
+function matchesSweetness(
+  wine: WineWithRelations,
+  sweetness: CatalogSweetnessFilter,
+): boolean {
+  if (sweetness === "all") return true;
+  return wine.sweetness === sweetness;
+}
+
+function matchesSharedConstraints(
+  wine: WineWithRelations,
+  filters: CatalogFilterState,
+  omit: Array<"type" | "sweetness"> = [],
+): boolean {
+  return (
+    matchesQuery(wine, filters.query) &&
+    matchesVerdict(wine, filters.verdict) &&
+    matchesPriceBand(wine, filters.priceBand) &&
+    (omit.includes("type") || matchesType(wine, filters.type)) &&
+    (omit.includes("sweetness") || matchesSweetness(wine, filters.sweetness))
+  );
+}
+
 function compareWines(
   a: WineWithRelations,
   b: WineWithRelations,
@@ -130,45 +210,85 @@ export function filterCatalogWines(
   wines: WineWithRelations[],
   filters: CatalogFilterState,
 ): WineWithRelations[] {
-  const filtered = wines.filter(
-    (wine) =>
-      matchesQuery(wine, filters.query) &&
-      matchesVerdict(wine, filters.verdict) &&
-      matchesPriceBand(wine, filters.priceBand) &&
-      (filters.type === "all" || wine.type === filters.type),
-  );
-
+  const filtered = wines.filter((wine) => matchesSharedConstraints(wine, filters));
   return [...filtered].sort((a, b) => compareWines(a, b, filters.sort));
 }
 
 export function countWinesByType(
   wines: WineWithRelations[],
-  filters: Omit<CatalogFilterState, "type">,
+  filters: CatalogFilterState,
 ): CatalogTypeOption[] {
-  const base = wines.filter(
-    (wine) =>
-      matchesQuery(wine, filters.query) &&
-      matchesVerdict(wine, filters.verdict) &&
-      matchesPriceBand(wine, filters.priceBand),
+  const base = wines.filter((wine) =>
+    matchesSharedConstraints(wine, filters, ["type"]),
   );
-
-  const counts = new Map<CatalogTypeFilter, number>();
-  counts.set("all", base.length);
-
-  for (const type of CATALOG_TYPE_ORDER) {
-    counts.set(type, base.filter((wine) => wine.type === type).length);
-  }
-
   const options: CatalogTypeOption[] = [
-    { id: "all", label: "Toate", count: counts.get("all") ?? 0 },
+    { id: "all", label: CATALOG_TYPE_CHIP_LABEL.all, count: base.length },
     ...CATALOG_TYPE_ORDER.map((type) => ({
       id: type as CatalogTypeFilter,
-      label: wineTypeLabel[type],
-      count: counts.get(type) ?? 0,
+      label: CATALOG_TYPE_CHIP_LABEL[type],
+      count: base.filter((wine) => wine.type === type).length,
     })),
   ];
-
   return options.filter((option) => option.id === "all" || option.count > 0);
+}
+
+export function countWinesBySweetness(
+  wines: WineWithRelations[],
+  filters: CatalogFilterState,
+): CatalogSweetnessOption[] {
+  const base = wines.filter((wine) =>
+    matchesSharedConstraints(wine, filters, ["sweetness"]),
+  );
+  return [
+    { id: "all", label: CATALOG_SWEETNESS_CHIP_LABEL.all, count: base.length },
+    ...CATALOG_SWEETNESS_ORDER.map((sweetness) => ({
+      id: sweetness as CatalogSweetnessFilter,
+      label: CATALOG_SWEETNESS_CHIP_LABEL[sweetness],
+      count: base.filter((wine) => wine.sweetness === sweetness).length,
+    })),
+  ];
+}
+
+export function hasActiveCatalogFilters(filters: CatalogFilterState): boolean {
+  return (
+    filters.query.trim().length > 0 ||
+    filters.type !== "all" ||
+    filters.sweetness !== "all" ||
+    filters.verdict !== "all" ||
+    filters.priceBand !== "all" ||
+    filters.sort !== "value-desc"
+  );
+}
+
+export function catalogActiveFilterChips(
+  filters: CatalogFilterState,
+): CatalogActiveChip[] {
+  const chips: CatalogActiveChip[] = [];
+  if (filters.query.trim()) {
+    chips.push({ key: "query", label: `"${filters.query.trim()}"` });
+  }
+  if (filters.type !== "all") {
+    chips.push({ key: "type", label: CATALOG_TYPE_CHIP_LABEL[filters.type] });
+  }
+  if (filters.sweetness !== "all") {
+    chips.push({
+      key: "sweetness",
+      label: CATALOG_SWEETNESS_CHIP_LABEL[filters.sweetness],
+    });
+  }
+  if (filters.priceBand !== "all") {
+    chips.push({
+      key: "priceBand",
+      label: CATALOG_PRICE_BAND_LABEL[filters.priceBand],
+    });
+  }
+  if (filters.verdict === "recommended") {
+    chips.push({ key: "verdict", label: "Merita pretul" });
+  }
+  if (filters.verdict === "exceptional") {
+    chips.push({ key: "verdict", label: "Exceptionale" });
+  }
+  return chips;
 }
 
 export interface CatalogTypeSection {
@@ -182,17 +302,16 @@ export function groupCatalogWinesByType(
 ): CatalogTypeSection[] {
   return CATALOG_TYPE_ORDER.map((type) => ({
     type,
-    label: wineTypeLabel[type],
+    label: CATALOG_TYPE_CHIP_LABEL[type],
     wines: wines.filter((wine) => wine.type === type),
   })).filter((section) => section.wines.length > 0);
 }
 
 export function catalogSectionHeading(type: WineType, count: number): string {
-  const label = wineTypeLabel[type].toLowerCase();
   if (type === "white") return `Vinuri albe · ${count}`;
   if (type === "red") return `Vinuri rosii · ${count}`;
-  if (type === "rose") return `Vinuri rose · ${count}`;
+  if (type === "rose") return `Vinuri roze · ${count}`;
   if (type === "sparkling") return `Spumante · ${count}`;
   if (type === "orange") return `Orange · ${count}`;
-  return `Vinuri ${label} · ${count}`;
+  return `Vinuri ${wineTypeLabel[type].toLowerCase()} · ${count}`;
 }

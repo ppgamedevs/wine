@@ -57,7 +57,7 @@ const faq = [
   {
     question: "Cum caut un vin in catalog?",
     answer:
-      "Foloseste filtrele dupa tip (alb, rosu, spumant), pret sau Value Score. Poti cauta si dupa nume, crama, regiune sau soi.",
+      "Filtreaza dupa culoare sau tip, dulceata, pret si Value Score. Poti cauta si dupa nume, crama, regiune sau soi.",
   },
   {
     question: "Pot adauga un vin care lipseste?",
@@ -110,8 +110,8 @@ export default async function VinuriCatalogPage() {
                 Vinuri romanesti
               </h1>
               <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-                Exploreaza dupa tip (alb, rosu, spumant), compara Value Score-ul
-                si gaseste rapid vinuri care merita banii la pretul din magazine.
+                Exploreaza vinurile romanesti dupa culoare, dulceata si buget,
+                apoi compara-le dupa Value Score.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button

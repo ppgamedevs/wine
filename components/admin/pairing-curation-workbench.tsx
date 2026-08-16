@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { approveCuratedPairingsAction } from "@/app/admin/actions";
@@ -10,6 +10,30 @@ import { basisProvenanceLabel } from "@/lib/curated-evidence";
 import { previewCurationImpact } from "@/lib/pairing-curation-preview";
 import type { PairingDraft } from "@/lib/pairing-curation-types";
 import type { FoodPairingStrength } from "@/lib/schema";
+
+const SKIP_STORAGE_KEY = "vinintel-pairing-review-skipped";
+
+function readSkippedSlugs(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.sessionStorage.getItem(SKIP_STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function cardStatus(
+  card: CurationCard,
+  skipped: string[],
+): "curated" | "skipped" | "pending" {
+  if (card.existingPairings.length > 0) return "curated";
+  if (skipped.includes(card.slug)) return "skipped";
+  return "pending";
+}
 
 interface PairingCurationWorkbenchProps {
   cards: CurationCard[];
@@ -28,9 +52,14 @@ export function PairingCurationWorkbench({
   const [message, setMessage] = useState<string | null>(null);
   const card = cards[index];
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [skipped, setSkipped] = useState<string[]>([]);
   const [edits, setEdits] = useState<
     Record<string, { dish: string; rationale: string; strength: FoodPairingStrength }>
   >({});
+
+  useEffect(() => {
+    setSkipped(readSkippedSlugs());
+  }, []);
 
   const selectedDrafts = useMemo(() => {
     if (!card) return [];
@@ -57,6 +86,15 @@ export function PairingCurationWorkbench({
     return previewCurationImpact(card.previewWine, selectedDrafts);
   }, [card, selectedDrafts]);
 
+  const reviewed = cards.filter(
+    (item) => cardStatus(item, skipped) !== "pending",
+  ).length;
+  const curatedCount = cards.filter((item) => item.existingPairings.length > 0).length;
+  const skippedCount = cards.filter(
+    (item) => cardStatus(item, skipped) === "skipped",
+  ).length;
+  const status = card ? cardStatus(card, skipped) : "pending";
+
   if (!card || !selectedImpact) {
     return <p className="text-sm text-muted-foreground">Nu exista vinuri in lot.</p>;
   }
@@ -64,6 +102,19 @@ export function PairingCurationWorkbench({
   function toggle(dish: string) {
     const key = `${card.slug}:${dish}`;
     setSelected((current) => ({ ...current, [key]: !(current[key] === true) }));
+  }
+
+  function goNext() {
+    setIndex((current) => Math.min(current + 1, cards.length - 1));
+  }
+
+  function skipCurrent(reason: "skipped" | "later") {
+    if (reason === "skipped" && card) {
+      const next = [...new Set([...skipped, card.slug])];
+      setSkipped(next);
+      window.sessionStorage.setItem(SKIP_STORAGE_KEY, JSON.stringify(next));
+    }
+    goNext();
   }
 
   function approveSelected() {
@@ -87,9 +138,15 @@ export function PairingCurationWorkbench({
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          Vin {index + 1} / {cards.length}
-        </p>
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground">
+            Vin {index + 1} / {cards.length} · {reviewed} / {cards.length} revizuite
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {curatedCount} curate · {skippedCount} sarite ·{" "}
+            {cards.length - reviewed} in asteptare · status {status}
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
@@ -99,13 +156,24 @@ export function PairingCurationWorkbench({
           >
             Anterior
           </Button>
+          <Button type="button" variant="outline" size="sm" onClick={goNext}>
+            Urmatorul
+          </Button>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setIndex((current) => Math.min(cards.length - 1, current + 1))}
+            onClick={() => skipCurrent("later")}
           >
-            Urmatorul
+            Mai tarziu
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => skipCurrent("skipped")}
+          >
+            Fara asociere
           </Button>
           <Button type="button" size="sm" disabled={pending} onClick={approveSelected}>
             Aproba selectia

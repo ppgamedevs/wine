@@ -58,8 +58,10 @@ describe("pairing curation", () => {
     const generated = generatePairingDrafts(wine({ slug: "balla-test" }));
     expect(generated.length).toBeGreaterThan(0);
     expect(generated.every((item) => item.rationale.length > 0)).toBe(true);
+    expect(generated.every((item) => !("source" in item))).toBe(true);
     const approved = toApprovedFoodPairings([], []);
     expect(approved).toEqual([]);
+    expect(wine({ slug: "untouched" }).foodPairings).toEqual([]);
   });
 
   it("B: approval requires admin auth", () => {

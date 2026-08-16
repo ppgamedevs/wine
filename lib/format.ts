@@ -1,4 +1,4 @@
-import type { WineType } from "@/types";
+import type { WineSweetness, WineType } from "@/types";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_EXCEPTIONAL_MIN,
@@ -53,6 +53,13 @@ export const wineTypeLabel: Record<WineType, string> = {
   sparkling: "Spumant",
   dessert: "Desert",
   orange: "Orange",
+};
+
+export const wineSweetnessLabel: Record<WineSweetness, string> = {
+  sec: "Sec",
+  demisec: "Demisec",
+  demidulce: "Demidulce",
+  dulce: "Dulce",
 };
 
 export const wineTypeGradient: Record<WineType, string> = {
