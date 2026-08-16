@@ -6,10 +6,10 @@
 import {
   basisProvenanceLabel,
   evidenceContextFromPairingFields,
-  hasSafeProducerEvidenceForCategory,
   hasTechnicalSupportForCategory,
   sanitizeCuratedBasis,
 } from "@/lib/curated-evidence";
+import { hasExactOrNearExactProducerEvidence } from "@/lib/pairing/producer-provenance";
 import {
   assessFoodEvidence,
   assertFoodEvidencePatchHasNoScores,
@@ -104,17 +104,28 @@ export function generatePairingDrafts(wine: WineWithRelations): PairingDraft[] {
 
 export function lockDraftBasis(wine: WineWithRelations, draft: PairingDraft): PairingDraft {
   const context = wineEvidenceContext(wine);
-  const sanitized = sanitizeCuratedBasis(draft.basis, context, draft.category);
-  if (sanitized.rejectedProducerClaim) {
+  const exactProducer = hasExactOrNearExactProducerEvidence(
+    context,
+    draft.dish,
+    draft.category,
+  );
+  if (draft.basis.includes("producer_evidence") && !exactProducer) {
     throw new Error("basis=producer_evidence necesita evidenta oficiala pentru aceasta categorie.");
   }
+  const sanitized = sanitizeCuratedBasis(draft.basis, context, draft.category);
+  if (sanitized.rejectedProducerClaim && !exactProducer) {
+    throw new Error("basis=producer_evidence necesita evidenta oficiala pentru aceasta categorie.");
+  }
+  const basis = exactProducer
+    ? [...new Set(["producer_evidence" as const, ...sanitized.basis])]
+    : sanitized.basis;
   if (
     draft.basis.includes("technical_data") &&
     !hasTechnicalSupportForCategory(context, draft.category)
   ) {
-    return { ...draft, basis: sanitized.basis };
+    return { ...draft, basis };
   }
-  return { ...draft, basis: sanitized.basis };
+  return { ...draft, basis };
 }
 
 export function validatePairingDrafts(
@@ -129,7 +140,7 @@ export function validatePairingDrafts(
   for (const draft of drafts) {
     if (
       draft.basis.includes("producer_evidence") &&
-      !hasSafeProducerEvidenceForCategory(context, draft.category)
+      !hasExactOrNearExactProducerEvidence(context, draft.dish, draft.category)
     ) {
       issues.push({
         level: "error",

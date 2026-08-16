@@ -11,6 +11,10 @@ import { scoreDishCompatibility } from "@/lib/pairing/dish-compatibility";
 import { selectDiversePairings } from "@/lib/pairing/diversity-select";
 import { pairingRationale } from "@/lib/pairing/pairing-rationale";
 import {
+  applyProducerProvenanceToDraft,
+  classifyProducerProvenance,
+} from "@/lib/pairing/producer-provenance";
+import {
   findRomanianDishByName,
   ROMANIAN_DISHES,
 } from "@/lib/pairing/romanian-dishes";
@@ -70,7 +74,12 @@ export function generateRomanianPairingDrafts(
     ) {
       basis.push("technical_data");
     }
-    if (row.exactProducer) basis.unshift("producer_evidence");
+    const provenance = classifyProducerProvenance(
+      context,
+      row.dish.name,
+      row.dish.foodCategory,
+    );
+    const exactProducer = provenance === "EXACT_PRODUCER";
 
     let strength: FoodPairingStrength = "good";
     if (index === 0 && row.score >= topScore - 1 && row.score >= 58) {
@@ -80,24 +89,27 @@ export function generateRomanianPairingDrafts(
     }
 
     let confidence: PairingDraft["confidence"] = "MEDIUM";
-    if (row.exactProducer && profile.hasTechnicalFacts) confidence = "HIGH";
+    if (exactProducer && profile.hasTechnicalFacts) confidence = "HIGH";
     else if (!profile.grapeNames.length && !profile.hasTechnicalFacts) {
       confidence = "LOW";
     }
 
-    return {
-      dish: row.dish.name,
-      category: row.dish.foodCategory,
-      rationale: pairingRationale(profile, row.dish, row.exactProducer),
-      basis,
-      confidence,
-      strength,
-      styleOnlyWarning: !row.exactProducer && !profile.hasTechnicalFacts,
-      provenanceLocked: true,
-      dishId: row.dish.id,
-      romanianDiscovery: row.dish.romanian && row.dish.discoveryValue >= 4,
-      romanianRegion: row.dish.romanianRegion,
-    };
+    return applyProducerProvenanceToDraft(
+      {
+        dish: row.dish.name,
+        category: row.dish.foodCategory,
+        rationale: pairingRationale(profile, row.dish, exactProducer),
+        basis,
+        confidence,
+        strength,
+        styleOnlyWarning: !exactProducer && !profile.hasTechnicalFacts,
+        provenanceLocked: exactProducer,
+        dishId: row.dish.id,
+        romanianDiscovery: row.dish.romanian && row.dish.discoveryValue >= 4,
+        romanianRegion: row.dish.romanianRegion,
+      },
+      provenance,
+    );
   });
 }
 

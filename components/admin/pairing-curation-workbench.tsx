@@ -6,7 +6,14 @@ import { useRouter } from "next/navigation";
 import { approveCuratedPairingsAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import type { CurationCard } from "@/lib/pairing-curation-cards";
-import { basisProvenanceLabel } from "@/lib/curated-evidence";
+import {
+  basisProvenanceLabel,
+  evidenceContextFromPairingFields,
+} from "@/lib/curated-evidence";
+import {
+  RELATED_PRODUCER_NOTICE,
+  resolveDraftProducerProvenance,
+} from "@/lib/pairing/producer-provenance";
 import {
   draftMatchesExistingPairing,
   partitionPairingDrafts,
@@ -101,25 +108,43 @@ export function PairingCurationWorkbench({
     return partitionPairingDrafts(card.drafts, card.existingPairings);
   }, [card]);
 
+  const producerContext = useMemo(() => {
+    if (!card) return null;
+    return evidenceContextFromPairingFields({
+      type: card.previewWine.type,
+      sweetness: card.previewWine.sweetness,
+      alcohol: card.previewWine.alcohol,
+      acidity: card.previewWine.acidity,
+      producerCulinaryPairings: card.previewWine.producerContent?.culinaryPairings,
+      foodEvidence: card.previewWine.producerContent?.foodEvidence,
+      culinaryLaundryRejected:
+        card.previewWine.producerContent?.culinaryLaundryRejected,
+      culinaryChromeRejected:
+        card.previewWine.producerContent?.culinaryChromeRejected,
+    });
+  }, [card]);
+
   const selectedDrafts = useMemo(() => {
-    if (!card) return [];
+    if (!card || !producerContext) return [];
     return newDrafts
       .filter((draft) => selected[draftSelectionKey(card.slug, draft.dish)] === true)
       .map((draft) => {
         const edit = edits[draftSelectionKey(card.slug, draft.dish)];
-        if (!edit) return draft;
-        return {
-          ...draft,
-          dish: edit.dish,
-          rationale: edit.rationale,
-          strength: edit.strength,
-          basis: draft.basis.includes("editorial_judgment")
-            ? draft.basis
-            : [...draft.basis, "editorial_judgment" as const],
-        } satisfies PairingDraft;
+        const edited: PairingDraft = edit
+          ? {
+              ...draft,
+              dish: edit.dish,
+              rationale: edit.rationale,
+              strength: edit.strength,
+              basis: draft.basis.includes("editorial_judgment")
+                ? draft.basis
+                : [...draft.basis, "editorial_judgment" as const],
+            }
+          : draft;
+        return resolveDraftProducerProvenance(edited, producerContext);
       })
       .filter((draft) => !draftMatchesExistingPairing(draft, card.existingPairings));
-  }, [card, edits, newDrafts, selected]);
+  }, [card, edits, newDrafts, producerContext, selected]);
 
   const selectedImpact = useMemo(() => {
     if (!card) return null;
@@ -403,6 +428,14 @@ export function PairingCurationWorkbench({
               strength: draft.strength,
             };
             const checked = selected[key] === true;
+            const resolved = producerContext
+              ? resolveDraftProducerProvenance(
+                  { ...draft, dish: edit.dish },
+                  producerContext,
+                )
+              : draft;
+            const relatedNotice =
+              resolved.producerProvenanceClass === "RELATED_PRODUCER_CATEGORY";
             return (
               <label key={key} className="block rounded-xl border border-border p-4">
                 <div className="flex items-start gap-3">
@@ -450,8 +483,11 @@ export function PairingCurationWorkbench({
                       Sursa editoriala: Recomandare VinIntel
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Baza: {basisProvenanceLabel(draft.basis)}
+                      Baza: {basisProvenanceLabel(resolved.basis)}
                     </p>
+                    {relatedNotice ? (
+                      <p className="text-xs text-amber-800">{RELATED_PRODUCER_NOTICE}</p>
+                    ) : null}
                     <label className="block text-xs text-muted-foreground">
                       Strength recomandare
                       <select

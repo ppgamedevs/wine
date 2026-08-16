@@ -3,6 +3,11 @@ import type { FoodPairingBasis, FoodPairingStrength } from "@/lib/schema";
 
 export type ProposalConfidence = "HIGH" | "MEDIUM" | "LOW";
 
+export type ProducerProvenanceClass =
+  | "EXACT_PRODUCER"
+  | "RELATED_PRODUCER_CATEGORY"
+  | "STYLE_ONLY";
+
 export interface PairingDraft {
   dish: string;
   category: FoodCategoryId;
@@ -15,4 +20,5 @@ export interface PairingDraft {
   dishId?: string;
   romanianDiscovery?: boolean;
   romanianRegion?: string | null;
+  producerProvenanceClass?: ProducerProvenanceClass;
 }
