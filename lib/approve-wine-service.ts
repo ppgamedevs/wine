@@ -12,6 +12,7 @@ import {
   resolveWineSubmittedEmail,
 } from "@/lib/wine-submitter-email";
 import { scheduleIndexNowWine } from "@/lib/indexnow";
+import { assertWineCanBePublished } from "@/lib/publication-integrity";
 import { matchDishPairingSlug } from "@/lib/dish-pairing-pages";
 import { slugify } from "@/lib/wine-url";
 
@@ -42,6 +43,8 @@ export async function approveCommunityWine(
 
   const imageExtracted = await extractAndSaveWineImageIfMissing(wineId);
   const editorialGenerated = await generateAndApplyFullEditorialIfMissing(wineId);
+
+  await assertWineCanBePublished(wineId);
 
   await db
     .update(wines)

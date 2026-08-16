@@ -71,35 +71,46 @@ const editorialDessertPairingSchema = z.object({
 export const wineEditorialSchema = z.object({
   descriptionEditorial: z
     .string()
-    .describe("80-120 cuvinte: ce fel de vin este, ce ofera, pentru cine"),
+    .default("")
+    .describe(
+      "Descriere onesta. Poate fi goala daca evidenta e insuficienta. Nu inventa note de degustare.",
+    ),
   valueExplanation: z
     .string()
-    .describe("2-3 propozitii: merita banii la pretul actual sau nu"),
+    .default("")
+    .describe(
+      "2-3 propozitii despre pret, sau gol daca nu exista pret/context suficient.",
+    ),
   thingsYouShouldKnow: z
     .array(z.string())
-    .min(3)
     .max(4)
-    .describe("Insight-uri utile pe care majoritatea nu le stiu"),
+    .default([])
+    .describe("Insight-uri doar din evidenta. Array gol daca nu exista fapte suficiente."),
   tasteProfile: z
     .string()
-    .describe("Stil gustativ scurt: fructat, structurat, mineral etc."),
+    .default("")
+    .describe(
+      "Profil gustativ doar din note de degustare/producator. Gol daca nu exista evidenta.",
+    ),
   foodPairingNotes: z
     .array(editorialPairingSchema)
-    .min(2)
     .max(5)
-    .describe("Pairing-uri cu mancare romaneasca"),
+    .default([])
+    .describe(
+      "0-5 pairing-uri. Array gol daca nu exista pairing evaluat sau evidenta de degustare.",
+    ),
   dessertPairings: z
     .array(editorialDessertPairingSchema)
     .max(4)
     .default([])
     .describe(
-      "Pairing-uri cu deserturi romanesti; obligatoriu pentru vinuri dulci/demidulce, optional altfel",
+      "Pairing-uri cu deserturi romanesti; array gol daca nu exista baza factuale.",
     ),
   recommendedOccasions: z
     .array(z.string())
-    .min(2)
     .max(4)
-    .describe("Ocazii locale relevante"),
+    .default([])
+    .describe("Ocazii locale. Array gol daca nu exista baza suficienta."),
   valueScore: z.number().int().min(1).max(100),
   giftScore: z.number().int().min(1).max(100),
   foodMatchScore: z.number().int().min(1).max(100),

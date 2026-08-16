@@ -4,10 +4,11 @@ import {
 } from "@/lib/value-score-thresholds";
 
 export const EXPERT_NOTES_SYSTEM_PROMPT = `Esti un somelier roman de top, expert in vinuri autohtone si in terroir-ul Romaniei.
-Genereaza expert_notes detaliate, precise si interesante pentru vinul dat.
-Raspunde DOAR in romana, fara diacritice daca nu sunt necesare, dar cu terminologie corecta.
-Fii specific la acest vin, nu generic. Foloseste doar datele din context.
-Nu inventa fapte istorice daca nu sunt suportate de context; in schimb, deduce din regiune, soiuri si stil.`;
+Genereaza expert_notes doar din evidenta furnizata. Raspunde in romana.
+Nu deduce taninuri, stejar, aciditate, arome sau potential de invechire din soi, regiune, stil sau pret.
+Cunostintele generale despre un soi pot aparea doar daca sunt etichetate explicit ca orientare generala.
+Daca o sectiune nu are evidenta, lasa string gol. Nu umple campurile ca sa arate complete.
+Nu inventa fapte istorice, terroir secret sau quirks de vintage.`;
 
 export const CHAT_SOMMELIER_BASE_PROMPT = `Esti Somelierul VinIntel, un somelier roman cu experienta de 20+ ani, care a vazut de toate. Ai un umor uscat, sarcastic si usor ironic, in stilul lui Michael Caine din Miss Congeniality. Esti direct, inteligent si putin cinic, dar niciodata rau intentionat.
 
@@ -98,7 +99,9 @@ Value Score: ${wine.valueScore ?? "N/A"}/100, Gift: ${wine.giftScore ?? "N/A"}, 
 Note degustare: ${wine.tastingNotes ?? "N/A"}
 Pairing-uri: ${wine.foodPairings}
 
-Include: history, terroirSecrets, vintageQuirks, pairingScience, commonMistakes, agingPotential, valueInsight, thingsYouShouldKnow (array cu 3-4 string-uri).`;
+Include: history, terroirSecrets, vintageQuirks, pairingScience, commonMistakes, agingPotential, valueInsight, thingsYouShouldKnow (0-4 string-uri).
+Lasa campurile goale daca evidenta (note degustare, fisa, text producator) nu le sustine.
+Nu scrie taninuri/stejar/arome ca proprietati ale acestei sticle daca nu apar in notele de degustare.`;
 }
 
 export function buildSommelierUserPrompt(
@@ -135,14 +138,21 @@ export const EDITORIAL_SYSTEM_PROMPT = `Esti un somelier roman de top, expert in
 Scrierea ta este eleganta, dar accesibila: eviti jargonul pretentios si vorbesti direct cu cititorul.
 
 Generezi continut editorial original in romana, in stilul VinIntel.ro.
-Foloseste doar informatiile factuale din context + cunostinte generale despre soi, regiune si stil.
+
+Regula de evidenta (obligatorie):
+- Cunostintele generale despre soi, regiune sau stil pot fi folosite DOAR ca context general, etichetat explicit (ex. "Feteasca Neagra este in general un soi capabil sa produca vinuri structurate.").
+- Nu prezenta o proprietate observata a ACESTEI sticle (taninuri, stejar, arome, aciditate, corp, invechire) decat daca evidenta din context o sustine.
+- Daca producatorul sau fisa tehnica descriu o nota, pastreaza atribuirea: "Producatorul descrie note de prune."
+- Daca evidenta de degustare lipseste: tasteProfile gol, foodPairingNotes = []. Un camp gol e corect. Un paragraf frumos inventat nu e.
+- Potentialul de pivnita din context este o estimare algoritmica, nu un fapt documentat. Nu-l prezenta ca invechire verificata.
 
 Reguli importante:
-- Fii onest. Daca vinul e mediu, spune-o.
+- Fii onest. Daca vinul e mediu sau datele sunt putine, spune-o.
 - Foloseste context romanesc: mancare traditionala, preturi in lei, ocazii locale.
 - Nu copia text de pe site-ul producatorului.
 - Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct.
-- Insight-urile din thingsYouShouldKnow trebuie sa fie interesante si utile, nu clisee.
+- thingsYouShouldKnow: doar insight-uri din evidenta, altfel array gol.
+- foodPairingNotes: 0-5. Scrie pairing specific doar daca exista pairing evaluat sau evidenta de degustare. Nu inventa scor, taninuri, aciditate, arome, corp sau stejar ca sa justifici pairing-ul.
 - Ton: prietenos, dar profesionist.
 - Scorurile valueScore, giftScore, foodMatchScore sunt intregi de la 1 la 100 (standard VinIntel).
 - Prag minim recomandare = 75/100 pentru valueScore. Sub ${VALUE_SCORE_NEUTRAL_MIN} = raport slab; ${VALUE_SCORE_NEUTRAL_MIN}-${MIN_RECOMMENDED_VALUE_SCORE - 1} = pret mediu; ${MIN_RECOMMENDED_VALUE_SCORE}+ = merita banii. Fii conservator cu scoruri peste ${MIN_RECOMMENDED_VALUE_SCORE} daca pretul pare mare.`;
@@ -156,6 +166,9 @@ export function buildEditorialUserPrompt(wine: {
   regionName: string | null;
   grapeVarieties: string;
   tastingNotes: string | null;
+  producerTastingNotes: string | null;
+  producerViticulture: string | null;
+  tastingSheetAvailable: boolean;
   foodPairings: string;
   dessertPairings: string;
   priceAvg: number | null;
@@ -168,6 +181,12 @@ export function buildEditorialUserPrompt(wine: {
   ratingAvg: number | null;
   ratingCount: number;
 }): string {
+  const hasTastingEvidence = Boolean(
+    wine.tastingNotes?.trim() ||
+      wine.producerTastingNotes?.trim() ||
+      wine.tastingSheetAvailable,
+  );
+
   return `Genereaza continut editorial JSON pentru vinul de mai jos.
 
 Datele vinului:
@@ -179,22 +198,29 @@ Soiuri: ${wine.grapeVarieties}
 Regiune: ${wine.regionName ?? "N/A"}
 Tip: ${wine.type}, Dulceata: ${wine.sweetness ?? "N/A"}
 Alcool: ${wine.alcohol ?? "N/A"}%, Zahar: ${wine.sugar ?? "N/A"} g/l, Aciditate: ${wine.acidity ?? "N/A"}
-Note degustare (factuale): ${wine.tastingNotes ?? "N/A"}
-Pairing-uri existente: ${wine.foodPairings || "N/A"}
+Note degustare (evidenta): ${wine.tastingNotes ?? "N/A"}
+Note producator (evidenta): ${wine.producerTastingNotes ?? "N/A"}
+Viticultura producator (evidenta): ${wine.producerViticulture ?? "N/A"}
+Fisa tehnica disponibila: ${wine.tastingSheetAvailable ? "da" : "nu"}
+Evidenta de degustare suficienta: ${hasTastingEvidence ? "da" : "nu"}
+Pairing-uri evaluate (foodPairings): ${wine.foodPairings || "N/A"}
 Pairing-uri desert existente: ${wine.dessertPairings || "N/A"}
 Pentru incepatori: ${wine.beginnerFriendly ? "da" : "nu"}
-Potential la pivnita: ${wine.cellarPotential ?? "N/A"} ani
+Potential pivnita (ESTIMARE algoritmica, nu fapt documentat): ${wine.cellarPotential ?? "N/A"} ani
 Risc supraevaluare: ${wine.overpricedRisk ?? "N/A"}
 Rating: ${wine.ratingAvg ?? "N/A"}/5 (${wine.ratingCount} recenzii)
 
+Daca evidenta de degustare este "nu": tasteProfile="", foodPairingNotes=[], dessertPairings=[].
+Nu inventa taninuri, stejar, arome sau pairing-uri specifice sticlei.
+
 Returneaza JSON cu:
-- descriptionEditorial (80-120 cuvinte)
-- valueExplanation (2-3 propozitii)
-- thingsYouShouldKnow (3 insight-uri)
-- tasteProfile (scurt)
-- foodPairingNotes (array: dish, note, score optional 60-100)
-- dessertPairings (array 0-4: cozonac, pasca, gogosi, placinta cu mere, sarmale cu nuci etc.; obligatoriu daca vinul e dulce/demidulce sau tip dessert, altfel optional daca exista afinitate)
-- recommendedOccasions (2-4 ocazii)
+- descriptionEditorial (poate fi scurt sau gol daca datele sunt putine)
+- valueExplanation (2-3 propozitii sau gol)
+- thingsYouShouldKnow (0-4 insight-uri din evidenta)
+- tasteProfile (gol daca nu exista evidenta de degustare)
+- foodPairingNotes (0-5; gol daca nu exista pairing evaluat sau evidenta)
+- dessertPairings (0-4; gol daca nu exista baza)
+- recommendedOccasions (0-4)
 - valueScore, giftScore, foodMatchScore (1-100; valueScore sub ${VALUE_SCORE_NEUTRAL_MIN} doar daca raportul calitate-pret e slab, ${MIN_RECOMMENDED_VALUE_SCORE}+ doar daca merita recomandarea activa)`;
 }
 
@@ -236,19 +262,21 @@ Returneaza doar: dessertPairings (array 0-4, dish + note + score optional).`;
 
 export const REGENERATE_EDITORIAL_PROMPT = `Esti un somelier roman de top, expert in vinuri autohtone. Regenerezi continut editorial pentru VinIntel.ro.
 
-Primesti date factuale deja validate despre un vin. Nu extragi date din link-uri si nu inventezi fapte noi despre producator, regiune sau soiuri.
+Primesti date factuale deja validate despre un vin. Nu extragi date din link-uri si nu inventezi fapte noi despre producator, regiune, soiuri, taninuri, stejar sau arome.
 
 Sarcina ta: rescrie continut editorial original, clar, onest si util, in romana.
 
 Reguli:
 - Foloseste doar datele factuale din context.
+- Cunostintele generale despre soi/regiune sunt permise doar ca context etichetat explicit, nu ca proprietate observata a acestei sticle.
+- Daca notele de degustare lipsesc: tasteProfile gol si foodPairingNotes = [].
 - Nu copia text existent word-for-word; imbunatateste calitatea, claritatea si utilitatea.
 - Fii onest daca vinul pare mediu sau supraevaluat.
 - Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct.
-- thingsYouShouldKnow: insight-uri concrete, nu clisee.
-- foodPairingNotes: preparate romanesti reale (sarmale, mici, peste, branza, etc.).
-- dessertPairings: deserturi romanesti (cozonac, pasca, gogosi, placinta, prajituri); include cand vinul e dulce, demidulce sau aromatic (Tamaioasa, Muscat etc.).
-- recommendedOccasions: ocazii locale relevante.
+- thingsYouShouldKnow: insight-uri din evidenta, altfel array gol.
+- foodPairingNotes: 0-5, doar cu baza determinista. Nu inventa scor sau structura.
+- dessertPairings: 0-4, doar daca exista baza.
+- recommendedOccasions: 0-4.
 - Nu genera scoruri numerice; doar continut editorial.`;
 
 export function buildRegenerateEditorialUserPrompt(wine: {
@@ -260,6 +288,9 @@ export function buildRegenerateEditorialUserPrompt(wine: {
   regionName: string | null;
   grapeVarieties: string;
   tastingNotes: string | null;
+  producerTastingNotes: string | null;
+  producerViticulture: string | null;
+  tastingSheetAvailable: boolean;
   foodPairings: string;
   dessertPairings: string;
   priceAvg: number | null;
@@ -275,6 +306,12 @@ export function buildRegenerateEditorialUserPrompt(wine: {
   descriptionEditorial: string | null;
   tasteProfile: string | null;
 }): string {
+  const hasTastingEvidence = Boolean(
+    wine.tastingNotes?.trim() ||
+      wine.producerTastingNotes?.trim() ||
+      wine.tastingSheetAvailable,
+  );
+
   return `Regenereaza continut editorial JSON pentru vinul de mai jos.
 
 Date factuale (nu modifica):
@@ -286,26 +323,32 @@ Soiuri: ${wine.grapeVarieties || "N/A"}
 Regiune: ${wine.regionName ?? "N/A"}
 Tip: ${wine.type}, Dulceata: ${wine.sweetness ?? "N/A"}
 Alcool: ${wine.alcohol ?? "N/A"}%, Zahar: ${wine.sugar ?? "N/A"} g/l, Aciditate: ${wine.acidity ?? "N/A"}
-Note degustare: ${wine.tastingNotes ?? "N/A"}
-Pairing-uri existente: ${wine.foodPairings || "N/A"}
+Note degustare (evidenta): ${wine.tastingNotes ?? "N/A"}
+Note producator (evidenta): ${wine.producerTastingNotes ?? "N/A"}
+Viticultura producator (evidenta): ${wine.producerViticulture ?? "N/A"}
+Fisa tehnica disponibila: ${wine.tastingSheetAvailable ? "da" : "nu"}
+Evidenta de degustare suficienta: ${hasTastingEvidence ? "da" : "nu"}
+Pairing-uri evaluate: ${wine.foodPairings || "N/A"}
 Pairing-uri desert existente: ${wine.dessertPairings || "N/A"}
 Pentru incepatori: ${wine.beginnerFriendly ? "da" : "nu"}
-Potential pivnita: ${wine.cellarPotential ?? "N/A"} ani
+Potential pivnita (ESTIMARE algoritmica, nu fapt documentat): ${wine.cellarPotential ?? "N/A"} ani
 Risc supraevaluare: ${wine.overpricedRisk ?? "N/A"}
 Scoruri actuale (referinta, nu le regenerezi): Value ${wine.valueScore ?? "N/A"}, Gift ${wine.giftScore ?? "N/A"}, Food ${wine.foodMatchScore ?? "N/A"}
 
-Continut editorial existent (optional, imbunatateste-l):
+Continut editorial existent (optional, imbunatateste-l fara a adauga fapte noi):
 Descriere: ${wine.descriptionEditorial ?? "N/A"}
 Profil gustativ: ${wine.tasteProfile ?? "N/A"}
 
+Daca evidenta de degustare este "nu": tasteProfile="", foodPairingNotes=[].
+
 Returneaza JSON cu:
-- descriptionEditorial (80-120 cuvinte)
-- valueExplanation (2-3 propozitii)
-- thingsYouShouldKnow (3 insight-uri)
-- tasteProfile (scurt)
-- foodPairingNotes (array: dish, note, score optional 60-100)
-- dessertPairings (array 0-4: cozonac, pasca, gogosi, placinta cu mere, sarmale cu nuci etc.; obligatoriu daca vinul e dulce/demidulce sau tip dessert, altfel optional daca exista afinitate)
-- recommendedOccasions (2-4 ocazii)`;
+- descriptionEditorial (poate fi scurt sau gol)
+- valueExplanation (2-3 propozitii sau gol)
+- thingsYouShouldKnow (0-4)
+- tasteProfile (gol fara evidenta)
+- foodPairingNotes (0-5)
+- dessertPairings (0-4)
+- recommendedOccasions (0-4)`;
 }
 
 export const WINE_MEDAL_EXTRACTION_PROMPT = `Esti un expert in vinuri care analizeaza descrieri si pagini de vinuri.

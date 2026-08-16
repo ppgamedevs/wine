@@ -1,3 +1,9 @@
+import {
+  looksLikeInferredCellarPotential,
+  looksLikeQualityAdjectiveProse,
+  validateEditorialClaims,
+  type EditorialClaimIssue,
+} from "@/lib/editorial-claim-validator";
 import { db } from "@/lib/db";
 import {
   calculateQualityConfidence,
@@ -6,8 +12,11 @@ import {
 } from "@/lib/scoring-v2";
 import type {
   AffiliateLink,
+  EditorialFoodPairingNote,
+  ExpertNotes,
   FoodPairing,
   PriceHistoryEntry,
+  ProducerPageContent,
   WineMedal,
 } from "@/lib/schema";
 import { VALUE_SCORE_EXCEPTIONAL_MIN } from "@/lib/value-score-thresholds";
@@ -28,6 +37,9 @@ export interface IntegrityIssue {
   severity: IntegritySeverity;
   code: string;
   message: string;
+  explanation?: string;
+  evidenceSummary?: string;
+  blocksPublication?: boolean;
 }
 
 export interface WineScanInput {
@@ -54,6 +66,23 @@ export interface WineScanInput {
   sourceUrl: string | null;
   affiliateLinks: AffiliateLink[];
   descriptionEditorial: string | null;
+  valueExplanation?: string | null;
+  tasteProfile?: string | null;
+  thingsYouShouldKnow?: string[] | null;
+  foodPairingNotes?: EditorialFoodPairingNote[] | null;
+  dessertPairings?: EditorialFoodPairingNote[] | null;
+  recommendedOccasions?: string[] | null;
+  expertNotes?: ExpertNotes | null;
+  tastingNotes?: string | null;
+  producerContent?: ProducerPageContent | null;
+  producerPageUrl?: string | null;
+  tastingSheetUrl?: string | null;
+  alcohol?: number | null;
+  acidity?: number | null;
+  sugar?: number | null;
+  cellarPotential?: number | null;
+  drinkabilityStart?: number | null;
+  drinkabilityEnd?: number | null;
   foodPairings: FoodPairing[];
   updatedAt: string;
 }
@@ -305,8 +334,12 @@ export function detectContradictorySweetnessText(
       .toLowerCase();
     if (!text.trim() || !wine.sweetness) continue;
 
-    const mentionsSweet = SWEET_WORDS.some((word) => text.includes(word));
-    const mentionsOffDry = OFF_DRY_WORDS.some((word) => text.includes(word));
+    const mentionsSweet = SWEET_WORDS.some((word) =>
+      new RegExp(`\\b${word}\\b`).test(text),
+    );
+    const mentionsOffDry = OFF_DRY_WORDS.some((word) =>
+      new RegExp(`\\b${word}\\b`).test(text),
+    );
     const mentionsDry = new RegExp(`\\b${DRY_WORD}\\b`).test(text);
 
     if (wine.sweetness === "sec" && (mentionsSweet || mentionsOffDry)) {
@@ -430,6 +463,222 @@ export interface IntegrityScanReport {
   duplicateGroups: DuplicateCandidateGroup[];
 }
 
+const PUBLICATION_BLOCKING_CODES = new Set([
+  "invalid_vintage",
+  "TYPE_EDITORIAL_CONTRADICTION",
+  "SWEETNESS_EDITORIAL_CONTRADICTION",
+  "sweetness_contradiction",
+  "AGEING_EDITORIAL_CONTRADICTION",
+  "UNSUPPORTED_TANNIN_CLAIM",
+  "UNSUPPORTED_OAK_CLAIM",
+  "UNSUPPORTED_SENSORY_CLAIM",
+  "NO_DATA_BUT_SPECIFIC_CLAIMS",
+  "EXPERT_NOTE_UNSUPPORTED",
+  "EDITORIAL_PAIRING_UNSUPPORTED",
+  "PAIRING_REASON_UNSUPPORTED",
+  "PAIRING_CONTRADICTS_WINE_TYPE",
+]);
+
+export function isPublicationBlockingIssue(issue: IntegrityIssue): boolean {
+  if (issue.blocksPublication === true) return true;
+  if (issue.blocksPublication === false) return false;
+  return (
+    (issue.severity === "critical" || issue.severity === "high") &&
+    PUBLICATION_BLOCKING_CODES.has(issue.code)
+  );
+}
+
+function evidenceSummaryFor(wine: WineScanInput): string {
+  const parts = [
+    wine.tastingNotes?.trim() ? "tastingNotes" : null,
+    wine.producerContent?.tastingNotes?.trim() ? "producer.tastingNotes" : null,
+    wine.tastingSheetUrl?.trim() ? "tastingSheetUrl" : null,
+    (wine.foodPairings?.length ?? 0) > 0 ? "foodPairings" : null,
+    wine.acidity != null ? `acidity=${wine.acidity}` : null,
+  ].filter((part): part is string => Boolean(part));
+  return parts.length > 0 ? parts.join(", ") : "fara evidenta de degustare";
+}
+
+function claimIssueToIntegrity(
+  wine: WineScanInput,
+  claim: EditorialClaimIssue,
+): IntegrityIssue {
+  return {
+    wineId: wine.id,
+    slug: wine.slug,
+    severity: claim.severity,
+    code: claim.code,
+    message: claim.message,
+    explanation: claim.explanation,
+    evidenceSummary: evidenceSummaryFor(wine),
+    blocksPublication: claim.blocksPublication,
+  };
+}
+
+/**
+ * Claim-uri editoriale, pairing si expert notes. Foloseste acelasi validator
+ * ca fact-guard-ul de generare, ca sa nu existe doua seturi de reguli.
+ */
+export function detectEditorialTruthIssues(
+  input: WineScanInput[],
+): IntegrityIssue[] {
+  const issues: IntegrityIssue[] = [];
+
+  for (const wine of input) {
+    const claims = validateEditorialClaims(
+      {
+        descriptionEditorial: wine.descriptionEditorial,
+        valueExplanation: wine.valueExplanation,
+        tasteProfile: wine.tasteProfile,
+        thingsYouShouldKnow: wine.thingsYouShouldKnow,
+        foodPairingNotes: wine.foodPairingNotes,
+        dessertPairings: wine.dessertPairings,
+        recommendedOccasions: wine.recommendedOccasions,
+        expertNotes: wine.expertNotes,
+        foodPairings: wine.foodPairings,
+      },
+      {
+        type: wine.type,
+        sweetness: wine.sweetness,
+        grapeVarieties: wine.grapeVarieties,
+        regionName: wine.regionName,
+        wineryName: wine.wineryName,
+        vintage: wine.vintage,
+        tastingNotes: wine.tastingNotes,
+        producerContent: wine.producerContent,
+        producerPageUrl: wine.producerPageUrl,
+        tastingSheetUrl: wine.tastingSheetUrl,
+        alcohol: wine.alcohol,
+        acidity: wine.acidity,
+        sugar: wine.sugar,
+        foodPairings: wine.foodPairings,
+        medals: wine.medals,
+        cellarPotential: wine.cellarPotential,
+        drinkabilityStart: wine.drinkabilityStart,
+        drinkabilityEnd: wine.drinkabilityEnd,
+        expertNotes: wine.expertNotes,
+      },
+    );
+
+    for (const claim of claims) {
+      issues.push(claimIssueToIntegrity(wine, claim));
+    }
+
+    if (looksLikeQualityAdjectiveProse(wine.tasteProfile)) {
+      issues.push({
+        wineId: wine.id,
+        slug: wine.slug,
+        severity: "low",
+        code: "AI_TEXT_USED_AS_QUALITY_EVIDENCE",
+        message:
+          "tasteProfile contine adjective de calitate (complex/elegant/mineral/persistent). Acestea nu mai intra in Q, dar textul merita revizuit.",
+        explanation:
+          "Inainte de Truth Layer, heuristicQualityWithoutPrice putea adauga +2 Q din aceste cuvinte.",
+        evidenceSummary: evidenceSummaryFor(wine),
+        blocksPublication: false,
+      });
+    }
+
+    if (
+      wine.valueScore != null &&
+      wine.valueScore >= VALUE_SCORE_EXCEPTIONAL_MIN &&
+      looksLikeInferredCellarPotential({
+        type: wine.type,
+        price: wine.currentPrice ?? wine.priceAvg,
+        cellarPotential: wine.cellarPotential,
+        drinkabilityStart: wine.drinkabilityStart,
+        drinkabilityEnd: wine.drinkabilityEnd,
+      })
+    ) {
+      issues.push({
+        wineId: wine.id,
+        slug: wine.slug,
+        severity: "low",
+        code: "INFERRED_CELLAR_USED_AS_QUALITY_EVIDENCE",
+        message:
+          "cellarPotential arata a estimare algoritmica (rosu+pret), nu ca fereastra documentata. Nu mai intra in Q.",
+        explanation:
+          "Valorile 2/4 din regula de categorie/pret raman stocate ca ghid generic, dar nu sunt tratate ca potential verificat.",
+        evidenceSummary: evidenceSummaryFor(wine),
+        blocksPublication: false,
+      });
+    }
+  }
+
+  return issues;
+}
+
+export interface WineIssueGroup {
+  wineId: number;
+  slug: string;
+  status?: string;
+  valueScore?: number | null;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+  blocking: number;
+  issues: IntegrityIssue[];
+}
+
+export function groupIssuesByWine(
+  issues: IntegrityIssue[],
+  wines: WineScanInput[] = [],
+): WineIssueGroup[] {
+  const byId = new Map<number, WineIssueGroup>();
+  const wineById = new Map(wines.map((wine) => [wine.id, wine]));
+
+  for (const issue of issues) {
+    const existing = byId.get(issue.wineId);
+    if (!existing) {
+      const wine = wineById.get(issue.wineId);
+      byId.set(issue.wineId, {
+        wineId: issue.wineId,
+        slug: issue.slug,
+        status: wine?.status,
+        valueScore: wine?.valueScore,
+        critical: 0,
+        high: 0,
+        medium: 0,
+        low: 0,
+        blocking: 0,
+        issues: [issue],
+      });
+    } else {
+      existing.issues.push(issue);
+    }
+  }
+
+  for (const group of byId.values()) {
+    for (const issue of group.issues) {
+      group[issue.severity] += 1;
+      if (isPublicationBlockingIssue(issue)) group.blocking += 1;
+    }
+  }
+
+  return Array.from(byId.values()).sort((left, right) => {
+    if (right.blocking !== left.blocking) return right.blocking - left.blocking;
+    if (right.critical !== left.critical) return right.critical - left.critical;
+    if (right.high !== left.high) return right.high - left.high;
+    return (right.valueScore ?? 0) - (left.valueScore ?? 0);
+  });
+}
+
+export function reviewQueueGroups(
+  report: IntegrityScanReport,
+  wines: WineScanInput[],
+): WineIssueGroup[] {
+  const groups = groupIssuesByWine(report.issues, wines);
+  return groups.sort((left, right) => {
+    const leftVerified = left.status === "verified" ? 1 : 0;
+    const rightVerified = right.status === "verified" ? 1 : 0;
+    if (rightVerified !== leftVerified) return rightVerified - leftVerified;
+    if (right.critical !== left.critical) return right.critical - left.critical;
+    if (right.high !== left.high) return right.high - left.high;
+    return (right.valueScore ?? 0) - (left.valueScore ?? 0);
+  });
+}
+
 /** Ruleaza toate verificarile pure asupra unui set de date deja incarcat (fara I/O). Usor de testat unitar. */
 export function runIntegrityChecks(
   input: WineScanInput[],
@@ -443,6 +692,7 @@ export function runIntegrityChecks(
     ...detectInvalidAffiliateLinks(input),
     ...detectThinContent(input),
     ...detectContradictorySweetnessText(input),
+    ...detectEditorialTruthIssues(input),
   ];
 
   const duplicateGroups = detectDuplicateCandidates(input);
@@ -499,6 +749,23 @@ export async function runIntegrityScan(): Promise<IntegrityScanReport> {
       sourceUrl: true,
       affiliateLinks: true,
       descriptionEditorial: true,
+      valueExplanation: true,
+      tasteProfile: true,
+      thingsYouShouldKnow: true,
+      foodPairingNotes: true,
+      dessertPairings: true,
+      recommendedOccasions: true,
+      expertNotes: true,
+      tastingNotes: true,
+      producerContent: true,
+      producerPageUrl: true,
+      tastingSheetUrl: true,
+      alcohol: true,
+      acidity: true,
+      sugar: true,
+      cellarPotential: true,
+      drinkabilityStart: true,
+      drinkabilityEnd: true,
       foodPairings: true,
       updatedAt: true,
     },
@@ -532,6 +799,23 @@ export async function runIntegrityScan(): Promise<IntegrityScanReport> {
     sourceUrl: row.sourceUrl,
     affiliateLinks: row.affiliateLinks,
     descriptionEditorial: row.descriptionEditorial,
+    valueExplanation: row.valueExplanation,
+    tasteProfile: row.tasteProfile,
+    thingsYouShouldKnow: row.thingsYouShouldKnow,
+    foodPairingNotes: row.foodPairingNotes,
+    dessertPairings: row.dessertPairings,
+    recommendedOccasions: row.recommendedOccasions,
+    expertNotes: row.expertNotes,
+    tastingNotes: row.tastingNotes,
+    producerContent: row.producerContent,
+    producerPageUrl: row.producerPageUrl,
+    tastingSheetUrl: row.tastingSheetUrl,
+    alcohol: row.alcohol,
+    acidity: row.acidity,
+    sugar: row.sugar,
+    cellarPotential: row.cellarPotential,
+    drinkabilityStart: row.drinkabilityStart,
+    drinkabilityEnd: row.drinkabilityEnd,
     foodPairings: row.foodPairings,
     updatedAt: row.updatedAt,
   }));

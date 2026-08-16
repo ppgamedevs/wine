@@ -86,13 +86,13 @@ function sanitizeEditorialOutput(
     descriptionEditorial: sanitizeEditorialText(editorial.descriptionEditorial),
     valueExplanation: sanitizeEditorialText(editorial.valueExplanation),
     tasteProfile: sanitizeEditorialText(editorial.tasteProfile),
-    thingsYouShouldKnow: editorial.thingsYouShouldKnow.map((item) =>
+    thingsYouShouldKnow: (editorial.thingsYouShouldKnow ?? []).map((item) =>
       sanitizeEditorialText(item),
     ),
-    recommendedOccasions: editorial.recommendedOccasions.map((item) =>
+    recommendedOccasions: (editorial.recommendedOccasions ?? []).map((item) =>
       sanitizeEditorialText(item),
     ),
-    foodPairingNotes: editorial.foodPairingNotes.map((pairing) => ({
+    foodPairingNotes: (editorial.foodPairingNotes ?? []).map((pairing) => ({
       ...pairing,
       dish: sanitizeEditorialText(pairing.dish),
       note: sanitizeEditorialText(pairing.note),

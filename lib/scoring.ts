@@ -46,6 +46,7 @@ export interface ValueScoreInput {
   wineryName?: string;
   wineType?: string;
   cellarPotential?: number | null;
+  cellarPotentialVerified?: boolean;
   acidity?: number | null;
   tasteProfile?: string | null;
   vintage?: number | null;
@@ -208,7 +209,8 @@ function resolveBaseQuality(wine: ValueScoreInput): number {
       winery: wine.wineryName,
       alcohol: undefined,
       acidity: wine.acidity,
-      cellarPotential: wine.cellarPotential,
+      cellarPotential:
+        wine.cellarPotentialVerified === true ? wine.cellarPotential : null,
       medals: wine.wineMedals,
     }),
   );
@@ -490,33 +492,26 @@ function isWorldClassWinery(wineryName: string | undefined): boolean {
 }
 
 /**
- * Estimeaza bonusul de potential la invechire (+3 .. +6).
- * Foloseste cellarPotential (ani), tip rosu, aciditate si indicii din profilul de gust.
+ * Estimeaza bonusul de potential la invechire (+3 .. +6) pentru formula v1.
+ * tasteProfile (proza AI) nu intra niciodata in calcul. cellarPotential
+ * intra doar daca este marcat verificat, nu estimarea generica pret/categorie.
  */
 function calculateAgingPotentialBonus(input: {
   wineType?: string;
   cellarPotential?: number | null;
+  cellarPotentialVerified?: boolean;
   acidity?: number | null;
   tasteProfile?: string | null;
 }): number {
   const wineType = normalizeCategory(input.wineType ?? "");
   const isRed = wineType === "rosu" || wineType === "red";
-  const cellarYears = input.cellarPotential ?? 0;
-  const taste = (input.tasteProfile ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-
-  const structureSignals =
-    /tanin|structur|barrique|butoi|stejar|invech|evolut|corpolent|corp\b|persistent|miner|potential/.test(
-      taste,
-    );
+  const cellarYears =
+    input.cellarPotentialVerified === true ? (input.cellarPotential ?? 0) : 0;
 
   if (cellarYears >= 10) return 6;
   if (cellarYears >= 6) return 5;
   if (cellarYears >= 4) return 4;
   if (cellarYears >= 2) return 3;
-  if (isRed && structureSignals) return 4;
   if (isRed && input.acidity != null && input.acidity >= 4.5) return 3;
 
   return 0;
@@ -623,6 +618,7 @@ function toVinIntelScoreInput(wine: ValueScoreInput): VinIntelScoreInput {
     wineryName: wine.wineryName,
     wineType: wine.wineType,
     cellarPotential: wine.cellarPotential,
+    cellarPotentialVerified: wine.cellarPotentialVerified,
     acidity: wine.acidity,
     tasteProfile: wine.tasteProfile,
     wineMedals: wine.wineMedals,

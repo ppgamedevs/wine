@@ -7,6 +7,7 @@ vi.mock("@/lib/db", () => ({
 import {
   detectContradictorySweetnessText,
   detectDuplicateCandidates,
+  detectEditorialTruthIssues,
   detectInvalidAffiliateLinks,
   detectInvalidVintages,
   detectMissingSources,
@@ -44,7 +45,8 @@ function baseWine(overrides: Partial<WineScanInput> = {}): WineScanInput {
     sourceUrl: "https://retailer.example.com/wine",
     affiliateLinks: [],
     descriptionEditorial:
-      "Un vin sec, echilibrat, cu taninuri fine si aciditate buna, potrivit pentru preparate consistente de sezon.",
+      "Un vin sec din Dealu Mare, produs de Crama Test, potrivit pentru preparate consistente de sezon.",
+    tastingNotes: "Taninuri fine, fructe negre si aciditate buna.",
     foodPairings: [],
     updatedAt: "2026-07-01T00:00:00.000Z",
     ...overrides,
@@ -229,7 +231,7 @@ describe("detectThinContent", () => {
   it("does not flag a substantial description", () => {
     const wine = baseWine({
       descriptionEditorial:
-        "Un vin echilibrat, cu taninuri fine si aciditate placuta, ideal pentru preparate consistente de sezon.",
+        "Un vin echilibrat din Dealu Mare, potrivit pentru preparate consistente de sezon si mese lungi de familie.",
     });
     expect(detectThinContent([wine])).toHaveLength(0);
   });
@@ -308,6 +310,30 @@ describe("detectDuplicateCandidates", () => {
     expect(groups[0].wineIds).toContain(1);
     expect(groups[0].wineIds).toContain(2);
     expect(groups[0]).not.toHaveProperty("merged");
+  });
+});
+
+describe("detectEditorialTruthIssues", () => {
+  it("flags a white wine with invented tannin copy", () => {
+    const issues = detectEditorialTruthIssues([
+      baseWine({
+        type: "white",
+        sweetness: "sec",
+        tastingNotes: null,
+        descriptionEditorial:
+          "Acest vin are taninurile care echilibreaza grasimea de la gratar.",
+        foodPairingNotes: [
+          {
+            dish: "Sarmale",
+            note: "Taninurile echilibreaza grasimea.",
+          },
+        ],
+      }),
+    ]);
+    expect(issues.some((issue) => issue.code === "UNSUPPORTED_TANNIN_CLAIM")).toBe(
+      true,
+    );
+    expect(issues.some((issue) => issue.blocksPublication)).toBe(true);
   });
 });
 

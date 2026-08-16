@@ -12,6 +12,8 @@ export {
   buildModelQuality,
   shrinkQualityToPrior,
   medalQualityBoost,
+  heuristicQualityWithoutPrice,
+  cellarPotentialForQuality,
   type IntrinsicQualityInput,
 } from "@/lib/scoring-v2/intrinsic-quality";
 export { clamp, median, round1, roundScore } from "@/lib/scoring-v2/math";

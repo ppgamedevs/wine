@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -12,9 +13,12 @@ import {
 } from "@/components/ui/table";
 import { requireAdmin } from "@/lib/admin-auth";
 import {
+  groupIssuesByWine,
+  isPublicationBlockingIssue,
   runIntegrityScan,
   type IntegrityIssue,
   type IntegritySeverity,
+  type WineIssueGroup,
 } from "@/lib/integrity-scan";
 
 export const metadata: Metadata = {
@@ -33,33 +37,50 @@ const SEVERITY_LABEL: Record<IntegritySeverity, string> = {
   low: "Scazut",
 };
 
-const SEVERITY_BADGE_CLASS: Record<IntegritySeverity, string> = {
-  critical: "bg-destructive/15 text-destructive",
-  high: "bg-orange-500/15 text-orange-600",
-  medium: "bg-amber-500/15 text-amber-600",
-  low: "bg-secondary text-muted-foreground",
-};
-
-function groupBySeverity(
-  issues: IntegrityIssue[],
-): Record<IntegritySeverity, IntegrityIssue[]> {
-  const grouped: Record<IntegritySeverity, IntegrityIssue[]> = {
-    critical: [],
-    high: [],
-    medium: [],
-    low: [],
-  };
-  for (const issue of issues) {
-    grouped[issue.severity].push(issue);
-  }
-  return grouped;
+interface DataQualityPageProps {
+  searchParams: Promise<{
+    severity?: string;
+    code?: string;
+    q?: string;
+  }>;
 }
 
-export default async function AdminDataQualityPage() {
+function matchesFilters(
+  issue: IntegrityIssue,
+  filters: { severity?: string; code?: string; q?: string },
+): boolean {
+  if (filters.severity && issue.severity !== filters.severity) return false;
+  if (filters.code && issue.code !== filters.code) return false;
+  if (filters.q) {
+    const query = filters.q.trim().toLowerCase();
+    const haystack = `${issue.slug} ${issue.code} ${issue.message}`.toLowerCase();
+    if (!haystack.includes(query)) return false;
+  }
+  return true;
+}
+
+export default async function AdminDataQualityPage({
+  searchParams,
+}: DataQualityPageProps) {
   await requireAdmin();
 
+  const filters = await searchParams;
   const report = await runIntegrityScan();
-  const grouped = groupBySeverity(report.issues);
+  const filteredIssues = report.issues.filter((issue) =>
+    matchesFilters(issue, filters),
+  );
+  const groups = groupIssuesByWine(filteredIssues);
+  const blockingVerified = groupIssuesByWine(
+    report.issues.filter(
+      (issue) => isPublicationBlockingIssue(issue),
+    ),
+  ).filter((group) =>
+    report.issues.some(
+      (issue) => issue.wineId === group.wineId && isPublicationBlockingIssue(issue),
+    ),
+  );
+
+  const codes = Object.keys(report.summary.issuesByCode).sort();
 
   return (
     <main className="mx-auto max-w-7xl space-y-10 px-6 py-10">
@@ -92,68 +113,93 @@ export default async function AdminDataQualityPage() {
         ))}
       </div>
 
-      <section aria-labelledby="issues-heading" className="space-y-6">
-        <h2 id="issues-heading" className="font-serif text-2xl font-semibold text-foreground">
-          Probleme detectate
+      <form
+        className="grid gap-3 rounded-2xl border border-border/70 bg-card p-5 sm:grid-cols-4"
+        method="get"
+      >
+        <label className="space-y-1 text-sm">
+          <span className="text-muted-foreground">Cauta vin</span>
+          <Input
+            name="q"
+            defaultValue={filters.q ?? ""}
+            placeholder="slug, cod sau text"
+          />
+        </label>
+        <label className="space-y-1 text-sm">
+          <span className="text-muted-foreground">Severitate</span>
+          <select
+            name="severity"
+            defaultValue={filters.severity ?? ""}
+            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          >
+            <option value="">Toate</option>
+            {SEVERITY_ORDER.map((severity) => (
+              <option key={severity} value={severity}>
+                {SEVERITY_LABEL[severity]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="space-y-1 text-sm">
+          <span className="text-muted-foreground">Cod problema</span>
+          <select
+            name="code"
+            defaultValue={filters.code ?? ""}
+            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          >
+            <option value="">Toate</option>
+            {codes.map((code) => (
+              <option key={code} value={code}>
+                {code} ({report.summary.issuesByCode[code]})
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="flex items-end gap-2">
+          <Button type="submit" size="sm">
+            Filtreaza
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/admin/data-quality">Reseteaza</Link>
+          </Button>
+        </div>
+      </form>
+
+      <section aria-labelledby="blocking-heading" className="space-y-3">
+        <h2
+          id="blocking-heading"
+          className="font-serif text-2xl font-semibold text-foreground"
+        >
+          Vinuri care nu ar trebui publicate in starea actuala
         </h2>
-
-        {SEVERITY_ORDER.map((severity) => {
-          const items = grouped[severity];
-          if (items.length === 0) return null;
-
-          return (
-            <div key={severity} className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Badge className={SEVERITY_BADGE_CLASS[severity]}>
-                  {SEVERITY_LABEL[severity]}
-                </Badge>
-                <span className="text-sm text-muted-foreground">
-                  {items.length} probleme
-                </span>
-              </div>
-              <div className="overflow-hidden rounded-2xl border border-border/70">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Vin</TableHead>
-                      <TableHead>Tip</TableHead>
-                      <TableHead>Detalii</TableHead>
-                      <TableHead className="text-right">Actiune</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {items.map((issue, index) => (
-                      <TableRow key={`${issue.wineId}-${issue.code}-${index}`}>
-                        <TableCell className="font-medium text-foreground">
-                          {issue.slug}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {issue.code}
-                        </TableCell>
-                        <TableCell className="max-w-xl text-sm text-muted-foreground">
-                          {issue.message}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button asChild variant="outline" size="sm">
-                            <Link href={`/admin/wines?wineId=${issue.wineId}`}>
-                              Revizuieste
-                            </Link>
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          );
-        })}
-
-        {report.issues.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          Vinuri cu probleme blocking (contradictii sau claim-uri inventate).
+          Nu sunt depublicate automat. Revizuire umana inainte de orice actiune
+          distructiva.
+        </p>
+        {blockingVerified.length === 0 ? (
           <p className="rounded-2xl border border-border/70 bg-card p-6 text-sm text-muted-foreground">
-            Nicio problema detectata la ultimul scan.
+            Niciun vin cu probleme blocking in scanul curent.
           </p>
-        ) : null}
+        ) : (
+          <WineGroupTable groups={blockingVerified} />
+        )}
+      </section>
+
+      <section aria-labelledby="issues-heading" className="space-y-3">
+        <h2
+          id="issues-heading"
+          className="font-serif text-2xl font-semibold text-foreground"
+        >
+          Probleme grupate pe vin ({groups.length})
+        </h2>
+        {groups.length === 0 ? (
+          <p className="rounded-2xl border border-border/70 bg-card p-6 text-sm text-muted-foreground">
+            Nicio problema pentru filtrele curente.
+          </p>
+        ) : (
+          <WineGroupTable groups={groups} />
+        )}
       </section>
 
       <section aria-labelledby="duplicates-heading" className="space-y-3">
@@ -165,8 +211,7 @@ export default async function AdminDataQualityPage() {
         </h2>
         <p className="text-sm text-muted-foreground">
           Perechi cu aceeasi crama, vintage si tip, cu nume foarte similare.
-          Nu sunt fuzionate automat: necesita verificare manuala inainte de
-          orice actiune (pot fi cuvee-uri sau editii distincte).
+          Nu sunt fuzionate automat.
         </p>
         {report.duplicateGroups.length > 0 ? (
           <div className="overflow-hidden rounded-2xl border border-border/70">
@@ -212,6 +257,79 @@ export default async function AdminDataQualityPage() {
         ) : null}
       </section>
     </main>
+  );
+}
+
+function WineGroupTable({ groups }: { groups: WineIssueGroup[] }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border/70">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Vin</TableHead>
+            <TableHead>Critic</TableHead>
+            <TableHead>High</TableHead>
+            <TableHead>Mediu</TableHead>
+            <TableHead>Low</TableHead>
+            <TableHead>De ce</TableHead>
+            <TableHead className="text-right">Actiuni</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {groups.map((group) => (
+            <TableRow key={group.wineId}>
+              <TableCell className="font-medium text-foreground">
+                {group.slug}
+                {group.blocking > 0 ? (
+                  <Badge className="ml-2 bg-destructive/15 text-destructive">
+                    blocking
+                  </Badge>
+                ) : null}
+              </TableCell>
+              <TableCell>{group.critical}</TableCell>
+              <TableCell>{group.high}</TableCell>
+              <TableCell>{group.medium}</TableCell>
+              <TableCell>{group.low}</TableCell>
+              <TableCell className="max-w-xl text-sm text-muted-foreground">
+                <ul className="space-y-1">
+                  {group.issues.slice(0, 4).map((issue, index) => (
+                    <li key={`${issue.code}-${index}`}>
+                      <span className="font-medium text-foreground">
+                        {issue.code}
+                      </span>
+                      {": "}
+                      {issue.message}
+                      {issue.explanation ? (
+                        <span className="block text-xs">
+                          {issue.explanation}
+                          {issue.evidenceSummary
+                            ? ` Evidenta: ${issue.evidenceSummary}.`
+                            : ""}
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex justify-end gap-2">
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/wines/${group.slug}`} target="_blank">
+                      Public
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/admin/wines?wineId=${group.wineId}`}>
+                      Revizuieste
+                    </Link>
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 

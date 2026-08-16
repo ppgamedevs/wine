@@ -5,6 +5,7 @@ import {
   isSweetnessDessertFriendly,
   ROMANIAN_DESSERT_KEYWORDS,
 } from "@/lib/dessert-pairings";
+import { sanitizeExpertNotesForDownstream } from "@/lib/editorial-claim-validator";
 import { formatProducerContentForSommelier } from "@/lib/producer-page-extract";
 import { formatWineMedalsForSommelier } from "@/lib/wine-medals";
 import type { WineWithRelations } from "@/types";
@@ -324,18 +325,36 @@ export function buildWineContextBlock(wine: WineWithRelations): string {
   const medalsSummary = formatWineMedalsForSommelier(wine.medals);
   const producerSummary = formatProducerContentForSommelier(wine.producerContent);
 
-  const expert = wine.expertNotes
+  const safeExpert = sanitizeExpertNotesForDownstream(wine.expertNotes, {
+    type: wine.type,
+    sweetness: wine.sweetness,
+    grapeVarieties: wine.grapeVarieties,
+    regionName: wine.region?.name ?? null,
+    wineryName: wine.winery?.name ?? null,
+    vintage: wine.vintage,
+    tastingNotes: wine.tastingNotes,
+    producerContent: wine.producerContent,
+    producerPageUrl: wine.producerPageUrl,
+    tastingSheetUrl: wine.tastingSheetUrl,
+    alcohol: wine.alcohol,
+    acidity: wine.acidity,
+    sugar: wine.sugar,
+    foodPairings: wine.foodPairings,
+    medals: wine.medals,
+  });
+
+  const expert = safeExpert
     ? `
-EXPERT_NOTES:
-- Istorie: ${wine.expertNotes.history}
-- Terroir: ${wine.expertNotes.terroirSecrets}
-- Vintage: ${wine.expertNotes.vintageQuirks}
-- Pairing science: ${wine.expertNotes.pairingScience}
-- Greseli comune: ${wine.expertNotes.commonMistakes}
-- Aging: ${wine.expertNotes.agingPotential}
-- Value insight: ${wine.expertNotes.valueInsight}
-- Things you should know: ${wine.expertNotes.thingsYouShouldKnow.join(" | ")}`
-    : "(expert_notes negenerate inca)";
+EXPERT_NOTES (doar sectiuni sustinute de evidenta; nu trata restul ca fapt):
+- Istorie: ${safeExpert.history || "N/A"}
+- Terroir: ${safeExpert.terroirSecrets || "N/A"}
+- Vintage: ${safeExpert.vintageQuirks || "N/A"}
+- Pairing science: ${safeExpert.pairingScience || "N/A"}
+- Greseli comune: ${safeExpert.commonMistakes || "N/A"}
+- Aging: ${safeExpert.agingPotential || "N/A"}
+- Value insight: ${safeExpert.valueInsight || "N/A"}
+- Things you should know: ${safeExpert.thingsYouShouldKnow.join(" | ") || "N/A"}`
+    : "(expert_notes absente sau nesustinute; nu inventa taninuri/stejar/arome)";
 
   return `---
 slug: ${wine.slug}

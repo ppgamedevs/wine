@@ -1,5 +1,11 @@
+import { collectClaimViolations } from "@/lib/editorial-claim-validator";
 import { db } from "@/lib/db";
-import type { WineMedal } from "@/lib/schema";
+import type {
+  ExpertNotes,
+  FoodPairing,
+  ProducerPageContent,
+  WineMedal,
+} from "@/lib/schema";
 
 /**
  * Plasa de siguranta post-LLM pentru continut editorial. Regula de business
@@ -17,6 +23,19 @@ export interface EditorialFactCheckInput {
   grapeVarieties: string[];
   regionName?: string | null;
   medals?: WineMedal[] | null;
+  type?: string | null;
+  sweetness?: string | null;
+  wineryName?: string | null;
+  vintage?: number | null;
+  tastingNotes?: string | null;
+  producerContent?: ProducerPageContent | null;
+  producerPageUrl?: string | null;
+  tastingSheetUrl?: string | null;
+  alcohol?: number | null;
+  acidity?: number | null;
+  sugar?: number | null;
+  foodPairings?: FoodPairing[] | null;
+  expertNotes?: ExpertNotes | null;
 }
 
 export interface EditorialTextFields {
@@ -27,6 +46,7 @@ export interface EditorialTextFields {
   foodPairingNotes?: { dish: string; note: string }[] | null;
   dessertPairings?: { dish: string; note: string }[] | null;
   recommendedOccasions?: string[] | null;
+  expertNotes?: ExpertNotes | null;
 }
 
 export interface EditorialFactCheckResult {
@@ -178,6 +198,27 @@ export async function validateEditorialAgainstFacts(
       );
     }
   }
+
+  violations.push(
+    ...collectClaimViolations(editorial, {
+      type: facts.type,
+      sweetness: facts.sweetness,
+      grapeVarieties: facts.grapeVarieties,
+      regionName: facts.regionName,
+      wineryName: facts.wineryName,
+      vintage: facts.vintage,
+      tastingNotes: facts.tastingNotes,
+      producerContent: facts.producerContent,
+      producerPageUrl: facts.producerPageUrl,
+      tastingSheetUrl: facts.tastingSheetUrl,
+      alcohol: facts.alcohol,
+      acidity: facts.acidity,
+      sugar: facts.sugar,
+      foodPairings: facts.foodPairings,
+      medals: facts.medals,
+      expertNotes: facts.expertNotes ?? editorial.expertNotes,
+    }),
+  );
 
   return { ok: violations.length === 0, violations };
 }

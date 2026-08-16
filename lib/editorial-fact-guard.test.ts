@@ -45,7 +45,12 @@ describe("validateEditorialAgainstFacts", () => {
         descriptionEditorial:
           "Un vin echilibrat de Feteasca Neagra, cu taninuri fine.",
       },
-      { grapeVarieties: ["Feteasca Neagra"], regionName: "Dealu Mare" },
+      {
+        grapeVarieties: ["Feteasca Neagra"],
+        regionName: "Dealu Mare",
+        type: "red",
+        tastingNotes: "Taninuri fine, fructe negre.",
+      },
     );
     expect(result.ok).toBe(true);
     expect(result.violations).toHaveLength(0);
@@ -108,6 +113,26 @@ describe("validateEditorialAgainstFacts", () => {
       { grapeVarieties: ["Feteasca Neagra"], regionName: "Dealu Mare" },
     );
     expect(result.ok).toBe(true);
+  });
+
+  it("rejects a white wine editorial that invents tannins without evidence", async () => {
+    const { validateEditorialAgainstFacts } = await loadFactGuard();
+    const result = await validateEditorialAgainstFacts(
+      {
+        descriptionEditorial:
+          "Acest vin are taninuri ferme care echilibreaza grasimea.",
+      },
+      {
+        grapeVarieties: ["Sauvignon Blanc"],
+        regionName: "Dealu Mare",
+        type: "white",
+        sweetness: "sec",
+      },
+    );
+    expect(result.ok).toBe(false);
+    expect(result.violations.some((item) => item.toLowerCase().includes("tanin"))).toBe(
+      true,
+    );
   });
 
   it("EditorialFactCheckError carries the violation list for callers to log", async () => {

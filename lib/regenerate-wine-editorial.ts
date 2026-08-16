@@ -23,7 +23,10 @@ import {
   EditorialFactCheckError,
   validateEditorialAgainstFacts,
 } from "@/lib/editorial-fact-guard";
-import { calculateInitialScores } from "@/lib/scoring";
+import {
+  calculateInitialScores,
+  mergeAnalysisScores,
+} from "@/lib/scoring";
 import { wines } from "@/lib/schema";
 import type { WineType } from "@/types";
 
@@ -72,6 +75,9 @@ function buildWineEditorialContext(wine: WineWithRelations) {
     regionName: wine.region?.name ?? null,
     grapeVarieties: formatGrapeVarieties(wine.grapeVarieties),
     tastingNotes: wine.tastingNotes,
+    producerTastingNotes: wine.producerContent?.tastingNotes ?? null,
+    producerViticulture: wine.producerContent?.viticulture ?? null,
+    tastingSheetAvailable: Boolean(wine.tastingSheetUrl?.trim()),
     foodPairings: formatFoodPairings(wine.foodPairings),
     dessertPairings: formatDessertPairings(wine.dessertPairings),
     priceAvg: wine.priceAvg,
@@ -136,6 +142,18 @@ function factsFromWine(wine: WineWithRelations) {
     grapeVarieties: wine.grapeVarieties.map((grape) => grape.name),
     regionName: wine.region?.name ?? null,
     medals: wine.medals ?? [],
+    type: wine.type,
+    sweetness: wine.sweetness,
+    wineryName: wine.winery?.name ?? null,
+    vintage: wine.vintage,
+    tastingNotes: wine.tastingNotes,
+    producerContent: wine.producerContent,
+    producerPageUrl: wine.producerPageUrl,
+    tastingSheetUrl: wine.tastingSheetUrl,
+    alcohol: wine.alcohol,
+    acidity: wine.acidity,
+    sugar: wine.sugar,
+    foodPairings: wine.foodPairings,
   };
 }
 
@@ -276,6 +294,30 @@ export async function applyFullEditorialToWine(
   wineId: number,
   editorial: WineEditorialOutput,
 ): Promise<void> {
+  const wine = await loadWineForEditorial(wineId);
+  if (!wine) {
+    throw new Error("Vin negasit.");
+  }
+
+  const price = wine.currentPrice ?? wine.priceAvg ?? 50;
+  const ruleScores = calculateInitialScores({
+    price: price > 0 ? price : 50,
+    category: mapWineTypeToScoreCategory(wine.type),
+    region: wine.region?.name,
+    grapeVarieties: wine.grapeVarieties.map((grape) => grape.name),
+    sweetness: wine.sweetness,
+    dessertPairingCount: editorial.dessertPairings?.length ?? 0,
+    wineMedals: wine.medals ?? [],
+  });
+  const merged = mergeAnalysisScores(ruleScores, price > 0 ? price : 50, {
+    valueScore: Math.min(10, Math.max(1, Math.round(editorial.valueScore / 10))),
+    giftScore: Math.min(10, Math.max(1, Math.round(editorial.giftScore / 10))),
+    foodMatchScore: Math.min(
+      10,
+      Math.max(1, Math.round(editorial.foodMatchScore / 10)),
+    ),
+  });
+
   await db
     .update(wines)
     .set({
@@ -286,9 +328,12 @@ export async function applyFullEditorialToWine(
       foodPairingNotes: editorial.foodPairingNotes,
       dessertPairings: editorial.dessertPairings ?? [],
       recommendedOccasions: editorial.recommendedOccasions,
-      valueScore: editorial.valueScore,
-      giftScore: editorial.giftScore,
-      foodMatchScore: editorial.foodMatchScore,
+      valueScore: merged.valueScore,
+      giftScore: merged.giftScore,
+      foodMatchScore: merged.foodMatchScore,
+      overpricedRisk: merged.overpricedRisk,
+      beginnerFriendly: merged.beginnerFriendly,
+      cellarPotential: merged.cellarPotential,
     })
     .where(eq(wines.id, wineId));
 }

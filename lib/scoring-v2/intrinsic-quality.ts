@@ -18,6 +18,11 @@ export interface IntrinsicQualityInput {
   wineryName?: string;
   wineType?: string;
   cellarPotential?: number | null;
+  /**
+   * Only documented cellar potential may enter Q. Algorithmic estimates
+   * (red + price rule) stay stored on the wine but must not improve quality.
+   */
+  cellarPotentialVerified?: boolean;
   acidity?: number | null;
   tasteProfile?: string | null;
   wineMedals?: WineMedal[] | null;
@@ -57,11 +62,26 @@ export function medalQualityBoost(
   return round1(Math.min(MEDAL_Q_BOOST_CAP, raw));
 }
 
+/**
+ * Numeric cellar years feed Q only when explicitly marked verified.
+ * A documented drink window is used on its own and does not launder an
+ * unverified cellar estimate back into quality.
+ */
+export function cellarPotentialForQuality(
+  input: Pick<
+    IntrinsicQualityInput,
+    "cellarPotential" | "cellarPotentialVerified"
+  >,
+): number | null {
+  if (input.cellarPotentialVerified !== true) return null;
+  return input.cellarPotential ?? null;
+}
+
 function vintageQualityAdjustment(input: IntrinsicQualityInput): number {
   const window = inferDrinkabilityWindow({
     vintage: input.vintage,
     wineType: input.wineType,
-    cellarPotential: input.cellarPotential,
+    cellarPotential: cellarPotentialForQuality(input),
     drinkabilityStart: input.drinkabilityStart,
     drinkabilityEnd: input.drinkabilityEnd,
   });
@@ -82,20 +102,18 @@ function vintageQualityAdjustment(input: IntrinsicQualityInput): number {
   return -Math.min(VINTAGE_Q_MAX, year - window.end);
 }
 
-function heuristicQualityWithoutPrice(input: IntrinsicQualityInput): number {
+/**
+ * Heuristic Q fallback when the ML model is unavailable.
+ * Free-form editorial prose (tasteProfile and other AI text) must never
+ * increase quality. tasteProfile remains on the input for compatibility
+ * but has no provenance mechanism in this repository, so it is ignored.
+ */
+export function heuristicQualityWithoutPrice(input: IntrinsicQualityInput): number {
   let q = 62;
 
   if ((input.grapeVarieties?.length ?? 0) > 0) q += 2;
   if (input.region?.trim()) q += 2;
   if (input.wineryName?.trim()) q += 1;
-
-  if (input.tasteProfile?.trim()) {
-    const taste = input.tasteProfile
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-    if (/complex|elegant|mineral|persistent|structur/.test(taste)) q += 2;
-  }
 
   if (input.ratingAvg != null && input.ratingAvg >= 3.8) {
     q += Math.min(4, (input.ratingAvg - 3.5) * 6);
@@ -125,7 +143,7 @@ export function buildModelQuality(input: IntrinsicQualityInput): {
     region: input.region,
     winery: input.wineryName,
     acidity: input.acidity,
-    cellarPotential: input.cellarPotential,
+    cellarPotential: cellarPotentialForQuality(input),
     medals: input.wineMedals,
   });
 

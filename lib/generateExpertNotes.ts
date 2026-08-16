@@ -8,17 +8,18 @@ import {
   EXPERT_NOTES_SYSTEM_PROMPT,
 } from "@/lib/ai/prompts";
 import { db } from "@/lib/db";
+import { sanitizeExpertNotesForDownstream } from "@/lib/editorial-claim-validator";
 import { wines, type ExpertNotes } from "@/lib/schema";
 
 const expertNotesSchema = z.object({
-  history: z.string(),
-  terroirSecrets: z.string(),
-  vintageQuirks: z.string(),
-  pairingScience: z.string(),
-  commonMistakes: z.string(),
-  agingPotential: z.string(),
-  valueInsight: z.string(),
-  thingsYouShouldKnow: z.array(z.string()).min(3).max(5),
+  history: z.string().default(""),
+  terroirSecrets: z.string().default(""),
+  vintageQuirks: z.string().default(""),
+  pairingScience: z.string().default(""),
+  commonMistakes: z.string().default(""),
+  agingPotential: z.string().default(""),
+  valueInsight: z.string().default(""),
+  thingsYouShouldKnow: z.array(z.string()).max(5).default([]),
 });
 
 function getModel() {
@@ -57,7 +58,34 @@ async function generateNotesForWine(
     temperature: 0.5,
   });
 
-  return object;
+  return (
+    sanitizeExpertNotesForDownstream(object, {
+      type: wine.type,
+      sweetness: wine.sweetness,
+      grapeVarieties: wine.grapeVarieties,
+      regionName: wine.region?.name ?? null,
+      wineryName: wine.winery?.name ?? null,
+      vintage: wine.vintage,
+      tastingNotes: wine.tastingNotes,
+      producerContent: wine.producerContent,
+      producerPageUrl: wine.producerPageUrl,
+      tastingSheetUrl: wine.tastingSheetUrl,
+      alcohol: wine.alcohol,
+      acidity: wine.acidity,
+      sugar: wine.sugar,
+      foodPairings: wine.foodPairings,
+      medals: wine.medals,
+    }) ?? {
+      history: "",
+      terroirSecrets: "",
+      vintageQuirks: "",
+      pairingScience: "",
+      commonMistakes: "",
+      agingPotential: "",
+      valueInsight: "",
+      thingsYouShouldKnow: [],
+    }
+  );
 }
 
 async function loadWines() {
