@@ -112,8 +112,10 @@ export const wineEditorialSchema = z.object({
     .default([])
     .describe("Ocazii locale. Array gol daca nu exista baza suficienta."),
   valueScore: z.number().int().min(1).max(100),
-  giftScore: z.number().int().min(1).max(100),
-  foodMatchScore: z.number().int().min(1).max(100),
+  /** @deprecated Ignorat. Gift Score e deterministic. */
+  giftScore: z.number().int().min(1).max(100).optional(),
+  /** @deprecated Ignorat. Food Versatility e deterministic. */
+  foodMatchScore: z.number().int().min(1).max(100).optional(),
 });
 
 export type WineEditorialOutput = z.infer<typeof wineEditorialSchema>;

@@ -1,7 +1,26 @@
 export {
   VALUE_SCORE_VERSION,
+  GIFT_SCORE_ALGORITHM_VERSION,
+  FOOD_VERSATILITY_ALGORITHM_VERSION,
+  OCCASION_MATCH_ALGORITHM_VERSION,
   CONFIDENCE_SCORE_CEILINGS,
 } from "@/lib/scoring-v2/constants";
+export {
+  calculateGiftScore,
+  GIFT_CONFIDENCE_CEILINGS,
+  type GiftScoreInput,
+  type GiftScoreResult,
+} from "@/lib/scoring-v2/gift-score";
+export {
+  calculateFoodVersatility,
+  FOOD_CONFIDENCE_CEILINGS,
+  type FoodVersatilityInput,
+  type FoodVersatilityResult,
+} from "@/lib/scoring-v2/food-versatility";
+export {
+  giftScoreInputFromWine,
+  foodVersatilityInputFromWine,
+} from "@/lib/scoring-v2/wine-score-inputs";
 export {
   buildExpectedQualityCurvesFromCatalog,
   expectedQualityAtPrice,

@@ -109,7 +109,7 @@ async function main() {
 
       done += 1;
       console.log(
-        `  OK ${wine.slug} | Value ${editorial.valueScore} Gift ${editorial.giftScore} Food ${editorial.foodMatchScore}`,
+        `  OK ${wine.slug} | Value ${editorial.valueScore} (Gift/Food se calculeaza deterministic)`,
       );
       await sleep(1500);
     } catch (error) {

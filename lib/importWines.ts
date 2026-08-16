@@ -310,7 +310,7 @@ function buildInsertValues(
     foodMatchScore: scores?.foodMatchScore ?? null,
     overpricedRisk: scores?.overpricedRisk ?? undefined,
     beginnerFriendly: scores?.beginnerFriendly ?? false,
-    cellarPotential: scores?.cellarPotential ?? undefined,
+    cellarPotential: undefined,
     descriptionEditorial: null,
     valueExplanation: null,
     tasteProfile: null,
@@ -435,7 +435,6 @@ async function main() {
               foodMatchScore: values.foodMatchScore,
               overpricedRisk: values.overpricedRisk,
               beginnerFriendly: values.beginnerFriendly,
-              cellarPotential: values.cellarPotential,
             },
           })
           .returning({ id: wines.id });

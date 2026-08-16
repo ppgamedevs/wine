@@ -51,17 +51,23 @@ export function parseChatToSommelierInput(
   let budgetMin = 0;
   let budgetMax = DEFAULT_BUDGET_MAX;
   let budgetSpecified = false;
+  let budgetConstraint: SommelierInput["budgetConstraint"] = "none";
 
+  const aroundMatch = combined.match(
+    /(?:in jur de|aproximativ|around|vreo)\s*(\d{2,4})\s*(?:de\s*)?lei/,
+  );
   const subMatch = combined.match(/sub\s*(\d{2,4})\s*(?:de\s*)?lei/);
   if (subMatch) {
     budgetMax = Number.parseInt(subMatch[1] ?? "", 10);
     budgetSpecified = true;
+    budgetConstraint = "hard";
   }
 
   const maxMatch = combined.match(/(?:maxim|maximum|pana la|max)\s*(\d{2,4})\s*lei/);
   if (maxMatch) {
     budgetMax = Number.parseInt(maxMatch[1] ?? "", 10);
     budgetSpecified = true;
+    budgetConstraint = "hard";
   }
 
   const rangeMatch = combined.match(/(\d{2,4})\s*[-–]\s*(\d{2,4})\s*lei/);
@@ -69,19 +75,30 @@ export function parseChatToSommelierInput(
     budgetMin = Number.parseInt(rangeMatch[1] ?? "", 10);
     budgetMax = Number.parseInt(rangeMatch[2] ?? "", 10);
     budgetSpecified = true;
+    budgetConstraint = "hard";
   }
 
   const bugetMatch = combined.match(/buget\s*(\d{2,4})\s*lei/);
-  if (bugetMatch && !subMatch) {
+  if (bugetMatch && !subMatch && !maxMatch) {
     budgetMax = Number.parseInt(bugetMatch[1] ?? "", 10);
     budgetSpecified = true;
+    budgetConstraint = "approximate";
+  }
+
+  if (aroundMatch) {
+    budgetMax = Number.parseInt(aroundMatch[1] ?? "", 10);
+    budgetSpecified = true;
+    budgetConstraint = "approximate";
   }
 
   if (!budgetSpecified) {
     budgetMax = NO_BUDGET_MAX;
+    budgetConstraint = "none";
   }
 
-  if (budgetSpecified && budgetMax < 30) budgetMax = 30;
+  if (budgetSpecified && budgetConstraint !== "hard" && budgetMax < 30) {
+    budgetMax = 30;
+  }
   if (budgetMin > budgetMax) budgetMin = 0;
 
   let occasion: OccasionId = "oricare";
@@ -124,6 +141,7 @@ export function parseChatToSommelierInput(
     budgetMin,
     budgetMax,
     budgetSpecified,
+    budgetConstraint,
     occasion,
     color,
     sweetness,

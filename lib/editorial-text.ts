@@ -40,7 +40,7 @@ export function splitValueExplanation(
   const summary = sanitizeEditorialText(text.slice(0, markerIndex));
   const provenanceBlock = text.slice(markerIndex + PROVENANCE_MARKER.length);
   const provenanceLines = provenanceBlock
-    .split(/\s+-\s+(?=Value:|Gift:|Food Match:)|\n/)
+    .split(/\s+-\s+(?=Value:|Gift:|Food Match:|Versatilitate la masa:)|\n/)
     .map((line) => line.replace(/^-\s*/, "").trim())
     .filter(Boolean);
 

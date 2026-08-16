@@ -265,27 +265,10 @@ export async function applyDessertPairingsToWine(
   wine: WineWithRelations,
   dessertPairings: WineDessertPairingsOnlyOutput["dessertPairings"],
 ): Promise<void> {
-  const price = wine.currentPrice ?? wine.priceAvg ?? 50;
-  const ruleScores = calculateInitialScores({
-    price: price > 0 ? price : 50,
-    category: mapWineTypeToScoreCategory(wine.type),
-    region: wine.region?.name,
-    grapeVarieties: wine.grapeVarieties.map((grape) => grape.name),
-    sweetness: wine.sweetness,
-    dessertPairingCount: dessertPairings.length,
-    wineMedals: wine.medals ?? [],
-  });
-
-  const foodMatchScore = Math.max(
-    wine.foodMatchScore ?? 0,
-    ruleScores.foodMatchScore,
-  );
-
   await db
     .update(wines)
     .set({
       dessertPairings,
-      foodMatchScore,
     })
     .where(eq(wines.id, wine.id));
 }
@@ -306,17 +289,18 @@ export async function applyFullEditorialToWine(
     region: wine.region?.name,
     grapeVarieties: wine.grapeVarieties.map((grape) => grape.name),
     sweetness: wine.sweetness,
-    dessertPairingCount: editorial.dessertPairings?.length ?? 0,
     wineMedals: wine.medals ?? [],
+    valueScore: wine.valueScore,
+    estimatedQuality: wine.estimatedQuality,
+    vintage: wine.vintage,
+    foodPairings: wine.foodPairings,
+    producerCulinaryPairings: wine.producerContent?.culinaryPairings,
+    alcohol: wine.alcohol,
+    acidity: wine.acidity,
+    criticScore: wine.criticScore ?? undefined,
+    wineryName: wine.winery?.name,
   });
-  const merged = mergeAnalysisScores(ruleScores, price > 0 ? price : 50, {
-    valueScore: Math.min(10, Math.max(1, Math.round(editorial.valueScore / 10))),
-    giftScore: Math.min(10, Math.max(1, Math.round(editorial.giftScore / 10))),
-    foodMatchScore: Math.min(
-      10,
-      Math.max(1, Math.round(editorial.foodMatchScore / 10)),
-    ),
-  });
+  const merged = mergeAnalysisScores(ruleScores, price > 0 ? price : 50);
 
   await db
     .update(wines)
@@ -328,12 +312,10 @@ export async function applyFullEditorialToWine(
       foodPairingNotes: editorial.foodPairingNotes,
       dessertPairings: editorial.dessertPairings ?? [],
       recommendedOccasions: editorial.recommendedOccasions,
-      valueScore: merged.valueScore,
       giftScore: merged.giftScore,
       foodMatchScore: merged.foodMatchScore,
       overpricedRisk: merged.overpricedRisk,
       beginnerFriendly: merged.beginnerFriendly,
-      cellarPotential: merged.cellarPotential,
     })
     .where(eq(wines.id, wineId));
 }

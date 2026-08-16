@@ -72,13 +72,13 @@ export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
         <ScoreCard
           label="Gift Score"
           score={wine.giftScore}
-          description="Cat de potrivit este ca dar: ambalaj perceput, prestigiu si impresia lasata la prima degustare."
+          description="Cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul."
           icon={EditorialGiftIcon}
         />
         <ScoreCard
-          label="Food Match"
+          label="Versatilitate la masa"
           score={wine.foodMatchScore}
-          description="Cat de bine se potriveste cu mancarea romaneasca: sarmale, gratar, ciorbe si alte preparate locale."
+          description="Cat de versatil este vinul la masa, in general. Nu inseamna compatibilitate cu un fel anume; potrivirea de fel se calculeaza separat."
           icon={EditorialFoodMatchIcon}
         />
       </div>

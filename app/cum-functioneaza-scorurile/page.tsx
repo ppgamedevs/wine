@@ -73,23 +73,23 @@ const scores = [
     name: "Gift Score",
     range: "0 - 100",
     summary:
-      "Cat de potrivit este vinul ca si cadou: prestigiu, prezentare si efect garantat.",
+      "Cat de sigura si convingatoare este sticla ca alegere de cadou, in general.",
     factors: [
-      "Recunoasterea numelui si a cramei",
-      "Eticheta, ambalaj si aspectul premium",
-      "Siguranta ca place majoritatii (stil accesibil, echilibrat)",
+      "Calitate estimata si increderea in date",
+      "Value Score ca semnal secundar, nu pret-ca-prestigiu",
+      "Identitate distinctiva documentata. Nu evaluam ambalajul.",
     ],
   },
   {
     icon: Utensils,
-    name: "Food Match",
+    name: "Versatilitate la masa",
     range: "0 - 100",
     summary:
-      "Cat de versatil este vinul la masa romaneasca: sarmale, mititei, tochitura si altele.",
+      "Cat de versatil este vinul la masa, in general. Nu inseamna compatibilitate cu un fel anume.",
     factors: [
-      "Aciditate, taninuri, corp si dulceata raportate la mancare",
-      "Compatibilitatea cu bucataria romaneasca specifica",
-      "Versatilitatea pe mai multe feluri de mancare",
+      "Latimea categoriilor de pairing structurate",
+      "Asocieri culinare de la producator, cand exista",
+      "Utilitate generica de stil, cu incredere mica daca lipsesc fapte",
     ],
   },
 ];
@@ -147,7 +147,7 @@ const faq: FaqEntry[] = [
   {
     question: "Ce inseamna un scor sub 50?",
     answer:
-      "Un scor sub 50 nu inseamna ca vinul este slab, ci ca, la pretul actual, exista alternative cu un raport calitate-pret mai bun. Pentru ocazii speciale, Gift Score si Food Match pot conta mai mult decat Value Score.",
+      "Un scor sub 50 nu inseamna ca vinul este slab, ci ca, la pretul actual, exista alternative cu un raport calitate-pret mai bun. Pentru ocazii, Gift Score si versatilitatea la masa pot conta mai mult decat Value Score.",
   },
   {
     question: "De ce un vin cu date insuficiente nu poate avea scor foarte mare?",

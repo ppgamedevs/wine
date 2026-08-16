@@ -579,6 +579,7 @@ export const wineReports = sqliteTable(
 export type ScoreChangeReason =
   | "initial"
   | "recalculation"
+  | "gift_food_recalculation"
   | "price_update"
   | "editorial_regeneration"
   | "admin_override"
@@ -606,6 +607,7 @@ export const scoresHistory = sqliteTable(
       enum: [
         "initial",
         "recalculation",
+        "gift_food_recalculation",
         "price_update",
         "editorial_regeneration",
         "admin_override",

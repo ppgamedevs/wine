@@ -1,10 +1,13 @@
 import { formatRon, wineTypeLabel } from "@/lib/format";
+import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
+import { giftScoreInputFromWine } from "@/lib/scoring-v2/wine-score-inputs";
 import type { FaqEntry } from "@/lib/seo";
 import {
   getOccasion,
   OCCASIONS,
   recommendWines,
   type OccasionId,
+  type Recommendation,
 } from "@/lib/sommelier";
 import type { WineType, WineWithRelations } from "@/types";
 
@@ -20,6 +23,8 @@ export interface ResolvedTopList {
   metaDescription: string;
   intro: string;
   wines: WineWithRelations[];
+  /** Scorul exact folosit la sortare, in aceeasi ordine ca `wines`. */
+  rankScores: number[];
   faq: FaqEntry[];
   breadcrumbName: string;
   /** Metric used to order wines in this list (shown in the summary table). */
@@ -238,8 +243,21 @@ export function getTopWinesByValue(
     : sorted.slice(0, limit);
 }
 
-function byGiftScore(a: WineWithRelations, b: WineWithRelations): number {
-  return (b.giftScore ?? 0) - (a.giftScore ?? 0);
+function liveGiftScore(wine: WineWithRelations): number {
+  return calculateGiftScore(giftScoreInputFromWine(wine)).score;
+}
+
+function byLiveGiftScore(a: WineWithRelations, b: WineWithRelations): number {
+  const giftDelta = liveGiftScore(b) - liveGiftScore(a);
+  if (giftDelta !== 0) return giftDelta;
+  if ((b.valueScore ?? 0) !== (a.valueScore ?? 0)) {
+    return (b.valueScore ?? 0) - (a.valueScore ?? 0);
+  }
+  return a.slug.localeCompare(b.slug);
+}
+
+function valueScores(wines: WineWithRelations[]): number[] {
+  return wines.map((wine) => wine.valueScore ?? 0);
 }
 
 function rankForOccasion(
@@ -247,16 +265,17 @@ function rankForOccasion(
   budgetMax: number,
   occasion: OccasionId,
   limit: number,
-): WineWithRelations[] {
+): Recommendation[] {
   const subset = wines.filter(
     (w) => w.priceAvg !== null && w.priceAvg !== undefined && w.priceAvg <= budgetMax,
   );
-  const recs = recommendWines(
+  return recommendWines(
     subset,
     {
       budgetMin: 0,
       budgetMax,
       budgetSpecified: true,
+      budgetConstraint: "hard",
       occasion,
       color: "any",
       sweetness: "any",
@@ -265,7 +284,6 @@ function rankForOccasion(
     },
     limit,
   );
-  return recs.map((r) => r.wine);
 }
 
 export function resolveTopList(
@@ -284,6 +302,7 @@ export function resolveTopList(
       intro:
         "Am ordonat cele mai bune vinuri romanesti dupa Value Score, indicatorul nostru care masoara raportul calitate-pret. Fiecare vin de mai jos a fost evaluat pe baza pretului mediu, a calitatii si a potrivirii cu mancarea romaneasca.",
       wines,
+      rankScores: valueScores(wines),
       faq: buildGenericFaq("cele mai bune vinuri romanesti", wines, "value"),
       breadcrumbName: "Cele mai bune vinuri romanesti",
       rankMetric: "value",
@@ -306,6 +325,7 @@ export function resolveTopList(
       intro:
         "Selectie de vinuri romanesti disponibile in supermarket si magazine online (eMag, Kaufland, Auchan etc.), ordonate dupa raport calitate-pret.",
       wines,
+      rankScores: valueScores(wines),
       faq: buildGenericFaq("vinuri bune din supermarket", wines, "value"),
       breadcrumbName: "Vinuri din supermarket",
       rankMetric: "value",
@@ -314,17 +334,19 @@ export function resolveTopList(
 
   // Gift wines.
   if (slug === "vinuri-cadou") {
-    const wines = [...allWines].sort(byGiftScore).slice(0, 12);
+    const wines = [...allWines].sort(byLiveGiftScore).slice(0, 12);
+    const rankScores = wines.map(liveGiftScore);
     return {
       slug,
       heading: "Cele mai bune vinuri cadou",
       metaTitle: "Cele mai bune vinuri romanesti pentru cadou",
       metaDescription:
-        "Vinuri romanesti ideale ca dar, ordonate dupa Gift Score: prezentare premium, prestigiu si siguranta la orice ocazie.",
+        "Vinuri romanesti potrivite ca dar, ordonate dupa Gift Score: calitate estimata, incredere in date, valoare si caracter distinctiv.",
       intro:
-        "Cauti un vin pe care sa il oferi cadou? Lista de mai jos este ordonata dupa Gift Score, indicatorul care masoara cat de bine se prezinta un vin ca dar: ambalaj, prestigiul cramei si impresia generala.",
+        "Cauti un vin pe care sa il oferi cadou? Lista de mai jos este ordonata dupa Gift Score, care masoara cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul.",
       wines,
-      faq: buildGenericFaq("vinuri cadou", wines, "gift"),
+      rankScores,
+      faq: buildGenericFaq("vinuri cadou", wines, "gift", rankScores),
       breadcrumbName: "Vinuri cadou",
       rankMetric: "gift",
     };
@@ -346,6 +368,7 @@ export function resolveTopList(
       metaDescription: `Top vinuri ${plural} romanesti dupa Value Score, cu preturi in RON, scoruri si recomandari de pairing.`,
       intro: `Selectia noastra de vinuri ${plural} romanesti, ordonata dupa Value Score. ${wineTypeLabel[type]} de calitate, evaluate transparent dupa raportul calitate-pret.`,
       wines,
+      rankScores: valueScores(wines),
       faq: buildGenericFaq(`vinuri ${plural} romanesti`, wines, "value"),
       breadcrumbName: `Vinuri ${plural}`,
       rankMetric: "value",
@@ -377,6 +400,7 @@ export function resolveTopList(
       metaDescription: `Cele mai bune vinuri ${grapeName} din Romania, ordonate dupa Value Score, cu preturi in RON si pairing-uri.`,
       intro: `${grapeName} este unul dintre soiurile reprezentative pentru vinul romanesc. Mai jos gasesti cele mai bune vinuri ${grapeName}, ordonate dupa raportul calitate-pret.`,
       wines,
+      rankScores: valueScores(wines),
       faq: buildGenericFaq(`vinuri ${grapeName}`, wines, "value"),
       breadcrumbName: grapeName,
       rankMetric: "value",
@@ -391,8 +415,10 @@ export function resolveTopList(
     const occasion = OCCASIONS.find((o) => o.id === occasionId);
     if (!occasion || occasionId === "oricare") return null;
 
-    const wines = rankForOccasion(allWines, budget, occasionId, 10);
-    if (wines.length === 0) return null;
+    const recs = rankForOccasion(allWines, budget, occasionId, 10);
+    if (recs.length === 0) return null;
+    const wines = recs.map((rec) => rec.wine);
+    const rankScores = recs.map((rec) => rec.matchScore);
 
     const occLabel = occasion.label.toLowerCase();
     return {
@@ -400,9 +426,10 @@ export function resolveTopList(
       heading: `Cele mai bune vinuri sub ${budget} lei pentru ${occLabel}`,
       metaTitle: `Cele mai bune vinuri sub ${budget} lei pentru ${occLabel}`,
       metaDescription: `Vinuri romanesti sub ${budget} RON, alese pentru ${occLabel}. Recomandari cu scoruri, explicatii si preturi actuale.`,
-      intro: `Cauti un vin bun sub ${budget} lei pentru ${occLabel}? Am combinat bugetul tau cu cerintele acestei ocazii (${occasion.description.toLowerCase()}) si am ordonat vinurile dupa potrivire. Toate optiunile de mai jos costa cel mult ${budget} RON.`,
+      intro: `Cauti un vin bun sub ${budget} lei pentru ${occLabel}? Am combinat bugetul tau cu cerintele acestei ocazii (${occasion.description.toLowerCase()}) si am ordonat vinurile dupa potrivirea contextuala. Toate optiunile de mai jos costa cel mult ${budget} RON.`,
       wines,
-      faq: buildComboFaq(budget, occLabel, wines),
+      rankScores,
+      faq: buildComboFaq(budget, occLabel, wines, rankScores),
       breadcrumbName: `Sub ${budget} lei pentru ${occLabel}`,
       rankMetric: "relevance",
     };
@@ -435,6 +462,7 @@ export function resolveTopList(
         ? "Cauti un vin ieftin si bun, nu doar cea mai ieftina sticla de pe raft? Am comparat vinurile romanesti sub 50 lei dupa pret, calitate, medalii si disponibilitate."
         : `Valoare maxima la buget mic: cele mai bune vinuri romanesti care costa cel mult ${budget} lei, ordonate dupa Value Score.`,
       wines,
+      rankScores: valueScores(wines),
       faq: isSub50 ? buildCheapWineFaq(wines) : buildBudgetFaq(budget, wines),
       breadcrumbName: isSub50 ? "Vinuri ieftine si bune" : `Sub ${budget} lei`,
       rankMetric: "value",
@@ -471,12 +499,14 @@ export function topListRankColumnLabel(
 export function topListRankScore(
   wine: WineWithRelations,
   rankMetric: TopListRankMetric,
+  displayedScore?: number | null,
 ): number | null {
+  if (displayedScore != null) return displayedScore;
   switch (rankMetric) {
     case "gift":
-      return wine.giftScore ?? null;
+      return liveGiftScore(wine);
     case "relevance":
-      return wine.foodMatchScore ?? wine.valueScore ?? null;
+      return null;
     default:
       return wine.valueScore ?? null;
   }
@@ -486,6 +516,7 @@ function buildGenericFaq(
   topic: string,
   wines: WineWithRelations[],
   rankMetric: TopListRankMetric,
+  rankScores?: number[],
 ): FaqEntry[] {
   const top = wines[0];
   const scoreLabel =
@@ -495,9 +526,12 @@ function buildGenericFaq(
         ? "scor de potrivire"
         : "Value Score";
   const scoreValue =
-    rankMetric === "gift"
-      ? top?.giftScore
-      : top?.valueScore;
+    rankScores?.[0] ??
+    (rankMetric === "gift"
+      ? top
+        ? liveGiftScore(top)
+        : undefined
+      : top?.valueScore);
 
   return [
     {
@@ -510,9 +544,9 @@ function buildGenericFaq(
       question: "Cum se calculeaza clasamentul?",
       answer:
         rankMetric === "gift"
-          ? "Folosim Gift Score (0-100): cat de bine functioneaza vinul ca dar, tinand cont de prestigiu, prezentare, tipul vinului si impresia generala."
+          ? "Folosim Gift Score (0-100): cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul."
           : rankMetric === "relevance"
-            ? "Combinam bugetul cu un scor de potrivire pentru ocazia aleasa: tip vin, pairing-uri, Value Score si alinierea cu cerintele mesei."
+            ? "Ordonam dupa Occasion Match, scorul contextual folosit si in tabelul de potrivire. Nu folosim Food Match sau Value Score ca inlocuitor de afisare."
             : "Folosim Value Score, un indicator de la 0 la 100 care masoara raportul calitate-pret, combinat cu date despre preturi actuale in RON si potrivirea cu mancarea romaneasca.",
     },
     {
@@ -573,18 +607,20 @@ function buildComboFaq(
   budget: number,
   occasionLabel: string,
   wines: WineWithRelations[],
+  rankScores: number[],
 ): FaqEntry[] {
   const top = wines[0];
+  const topMatch = rankScores[0];
   return [
     {
       question: `Ce vin sub ${budget} lei se potriveste pentru ${occasionLabel}?`,
       answer: top
-        ? `Recomandam ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""}, la ${formatRon(top.priceAvg)}. Se potriveste bine pentru ${occasionLabel} si are Value Score ${top.valueScore ?? "N/A"}/100.`
+        ? `Recomandam ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""}, la ${formatRon(top.priceAvg)}. Scorul de potrivire pentru ${occasionLabel} este ${topMatch ?? "N/A"}/100.`
         : `Actualizam selectia pentru ${occasionLabel} in functie de disponibilitate.`,
     },
     {
       question: `Cum alegem vinurile pentru ${occasionLabel}?`,
-      answer: `Combinam bugetul (sub ${budget} lei) cu un scor de potrivire specific pentru ${occasionLabel}, bazat pe tipul vinului, pairing-uri si Value Score.`,
+      answer: `Bugetul sub ${budget} lei este o constrangere ferma. Ordonarea foloseste Occasion Match, acelasi scor afisat in coloana Potrivire.`,
     },
     {
       question: "Pot vedea detalii despre fiecare vin?",

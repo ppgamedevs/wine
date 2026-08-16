@@ -26,7 +26,8 @@
     "test:watch": "vitest",
     "integrity:scan": "tsx scripts/integrity-scan.ts",
     "catalog:cleanup": "tsx scripts/catalog-cleanup.ts",
-    "evidence:backfill": "tsx scripts/evidence-backfill.ts"
+    "evidence:backfill": "tsx scripts/evidence-backfill.ts",
+    "scores:recalculate": "tsx scripts/recalculate-secondary-scores.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",

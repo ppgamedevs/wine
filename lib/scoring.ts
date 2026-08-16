@@ -1,8 +1,14 @@
 import type { OverpricedRisk } from "@/types";
-import { dessertFoodMatchBoost } from "@/lib/dessert-pairings";
 import {
   inferDrinkabilityWindow,
 } from "@/lib/scoring-v2/quality-estimate";
+import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
+import { calculateFoodVersatility } from "@/lib/scoring-v2/food-versatility";
+import {
+  GIFT_SCORE_ALGORITHM_VERSION,
+  FOOD_VERSATILITY_ALGORITHM_VERSION,
+  OCCASION_MATCH_ALGORITHM_VERSION,
+} from "@/lib/scoring-v2/constants";
 import {
   calculateVinIntelScore,
   type VinIntelScoreInput,
@@ -13,9 +19,14 @@ import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_FAIR_MIN,
 } from "@/lib/value-score-thresholds";
-import type { WineMedal } from "@/lib/schema";
+import type { FoodPairing, WineMedal } from "@/lib/schema";
 
 export const VALUE_SCORE_ALGORITHM_VERSION = 2;
+export {
+  GIFT_SCORE_ALGORITHM_VERSION,
+  FOOD_VERSATILITY_ALGORITHM_VERSION,
+  OCCASION_MATCH_ALGORITHM_VERSION,
+};
 
 export interface ScoreInput {
   price: number;
@@ -32,6 +43,17 @@ export interface ScoreInput {
   cellarPotential?: number | null;
   acidity?: number | null;
   tasteProfile?: string | null;
+  valueScore?: number | null;
+  estimatedQuality?: number | null;
+  qualityFinal?: number | null;
+  vintage?: number | null;
+  foodPairings?: FoodPairing[];
+  producerCulinaryPairings?: string | null;
+  alcohol?: number | null;
+  ratingAvg?: number | null;
+  communityScore?: number | null;
+  producerPageUrl?: string | null;
+  tastingSheetUrl?: string | null;
 }
 
 export interface ValueScoreInput {
@@ -64,7 +86,8 @@ export interface InitialScores {
   foodMatchScore: number;
   overpricedRisk: OverpricedRisk;
   beginnerFriendly: boolean;
-  cellarPotential: number;
+  /** Nu mai e inferat din tip+pret. Null daca nu exista valoare existenta. */
+  cellarPotential: number | null;
 }
 
 /** LLM score suggestions on 1-10 scale (converted to 1-100 internally). */
@@ -88,27 +111,9 @@ export interface MergedAnalysisScores extends InitialScores {
   };
 }
 
-const MAX_LLM_NUDGE = 12;
-
-function llm1to10To100(score: number): number {
-  return toSiteScale(score);
-}
-
-function applyRuleBasedNudge(
-  ruleScore: number,
-  llm1to10: number | null | undefined,
-): number {
-  if (llm1to10 == null) return ruleScore;
-  const llm100 = llm1to10To100(llm1to10);
-  const diff = llm100 - ruleScore;
-  const nudge =
-    Math.sign(diff) * Math.min(Math.abs(diff), MAX_LLM_NUDGE) * 0.35;
-  return Math.round(Math.min(100, Math.max(10, ruleScore + nudge)));
-}
-
 /**
- * Combines rule-based scores with optional LLM suggestions.
- * Rule-based scores are the base; LLM can nudge slightly when it has extra context.
+ * Combines rule-based scores. LLM suggestions for Gift/Food are ignored.
+ * Value Score remains the deterministic v2 result.
  */
 export function mergeAnalysisScores(
   ruleScores: InitialScores,
@@ -122,14 +127,8 @@ export function mergeAnalysisScores(
   };
 
   const valueScore = ruleScores.valueScore;
-  const giftScore = applyRuleBasedNudge(
-    ruleScores.giftScore,
-    llmSuggestions.giftScore,
-  );
-  const foodMatchScore = applyRuleBasedNudge(
-    ruleScores.foodMatchScore,
-    llmSuggestions.foodMatchScore,
-  );
+  const giftScore = ruleScores.giftScore;
+  const foodMatchScore = ruleScores.foodMatchScore;
 
   return {
     valueScore,
@@ -155,13 +154,9 @@ export function formatScoreProvenance(merged: MergedAnalysisScores): string {
   return [
     "Scoruri VinIntel:",
     `- Value: ${merged.valueScore}/100 (baza algoritm ${merged.ruleBased.valueScore}, sugestie AI ${fmt(merged.llmSuggestions.valueScore)}, ajustare ${merged.adjustments.valueScore >= 0 ? "+" : ""}${merged.adjustments.valueScore})`,
-    `- Gift: ${merged.giftScore}/100 (baza ${merged.ruleBased.giftScore}, sugestie AI ${fmt(merged.llmSuggestions.giftScore)})`,
-    `- Food Match: ${merged.foodMatchScore}/100 (baza ${merged.ruleBased.foodMatchScore}, sugestie AI ${fmt(merged.llmSuggestions.foodMatchScore)})`,
+    `- Gift: ${merged.giftScore}/100 (Gift Score v${GIFT_SCORE_ALGORITHM_VERSION}, deterministic)`,
+    `- Versatilitate la masa: ${merged.foodMatchScore}/100 (Food Versatility v${FOOD_VERSATILITY_ALGORITHM_VERSION}, deterministic)`,
   ].join("\n");
-}
-
-function clamp1to10(value: number): number {
-  return Math.min(10, Math.max(1, value));
 }
 
 function normalizeCategory(category: string): string {
@@ -170,10 +165,6 @@ function normalizeCategory(category: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
-}
-
-function toSiteScale(score1to10: number): number {
-  return clamp1to10(score1to10) * 10;
 }
 
 function inferOverpricedRisk(
@@ -868,8 +859,7 @@ export function valueScoreInputFromWine(wine: {
  * Rafinare ulterioara: db:editorial sau logica din lib/sommelier.ts.
  */
 export function calculateInitialScores(input: ScoreInput): InitialScores {
-  const { price, category, sweetness, grapeVarieties, dessertPairingCount } =
-    input;
+  const { price, category, sweetness, grapeVarieties } = input;
   const cat = normalizeCategory(category);
 
   const valueScore = calculateValueScore({
@@ -887,31 +877,40 @@ export function calculateInitialScores(input: ScoreInput): InitialScores {
     tasteProfile: input.tasteProfile,
   });
 
-  let giftScore = 6;
-  if (cat === "spumant" || cat === "sparkling") giftScore = 8;
-  if (price > 100) giftScore = 7;
-
-  let foodMatchScore = 7;
-  if (cat === "rosu" || cat === "red") foodMatchScore = 8;
-
-  const dessertBoost = dessertFoodMatchBoost({
-    category: cat,
-    sweetness,
+  const gift = calculateGiftScore({
+    price,
+    type: cat,
     grapeVarieties,
-    dessertPairingCount,
+    region: input.region,
+    wineryName: input.wineryName,
+    vintage: input.vintage,
+    valueScore: input.valueScore ?? valueScore,
+    estimatedQuality: input.estimatedQuality ?? input.baseQuality,
+    qualityFinal: input.qualityFinal,
+    medals: input.wineMedals,
+    criticScore: input.criticScore,
+    ratingAvg: input.ratingAvg,
+    communityScore: input.communityScore,
+    producerPageUrl: input.producerPageUrl,
+    tastingSheetUrl: input.tastingSheetUrl,
+    alcohol: input.alcohol,
+    sweetness,
   });
-  foodMatchScore = Math.min(10, foodMatchScore + dessertBoost);
 
-  const scaledGift = toSiteScale(giftScore);
-  const scaledFood = toSiteScale(foodMatchScore);
+  const food = calculateFoodVersatility({
+    type: cat,
+    sweetness,
+    acidity: input.acidity,
+    foodPairings: input.foodPairings,
+    producerCulinaryPairings: input.producerCulinaryPairings,
+  });
 
   return {
     valueScore,
-    giftScore: scaledGift,
-    foodMatchScore: scaledFood,
+    giftScore: gift.score,
+    foodMatchScore: food.score,
     overpricedRisk: inferOverpricedRisk(price, valueScore),
     beginnerFriendly: valueScore >= 70 && price <= 65,
-    cellarPotential:
-      (cat === "rosu" || cat === "red") && price >= 60 ? 4 : 2,
+    cellarPotential: input.cellarPotential ?? null,
   };
 }

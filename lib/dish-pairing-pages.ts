@@ -1,3 +1,5 @@
+import { scoreWineForDish } from "@/lib/recommendation/dish-match";
+import { rankWinesForOccasion } from "@/lib/recommendation/occasion-match";
 import type { OccasionId } from "@/lib/sommelier";
 import type { FaqEntry } from "@/lib/seo";
 import type { WineWithRelations } from "@/types";
@@ -110,27 +112,52 @@ export function rankWinesForDish(
   config: DishPairingPageConfig,
   limit = 10,
 ): WineWithRelations[] {
+  return rankWinesForDishDetailed(wines, config, limit).map((entry) => entry.wine);
+}
+
+export function rankWinesForDishDetailed(
+  wines: WineWithRelations[],
+  config: DishPairingPageConfig,
+  limit = 10,
+): Array<{ wine: WineWithRelations; score: number; confidence: number }> {
   const budget = config.defaultBudget;
-  const keywords = config.pairingKeywords.map((k) => k.toLowerCase());
+  const subset = wines.filter(
+    (wine) =>
+      wine.priceAvg !== null &&
+      wine.priceAvg !== undefined &&
+      wine.priceAvg <= budget,
+  );
 
-  const scored = wines
-    .filter(
-      (w) =>
-        w.priceAvg !== null &&
-        w.priceAvg !== undefined &&
-        w.priceAvg <= budget,
-    )
-    .map((wine) => {
-      let score = wine.foodMatchScore ?? wine.valueScore ?? 0;
-      const pairings = (wine.foodPairings ?? []).map((p) => p.dish.toLowerCase());
-      if (pairings.some((dish) => keywords.some((k) => dish.includes(k)))) {
-        score += 15;
-      }
-      return { wine, score };
+  if (config.occasionId) {
+    return rankWinesForOccasion(subset, {
+      occasion: config.occasionId,
+      budgetMin: 0,
+      budgetMax: budget,
+      budgetSpecified: true,
+      budgetConstraint: "hard",
+      dish: config.dishName,
     })
-    .sort((a, b) => b.score - a.score);
+      .slice(0, limit)
+      .map((entry) => ({
+        wine: entry.wine as WineWithRelations,
+        score: entry.score,
+        confidence: entry.confidence,
+      }));
+  }
 
-  return scored.slice(0, limit).map((entry) => entry.wine);
+  return subset
+    .map((wine) => {
+      const dish = scoreWineForDish(wine, config.dishName);
+      return { wine, score: dish.score, confidence: dish.confidence };
+    })
+    .sort((left, right) => {
+      if (right.score !== left.score) return right.score - left.score;
+      if (right.confidence !== left.confidence) {
+        return right.confidence - left.confidence;
+      }
+      return left.wine.slug.localeCompare(right.wine.slug);
+    })
+    .slice(0, limit);
 }
 
 export function buildDishFaq(

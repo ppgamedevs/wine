@@ -35,7 +35,7 @@ export function buildWorthItAnalysis(wine: WineWithRelations): WorthItAnalysis {
       bullets: [
         `Value Score ${value}/100: peste pragul nostru de recomandare (${MIN_RECOMMENDED_VALUE_SCORE}/100).`,
         wine.foodMatchScore
-          ? `Food Match ${wine.foodMatchScore}/100: se potriveste bine cu mancarea romaneasca clasica.`
+          ? `Versatilitate la masa ${wine.foodMatchScore}/100: utilitate larga la masa, nu potrivire cu un fel anume.`
           : "Se potriveste bine cu preparate traditionale romanesti.",
         (() => {
           const cellar = resolveCellarDisplay({
@@ -110,7 +110,7 @@ export function buildWineFaq(wine: WineWithRelations): WineFaqItem[] {
     },
     {
       question: `Ce mancare se potriveste cu ${wine.name}?`,
-      answer: `Recomandam in special ${topPairing}. Vinul are Food Match Score ${wine.foodMatchScore ?? "N/A"}/100 pentru preparate romanesti.`,
+      answer: `Recomandam in special ${topPairing}. Versatilitatea la masa este ${wine.foodMatchScore ?? "N/A"}/100; potrivirea de fel se calculeaza separat.`,
     },
     {
       question: `Merita ${wine.name} banii?`,
@@ -189,7 +189,7 @@ export function buildWineProsCons(wine: WineWithRelations): WineProsCons {
   }
 
   if (wine.foodMatchScore && wine.foodMatchScore >= 75) {
-    pros.push(`Food Match ${wine.foodMatchScore}/100: se potriveste bine cu mancare romaneasca.`);
+    pros.push(`Versatilitate la masa ${wine.foodMatchScore}/100: compatibilitate larga, nu un fel anume.`);
   }
 
   if (wine.giftScore && wine.giftScore >= 80) {

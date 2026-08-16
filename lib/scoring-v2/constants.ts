@@ -1,6 +1,15 @@
 /** VinIntel Value Score v2: calitate intrinseca + eficienta pret. */
 export const VALUE_SCORE_VERSION = 2;
 
+/** Gift Score v2: potrivire globala ca dar. Nu reutiliza VALUE_SCORE_VERSION. */
+export const GIFT_SCORE_ALGORITHM_VERSION = 2;
+
+/** Food Versatility v2: versatilitate globala la masa. Stocat in food_match_score. */
+export const FOOD_VERSATILITY_ALGORITHM_VERSION = 2;
+
+/** Occasion Match v1: scor contextual, nu se stocheaza pe wines. */
+export const OCCASION_MATCH_ALGORITHM_VERSION = 1;
+
 export const QUALITY_WEIGHT = 0.72;
 export const PRICE_EFFICIENCY_WEIGHT = 0.28;
 

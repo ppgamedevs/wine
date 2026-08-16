@@ -173,7 +173,7 @@ export default async function BestRomanianWinesHubPage() {
                         {formatRon(wine.priceAvg)}
                       </TableCell>
                       <TableCell className="pr-6 text-right">
-                        {topListRankScore(wine, list.rankMetric) ?? "-"}
+                        {topListRankScore(wine, list.rankMetric, list.rankScores[index]) ?? "-"}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -206,12 +206,13 @@ export default async function BestRomanianWinesHubPage() {
               Recomandari detaliate
             </h2>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {list.wines.map((wine) => (
+              {list.wines.map((wine, index) => (
                 <WineCard
                   key={wine.id}
                   wine={wine}
                   minValueScore={null}
                   highlightScore={list.rankMetric}
+                  displayedScore={list.rankScores[index]}
                 />
               ))}
             </div>

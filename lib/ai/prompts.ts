@@ -154,7 +154,7 @@ Reguli importante:
 - thingsYouShouldKnow: doar insight-uri din evidenta, altfel array gol.
 - foodPairingNotes: 0-5. Scrie pairing specific doar daca exista pairing evaluat sau evidenta de degustare. Nu inventa scor, taninuri, aciditate, arome, corp sau stejar ca sa justifici pairing-ul.
 - Ton: prietenos, dar profesionist.
-- Scorurile valueScore, giftScore, foodMatchScore sunt intregi de la 1 la 100 (standard VinIntel).
+- Scorul valueScore este intreg de la 1 la 100 (standard VinIntel). Nu genera giftScore sau foodMatchScore.
 - Prag minim recomandare = 75/100 pentru valueScore. Sub ${VALUE_SCORE_NEUTRAL_MIN} = raport slab; ${VALUE_SCORE_NEUTRAL_MIN}-${MIN_RECOMMENDED_VALUE_SCORE - 1} = pret mediu; ${MIN_RECOMMENDED_VALUE_SCORE}+ = merita banii. Fii conservator cu scoruri peste ${MIN_RECOMMENDED_VALUE_SCORE} daca pretul pare mare.`;
 
 export function buildEditorialUserPrompt(wine: {
@@ -221,7 +221,7 @@ Returneaza JSON cu:
 - foodPairingNotes (0-5; gol daca nu exista pairing evaluat sau evidenta)
 - dessertPairings (0-4; gol daca nu exista baza)
 - recommendedOccasions (0-4)
-- valueScore, giftScore, foodMatchScore (1-100; valueScore sub ${VALUE_SCORE_NEUTRAL_MIN} doar daca raportul calitate-pret e slab, ${MIN_RECOMMENDED_VALUE_SCORE}+ doar daca merita recomandarea activa)`;
+- valueScore (1-100; sub ${VALUE_SCORE_NEUTRAL_MIN} doar daca raportul calitate-pret e slab, ${MIN_RECOMMENDED_VALUE_SCORE}+ doar daca merita recomandarea activa). Nu include giftScore sau foodMatchScore.`;
 }
 
 export const DESSERT_PAIRINGS_SYSTEM_PROMPT = `Esti un somelier roman de top, expert in pairing vinuri autohtone cu deserturi traditionale.
@@ -449,12 +449,10 @@ Instructiuni importante:
 - Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct.
 - Fii conservator cu scorurile inalte daca nu ai suficiente informatii.
 
-Scoruri (sugestii 1-10, vor fi combinate cu logica rule-based VinIntel):
+Scoruri:
 - Prag minim recomandare = 75/100 (pe scala finala 1-100).
 - valueScore: raport calitate-pret. Sub 7 (~sub ${VALUE_SCORE_NEUTRAL_MIN}) daca pretul pare mare fata de calitate; 7 (~${VALUE_SCORE_NEUTRAL_MIN}-${MIN_RECOMMENDED_VALUE_SCORE - 1}) pentru pret mediu; 8+ (~${MIN_RECOMMENDED_VALUE_SCORE}+) doar daca raportul este clar bun.
-- giftScore (optional): cat de potrivit e ca dar.
-- foodMatchScore (optional): cat de bine se potriveste cu mancare romaneasca.
-- Daca nu ai suficient context, foloseste valori moderate (6-7), nu extreme.
+- Nu genera giftScore sau foodMatchScore. Acestea sunt calculate deterministic de VinIntel.
 
 Alte reguli:
 - Daca nu gasesti pret, pune null.

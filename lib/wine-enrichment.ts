@@ -38,19 +38,12 @@ function mapWineTypeToScoreCategory(type: WineType): string {
   return map[type];
 }
 
-function editorialScoresForMerge(editorial: WineEditorialOutput): {
-  valueScore: number;
-  giftScore: number;
-  foodMatchScore: number;
+function editorialScoresForMerge(): {
+  valueScore?: number;
+  giftScore?: number;
+  foodMatchScore?: number;
 } {
-  return {
-    valueScore: Math.min(10, Math.max(1, Math.round(editorial.valueScore / 10))),
-    giftScore: Math.min(10, Math.max(1, Math.round(editorial.giftScore / 10))),
-    foodMatchScore: Math.min(
-      10,
-      Math.max(1, Math.round(editorial.foodMatchScore / 10)),
-    ),
-  };
+  return {};
 }
 
 export function mergeEditorialScoresForWine(
@@ -67,14 +60,22 @@ export function mergeEditorialScoresForWine(
     region: wine.region?.name,
     grapeVarieties,
     sweetness: wine.sweetness,
-    dessertPairingCount: editorial.dessertPairings?.length ?? 0,
     wineMedals: wine.medals ?? [],
+    valueScore: wine.valueScore,
+    estimatedQuality: wine.estimatedQuality,
+    vintage: wine.vintage,
+    foodPairings: wine.foodPairings,
+    producerCulinaryPairings: wine.producerContent?.culinaryPairings,
+    alcohol: wine.alcohol,
+    acidity: wine.acidity,
+    criticScore: wine.criticScore ?? undefined,
+    wineryName: wine.winery?.name,
   });
 
   return mergeAnalysisScores(
     ruleScores,
     price > 0 ? price : 50,
-    editorialScoresForMerge(editorial),
+    editorialScoresForMerge(),
   );
 }
 
@@ -122,12 +123,10 @@ export async function applyEditorialAndScoresToWine(
       foodPairingNotes: clean.foodPairingNotes,
       dessertPairings: clean.dessertPairings,
       recommendedOccasions: clean.recommendedOccasions,
-      valueScore: mergedScores.valueScore,
       giftScore: mergedScores.giftScore,
       foodMatchScore: mergedScores.foodMatchScore,
       overpricedRisk: mergedScores.overpricedRisk,
       beginnerFriendly: mergedScores.beginnerFriendly,
-      cellarPotential: mergedScores.cellarPotential,
     })
     .where(eq(wines.id, wineId));
 
@@ -182,8 +181,16 @@ async function applyRuleBasedScoresOnly(wine: WineForEditorial): Promise<void> {
     region: wine.region?.name,
     grapeVarieties,
     sweetness: wine.sweetness,
-    dessertPairingCount: wine.dessertPairings?.length ?? 0,
     wineMedals: wine.medals ?? [],
+    valueScore: wine.valueScore,
+    estimatedQuality: wine.estimatedQuality,
+    vintage: wine.vintage,
+    foodPairings: wine.foodPairings,
+    producerCulinaryPairings: wine.producerContent?.culinaryPairings,
+    alcohol: wine.alcohol,
+    acidity: wine.acidity,
+    criticScore: wine.criticScore ?? undefined,
+    wineryName: wine.winery?.name,
   });
 
   const mergedScores = mergeAnalysisScores(ruleScores, price > 0 ? price : 50);
@@ -191,12 +198,11 @@ async function applyRuleBasedScoresOnly(wine: WineForEditorial): Promise<void> {
   await db
     .update(wines)
     .set({
-      valueScore: mergedScores.valueScore,
+      valueScore: wine.valueScore ?? mergedScores.valueScore,
       giftScore: mergedScores.giftScore,
       foodMatchScore: mergedScores.foodMatchScore,
       overpricedRisk: mergedScores.overpricedRisk,
       beginnerFriendly: mergedScores.beginnerFriendly,
-      cellarPotential: mergedScores.cellarPotential,
     })
     .where(eq(wines.id, wine.id));
 

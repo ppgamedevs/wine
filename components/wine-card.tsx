@@ -21,12 +21,14 @@ export function WineCard({
   /** Prag minim recomandare = 75/100. Cand e setat, ascunde vinurile sub prag. */
   minValueScore = MIN_RECOMMENDED_VALUE_SCORE,
   highlightScore = "value",
+  displayedScore,
   trackAnalytics,
 }: {
   wine: WineWithRelations;
   priority?: boolean;
   minValueScore?: number | null;
   highlightScore?: TopListRankMetric;
+  displayedScore?: number | null;
   trackAnalytics?: { wineryId: number; wineId: number };
 }) {
   if (
@@ -38,7 +40,7 @@ export function WineCard({
 
   const displayVintage = resolveWineVintage(wine);
   const displayName = stripEmbeddedVintageFromName(wine.name, displayVintage);
-  const badgeScore = topListRankScore(wine, highlightScore);
+  const badgeScore = topListRankScore(wine, highlightScore, displayedScore);
   const badgeTitle =
     highlightScore === "gift"
       ? "Gift Score"
