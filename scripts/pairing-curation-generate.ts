@@ -145,8 +145,11 @@ async function main() {
       console.log(`    ${draft.rationale}`);
     }
     if (card.warnings.length) console.log("warnings:", card.warnings.join(" | "));
+    if (card.impact.evidenceUpliftWarning) {
+      console.log("uplift:", card.impact.evidenceUpliftWarning);
+    }
     console.log(
-      `Food v2 ${card.impact.currentFood.score}/${card.impact.currentFood.level} -> ${card.impact.predictedFood.score}/${card.impact.predictedFood.level}`,
+      `Food v2 ${card.impact.currentFood.score}/C${card.impact.currentFood.confidence}/${card.impact.currentFood.level} -> ${card.impact.predictedFood.score}/C${card.impact.predictedFood.confidence}/${card.impact.predictedFood.level} (${card.impact.predictedFood.provenance})`,
     );
     console.log(
       "occasions",
@@ -169,6 +172,8 @@ async function main() {
           note: draft.rationale,
           category: draft.category,
           source: "vinintel_curated" as const,
+          basis: draft.basis,
+          strength: draft.strength,
         })),
       ],
     };

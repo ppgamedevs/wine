@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 import { approveCuratedPairingsAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import type { CurationCard } from "@/lib/pairing-curation-cards";
-import type { PairingDraft } from "@/lib/pairing-curation";
+import { basisProvenanceLabel } from "@/lib/curated-evidence";
+import { previewCurationImpact } from "@/lib/pairing-curation-preview";
+import type { PairingDraft } from "@/lib/pairing-curation-types";
+import type { FoodPairingStrength } from "@/lib/schema";
 
 interface PairingCurationWorkbenchProps {
   cards: CurationCard[];
@@ -25,7 +28,9 @@ export function PairingCurationWorkbench({
   const [message, setMessage] = useState<string | null>(null);
   const card = cards[index];
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-  const [edits, setEdits] = useState<Record<string, { dish: string; rationale: string }>>({});
+  const [edits, setEdits] = useState<
+    Record<string, { dish: string; rationale: string; strength: FoodPairingStrength }>
+  >({});
 
   const selectedDrafts = useMemo(() => {
     if (!card) return [];
@@ -39,6 +44,7 @@ export function PairingCurationWorkbench({
           ...draft,
           dish: edit.dish,
           rationale: edit.rationale,
+          strength: edit.strength,
           basis: draft.basis.includes("editorial_judgment")
             ? draft.basis
             : [...draft.basis, "editorial_judgment" as const],
@@ -46,7 +52,12 @@ export function PairingCurationWorkbench({
       });
   }, [card, edits, selected]);
 
-  if (!card) {
+  const selectedImpact = useMemo(() => {
+    if (!card) return null;
+    return previewCurationImpact(card.previewWine, selectedDrafts);
+  }, [card, selectedDrafts]);
+
+  if (!card || !selectedImpact) {
     return <p className="text-sm text-muted-foreground">Nu exista vinuri in lot.</p>;
   }
 
@@ -128,14 +139,22 @@ export function PairingCurationWorkbench({
         <div className="space-y-2 rounded-xl border border-border p-4">
           <h3 className="font-medium">Impact Food v2 (doar in memorie)</h3>
           <p className="text-sm">
-            Acum: {card.impact.currentFood.score} / {card.impact.currentFood.level}
+            Acum: Food {selectedImpact.currentFood.score} · C{" "}
+            {selectedImpact.currentFood.confidence} · {selectedImpact.currentFood.level}
           </p>
           <p className="text-sm">
-            Daca se aproba drafturile: {card.impact.predictedFood.score} /{" "}
-            {card.impact.predictedFood.level}
+            Dupa selectie: Food {selectedImpact.predictedFood.score} · C{" "}
+            {selectedImpact.predictedFood.confidence} · {selectedImpact.predictedFood.level}
           </p>
+          <p className="text-xs text-muted-foreground">
+            Provenienta: {selectedImpact.predictedFood.provenance}. Strength nu schimba
+            evidenta.
+          </p>
+          {selectedImpact.evidenceUpliftWarning ? (
+            <p className="text-sm text-amber-800">{selectedImpact.evidenceUpliftWarning}</p>
+          ) : null}
           <ul className="text-sm text-muted-foreground">
-            {card.impact.occasions.map((row) => (
+            {selectedImpact.occasions.map((row) => (
               <li key={row.occasion}>
                 {row.occasion}: {row.before} → {row.after}
               </li>
@@ -187,7 +206,11 @@ export function PairingCurationWorkbench({
         ))}
         {card.drafts.map((draft) => {
           const key = `${card.slug}:${draft.dish}`;
-          const edit = edits[key] ?? { dish: draft.dish, rationale: draft.rationale };
+          const edit = edits[key] ?? {
+            dish: draft.dish,
+            rationale: draft.rationale,
+            strength: draft.strength,
+          };
           const checked = selected[key] === true;
           return (
             <label key={key} className="block rounded-xl border border-border p-4">
@@ -220,8 +243,34 @@ export function PairingCurationWorkbench({
                       }))
                     }
                   />
+                  <p className="text-xs">
+                    Sursa editoriala: Recomandare VinIntel
+                  </p>
                   <p className="text-xs text-muted-foreground">
-                    {draft.category} · {draft.basis.join(", ")} · {draft.confidence}
+                    Baza evidentei: {basisProvenanceLabel(draft.basis)} (blocata)
+                  </p>
+                  <label className="block text-xs text-muted-foreground">
+                    Strength recomandare
+                    <select
+                      className="ml-2 rounded-md border border-border bg-background px-2 py-1"
+                      value={edit.strength}
+                      onChange={(event) =>
+                        setEdits((current) => ({
+                          ...current,
+                          [key]: {
+                            ...edit,
+                            strength: event.target.value as FoodPairingStrength,
+                          },
+                        }))
+                      }
+                    >
+                      <option value="possible">possible</option>
+                      <option value="good">good</option>
+                      <option value="strong">strong</option>
+                    </select>
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    {draft.category} · propunere {draft.confidence}
                     {draft.styleOnlyWarning ? " · doar stil general" : ""}
                   </p>
                 </div>

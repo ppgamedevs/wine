@@ -9,6 +9,10 @@
  */
 import { sanitizeCulinaryText } from "@/lib/culinary-extract";
 import {
+  classifyCuratedPairings,
+  evidenceContextFromPairingFields,
+} from "@/lib/curated-evidence";
+import {
   assessFoodEvidence,
   evidenceClassWeight,
   type FoodEvidenceClaim,
@@ -35,11 +39,13 @@ export interface FoodVersatilityInput {
   type?: string | null;
   sweetness?: string | null;
   acidity?: number | null;
+  alcohol?: number | null;
   foodPairings?: FoodPairing[] | null;
   producerCulinaryPairings?: string | null;
   tastingSheetCulinaryPairings?: string | null;
   foodEvidence?: FoodEvidenceClaim[] | null;
   culinaryChromeRejected?: boolean;
+  culinaryLaundryRejected?: boolean;
 }
 
 export interface FoodVersatilityBreakdownItem {
@@ -55,6 +61,7 @@ export interface FoodVersatilityResult {
   provisional: boolean;
   displayable: boolean;
   evidenceLevel: FoodEvidenceLevel;
+  evidenceProvenance: "source_backed" | "structured" | "editorial" | "style";
   algorithmVersion: typeof FOOD_VERSATILITY_ALGORITHM_VERSION;
   categories: FoodCategoryId[];
   breakdown: FoodVersatilityBreakdownItem[];
@@ -79,6 +86,9 @@ function normalizeType(type: string | null | undefined): string {
 
 function collectCategories(input: FoodVersatilityInput): {
   curated: FoodCategoryId[];
+  sourceBacked: FoodCategoryId[];
+  structured: FoodCategoryId[];
+  editorial: FoodCategoryId[];
   producer: FoodCategoryId[];
   tasting: FoodCategoryId[];
   all: FoodCategoryId[];
@@ -88,13 +98,17 @@ function collectCategories(input: FoodVersatilityInput): {
   displayable: boolean;
 } {
   const assessment = assessFoodEvidence({
+    foodPairings: input.foodPairings,
     curatedDishes: (input.foodPairings ?? []).map((pairing) => pairing.dish),
     producerCulinary: sanitizeCulinaryText(input.producerCulinaryPairings),
     tastingSheetCulinary: input.tastingSheetCulinaryPairings,
     foodEvidence: input.foodEvidence,
     type: input.type,
     sweetness: input.sweetness,
+    alcohol: input.alcohol,
+    acidity: input.acidity,
     chromeRejected: input.culinaryChromeRejected,
+    laundryRejected: input.culinaryLaundryRejected,
   });
 
   const claimCategories = (input.foodEvidence ?? [])
@@ -104,6 +118,18 @@ function collectCategories(input: FoodVersatilityInput): {
         evidenceClassWeight("PRODUCER_EXACT"),
     )
     .map((claim) => claim.category);
+
+  const context = evidenceContextFromPairingFields({
+    type: input.type,
+    sweetness: input.sweetness,
+    alcohol: input.alcohol,
+    acidity: input.acidity,
+    producerCulinaryPairings: input.producerCulinaryPairings,
+    foodEvidence: input.foodEvidence,
+    culinaryLaundryRejected: input.culinaryLaundryRejected,
+    culinaryChromeRejected: input.culinaryChromeRejected,
+  });
+  const tiers = classifyCuratedPairings(input.foodPairings, context);
 
   const curated =
     assessment.curatedCategories.length > 0
@@ -115,6 +141,9 @@ function collectCategories(input: FoodVersatilityInput): {
 
   return {
     curated,
+    sourceBacked: tiers.sourceBacked,
+    structured: tiers.structured,
+    editorial: tiers.editorial,
     producer,
     tasting,
     all,
@@ -125,13 +154,36 @@ function collectCategories(input: FoodVersatilityInput): {
   };
 }
 
-function breadthScore(categoryCount: number): number {
-  if (categoryCount <= 0) return 40;
-  if (categoryCount === 1) return 56;
-  if (categoryCount === 2) return 68;
-  if (categoryCount === 3) return 78;
-  if (categoryCount === 4) return 86;
-  return 92;
+function breadthScore(effectiveCount: number): number {
+  if (effectiveCount <= 0) return 40;
+  if (effectiveCount < 1) return Math.round(40 + 16 * effectiveCount);
+  if (effectiveCount < 2) return Math.round(56 + 12 * (effectiveCount - 1));
+  if (effectiveCount < 3) return Math.round(68 + 10 * (effectiveCount - 2));
+  if (effectiveCount < 4) return Math.round(78 + 8 * (effectiveCount - 3));
+  return Math.min(92, Math.round(86 + 6 * (effectiveCount - 4)));
+}
+
+function effectiveBreadth(input: {
+  all: FoodCategoryId[];
+  sourceBacked: FoodCategoryId[];
+  structured: FoodCategoryId[];
+  editorial: FoodCategoryId[];
+  producer: FoodCategoryId[];
+  tasting: FoodCategoryId[];
+}): number {
+  let total = 0;
+  for (const category of input.all) {
+    if (input.sourceBacked.includes(category) || input.producer.includes(category) || input.tasting.includes(category)) {
+      total += 1;
+    } else if (input.structured.includes(category)) {
+      total += 0.6;
+    } else if (input.editorial.includes(category)) {
+      total += 0.45;
+    } else {
+      total += 1;
+    }
+  }
+  return total;
 }
 
 function styleUtility(type: string, sweetness: string | null | undefined): {
@@ -223,7 +275,9 @@ function dessertComponent(
 
 function foodConfidence(
   input: FoodVersatilityInput,
-  curated: FoodCategoryId[],
+  sourceBacked: FoodCategoryId[],
+  structured: FoodCategoryId[],
+  editorial: FoodCategoryId[],
   producer: FoodCategoryId[],
   tasting: FoodCategoryId[],
 ): number {
@@ -231,10 +285,37 @@ function foodConfidence(
   if (input.type) confidence += 8;
   if (input.sweetness) confidence += 8;
   if (input.acidity != null) confidence += 10;
-  if (curated.length > 0) confidence += Math.min(28, 14 + curated.length * 6);
   if (producer.length > 0) confidence += Math.min(16, 8 + producer.length * 4);
   if (tasting.length > 0) confidence += Math.min(12, 6 + tasting.length * 3);
-  if (curated.length === 0 && producer.length === 0 && tasting.length === 0) {
+
+  const sourceOnly = sourceBacked.filter((category) => !producer.includes(category) && !tasting.includes(category));
+  const structuredOnly = structured.filter(
+    (category) =>
+      !sourceBacked.includes(category) &&
+      !producer.includes(category) &&
+      !tasting.includes(category),
+  );
+  const editorialOnly = editorial.filter(
+    (category) =>
+      !sourceBacked.includes(category) &&
+      !structured.includes(category) &&
+      !producer.includes(category) &&
+      !tasting.includes(category),
+  );
+  if (sourceOnly.length > 0) confidence += Math.min(20, 8 + sourceOnly.length * 4);
+  if (structuredOnly.length > 0) confidence += Math.min(12, 6 + structuredOnly.length * 2);
+  if (editorialOnly.length > 0) confidence += Math.min(8, 4 + editorialOnly.length);
+  if (sourceBacked.some((category) => producer.includes(category) || tasting.includes(category))) {
+    confidence += 4;
+  }
+
+  if (
+    sourceBacked.length === 0 &&
+    structured.length === 0 &&
+    editorial.length === 0 &&
+    producer.length === 0 &&
+    tasting.length === 0
+  ) {
     confidence = Math.min(confidence, 38);
   }
   return clamp(Math.round(confidence), 10, 94);
@@ -252,15 +333,48 @@ export function calculateFoodVersatility(
 ): FoodVersatilityResult {
   const type = normalizeType(input.type);
   const collected = collectCategories(input);
-  const { curated, producer, tasting, all, evidenceLevel, displayable } = collected;
+  const {
+    curated,
+    sourceBacked,
+    structured,
+    editorial,
+    producer,
+    tasting,
+    all,
+    evidenceLevel,
+    displayable,
+  } = collected;
   const style = styleUtility(type, input.sweetness);
   const acid = acidityBonus(type, input.acidity);
   const styleScore = clamp(style.score + acid.bonus, 20, 80);
-  const breadth = breadthScore(all.length);
+  const breadth = breadthScore(
+    effectiveBreadth({ all, sourceBacked, structured, editorial, producer, tasting }),
+  );
   const dessert = dessertComponent(type, input.sweetness, all);
+
+  const sourceOnly = sourceBacked.filter((category) => !producer.includes(category) && !tasting.includes(category));
+  const structuredOnly = structured.filter(
+    (category) => !sourceBacked.includes(category) && !producer.includes(category) && !tasting.includes(category),
+  );
+  const editorialOnly = editorial.filter(
+    (category) =>
+      !sourceBacked.includes(category) &&
+      !structured.includes(category) &&
+      !producer.includes(category) &&
+      !tasting.includes(category),
+  );
+  const overlapApproval = sourceBacked.some(
+    (category) => producer.includes(category) || tasting.includes(category),
+  )
+    ? 4
+    : 0;
+
   const evidenceQuality = clamp(
     28 +
-      curated.length * 10 +
+      Math.min(24, sourceOnly.length * 12) +
+      Math.min(15, structuredOnly.length * 5) +
+      Math.min(9, editorialOnly.length * 3) +
+      overlapApproval +
       producer.length * 6 +
       tasting.length * 5 +
       (input.acidity != null ? 10 : 0) +
@@ -269,7 +383,22 @@ export function calculateFoodVersatility(
     20,
     90,
   );
-  const confidence = foodConfidence(input, curated, producer, tasting);
+  const confidence = foodConfidence(
+    input,
+    sourceBacked,
+    structured,
+    editorial,
+    producer,
+    tasting,
+  );
+  const evidenceProvenance =
+    sourceBacked.length > 0 || producer.length > 0 || tasting.length > 0
+      ? "source_backed"
+      : structured.length > 0
+        ? "structured"
+        : editorial.length > 0 || curated.length > 0
+          ? "editorial"
+          : "style";
 
   const breadthWeight = all.length > 0 ? 0.45 : 0.2;
   const styleWeight = all.length > 0 ? 0.25 : 0.45;
@@ -297,7 +426,7 @@ export function calculateFoodVersatility(
       detail:
         all.length === 0
           ? "Fara pairing-uri structurate. Nu recompensam aliasuri repetate."
-          : `${all.length} categorii distincte (curate ${curated.length}, producator ${producer.length}, fisa ${tasting.length}).`,
+          : `${all.length} categorii (sursa ${sourceBacked.length}, stil ${structured.length}, editorial ${editorial.length}, producator ${producer.length}).`,
     },
     {
       key: "style",
@@ -311,7 +440,7 @@ export function calculateFoodVersatility(
       key: "evidence",
       label: "Calitatea evidentiilor",
       points: evidenceQuality,
-      detail: "Pairing-uri curate si fapte tehnice, nu note editoriale.",
+      detail: "Calitatea evidentiilor tine de baza (producator/stil/editorial), nu de strength.",
     },
     {
       key: "dessert",
@@ -324,9 +453,15 @@ export function calculateFoodVersatility(
   return {
     score,
     confidence,
-    provisional: !displayable || confidence < 45 || (style.generic && all.length === 0),
+    provisional:
+      !displayable ||
+      confidence < 45 ||
+      evidenceProvenance === "editorial" ||
+      evidenceProvenance === "structured" ||
+      (style.generic && all.length === 0),
     displayable,
     evidenceLevel,
+    evidenceProvenance,
     algorithmVersion: FOOD_VERSATILITY_ALGORITHM_VERSION,
     categories: all,
     breakdown,

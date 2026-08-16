@@ -130,10 +130,12 @@ function foodFor(wine: OccasionMatchWine) {
     type: wine.type,
     sweetness: wine.sweetness,
     acidity: wine.acidity,
+    alcohol: wine.alcohol,
     foodPairings: wine.foodPairings,
     producerCulinaryPairings: wine.producerContent?.culinaryPairings,
     foodEvidence: toFoodEvidenceClaims(wine.producerContent?.foodEvidence),
     culinaryChromeRejected: wine.producerContent?.culinaryChromeRejected,
+    culinaryLaundryRejected: wine.producerContent?.culinaryLaundryRejected,
   });
 }
 

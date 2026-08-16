@@ -4,6 +4,13 @@
  * Approval writes only wines.foodPairings. Never writes scores.
  */
 import {
+  basisProvenanceLabel,
+  evidenceContextFromPairingFields,
+  hasSafeProducerEvidenceForCategory,
+  hasTechnicalSupportForCategory,
+  sanitizeCuratedBasis,
+} from "@/lib/curated-evidence";
+import {
   assessFoodEvidence,
   assertFoodEvidencePatchHasNoScores,
 } from "@/lib/food-evidence";
@@ -12,16 +19,18 @@ import {
   foodCategoryLabel,
   type FoodCategoryId,
 } from "@/lib/food-taxonomy";
-import { rankWinesForOccasion, scoreWineForOccasion } from "@/lib/recommendation/occasion-match";
+import { rankWinesForOccasion } from "@/lib/recommendation/occasion-match";
 import type { OccasionId } from "@/lib/recommendation/occasion-match";
+import {
+  previewCurationImpact,
+  type ScoreImpactPreview,
+} from "@/lib/pairing-curation-preview";
+import type { PairingDraft } from "@/lib/pairing-curation-types";
 import type {
   FoodPairing,
-  FoodPairingBasis,
   FoodPairingStrength,
 } from "@/lib/schema";
 import { isAutochthonousGrapeMix } from "@/lib/scoring";
-import { calculateFoodVersatility } from "@/lib/scoring-v2/food-versatility";
-import { foodVersatilityInputFromWine } from "@/lib/scoring-v2/wine-score-inputs";
 import { getSecondaryScoringMode } from "@/lib/scoring-v2/secondary-scoring-mode";
 import type { WineWithRelations } from "@/types";
 
@@ -54,17 +63,7 @@ export const EDITORIAL_DISHES: Array<{
   { dish: "Desert cu ciocolata", category: "chocolate", aliases: ["ciocolata"] },
 ];
 
-export type ProposalConfidence = "HIGH" | "MEDIUM" | "LOW";
-
-export interface PairingDraft {
-  dish: string;
-  category: FoodCategoryId;
-  rationale: string;
-  basis: FoodPairingBasis[];
-  confidence: ProposalConfidence;
-  strength: FoodPairingStrength;
-  styleOnlyWarning: boolean;
-}
+export type { PairingDraft, ProposalConfidence } from "@/lib/pairing-curation-types";
 
 export interface PairingValidationIssue {
   level: "error" | "warning";
@@ -72,15 +71,8 @@ export interface PairingValidationIssue {
   message: string;
 }
 
-export interface ScoreImpactPreview {
-  currentFood: { score: number; level: string; displayable: boolean };
-  predictedFood: { score: number; level: string; displayable: boolean };
-  occasions: Array<{
-    occasion: OccasionId;
-    before: number;
-    after: number;
-  }>;
-}
+export type { ScoreImpactPreview };
+export { previewCurationImpact };
 
 const SENSORY_CLAIM_RE =
   /tanin|stejar|barrique|baric|arome de|fructe negre|corp (mediu|plin)|la nas|pe palat|gust complex|note de vanilie/i;
@@ -114,6 +106,19 @@ export function editorialDishForCategory(category: FoodCategoryId): string {
   return EDITORIAL_DISHES.find((item) => item.category === category)?.dish ?? foodCategoryLabel(category);
 }
 
+export function wineEvidenceContext(wine: WineWithRelations) {
+  return evidenceContextFromPairingFields({
+    type: wine.type,
+    sweetness: wine.sweetness,
+    alcohol: wine.alcohol,
+    acidity: wine.acidity,
+    producerCulinaryPairings: wine.producerContent?.culinaryPairings,
+    foodEvidence: wine.producerContent?.foodEvidence,
+    culinaryLaundryRejected: wine.producerContent?.culinaryLaundryRejected,
+    culinaryChromeRejected: wine.producerContent?.culinaryChromeRejected,
+  });
+}
+
 function styleDrafts(wine: WineWithRelations): PairingDraft[] {
   const type = wine.type;
   const sweet = wine.sweetness ?? "sec";
@@ -128,15 +133,16 @@ function styleDrafts(wine: WineWithRelations): PairingDraft[] {
       dish,
       category,
       rationale,
-      basis: ["verified_style"],
+      basis: ["verified_style", "editorial_judgment"],
       confidence: "MEDIUM",
       strength,
       styleOnlyWarning: true,
+      provenanceLocked: true,
     });
   };
 
   if (type === "red" && (sweet === "sec" || sweet === "demisec")) {
-    push("Sarmale", "sarmale", "Un rosu sec sau demisec din acest stil este o alegere editoriala potrivita pentru sarmale.", "strong");
+    push("Sarmale", "sarmale", "Un rosu sec sau demisec din acest stil este o alegere editoriala potrivita pentru sarmale.");
     push("Mici", "grilled_meat", "Un rosu sec din acest stil este o alegere editoriala potrivita pentru preparate consistente la gratar.");
     push("Branzeturi maturate", "cheese", "Branzeturile maturate sunt o asociere editoriala clasica pentru un rosu sec.");
   } else if (type === "red") {
@@ -176,10 +182,11 @@ function styleDrafts(wine: WineWithRelations): PairingDraft[] {
       dish: "Ceafa de porc",
       category: "pork",
       rationale: "Alcoolul verificat ridicat sustine o asociere editoriala cu preparate de porc consistente.",
-      basis: ["verified_style", "technical_data"],
+      basis: ["verified_style", "technical_data", "editorial_judgment"],
       confidence: "MEDIUM",
       strength: "good",
       styleOnlyWarning: false,
+      provenanceLocked: true,
     });
   }
 
@@ -187,7 +194,7 @@ function styleDrafts(wine: WineWithRelations): PairingDraft[] {
 }
 
 function producerDrafts(wine: WineWithRelations): PairingDraft[] {
-  const text = wine.producerContent?.culinaryPairings ?? "";
+  const context = wineEvidenceContext(wine);
   const claims = wine.producerContent?.foodEvidence ?? [];
   const drafts: PairingDraft[] = [];
   const seen = new Set<FoodCategoryId>();
@@ -195,28 +202,24 @@ function producerDrafts(wine: WineWithRelations): PairingDraft[] {
   for (const claim of claims) {
     const category = claim.category as FoodCategoryId;
     if (seen.has(category)) continue;
-    if (!categorizeFoodText(claim.dish).includes(category) && categorizeFoodText(claim.category).length === 0) {
-      continue;
-    }
+    if (!hasSafeProducerEvidenceForCategory(context, category)) continue;
     seen.add(category);
     drafts.push({
       dish: editorialDishForCategory(category),
       category,
-      rationale: `Producatorul mentioneaza aceasta asociere. Categoria editoriala propusa ramane de aprobat de un recenzor.`,
+      rationale: "Producatorul mentioneaza aceasta asociere. Categoria editoriala propusa ramane de aprobat de un recenzor.",
       basis: ["producer_evidence"],
       confidence: "HIGH",
-      strength: "strong",
+      strength: "good",
       styleOnlyWarning: false,
+      provenanceLocked: true,
     });
   }
 
-  if (
-    drafts.length === 0 &&
-    text.trim() &&
-    !wine.producerContent?.culinaryLaundryRejected
-  ) {
-    for (const category of categorizeFoodText(text)) {
+  if (drafts.length === 0) {
+    for (const category of categorizeFoodText(context.producerCulinary ?? "")) {
       if (seen.has(category)) continue;
+      if (!hasSafeProducerEvidenceForCategory(context, category)) continue;
       seen.add(category);
       drafts.push({
         dish: editorialDishForCategory(category),
@@ -224,8 +227,9 @@ function producerDrafts(wine: WineWithRelations): PairingDraft[] {
         rationale: "Textul oficial al producatorului sustine aceasta categorie. Aprobarea ramane umana.",
         basis: ["producer_evidence"],
         confidence: "HIGH",
-        strength: "strong",
+        strength: "good",
         styleOnlyWarning: false,
+        provenanceLocked: true,
       });
     }
   }
@@ -249,6 +253,21 @@ export function generatePairingDrafts(wine: WineWithRelations): PairingDraft[] {
   return merged.slice(0, 5);
 }
 
+export function lockDraftBasis(wine: WineWithRelations, draft: PairingDraft): PairingDraft {
+  const context = wineEvidenceContext(wine);
+  const sanitized = sanitizeCuratedBasis(draft.basis, context, draft.category);
+  if (sanitized.rejectedProducerClaim) {
+    throw new Error("basis=producer_evidence necesita evidenta oficiala pentru aceasta categorie.");
+  }
+  if (
+    draft.basis.includes("technical_data") &&
+    !hasTechnicalSupportForCategory(context, draft.category)
+  ) {
+    return { ...draft, basis: sanitized.basis };
+  }
+  return { ...draft, basis: sanitized.basis };
+}
+
 export function validatePairingDrafts(
   wine: WineWithRelations,
   drafts: PairingDraft[],
@@ -256,8 +275,19 @@ export function validatePairingDrafts(
   const issues: PairingValidationIssue[] = [];
   const foldedDishes = new Set<string>();
   const categories = new Set<FoodCategoryId>();
+  const context = wineEvidenceContext(wine);
 
   for (const draft of drafts) {
+    if (
+      draft.basis.includes("producer_evidence") &&
+      !hasSafeProducerEvidenceForCategory(context, draft.category)
+    ) {
+      issues.push({
+        level: "error",
+        code: "fake_producer_basis",
+        message: "Nu poti marca o asociere ca evidenta de producator fara sursa oficiala.",
+      });
+    }
     if (!draft.dish.trim()) {
       issues.push({ level: "error", code: "empty_dish", message: "Felul nu poate fi gol." });
     }
@@ -332,44 +362,7 @@ export function validatePairingDrafts(
   return issues;
 }
 
-export function previewCurationImpact(
-  wine: WineWithRelations,
-  drafts: PairingDraft[],
-): ScoreImpactPreview {
-  const current = calculateFoodVersatility(foodVersatilityInputFromWine(wine));
-  const proposedPairings: FoodPairing[] = [
-    ...wine.foodPairings,
-    ...drafts.map((draft) => ({
-      dish: draft.dish,
-      note: draft.rationale,
-      category: draft.category,
-      source: "vinintel_curated" as const,
-    })),
-  ];
-  const predicted = calculateFoodVersatility({
-    ...foodVersatilityInputFromWine(wine),
-    foodPairings: proposedPairings,
-  });
-  const afterWine = { ...wine, foodPairings: proposedPairings };
-  const occasions = KEY_OCCASIONS.map((occasion) => ({
-    occasion,
-    before: scoreWineForOccasion(wine, { occasion })?.score ?? 0,
-    after: scoreWineForOccasion(afterWine, { occasion })?.score ?? 0,
-  }));
-  return {
-    currentFood: {
-      score: current.score,
-      level: current.evidenceLevel,
-      displayable: current.displayable,
-    },
-    predictedFood: {
-      score: predicted.score,
-      level: predicted.evidenceLevel,
-      displayable: predicted.displayable,
-    },
-    occasions,
-  };
-}
+export { basisProvenanceLabel };
 
 export function toApprovedFoodPairings(
   drafts: PairingDraft[],

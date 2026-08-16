@@ -471,6 +471,7 @@ const approvePairingsSchema = z.object({
         confidence: z.enum(["HIGH", "MEDIUM", "LOW"]),
         strength: z.enum(["strong", "good", "possible"]),
         styleOnlyWarning: z.boolean(),
+        provenanceLocked: z.boolean().optional(),
       }),
     )
     .min(1)
@@ -492,6 +493,7 @@ export async function approveCuratedPairingsAction(input: {
     confidence: "HIGH" | "MEDIUM" | "LOW";
     strength: "strong" | "good" | "possible";
     styleOnlyWarning: boolean;
+    provenanceLocked?: boolean;
   }>;
 }): Promise<{ ok: true; message: string } | { ok: false; error: string }> {
   await assertAdmin();
@@ -510,6 +512,7 @@ export async function approveCuratedPairingsAction(input: {
       drafts: parsed.data.drafts.map((draft) => ({
         ...draft,
         category: draft.category as FoodCategoryId,
+        provenanceLocked: draft.provenanceLocked ?? true,
       })),
       adminAuthenticated: true,
     });

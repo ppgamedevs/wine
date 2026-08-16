@@ -103,11 +103,13 @@ export function foodVersatilityInputFromWine(
     type: wine.type,
     sweetness: wine.sweetness,
     acidity: wine.acidity,
+    alcohol: wine.alcohol,
     foodPairings: wine.foodPairings,
     producerCulinaryPairings: sanitizeCulinaryText(
       wine.producerContent?.culinaryPairings,
     ) || null,
     foodEvidence: toFoodEvidenceClaims(wine.producerContent?.foodEvidence),
     culinaryChromeRejected: wine.producerContent?.culinaryChromeRejected,
+    culinaryLaundryRejected: wine.producerContent?.culinaryLaundryRejected,
   };
 }

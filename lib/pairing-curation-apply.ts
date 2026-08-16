@@ -8,6 +8,7 @@ import {
   assertShadowUnchanged,
   buildCurationWritePatch,
   toApprovedFoodPairings,
+  lockDraftBasis,
   validatePairingDrafts,
   type PairingDraft,
 } from "@/lib/pairing-curation";
@@ -33,10 +34,13 @@ export async function approveCuratedPairingsForWine(input: {
     throw new Error("Vinul nu este disponibil pentru curatare.");
   }
 
-  const drafts = input.drafts.map((draft) => ({
-    ...draft,
-    category: draft.category as FoodCategoryId,
-  }));
+  const drafts = input.drafts.map((draft) =>
+    lockDraftBasis(wine, {
+      ...draft,
+      category: draft.category as FoodCategoryId,
+      provenanceLocked: draft.provenanceLocked ?? true,
+    }),
+  );
   const issues = validatePairingDrafts(wine, drafts);
   if (issues.some((issue) => issue.level === "error")) {
     throw new Error(issues.filter((issue) => issue.level === "error")[0]?.message);

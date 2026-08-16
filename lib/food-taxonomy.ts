@@ -80,7 +80,7 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   {
     id: "beef",
     label: "Vita",
-    synonyms: ["vita", "vita", "steak", "antricot", "vita la gratar"],
+    synonyms: ["vita", "steak", "antricot", "vita la gratar", "friptura de vita"],
   },
   {
     id: "poultry",

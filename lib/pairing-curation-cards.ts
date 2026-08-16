@@ -38,6 +38,7 @@ export interface CurationCard {
   drafts: PairingDraft[];
   warnings: string[];
   impact: ScoreImpactPreview;
+  previewWine: WineWithRelations;
 }
 
 export function buildCurationCard(wine: WineWithRelations): CurationCard {
@@ -75,6 +76,7 @@ export function buildCurationCard(wine: WineWithRelations): CurationCard {
     drafts,
     warnings: issues.map((issue) => issue.message),
     impact: previewCurationImpact(wine, drafts),
+    previewWine: wine,
   };
 }
 

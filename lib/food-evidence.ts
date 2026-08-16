@@ -4,9 +4,14 @@
  * and whether a precise public number is justified.
  */
 import {
+  classifyCuratedPairings,
+  evidenceContextFromPairingFields,
+} from "@/lib/curated-evidence";
+import {
   categorizeFoodText,
   type FoodCategoryId,
 } from "@/lib/food-taxonomy";
+import type { FoodPairing } from "@/lib/schema";
 
 export const FOOD_EVIDENCE_FORBIDDEN_SCORE_KEYS = [
   "giftScore",
@@ -59,6 +64,7 @@ export function compareScoreSnapshots(
 export const FOOD_EVIDENCE_LEVELS = [
   "strong",
   "moderate",
+  "curated_editorial",
   "style_only",
   "insufficient",
 ] as const;
@@ -98,6 +104,9 @@ export interface FoodEvidenceClaim {
 export interface FoodEvidenceAssessment {
   claims: FoodEvidenceClaim[];
   curatedCategories: FoodCategoryId[];
+  sourceBackedCategories: FoodCategoryId[];
+  structuredCategories: FoodCategoryId[];
+  editorialCategories: FoodCategoryId[];
   producerCategories: FoodCategoryId[];
   tastingSheetCategories: FoodCategoryId[];
   evidenceLevel: FoodEvidenceLevel;
@@ -152,43 +161,67 @@ export function evidenceClassWeight(evidenceClass: FoodEvidenceClass): number {
 }
 
 export function resolveFoodEvidenceLevel(input: {
-  curatedCount: number;
+  curatedCount?: number;
+  sourceBackedCount: number;
+  structuredCount: number;
+  editorialCount: number;
   focusedProducerCount: number;
   tastingSheetCount: number;
   hasType: boolean;
   hasSweetness: boolean;
   laundryListRejected?: boolean;
 }): FoodEvidenceLevel {
-  if (input.curatedCount >= 2) return "strong";
-  if (input.curatedCount === 1) return "moderate";
-  if (input.focusedProducerCount > 0 || input.tastingSheetCount > 0) {
+  const wineSpecific = input.sourceBackedCount + input.focusedProducerCount + input.tastingSheetCount;
+  if (input.sourceBackedCount >= 2) return "strong";
+  if (input.sourceBackedCount >= 1 && wineSpecific >= 2) return "strong";
+  if (input.sourceBackedCount >= 1 || input.focusedProducerCount > 0 || input.tastingSheetCount > 0) {
     return "moderate";
   }
+  if (input.structuredCount > 0) return "moderate";
+  if (input.editorialCount > 0 || (input.curatedCount ?? 0) > 0) return "curated_editorial";
   if (input.hasType && input.hasSweetness) return "style_only";
   if (input.hasType) return "style_only";
   return "insufficient";
 }
 
 export function isFoodScoreDisplayable(level: FoodEvidenceLevel): boolean {
-  return level === "strong" || level === "moderate";
+  return level === "strong" || level === "moderate" || level === "curated_editorial";
 }
 
 export function assessFoodEvidence(input: {
   curatedDishes?: string[];
+  foodPairings?: FoodPairing[] | null;
   producerCulinary?: string | null;
   tastingSheetCulinary?: string | null;
   foodEvidence?: FoodEvidenceClaim[] | null;
   type?: string | null;
   sweetness?: string | null;
+  alcohol?: number | null;
+  acidity?: number | null;
   chromeRejected?: boolean;
+  laundryRejected?: boolean;
 }): FoodEvidenceAssessment {
   const claims = [...(input.foodEvidence ?? [])];
   const curatedCategories = new Set<FoodCategoryId>();
   const producerCategories = new Set<FoodCategoryId>();
   const tastingSheetCategories = new Set<FoodCategoryId>();
+  const pairings = input.foodPairings ?? (input.curatedDishes ?? []).map((dish) => ({ dish }));
+  const tiers = classifyCuratedPairings(
+    pairings,
+    evidenceContextFromPairingFields({
+      type: input.type,
+      sweetness: input.sweetness,
+      alcohol: input.alcohol,
+      acidity: input.acidity,
+      producerCulinaryPairings: input.producerCulinary,
+      foodEvidence: input.foodEvidence,
+      culinaryLaundryRejected: input.laundryRejected,
+      culinaryChromeRejected: input.chromeRejected,
+    }),
+  );
 
-  for (const dish of input.curatedDishes ?? []) {
-    for (const category of categorizeFoodText(dish)) {
+  for (const pairing of pairings) {
+    for (const category of categorizeFoodText(pairing.dish)) {
       curatedCategories.add(category);
       if (
         !claims.some(
@@ -197,14 +230,15 @@ export function assessFoodEvidence(input: {
             claim.category === category,
         )
       ) {
+        const sourceBacked = tiers.sourceBacked.includes(category);
         claims.push({
           category,
-          dish,
+          dish: pairing.dish,
           sourceType: "curated",
-          excerpt: dish,
+          excerpt: pairing.dish,
           extractionMethod: "deterministic",
           evidenceClass: "CURATED_EXACT",
-          confidence: 90,
+          confidence: sourceBacked ? 86 : tiers.structured.includes(category) ? 58 : 44,
         });
       }
     }
@@ -242,6 +276,9 @@ export function assessFoodEvidence(input: {
 
   const evidenceLevel = resolveFoodEvidenceLevel({
     curatedCount: curatedCategories.size,
+    sourceBackedCount: tiers.sourceBacked.length,
+    structuredCount: tiers.structured.length,
+    editorialCount: tiers.editorial.length,
     focusedProducerCount: producerCategories.size,
     tastingSheetCount: tastingSheetCategories.size,
     hasType: Boolean(input.type),
@@ -252,6 +289,9 @@ export function assessFoodEvidence(input: {
   return {
     claims,
     curatedCategories: [...curatedCategories],
+    sourceBackedCategories: tiers.sourceBacked,
+    structuredCategories: tiers.structured,
+    editorialCategories: tiers.editorial,
     producerCategories: [...producerCategories],
     tastingSheetCategories: [...tastingSheetCategories],
     evidenceLevel,

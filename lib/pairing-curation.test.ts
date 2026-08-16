@@ -48,6 +48,7 @@ function draft(overrides: Partial<PairingDraft> = {}): PairingDraft {
     confidence: "MEDIUM",
     strength: "good",
     styleOnlyWarning: true,
+    provenanceLocked: true,
     ...overrides,
   };
 }

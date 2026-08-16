@@ -4,6 +4,7 @@
  * shadow/legacy: stored numbers, identical to production.
  * live: v2 numbers, hidden when evidence does not justify precision.
  */
+import { publicFoodProvenanceCaption } from "@/lib/curated-evidence";
 import { calculateFoodVersatility } from "@/lib/scoring-v2/food-versatility";
 import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
 import { usesPublicSecondaryV2 } from "@/lib/scoring-v2/secondary-scoring-mode";
@@ -70,9 +71,15 @@ export function publicFoodScoreDisplay(
       provisional: true,
     };
   }
+  const provenanceCaption = publicFoodProvenanceCaption(food.evidenceProvenance);
   return {
     score: food.score,
-    caption: food.provisional ? `Versatilitate ${food.score} · date limitate` : null,
+    caption:
+      food.evidenceLevel === "curated_editorial" || food.evidenceProvenance === "editorial" || food.evidenceProvenance === "structured"
+        ? provenanceCaption
+        : food.provisional
+          ? provenanceCaption ?? `Versatilitate ${food.score} · date limitate`
+          : provenanceCaption,
     provisional: food.provisional,
   };
 }
