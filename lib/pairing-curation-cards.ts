@@ -6,6 +6,7 @@ import {
   type ScoreImpactPreview,
 } from "@/lib/pairing-curation";
 import { partitionPairingDrafts } from "@/lib/pairing-curation-match";
+import { INSUFFICIENT_PAIRING_DATA_MESSAGE } from "@/lib/pairing/generate-romanian-drafts";
 import type { FoodCategoryId } from "@/lib/food-taxonomy";
 import type { WineWithRelations } from "@/types";
 
@@ -90,7 +91,10 @@ export function buildCurationCard(wine: WineWithRelations): CurationCard {
       strength: pairing.strength,
     })),
     drafts: newDrafts,
-    warnings: issues.map((issue) => issue.message),
+    warnings: [
+      ...issues.map((issue) => issue.message),
+      ...(newDrafts.length < 4 ? [INSUFFICIENT_PAIRING_DATA_MESSAGE] : []),
+    ],
     impact: previewCurationImpact(wine, newDrafts),
     previewWine: wine,
   };

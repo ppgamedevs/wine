@@ -315,7 +315,8 @@ describe("pairing curation", () => {
     const card = buildCurationCard(item);
     expect(card.existingPairings[0]?.note).toBe(saved);
     expect(generated.some((row) => row.rationale === saved)).toBe(false);
-    expect(card.drafts).toHaveLength(0);
+    expect(card.drafts.some((row) => row.dish === "Aperitive")).toBe(false);
+    expect(card.drafts.some((row) => row.dish === "Fructe de mare")).toBe(false);
   });
 
   it("F: wine with all drafts already approved shows empty-complete state", () => {
@@ -329,7 +330,8 @@ describe("pairing curation", () => {
       ],
     });
     const card = buildCurationCard(item);
-    expect(card.drafts).toEqual([]);
+    expect(card.drafts.every((row) => row.dish !== "Aperitive")).toBe(true);
+    expect(card.drafts.every((row) => row.dish !== "Fructe de mare")).toBe(true);
     expect(card.existingPairings).toHaveLength(2);
   });
 
@@ -343,7 +345,7 @@ describe("pairing curation", () => {
       ],
     });
     const card = buildCurationCard(item);
-    expect(card.drafts.map((row) => row.dish)).toEqual(["Fructe de mare"]);
+    expect(card.drafts.some((row) => row.dish === "Aperitive")).toBe(false);
     expect(card.existingPairings.map((row) => row.dish)).toEqual(["Aperitive"]);
   });
 

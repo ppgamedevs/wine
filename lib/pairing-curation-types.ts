@@ -12,4 +12,7 @@ export interface PairingDraft {
   strength: FoodPairingStrength;
   styleOnlyWarning: boolean;
   provenanceLocked: boolean;
+  dishId?: string;
+  romanianDiscovery?: boolean;
+  romanianRegion?: string | null;
 }

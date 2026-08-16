@@ -3,6 +3,7 @@
  * Does not import scoring or Node storage.
  */
 import { categorizeFoodText, type FoodCategoryId } from "@/lib/food-taxonomy";
+import { findRomanianDishByName } from "@/lib/pairing/romanian-dishes";
 import type { PairingDraft } from "@/lib/pairing-curation-types";
 import type { FoodPairing } from "@/lib/schema";
 
@@ -64,8 +65,17 @@ export function draftMatchesExistingPairing(
 ): boolean {
   const draftDishes = new Set(dishAliasFolds(draft.dish));
   const draftCategory = foldPairingText(draft.category) || pairingCategoryKey(draft);
+  const draftLibrary = findRomanianDishByName(draft.dish);
   return existing.some((pairing) => {
     if (dishAliasFolds(pairing.dish).some((dish) => draftDishes.has(dish))) {
+      return true;
+    }
+    const existingLibrary = findRomanianDishByName(pairing.dish);
+    if (
+      draftLibrary &&
+      existingLibrary &&
+      draftLibrary.family === existingLibrary.family
+    ) {
       return true;
     }
     const existingCategory = pairingCategoryKey(pairing);

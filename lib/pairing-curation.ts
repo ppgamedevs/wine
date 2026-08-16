@@ -30,11 +30,10 @@ import {
   draftMatchesExistingPairing,
   foldPairingText,
 } from "@/lib/pairing-curation-match";
+import { generateRomanianPairingDrafts } from "@/lib/pairing/generate-romanian-drafts";
+import { findRomanianDishByName } from "@/lib/pairing/romanian-dishes";
 import type { PairingDraft } from "@/lib/pairing-curation-types";
-import type {
-  FoodPairing,
-  FoodPairingStrength,
-} from "@/lib/schema";
+import type { FoodPairing } from "@/lib/schema";
 import { isAutochthonousGrapeMix } from "@/lib/scoring";
 import { getSecondaryScoringMode } from "@/lib/scoring-v2/secondary-scoring-mode";
 import type { WineWithRelations } from "@/types";
@@ -99,138 +98,8 @@ export function wineEvidenceContext(wine: WineWithRelations) {
   });
 }
 
-function styleDrafts(wine: WineWithRelations): PairingDraft[] {
-  const type = wine.type;
-  const sweet = wine.sweetness ?? "sec";
-  const drafts: PairingDraft[] = [];
-  const push = (
-    dish: string,
-    category: FoodCategoryId,
-    rationale: string,
-    strength: FoodPairingStrength = "good",
-  ) => {
-    drafts.push({
-      dish,
-      category,
-      rationale,
-      basis: ["verified_style", "editorial_judgment"],
-      confidence: "MEDIUM",
-      strength,
-      styleOnlyWarning: true,
-      provenanceLocked: true,
-    });
-  };
-
-  if (type === "red" && (sweet === "sec" || sweet === "demisec")) {
-    push("Sarmale", "sarmale", "Un rosu sec sau demisec din acest stil este o alegere editoriala potrivita pentru sarmale.");
-    push("Mici", "grilled_meat", "Un rosu sec din acest stil este o alegere editoriala potrivita pentru preparate consistente la gratar.");
-    push("Branzeturi maturate", "cheese", "Branzeturile maturate sunt o asociere editoriala clasica pentru un rosu sec.");
-  } else if (type === "red") {
-    push("Branzeturi maturate", "cheese", "Un rosu mai dulce se asociaza editorial cu branzeturi maturate.");
-    push("Desert cu ciocolata", "chocolate", "Dulceata verificata sustine o asociere editoriala cu desert de ciocolata.");
-  }
-
-  if (type === "white" && sweet === "sec") {
-    push("Peste alb", "fish", "Un alb sec este o alegere editoriala potrivita pentru peste cu carne alba.");
-    push("Fructe de mare", "fish", "Stilul alb sec se asociaza editorial cu fructe de mare.");
-    push("Branzeturi proaspete", "cheese", "Branzeturile proaspete sunt o asociere editoriala usoara pentru un alb sec.");
-  } else if (type === "white" && (sweet === "demisec" || sweet === "demidulce")) {
-    push("Aperitive", "vegetable", "Un alb demisec este o alegere editoriala pentru aperitive.");
-    push("Peste alb", "fish", "Stilul alb demisec ramane potrivit editorial pentru peste delicat.");
-  } else if (type === "white" && sweet === "dulce") {
-    push("Desert cu fructe", "dessert", "Dulceata verificata sustine o asociere editoriala cu desert de fructe.");
-    push("Cozonac", "dessert", "Un alb dulce este o alegere editoriala pentru cozonac.");
-  }
-
-  if (type === "rose") {
-    push("Aperitive", "vegetable", "Un roze este o alegere editoriala versatila pentru aperitive.");
-    push("Salate", "vegetable", "Stilul roze se asociaza editorial cu salate.");
-    push("Peste alb", "fish", "Roze sec sau demisec merge editorial cu peste delicat.");
-  }
-
-  if (type === "sparkling") {
-    push("Aperitive", "vegetable", "Un spumant este o alegere editoriala pentru aperitive.");
-    push("Fructe de mare", "fish", "Spumantul se asociaza editorial cu fructe de mare.");
-  }
-
-  if (type === "dessert" || type === "orange") {
-    push("Branzeturi maturate", "cheese", "Stilul verificat sustine o asociere editoriala cu branzeturi maturate.");
-  }
-
-  if (wine.alcohol != null && wine.alcohol >= 14 && type === "red") {
-    drafts.push({
-      dish: "Ceafa de porc",
-      category: "pork",
-      rationale: "Alcoolul verificat ridicat sustine o asociere editoriala cu preparate de porc consistente.",
-      basis: ["verified_style", "technical_data", "editorial_judgment"],
-      confidence: "MEDIUM",
-      strength: "good",
-      styleOnlyWarning: false,
-      provenanceLocked: true,
-    });
-  }
-
-  return drafts;
-}
-
-function producerDrafts(wine: WineWithRelations): PairingDraft[] {
-  const context = wineEvidenceContext(wine);
-  const claims = wine.producerContent?.foodEvidence ?? [];
-  const drafts: PairingDraft[] = [];
-  const seen = new Set<FoodCategoryId>();
-
-  for (const claim of claims) {
-    const category = claim.category as FoodCategoryId;
-    if (seen.has(category)) continue;
-    if (!hasSafeProducerEvidenceForCategory(context, category)) continue;
-    seen.add(category);
-    drafts.push({
-      dish: editorialDishForCategory(category),
-      category,
-      rationale: "Producatorul mentioneaza aceasta asociere. Categoria editoriala propusa ramane de aprobat de un recenzor.",
-      basis: ["producer_evidence"],
-      confidence: "HIGH",
-      strength: "good",
-      styleOnlyWarning: false,
-      provenanceLocked: true,
-    });
-  }
-
-  if (drafts.length === 0) {
-    for (const category of categorizeFoodText(context.producerCulinary ?? "")) {
-      if (seen.has(category)) continue;
-      if (!hasSafeProducerEvidenceForCategory(context, category)) continue;
-      seen.add(category);
-      drafts.push({
-        dish: editorialDishForCategory(category),
-        category,
-        rationale: "Textul oficial al producatorului sustine aceasta categorie. Aprobarea ramane umana.",
-        basis: ["producer_evidence"],
-        confidence: "HIGH",
-        strength: "good",
-        styleOnlyWarning: false,
-        provenanceLocked: true,
-      });
-    }
-  }
-
-  return drafts;
-}
-
 export function generatePairingDrafts(wine: WineWithRelations): PairingDraft[] {
-  const fromProducer = producerDrafts(wine);
-  const fromStyle = styleDrafts(wine);
-  const merged: PairingDraft[] = [];
-  const used = new Set<FoodCategoryId>();
-
-  for (const draft of [...fromProducer, ...fromStyle]) {
-    if (used.has(draft.category)) continue;
-    used.add(draft.category);
-    merged.push(draft);
-    if (merged.length >= 5) break;
-  }
-
-  return merged.slice(0, 5);
+  return generateRomanianPairingDrafts(wine);
 }
 
 export function lockDraftBasis(wine: WineWithRelations, draft: PairingDraft): PairingDraft {
@@ -286,7 +155,8 @@ export function validatePairingDrafts(
       });
     }
     const cats = categorizeFoodText(draft.dish);
-    if (cats.length === 0) {
+    const libraryDish = findRomanianDishByName(draft.dish);
+    if (cats.length === 0 && !libraryDish) {
       issues.push({
         level: "error",
         code: "unknown_category",

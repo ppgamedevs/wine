@@ -173,7 +173,16 @@ export function PairingCurationWorkbench({
     startTransition(async () => {
       const result = await approveCuratedPairingsAction({
         wineId: card.id,
-        drafts: selectedDrafts,
+        drafts: selectedDrafts.map((draft) => ({
+          dish: draft.dish,
+          category: draft.category,
+          rationale: draft.rationale,
+          basis: draft.basis,
+          confidence: draft.confidence,
+          strength: draft.strength,
+          styleOnlyWarning: draft.styleOnlyWarning,
+          provenanceLocked: draft.provenanceLocked,
+        })),
       });
       if (!result.ok) {
         setMessage(result.error);
@@ -425,11 +434,23 @@ export function PairingCurationWorkbench({
                         }))
                       }
                     />
+                    <div className="flex flex-wrap gap-2">
+                      {draft.romanianDiscovery ? (
+                        <span className="rounded-full bg-wine/10 px-2 py-0.5 text-xs text-wine">
+                          Descoperire romaneasca
+                        </span>
+                      ) : null}
+                      {draft.romanianRegion ? (
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                          Traditie: {draft.romanianRegion}
+                        </span>
+                      ) : null}
+                    </div>
                     <p className="text-xs">
                       Sursa editoriala: Recomandare VinIntel
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Baza evidentei: {basisProvenanceLabel(draft.basis)} (blocata)
+                      Baza: {basisProvenanceLabel(draft.basis)}
                     </p>
                     <label className="block text-xs text-muted-foreground">
                       Strength recomandare
@@ -452,8 +473,8 @@ export function PairingCurationWorkbench({
                       </select>
                     </label>
                     <p className="text-xs text-muted-foreground">
-                      {draft.category} · propunere {draft.confidence}
-                      {draft.styleOnlyWarning ? " · doar stil general" : ""}
+                      Strength: {draft.strength} · Incredere propunere:{" "}
+                      {draft.confidence}
                     </p>
                   </div>
                 </div>
