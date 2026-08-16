@@ -27,7 +27,9 @@
     "integrity:scan": "tsx scripts/integrity-scan.ts",
     "catalog:cleanup": "tsx scripts/catalog-cleanup.ts",
     "evidence:backfill": "tsx scripts/evidence-backfill.ts",
-    "scores:recalculate": "tsx scripts/recalculate-secondary-scores.ts"
+    "scores:recalculate": "tsx scripts/recalculate-secondary-scores.ts",
+    "food-evidence:backfill": "tsx scripts/food-evidence-backfill.ts",
+    "scores:shadow-benchmark": "tsx scripts/shadow-benchmark.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",

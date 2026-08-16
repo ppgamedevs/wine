@@ -1,10 +1,18 @@
 import { resolveBallaGezaWineFromCatalog } from "@/lib/ballageza-producer";
 import {
+  extractConstrainedCulinaryClaims,
+  extractCulinarySectionFromHtml,
+} from "@/lib/culinary-extract";
+import {
   extractEvidenceFromSourceText,
   extractedFactsFromEvidence,
 } from "@/lib/evidence-extract";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
-import type { WineMedal, ProducerPageContent } from "@/lib/schema";
+import type {
+  WineMedal,
+  ProducerPageContent,
+  ProducerFoodEvidenceClaim,
+} from "@/lib/schema";
 import { classifySourceUrl } from "@/lib/source-trust";
 import {
   isHighImportanceCompetition,
@@ -366,9 +374,21 @@ export function extractProducerPageFromHtml(
         ? (resolveBallaGezaWineFromCatalog(html, pageUrl)?.tastingNotes ?? null)
         : null;
 
-  const culinaryPairings = isRecas
-    ? extractHtmlSectionByPattern(html, /Asocieri\s+culinare/i)
-    : null;
+  const culinarySection = extractCulinarySectionFromHtml(html);
+  const culinaryClaims = culinarySection.found
+    ? extractConstrainedCulinaryClaims(culinarySection.text, {
+        sourceUrl: pageUrl,
+        sourceType:
+          classifySourceUrl(pageUrl) === "tasting_sheet"
+            ? "tasting_sheet"
+            : "producer_page",
+      })
+    : { dishes: [], categories: [], sourceExcerpt: "", claims: [] };
+  const culinaryPairings = culinarySection.found
+    ? culinarySection.text
+    : isRecas
+      ? extractHtmlSectionByPattern(html, /Asocieri\s+culinare/i)
+      : null;
 
   const sourceText = [viticulture, tastingNotes, culinaryPairings, richText]
     .filter(Boolean)
@@ -378,6 +398,11 @@ export function extractProducerPageFromHtml(
     ...(viticulture ? { viticulture } : {}),
     ...(tastingNotes ? { tastingNotes } : {}),
     ...(culinaryPairings ? { culinaryPairings } : {}),
+    ...(culinaryClaims.claims.length > 0
+      ? { foodEvidence: culinaryClaims.claims }
+      : {}),
+    culinaryChromeRejected: culinarySection.chromeRejected || culinarySection.tastingNoteRejected,
+    culinaryLaundryRejected: culinarySection.laundryListRejected,
     sourceUrls: [pageUrl],
     extractedAt: new Date().toISOString(),
     sourceType: classifySourceUrl(pageUrl),
@@ -406,6 +431,9 @@ export function mergeProducerPageExtracts(
   let viticulture: string | undefined;
   let tastingNotes: string | undefined;
   let culinaryPairings: string | undefined;
+  let culinaryChromeRejected = false;
+  let culinaryLaundryRejected = false;
+  const foodEvidence: ProducerFoodEvidenceClaim[] = [];
 
   for (const extract of extracts) {
     allMedals.push(...extract.medals);
@@ -418,6 +446,13 @@ export function mergeProducerPageExtracts(
     viticulture ??= extract.content.viticulture;
     tastingNotes ??= extract.content.tastingNotes;
     culinaryPairings ??= extract.content.culinaryPairings;
+    culinaryChromeRejected =
+      culinaryChromeRejected || Boolean(extract.content.culinaryChromeRejected);
+    culinaryLaundryRejected =
+      culinaryLaundryRejected || Boolean(extract.content.culinaryLaundryRejected);
+    if (extract.content.foodEvidence?.length) {
+      foodEvidence.push(...extract.content.foodEvidence);
+    }
   }
 
   const mergedSource = [viticulture, tastingNotes, culinaryPairings, ...richParts]
@@ -432,6 +467,9 @@ export function mergeProducerPageExtracts(
       ...(viticulture ? { viticulture } : {}),
       ...(tastingNotes ? { tastingNotes } : {}),
       ...(culinaryPairings ? { culinaryPairings } : {}),
+      ...(foodEvidence.length > 0 ? { foodEvidence } : {}),
+      culinaryChromeRejected,
+      culinaryLaundryRejected,
       sourceUrls: [...sourceUrls],
       extractedAt: new Date().toISOString(),
       sourceType: classifySourceUrl(firstUrl),

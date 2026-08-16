@@ -2,8 +2,10 @@ import type { OverpricedRisk } from "@/types";
 import {
   inferDrinkabilityWindow,
 } from "@/lib/scoring-v2/quality-estimate";
+import { dessertFoodMatchBoost } from "@/lib/dessert-pairings";
 import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
 import { calculateFoodVersatility } from "@/lib/scoring-v2/food-versatility";
+import { usesPublicSecondaryV2 } from "@/lib/scoring-v2/secondary-scoring-mode";
 import {
   GIFT_SCORE_ALGORITHM_VERSION,
   FOOD_VERSATILITY_ALGORITHM_VERSION,
@@ -876,6 +878,32 @@ export function calculateInitialScores(input: ScoreInput): InitialScores {
     acidity: input.acidity,
     tasteProfile: input.tasteProfile,
   });
+
+  if (!usesPublicSecondaryV2()) {
+    let giftScore = 6;
+    if (cat === "spumant" || cat === "sparkling") giftScore = 8;
+    if (price > 100) giftScore = 7;
+    let foodMatchScore = 7;
+    if (cat === "rosu" || cat === "red") foodMatchScore = 8;
+    foodMatchScore = Math.min(
+      10,
+      foodMatchScore +
+        dessertFoodMatchBoost({
+          category: cat,
+          sweetness,
+          grapeVarieties,
+          dessertPairingCount: input.dessertPairingCount,
+        }),
+    );
+    return {
+      valueScore,
+      giftScore: giftScore * 10,
+      foodMatchScore: foodMatchScore * 10,
+      overpricedRisk: inferOverpricedRisk(price, valueScore),
+      beginnerFriendly: valueScore >= 70 && price <= 65,
+      cellarPotential: input.cellarPotential ?? null,
+    };
+  }
 
   const gift = calculateGiftScore({
     price,

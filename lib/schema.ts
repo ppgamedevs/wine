@@ -82,11 +82,26 @@ export interface ProducerExtractedFacts {
   descriptors?: string[];
 }
 
+/** Claim-level food evidence attached to producer content JSON. */
+export interface ProducerFoodEvidenceClaim {
+  category: string;
+  dish: string;
+  sourceUrl?: string;
+  sourceType: string;
+  excerpt: string;
+  extractionMethod: "deterministic" | "constrained_llm";
+  evidenceClass: string;
+  confidence: number;
+}
+
 /** Viticultura, note si asocieri de pe site-ul producatorului. */
 export interface ProducerPageContent {
   viticulture?: string;
   tastingNotes?: string;
   culinaryPairings?: string;
+  foodEvidence?: ProducerFoodEvidenceClaim[];
+  culinaryChromeRejected?: boolean;
+  culinaryLaundryRejected?: boolean;
   sourceUrls?: string[];
   extractedAt?: string;
   /** tasting_sheet | producer_page | producer_catalog | retailer | marketplace */

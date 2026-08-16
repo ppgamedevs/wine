@@ -10,9 +10,17 @@
  * Compatibilitatea generica nu se prezinta ca evidenta de degustare a sticlei.
  */
 import {
+  isCulinaryChromeText,
+  isTastingNoteLeak,
+  sanitizeCulinaryText,
+} from "@/lib/culinary-extract";
+import { isLaundryListText } from "@/lib/food-evidence";
+import {
   categorizeFoodText,
   foodCategoryLabel,
   isDessertCategory,
+  isGrillCategory,
+  normalizeFoodToken,
   type FoodCategoryId,
 } from "@/lib/food-taxonomy";
 import { clamp, roundScore } from "@/lib/scoring-v2/math";
@@ -31,6 +39,8 @@ const GENERIC_TYPE_FIT: Record<string, Partial<Record<FoodCategoryId, number>>> 
   red: {
     sarmale: 72,
     grilled_meat: 78,
+    grilled_fish: 36,
+    grilled_vegetable: 40,
     pork: 74,
     beef: 80,
     poultry: 58,
@@ -49,6 +59,8 @@ const GENERIC_TYPE_FIT: Record<string, Partial<Record<FoodCategoryId, number>>> 
     cheese: 64,
     pasta: 66,
     vegetable: 72,
+    grilled_fish: 82,
+    grilled_vegetable: 74,
     pizza: 50,
     festive_traditional: 48,
     sarmale: 34,
@@ -60,6 +72,8 @@ const GENERIC_TYPE_FIT: Record<string, Partial<Record<FoodCategoryId, number>>> 
   },
   rose: {
     grilled_meat: 62,
+    grilled_fish: 58,
+    grilled_vegetable: 60,
     pork: 58,
     poultry: 66,
     pizza: 70,
@@ -84,6 +98,8 @@ const GENERIC_TYPE_FIT: Record<string, Partial<Record<FoodCategoryId, number>>> 
     dessert: 48,
     chocolate: 36,
     grilled_meat: 40,
+    grilled_fish: 62,
+    grilled_vegetable: 56,
     pork: 42,
     sarmale: 34,
     beef: 32,
@@ -95,6 +111,8 @@ const GENERIC_TYPE_FIT: Record<string, Partial<Record<FoodCategoryId, number>>> 
     cheese: 54,
     sarmale: 18,
     grilled_meat: 16,
+    grilled_fish: 18,
+    grilled_vegetable: 20,
     pork: 18,
     beef: 16,
     poultry: 22,
@@ -110,6 +128,8 @@ const GENERIC_TYPE_FIT: Record<string, Partial<Record<FoodCategoryId, number>>> 
     vegetable: 50,
     pasta: 48,
     grilled_meat: 46,
+    grilled_fish: 38,
+    grilled_vegetable: 48,
     pork: 46,
     sarmale: 42,
     fish: 36,
@@ -162,17 +182,29 @@ function resolveTargetCategories(dish: string): FoodCategoryId[] {
 }
 
 function pairingHitsDish(pairingDish: string, dish: string, categories: FoodCategoryId[]): boolean {
-  const pairingNorm = pairingDish
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-  const dishNorm = dish
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-  if (pairingNorm.includes(dishNorm) || dishNorm.includes(pairingNorm)) return true;
   const pairingCats = categorizeFoodText(pairingDish);
-  return pairingCats.some((category) => categories.includes(category));
+  if (pairingCats.some((category) => categories.includes(category))) return true;
+  const pairingNorm = normalizeFoodToken(pairingDish);
+  const dishNorm = normalizeFoodToken(dish);
+  if (!pairingNorm || !dishNorm || dishNorm.length < 6) return false;
+  return pairingNorm === dishNorm;
+}
+
+function isFocusedDessertRecommendation(text: string): boolean {
+  const cats = categorizeFoodText(text);
+  const dessertCats = cats.filter(isDessertCategory);
+  if (dessertCats.length === 0) return false;
+  if (isLaundryListText(text) || isTastingNoteLeak(text) || isCulinaryChromeText(text)) {
+    return false;
+  }
+  return cats.length <= 2;
+}
+
+function producerTextIsUsable(text: string): boolean {
+  if (!text.trim()) return false;
+  if (isCulinaryChromeText(text) || isTastingNoteLeak(text)) return false;
+  if (isLaundryListText(text)) return false;
+  return true;
 }
 
 export function scoreWineForDish(wine: DishMatchWine, dish: string): DishMatchResult {
@@ -194,26 +226,51 @@ export function scoreWineForDish(wine: DishMatchWine, dish: string): DishMatchRe
     };
   }
 
-  const producerText = wine.producerContent?.culinaryPairings ?? "";
+  const producerText = sanitizeCulinaryText(wine.producerContent?.culinaryPairings);
   const producerCategories = producerText ? categorizeFoodText(producerText) : [];
-  const producerHitsDish =
-    Boolean(producerText) && pairingHitsDish(producerText, dish, categories);
-  const producerIsLaundryList = producerCategories.length >= 4;
   const dessertTarget = categories.some(isDessertCategory);
-  const dessertFriendly =
+  const dessertWine =
     wine.type === "dessert" ||
     wine.sweetness === "dulce" ||
-    wine.sweetness === "demidulce" ||
-    wine.sweetness === "demisec";
-  if (
-    producerHitsDish &&
-    !producerIsLaundryList &&
-    (!dessertTarget || dessertFriendly)
-  ) {
+    wine.sweetness === "demidulce";
+  const producerUsable = producerTextIsUsable(producerText);
+  const producerExact =
+    producerUsable && pairingHitsDish(producerText, dish, categories);
+  const producerGrillRelated =
+    producerUsable &&
+    categories.some(isGrillCategory) &&
+    producerCategories.some(isGrillCategory) &&
+    !producerExact;
+
+  if (dessertTarget && producerUsable && isFocusedDessertRecommendation(producerText)) {
+    if (dessertWine || wine.sweetness === "demisec") {
+      reasons.push("Recomandare culinara oficiala, concentrata pe desert.");
+      return {
+        score: dessertWine ? 82 : 70,
+        confidence: dessertWine ? 74 : 58,
+        reasons,
+        evidenceLevel: 2,
+        categoryMatched: true,
+      };
+    }
+  }
+
+  if (producerExact && !dessertTarget) {
     reasons.push("Producatorul mentioneaza aceasta asociere culinara.");
     return {
       score: 82,
       confidence: 74,
+      reasons,
+      evidenceLevel: 2,
+      categoryMatched: true,
+    };
+  }
+
+  if (producerGrillRelated) {
+    reasons.push("Producatorul recomanda un tip diferit de gratar, nu acelasi fel.");
+    return {
+      score: 46,
+      confidence: 52,
       reasons,
       evidenceLevel: 2,
       categoryMatched: true,

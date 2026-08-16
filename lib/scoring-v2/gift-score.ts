@@ -154,25 +154,44 @@ function cheapBottlePenalty(price: number | null | undefined): number {
   return 0;
 }
 
-function giftConfidence(input: GiftScoreInput, qualityKnown: boolean): number {
-  let confidence = 18;
-  if ((input.grapeVarieties?.length ?? 0) > 0) confidence += 12;
-  if (input.region?.trim()) confidence += 10;
-  if (input.wineryName?.trim()) confidence += 10;
-  if (input.vintage != null) confidence += 8;
-  if (qualityKnown) confidence += 14;
-  if (input.valueScore != null) confidence += 8;
+function giftConfidence(input: GiftScoreInput, qualitySource: string): number {
+  let confidence = 12;
+  if ((input.grapeVarieties?.length ?? 0) > 0) confidence += 6;
+  if (input.region?.trim()) confidence += 4;
+  if (input.wineryName?.trim()) confidence += 4;
+  if (input.vintage != null) confidence += 3;
+  if (input.sweetness) confidence += 2;
+  if (input.alcohol != null) confidence += 2;
+
+  if (qualitySource === "qualityFinal") confidence += 16;
+  else if (qualitySource === "qualityEffective") confidence += 10;
+  else if (qualitySource === "estimatedQuality") confidence += 6;
+
+  if (input.valueScore != null) confidence += 6;
   if ((input.medals?.length ?? 0) > 0) {
-    confidence += Math.min(8, (input.medals?.length ?? 0) * 3);
+    confidence += Math.min(12, (input.medals?.length ?? 0) * 4);
   }
-  if (input.criticScore != null && input.criticScore >= 70) confidence += 8;
-  if (input.producerPageUrl?.trim() || input.tastingSheetUrl?.trim()) {
-    confidence += 8;
-  }
+  if (input.criticScore != null && input.criticScore >= 70) confidence += 10;
+  if (input.communityScore != null && input.communityScore >= 55) confidence += 6;
   if (input.ratingAvg != null && input.ratingAvg >= 3.5) confidence += 4;
-  if (input.communityScore != null && input.communityScore >= 55) confidence += 3;
-  if (input.alcohol != null) confidence += 3;
-  if (input.sweetness) confidence += 3;
+
+  if (input.tastingSheetUrl?.trim()) confidence += 4;
+  else if (input.producerPageUrl?.trim()) confidence += 2;
+
+  const hasStrongComponent =
+    (input.medals?.length ?? 0) > 0 ||
+    (input.criticScore != null && input.criticScore >= 70) ||
+    (qualitySource === "qualityFinal" && Boolean(input.tastingSheetUrl?.trim()));
+  const hasRealQuality = qualitySource === "qualityFinal" || qualitySource === "qualityEffective";
+
+  if (!hasStrongComponent) confidence = Math.min(confidence, 78);
+  if (!hasRealQuality && (input.medals?.length ?? 0) === 0 && input.criticScore == null) {
+    confidence = Math.min(confidence, 68);
+  }
+  if (confidence >= 90 && !hasStrongComponent) {
+    confidence = 78;
+  }
+
   return clamp(Math.round(confidence), 8, 96);
 }
 
@@ -186,7 +205,7 @@ function resolveGiftCeiling(confidencePercent: number): number {
 export function calculateGiftScore(input: GiftScoreInput): GiftScoreResult {
   const type = normalizeType(input.type);
   const quality = resolveQuality(input);
-  const confidence = giftConfidence(input, quality.known);
+  const confidence = giftConfidence(input, quality.source);
   const typePart = typeSuitability(type);
   const grapes = input.grapeVarieties ?? [];
   const distinctive = isAutochthonousGrapeMix(grapes);

@@ -7,6 +7,8 @@
 export const FOOD_CATEGORY_IDS = [
   "sarmale",
   "grilled_meat",
+  "grilled_fish",
+  "grilled_vegetable",
   "pork",
   "beef",
   "poultry",
@@ -39,15 +41,35 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
     id: "grilled_meat",
     label: "Carne la gratar",
     synonyms: [
-      "gratar",
       "carne la gratar",
+      "carne rosie la gratar",
+      "vita la gratar",
       "mici",
       "mititei",
       "barbecue",
       "bbq",
       "burger",
       "tochitura",
+      "gratar",
     ],
+  },
+  {
+    id: "grilled_fish",
+    label: "Peste la gratar",
+    synonyms: [
+      "peste la gratar",
+      "peste grill",
+      "fructe de mare la gratar",
+      "somon la gratar",
+      "creveti la gratar",
+      "creveti",
+      "calcan",
+    ],
+  },
+  {
+    id: "grilled_vegetable",
+    label: "Legume la gratar",
+    synonyms: ["legume la gratar", "legume grill", "salata la gratar"],
   },
   {
     id: "pork",
@@ -87,7 +109,7 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   {
     id: "vegetable",
     label: "Legume",
-    synonyms: ["legume", "salata", "vegetarian", "ciuperci", "legume la gratar"],
+    synonyms: ["legume", "salata", "vegetarian", "ciuperci"],
   },
   {
     id: "dessert",
@@ -138,28 +160,66 @@ export function normalizeFoodToken(value: string): string {
     .trim();
 }
 
+function findBoundedIndexes(haystack: string, needle: string): number[] {
+  const indexes: number[] = [];
+  let from = 0;
+  while (from <= haystack.length) {
+    const idx = haystack.indexOf(needle, from);
+    if (idx < 0) break;
+    const before = idx === 0 || haystack[idx - 1] === " ";
+    const afterEnd = idx + needle.length;
+    const after = afterEnd === haystack.length || haystack[afterEnd] === " ";
+    if (before && after) indexes.push(idx);
+    from = idx + 1;
+  }
+  return indexes;
+}
+
 /**
  * Mapeaza un text liber (dish, nota producator, query) la categorii distincte.
  * Aliasurile aceleiasi categorii (mici / mititei / carne la gratar) se unifica.
+ * Frazele lungi au prioritate: "peste la gratar" nu e si "peste" si "gratar".
  */
 export function categorizeFoodText(text: string): FoodCategoryId[] {
   const normalized = normalizeFoodToken(text);
   if (!normalized) return [];
 
-  const matched = new Set<FoodCategoryId>();
+  const hits: Array<{
+    category: FoodCategoryId;
+    start: number;
+    end: number;
+    length: number;
+  }> = [];
+
   for (const category of FOOD_CATEGORIES) {
     for (const synonym of category.synonyms) {
       const token = normalizeFoodToken(synonym);
       if (!token) continue;
-      const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const bounded = new RegExp(`(?:^|\\s)${escaped}(?:$|\\s)`);
-      if (normalized === token || bounded.test(normalized)) {
-        matched.add(category.id);
-        break;
+      for (const start of findBoundedIndexes(normalized, token)) {
+        hits.push({
+          category: category.id,
+          start,
+          end: start + token.length,
+          length: token.length,
+        });
       }
     }
   }
-  return [...matched];
+
+  hits.sort((left, right) => right.length - left.length || left.start - right.start);
+  const accepted: typeof hits = [];
+  for (const hit of hits) {
+    const overlaps = accepted.some(
+      (other) => hit.start < other.end && hit.end > other.start,
+    );
+    if (!overlaps) accepted.push(hit);
+  }
+
+  return [...new Set(accepted.map((hit) => hit.category))];
+}
+
+export function isGrillCategory(id: FoodCategoryId): boolean {
+  return id === "grilled_meat" || id === "grilled_fish" || id === "grilled_vegetable";
 }
 
 export function categorizeFoodItems(items: string[]): FoodCategoryId[] {

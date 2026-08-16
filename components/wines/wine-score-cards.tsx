@@ -8,6 +8,10 @@ import { EditorialSectionIcon } from "@/components/wines/editorial-section-icon"
 import { VinScoreBadge } from "@/components/wines/vin-score-badge";
 import { splitValueExplanation, sanitizeEditorialText } from "@/lib/editorial-text";
 import {
+  publicFoodScoreDisplay,
+  publicGiftScoreDisplay,
+} from "@/lib/scoring-v2/public-secondary-display";
+import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_NEUTRAL_MIN,
 } from "@/lib/value-score-thresholds";
@@ -19,10 +23,17 @@ interface ScoreCardProps {
   score: number | null | undefined;
   description: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
+  emptyLabel?: string | null;
 }
 
-function ScoreCard({ label, score, description, icon: Icon }: ScoreCardProps) {
-  if (score === null || score === undefined) return null;
+function ScoreCard({
+  label,
+  score,
+  description,
+  icon: Icon,
+  emptyLabel,
+}: ScoreCardProps) {
+  if ((score === null || score === undefined) && !emptyLabel) return null;
 
   return (
     <Card className="border-border/70 bg-card">
@@ -32,7 +43,13 @@ function ScoreCard({ label, score, description, icon: Icon }: ScoreCardProps) {
             <EditorialSectionIcon icon={Icon} className="h-10 w-10" />
             <span className="text-sm font-medium text-foreground">{label}</span>
           </div>
-          <VinScoreBadge score={score} showLabel={false} />
+          {score != null ? (
+            <VinScoreBadge score={score} showLabel={false} />
+          ) : (
+            <span className="text-xs font-medium text-muted-foreground">
+              {emptyLabel}
+            </span>
+          )}
         </div>
         <p className="break-words text-sm leading-relaxed text-muted-foreground">
           {sanitizeEditorialText(description)}
@@ -57,6 +74,9 @@ function valueScoreDescription(wine: WineWithRelations): string {
 }
 
 export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
+  const gift = publicGiftScoreDisplay(wine);
+  const food = publicFoodScoreDisplay(wine);
+
   return (
     <section aria-labelledby="wine-scores-heading">
       <h2 id="wine-scores-heading" className="sr-only">
@@ -71,14 +91,24 @@ export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
         />
         <ScoreCard
           label="Gift Score"
-          score={wine.giftScore}
-          description="Cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul."
+          score={gift.score}
+          emptyLabel={gift.score == null ? gift.caption : null}
+          description={
+            gift.caption && gift.score != null
+              ? gift.caption
+              : "Cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul."
+          }
           icon={EditorialGiftIcon}
         />
         <ScoreCard
           label="Versatilitate la masa"
-          score={wine.foodMatchScore}
-          description="Cat de versatil este vinul la masa, in general. Nu inseamna compatibilitate cu un fel anume; potrivirea de fel se calculeaza separat."
+          score={food.score}
+          emptyLabel={food.score == null ? food.caption : null}
+          description={
+            food.caption && food.score != null
+              ? food.caption
+              : "Cat de versatil este vinul la masa, in general. Nu inseamna compatibilitate cu un fel anume; potrivirea de fel se calculeaza separat."
+          }
           icon={EditorialFoodMatchIcon}
         />
       </div>

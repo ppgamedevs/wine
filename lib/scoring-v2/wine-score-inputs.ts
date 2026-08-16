@@ -1,6 +1,43 @@
+import type {
+  FoodEvidenceClaim,
+  FoodEvidenceClass,
+  FoodEvidenceSourceType,
+  FoodExtractionMethod,
+} from "@/lib/food-evidence";
+import type { FoodCategoryId } from "@/lib/food-taxonomy";
+import { sanitizeCulinaryText } from "@/lib/culinary-extract";
 import type { FoodVersatilityInput } from "@/lib/scoring-v2/food-versatility";
 import type { GiftScoreInput } from "@/lib/scoring-v2/gift-score";
-import type { FoodPairing, ProducerPageContent, WineMedal } from "@/lib/schema";
+import type { FoodPairing, ProducerFoodEvidenceClaim, ProducerPageContent, WineMedal } from "@/lib/schema";
+
+const FOOD_CLASSES = new Set<FoodEvidenceClass>([
+  "CURATED_EXACT",
+  "PRODUCER_EXACT",
+  "TASTING_SHEET",
+  "STYLE_COMPATIBILITY",
+  "TYPE_PRIOR",
+]);
+
+export function toFoodEvidenceClaims(
+  raw: ProducerFoodEvidenceClaim[] | FoodEvidenceClaim[] | null | undefined,
+): FoodEvidenceClaim[] {
+  if (!raw?.length) return [];
+  const claims: FoodEvidenceClaim[] = [];
+  for (const item of raw) {
+    if (!FOOD_CLASSES.has(item.evidenceClass as FoodEvidenceClass)) continue;
+    claims.push({
+      category: item.category as FoodCategoryId,
+      dish: item.dish,
+      ...(item.sourceUrl ? { sourceUrl: item.sourceUrl } : {}),
+      sourceType: item.sourceType as FoodEvidenceSourceType,
+      excerpt: item.excerpt,
+      extractionMethod: item.extractionMethod as FoodExtractionMethod,
+      evidenceClass: item.evidenceClass as FoodEvidenceClass,
+      confidence: item.confidence,
+    });
+  }
+  return claims;
+}
 
 export interface WineLikeForSecondaryScores {
   priceAvg?: number | null;
@@ -67,6 +104,10 @@ export function foodVersatilityInputFromWine(
     sweetness: wine.sweetness,
     acidity: wine.acidity,
     foodPairings: wine.foodPairings,
-    producerCulinaryPairings: wine.producerContent?.culinaryPairings,
+    producerCulinaryPairings: sanitizeCulinaryText(
+      wine.producerContent?.culinaryPairings,
+    ) || null,
+    foodEvidence: toFoodEvidenceClaims(wine.producerContent?.foodEvidence),
+    culinaryChromeRejected: wine.producerContent?.culinaryChromeRejected,
   };
 }

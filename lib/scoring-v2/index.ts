@@ -20,7 +20,19 @@ export {
 export {
   giftScoreInputFromWine,
   foodVersatilityInputFromWine,
+  toFoodEvidenceClaims,
 } from "@/lib/scoring-v2/wine-score-inputs";
+export {
+  getSecondaryScoringMode,
+  isSecondaryScoringLive,
+  parseSecondaryScoringMode,
+  usesPublicSecondaryV2,
+  type SecondaryScoringMode,
+} from "@/lib/scoring-v2/secondary-scoring-mode";
+export {
+  publicFoodScoreDisplay,
+  publicGiftScoreDisplay,
+} from "@/lib/scoring-v2/public-secondary-display";
 export {
   buildExpectedQualityCurvesFromCatalog,
   expectedQualityAtPrice,

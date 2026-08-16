@@ -7,9 +7,15 @@
  * Nu foloseste: foodPairingNotes editoriale, tasteProfile, sugestii AI,
  * taninuri/aciditate inventate, numar de paragrafe generate.
  */
+import { sanitizeCulinaryText } from "@/lib/culinary-extract";
+import {
+  assessFoodEvidence,
+  evidenceClassWeight,
+  type FoodEvidenceClaim,
+  type FoodEvidenceLevel,
+} from "@/lib/food-evidence";
 import {
   categorizeFoodItems,
-  categorizeFoodText,
   isDessertCategory,
   type FoodCategoryId,
 } from "@/lib/food-taxonomy";
@@ -31,6 +37,9 @@ export interface FoodVersatilityInput {
   acidity?: number | null;
   foodPairings?: FoodPairing[] | null;
   producerCulinaryPairings?: string | null;
+  tastingSheetCulinaryPairings?: string | null;
+  foodEvidence?: FoodEvidenceClaim[] | null;
+  culinaryChromeRejected?: boolean;
 }
 
 export interface FoodVersatilityBreakdownItem {
@@ -44,6 +53,8 @@ export interface FoodVersatilityResult {
   score: number;
   confidence: number;
   provisional: boolean;
+  displayable: boolean;
+  evidenceLevel: FoodEvidenceLevel;
   algorithmVersion: typeof FOOD_VERSATILITY_ALGORITHM_VERSION;
   categories: FoodCategoryId[];
   breakdown: FoodVersatilityBreakdownItem[];
@@ -69,18 +80,49 @@ function normalizeType(type: string | null | undefined): string {
 function collectCategories(input: FoodVersatilityInput): {
   curated: FoodCategoryId[];
   producer: FoodCategoryId[];
+  tasting: FoodCategoryId[];
   all: FoodCategoryId[];
+  laundryListRejected: boolean;
+  chromeRejected: boolean;
+  evidenceLevel: FoodEvidenceLevel;
+  displayable: boolean;
 } {
-  const curated = categorizeFoodItems(
-    (input.foodPairings ?? []).map((pairing) => pairing.dish),
-  );
-  const producer = input.producerCulinaryPairings
-    ? categorizeFoodText(input.producerCulinaryPairings)
-    : [];
-  const producerForBreadth =
-    curated.length === 0 && producer.length >= 4 ? producer.slice(0, 2) : producer;
-  const all = [...new Set([...curated, ...producerForBreadth])];
-  return { curated, producer: producerForBreadth, all };
+  const assessment = assessFoodEvidence({
+    curatedDishes: (input.foodPairings ?? []).map((pairing) => pairing.dish),
+    producerCulinary: sanitizeCulinaryText(input.producerCulinaryPairings),
+    tastingSheetCulinary: input.tastingSheetCulinaryPairings,
+    foodEvidence: input.foodEvidence,
+    type: input.type,
+    sweetness: input.sweetness,
+    chromeRejected: input.culinaryChromeRejected,
+  });
+
+  const claimCategories = (input.foodEvidence ?? [])
+    .filter(
+      (claim) =>
+        evidenceClassWeight(claim.evidenceClass) >=
+        evidenceClassWeight("PRODUCER_EXACT"),
+    )
+    .map((claim) => claim.category);
+
+  const curated =
+    assessment.curatedCategories.length > 0
+      ? assessment.curatedCategories
+      : categorizeFoodItems((input.foodPairings ?? []).map((pairing) => pairing.dish));
+  const producer = assessment.producerCategories;
+  const tasting = assessment.tastingSheetCategories;
+  const all = [...new Set([...curated, ...producer, ...tasting, ...claimCategories])];
+
+  return {
+    curated,
+    producer,
+    tasting,
+    all,
+    laundryListRejected: assessment.laundryListRejected,
+    chromeRejected: assessment.chromeRejected,
+    evidenceLevel: assessment.evidenceLevel,
+    displayable: assessment.displayable,
+  };
 }
 
 function breadthScore(categoryCount: number): number {
@@ -179,14 +221,22 @@ function dessertComponent(
   return 48;
 }
 
-function foodConfidence(input: FoodVersatilityInput, categories: FoodCategoryId[]): number {
-  let confidence = 16;
-  if (input.type) confidence += 10;
-  if (input.sweetness) confidence += 10;
-  if (input.acidity != null) confidence += 12;
-  if (categories.length > 0) confidence += Math.min(28, categories.length * 8);
-  if (input.producerCulinaryPairings?.trim()) confidence += 12;
-  if ((input.foodPairings?.length ?? 0) > 0) confidence += 10;
+function foodConfidence(
+  input: FoodVersatilityInput,
+  curated: FoodCategoryId[],
+  producer: FoodCategoryId[],
+  tasting: FoodCategoryId[],
+): number {
+  let confidence = 12;
+  if (input.type) confidence += 8;
+  if (input.sweetness) confidence += 8;
+  if (input.acidity != null) confidence += 10;
+  if (curated.length > 0) confidence += Math.min(28, 14 + curated.length * 6);
+  if (producer.length > 0) confidence += Math.min(16, 8 + producer.length * 4);
+  if (tasting.length > 0) confidence += Math.min(12, 6 + tasting.length * 3);
+  if (curated.length === 0 && producer.length === 0 && tasting.length === 0) {
+    confidence = Math.min(confidence, 38);
+  }
   return clamp(Math.round(confidence), 10, 94);
 }
 
@@ -201,23 +251,25 @@ export function calculateFoodVersatility(
   input: FoodVersatilityInput,
 ): FoodVersatilityResult {
   const type = normalizeType(input.type);
-  const { curated, producer, all } = collectCategories(input);
+  const collected = collectCategories(input);
+  const { curated, producer, tasting, all, evidenceLevel, displayable } = collected;
   const style = styleUtility(type, input.sweetness);
   const acid = acidityBonus(type, input.acidity);
   const styleScore = clamp(style.score + acid.bonus, 20, 80);
   const breadth = breadthScore(all.length);
   const dessert = dessertComponent(type, input.sweetness, all);
   const evidenceQuality = clamp(
-    30 +
-      (curated.length > 0 ? 20 : 0) +
-      (producer.length > 0 ? 16 : 0) +
-      (input.acidity != null ? 12 : 0) +
-      (input.sweetness ? 10 : 0) +
-      (input.type ? 8 : 0),
+    28 +
+      curated.length * 10 +
+      producer.length * 6 +
+      tasting.length * 5 +
+      (input.acidity != null ? 10 : 0) +
+      (input.sweetness ? 8 : 0) +
+      (input.type ? 6 : 0),
     20,
     90,
   );
-  const confidence = foodConfidence(input, all);
+  const confidence = foodConfidence(input, curated, producer, tasting);
 
   const breadthWeight = all.length > 0 ? 0.45 : 0.2;
   const styleWeight = all.length > 0 ? 0.25 : 0.45;
@@ -245,7 +297,7 @@ export function calculateFoodVersatility(
       detail:
         all.length === 0
           ? "Fara pairing-uri structurate. Nu recompensam aliasuri repetate."
-          : `${all.length} categorii distincte (curate ${curated.length}, producator ${producer.length}).`,
+          : `${all.length} categorii distincte (curate ${curated.length}, producator ${producer.length}, fisa ${tasting.length}).`,
     },
     {
       key: "style",
@@ -272,7 +324,9 @@ export function calculateFoodVersatility(
   return {
     score,
     confidence,
-    provisional: confidence < 45 || (style.generic && all.length === 0),
+    provisional: !displayable || confidence < 45 || (style.generic && all.length === 0),
+    displayable,
+    evidenceLevel,
     algorithmVersion: FOOD_VERSATILITY_ALGORITHM_VERSION,
     categories: all,
     breakdown,

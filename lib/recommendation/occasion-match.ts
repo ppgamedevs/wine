@@ -10,6 +10,7 @@
 import { OCCASION_MATCH_ALGORITHM_VERSION } from "@/lib/scoring-v2/constants";
 import { calculateFoodVersatility } from "@/lib/scoring-v2/food-versatility";
 import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
+import { toFoodEvidenceClaims } from "@/lib/scoring-v2/wine-score-inputs";
 import { clamp, roundScore } from "@/lib/scoring-v2/math";
 import {
   assessRecommendationEligibility,
@@ -131,7 +132,26 @@ function foodFor(wine: OccasionMatchWine) {
     acidity: wine.acidity,
     foodPairings: wine.foodPairings,
     producerCulinaryPairings: wine.producerContent?.culinaryPairings,
+    foodEvidence: toFoodEvidenceClaims(wine.producerContent?.foodEvidence),
+    culinaryChromeRejected: wine.producerContent?.culinaryChromeRejected,
   });
+}
+
+function identityCompleteness(wine: OccasionMatchWine): number {
+  const checks = [
+    Boolean(wine.type),
+    Boolean(wine.sweetness),
+    grapeNames(wine).length > 0,
+    Boolean(wine.region?.name),
+    Boolean(wine.winery?.name),
+    wine.vintage != null,
+    wine.alcohol != null,
+    wine.valueScore != null,
+    qualityProxy(wine) != null,
+    (wine.medals?.length ?? 0) > 0,
+  ];
+  const known = checks.filter(Boolean).length;
+  return roundScore((known / checks.length) * 100);
 }
 
 function qualityProxy(wine: OccasionMatchWine): number | null {
@@ -176,9 +196,24 @@ export function occasionWeights(occasion: OccasionId): Record<string, number> {
     case "oricare":
       return { value: 0.4, quality: 0.2, food: 0.25, gift: 0.15 };
     case "cadou":
-      return { gift: 0.5, quality: 0.25, value: 0.15, confidence: 0.1 };
+      // Cadou general: distinctivitate, identitate, valoare, calitate.
+      return {
+        gift: 0.32,
+        distinctiveness: 0.22,
+        value: 0.22,
+        quality: 0.14,
+        confidence: 0.1,
+      };
     case "cadou-business":
-      return { gift: 0.45, quality: 0.25, confidence: 0.2, value: 0.1 };
+      // Cadou business: incredere, calitate predictibila, date complete.
+      // Valoarea si distinctivitatea conteaza mai putin. Fara prestigiu de pret.
+      return {
+        quality: 0.28,
+        confidence: 0.28,
+        completeness: 0.18,
+        gift: 0.18,
+        value: 0.08,
+      };
     case "cina-romantica":
       return { value: 0.25, gift: 0.25, food: 0.25, quality: 0.15, access: 0.1 };
     case "sarmale":
@@ -349,6 +384,25 @@ export function scoreWineForOccasion(
       detail: "Increderea in datele de cadou.",
     });
   }
+  if (weights.distinctiveness) {
+    const distinctive = gift.breakdown.find((item) => item.key === "distinctiveness");
+    parts.push({
+      key: "distinctiveness",
+      label: "Identitate romaneasca",
+      weight: weights.distinctiveness,
+      value: distinctive?.points ?? 52,
+      detail: "Soi autohton si caracter distinctiv, nu prestigiu de crama.",
+    });
+  }
+  if (weights.completeness) {
+    parts.push({
+      key: "completeness",
+      label: "Completitudine date",
+      weight: weights.completeness,
+      value: identityCompleteness(wine),
+      detail: "Cat de complete sunt datele, pentru o alegere predictibila.",
+    });
+  }
   if (weights.access) {
     parts.push({
       key: "access",
@@ -400,6 +454,10 @@ export function scoreWineForOccasion(
     ),
   );
 
+  if (input.occasion === "cina-romantica" && !input.dish) {
+    confidence = Math.min(confidence, confidence - 8);
+  }
+
   if (eligibility === "REVIEW_REQUIRED") {
     confidence = Math.min(confidence, 34);
   } else if (eligibility === "ELIGIBLE_LOW_CONFIDENCE") {
@@ -410,14 +468,19 @@ export function scoreWineForOccasion(
   const shrink = confidence < 45 ? (45 - confidence) / 45 : 0;
   let score = combined.score * (1 - shrink * 0.35) + prior * (shrink * 0.35);
 
-  if (confidence < 40) {
+  if (confidence < 42) {
+    score = Math.min(score, 58);
+  } else if (confidence < 58) {
     score = Math.min(score, 72);
   }
   if (confidence < 30) {
-    score = Math.min(score, 64);
+    score = Math.min(score, 54);
+  }
+  if (eligibility === "ELIGIBLE_LOW_CONFIDENCE") {
+    score = Math.min(score, 68);
   }
   if (eligibility === "REVIEW_REQUIRED") {
-    score = Math.min(score, 68);
+    score = Math.min(score, 62);
   }
 
   score = clamp(score, 18, 96);
@@ -439,10 +502,17 @@ export function scoreWineForOccasion(
   };
 }
 
+const ADEQUATE_CONTEXTUAL_CONFIDENCE = 50;
+
 export function compareOccasionMatches(
   left: { score: number; confidence: number; wine: OccasionMatchWine; primary?: number | null },
   right: { score: number; confidence: number; wine: OccasionMatchWine; primary?: number | null },
 ): number {
+  const leftAdequate = left.confidence >= ADEQUATE_CONTEXTUAL_CONFIDENCE;
+  const rightAdequate = right.confidence >= ADEQUATE_CONTEXTUAL_CONFIDENCE;
+  if (leftAdequate !== rightAdequate && Math.abs(left.score - right.score) < 8) {
+    return leftAdequate ? -1 : 1;
+  }
   if (right.score !== left.score) return right.score - left.score;
   if (right.confidence !== left.confidence) return right.confidence - left.confidence;
   const leftPrimary = left.primary ?? 0;
