@@ -414,10 +414,25 @@ export interface QueueScores {
   reasons: string[];
 }
 
-export function scoreCurationQueues(catalog: WineWithRelations[]): QueueScores[] {
+export type CurationReviewStatus = "curated" | "pending";
+
+/**
+ * Queue ranking uses only stable wine properties.
+ * Review status (foodPairings) must not change priority or batch membership.
+ */
+export function scoreCurationQueuePriority(
+  catalog: WineWithRelations[],
+): QueueScores[] {
+  const rankingCatalog = catalog.map((wine) => ({
+    ...wine,
+    foodPairings: [],
+  }));
   const topHits = new Map<string, number>();
   for (const occasion of KEY_OCCASIONS) {
-    for (const row of rankWinesForOccasion(catalog, { occasion }).slice(0, 12)) {
+    for (const row of rankWinesForOccasion(rankingCatalog, { occasion }).slice(
+      0,
+      12,
+    )) {
       const wine = row.wine as WineWithRelations;
       topHits.set(wine.slug, (topHits.get(wine.slug) ?? 0) + 1);
     }
@@ -434,7 +449,7 @@ export function scoreCurationQueues(catalog: WineWithRelations[]): QueueScores[]
 
   return catalog.map((wine) => {
     const assessment = assessFoodEvidence({
-      curatedDishes: wine.foodPairings.map((pairing) => pairing.dish),
+      curatedDishes: [],
       producerCulinary: wine.producerContent?.culinaryPairings,
       type: wine.type,
       sweetness: wine.sweetness,
@@ -465,7 +480,6 @@ export function scoreCurationQueues(catalog: WineWithRelations[]): QueueScores[]
     const winery = culinaryByWinery.get(winerySlug);
     const culinaryPct = winery && winery.total > 0 ? winery.culinary / winery.total : 0;
     let coverage = 0;
-    if (assessment.curatedCategories.length === 0) coverage += 20;
     if (assessment.producerCategories.length === 0) {
       coverage += 24;
       reasons.push("no producer culinary");
@@ -483,7 +497,6 @@ export function scoreCurationQueues(catalog: WineWithRelations[]): QueueScores[]
       reasons.push("Murfatlar coverage");
     }
     if (winerySlug === "cramele-recas") coverage -= 12;
-    if (assessment.curatedCategories.length > 0) coverage -= 80;
 
     return {
       slug: wine.slug,
@@ -493,6 +506,16 @@ export function scoreCurationQueues(catalog: WineWithRelations[]): QueueScores[]
       reasons,
     };
   });
+}
+
+export function wineCurationStatus(
+  wine: Pick<WineWithRelations, "foodPairings">,
+): CurationReviewStatus {
+  return wine.foodPairings.length > 0 ? "curated" : "pending";
+}
+
+export function scoreCurationQueues(catalog: WineWithRelations[]): QueueScores[] {
+  return scoreCurationQueuePriority(catalog);
 }
 
 const WINERY_BATCH_BOUNDS: Array<{ slug: string; min: number; max: number }> = [
@@ -508,14 +531,15 @@ export function selectBalancedCurationBatch(
   catalog: WineWithRelations[],
   limit = 30,
 ): WineWithRelations[] {
-  const scores = scoreCurationQueues(catalog);
+  const scores = scoreCurationQueuePriority(catalog);
   const bySlug = new Map(scores.map((row) => [row.slug, row]));
   const ranked = [...catalog].sort((left, right) => {
     const leftScore = bySlug.get(left.slug);
     const rightScore = bySlug.get(right.slug);
     const leftMix = (leftScore?.coverage ?? 0) * 0.65 + (leftScore?.productValue ?? 0) * 0.35;
     const rightMix = (rightScore?.coverage ?? 0) * 0.65 + (rightScore?.productValue ?? 0) * 0.35;
-    return rightMix - leftMix;
+    if (rightMix !== leftMix) return rightMix - leftMix;
+    return left.slug.localeCompare(right.slug);
   });
 
   const selected: WineWithRelations[] = [];

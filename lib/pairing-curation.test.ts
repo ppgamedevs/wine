@@ -7,8 +7,11 @@ import {
   previewCurationImpact,
   publicPairingAttribution,
   publicProducerAttribution,
+  scoreCurationQueuePriority,
+  selectBalancedCurationBatch,
   toApprovedFoodPairings,
   validatePairingDrafts,
+  wineCurationStatus,
   type PairingDraft,
 } from "@/lib/pairing-curation";
 import { draftFromEdit } from "@/lib/pairing-curation-cards";
@@ -172,5 +175,86 @@ describe("pairing curation", () => {
     expect(getSecondaryScoringMode()).toBe("shadow");
     buildCurationWritePatch(toApprovedFoodPairings([draft()], []));
     expect(getSecondaryScoringMode()).toBe("shadow");
+  });
+});
+
+const BATCH_WINERIES: Array<{ slug: string; name: string; count: number }> = [
+  { slug: "balla-geza", name: "Balla Geza", count: 10 },
+  { slug: "budureasca", name: "Budureasca", count: 9 },
+  { slug: "avincis", name: "Avincis", count: 7 },
+  { slug: "crama-gabai", name: "Gabai", count: 5 },
+  { slug: "murfatlar", name: "Murfatlar", count: 4 },
+  { slug: "cramele-recas", name: "Recas", count: 8 },
+];
+
+function batchCatalog(): WineWithRelations[] {
+  const catalog: WineWithRelations[] = [];
+  let id = 1;
+  for (const winery of BATCH_WINERIES) {
+    for (let index = 0; index < winery.count; index += 1) {
+      catalog.push(
+        wine({
+          id,
+          slug: `${winery.slug}-wine-${index + 1}`,
+          name: `${winery.name} ${index + 1}`,
+          type: index % 2 === 0 ? "red" : "white",
+          valueScore: 60 + (index % 20),
+          priceAvg: 40 + index * 5,
+          foodPairings: [],
+          winery: { name: winery.name, slug: winery.slug } as WineWithRelations["winery"],
+        }),
+      );
+      id += 1;
+    }
+  }
+  return catalog;
+}
+
+describe("pairing curation stable batch", () => {
+  it("A: batch slugs and order stay identical after wine 1 is curated", () => {
+    const catalog = batchCatalog();
+    const before = selectBalancedCurationBatch(catalog, 30);
+    expect(before).toHaveLength(30);
+    const firstSlug = before[0]?.slug;
+    expect(firstSlug).toBeTruthy();
+    const afterCatalog = catalog.map((item) =>
+      item.slug === firstSlug
+        ? {
+            ...item,
+            foodPairings: [
+              {
+                dish: "Sarmale",
+                source: "vinintel_curated" as const,
+                curatedAt: "2026-08-16T18:00:00.000Z",
+                curatedBy: "admin",
+              },
+            ],
+          }
+        : item,
+    );
+    const after = selectBalancedCurationBatch(afterCatalog, 30);
+    expect(after.map((item) => item.slug)).toEqual(before.map((item) => item.slug));
+    expect(wineCurationStatus(afterCatalog.find((item) => item.slug === firstSlug)!)).toBe(
+      "curated",
+    );
+    expect(wineCurationStatus(before[0]!)).toBe("pending");
+  });
+
+  it("queue priority ignores foodPairings review status", () => {
+    const catalog = batchCatalog();
+    const empty = scoreCurationQueuePriority(catalog);
+    const curated = scoreCurationQueuePriority(
+      catalog.map((item, index) =>
+        index === 0
+          ? {
+              ...item,
+              foodPairings: [{ dish: "Mici", source: "vinintel_curated" as const }],
+            }
+          : item,
+      ),
+    );
+    expect(curated.map((row) => [row.slug, row.productValue, row.coverage])).toEqual(
+      empty.map((row) => [row.slug, row.productValue, row.coverage]),
+    );
   });
 });

@@ -495,7 +495,25 @@ export async function approveCuratedPairingsAction(input: {
     styleOnlyWarning: boolean;
     provenanceLocked?: boolean;
   }>;
-}): Promise<{ ok: true; message: string } | { ok: false; error: string }> {
+}): Promise<
+  | {
+      ok: true;
+      message: string;
+      slug: string;
+      wineName: string;
+      approvedCount: number;
+      pairings: Array<{
+        dish: string;
+        note?: string;
+        source?: string;
+        curatedAt?: string;
+        curatedBy?: string;
+        basis?: string[];
+        strength?: string;
+      }>;
+    }
+  | { ok: false; error: string }
+> {
   await assertAdmin();
 
   const parsed = approvePairingsSchema.safeParse(input);
@@ -505,6 +523,9 @@ export async function approveCuratedPairingsAction(input: {
 
   const { approveCuratedPairingsForWine } = await import(
     "@/lib/pairing-curation-apply"
+  );
+  const { approvalSuccessMessage } = await import(
+    "@/lib/pairing-curation-review"
   );
   try {
     const result = await approveCuratedPairingsForWine({
@@ -520,7 +541,11 @@ export async function approveCuratedPairingsAction(input: {
     revalidateAdmin();
     return {
       ok: true,
-      message: `Aprobate ${result.approvedCount} asocieri VinIntel. Scorurile stocate nu s-au schimbat.`,
+      message: approvalSuccessMessage(result.approvedCount, result.wineName),
+      slug: result.slug,
+      wineName: result.wineName,
+      approvedCount: result.approvedCount,
+      pairings: result.pairings,
     };
   } catch (error) {
     return {

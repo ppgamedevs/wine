@@ -34,7 +34,15 @@ export interface CurationCard {
   sugar: number | null;
   producerCulinary: string | null;
   producerClaims: ProducerClaimView[];
-  existingPairings: Array<{ dish: string; note?: string; source?: string }>;
+  existingPairings: Array<{
+    dish: string;
+    note?: string;
+    source?: string;
+    curatedAt?: string;
+    curatedBy?: string;
+    basis?: string[];
+    strength?: string;
+  }>;
   drafts: PairingDraft[];
   warnings: string[];
   impact: ScoreImpactPreview;
@@ -72,6 +80,10 @@ export function buildCurationCard(wine: WineWithRelations): CurationCard {
       dish: pairing.dish,
       note: pairing.note,
       source: pairing.source,
+      curatedAt: pairing.curatedAt,
+      curatedBy: pairing.curatedBy,
+      basis: pairing.basis,
+      strength: pairing.strength,
     })),
     drafts,
     warnings: issues.map((issue) => issue.message),

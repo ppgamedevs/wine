@@ -15,13 +15,19 @@ import {
 import { wines } from "@/lib/schema";
 import type { FoodCategoryId } from "@/lib/food-taxonomy";
 import { normalizeWineRows } from "@/lib/normalize-wine";
+import type { FoodPairing } from "@/lib/schema";
 import type { WineWithRelations } from "@/types";
 
 export async function approveCuratedPairingsForWine(input: {
   wineId: number;
   drafts: PairingDraft[];
   adminAuthenticated: boolean;
-}): Promise<{ slug: string; approvedCount: number }> {
+}): Promise<{
+  slug: string;
+  wineName: string;
+  approvedCount: number;
+  pairings: FoodPairing[];
+}> {
   assertCurationAdmin(input.adminAuthenticated);
   assertShadowUnchanged();
 
@@ -49,5 +55,10 @@ export async function approveCuratedPairingsForWine(input: {
   const nextPairings = toApprovedFoodPairings(drafts, wine.foodPairings);
   const patch = buildCurationWritePatch(nextPairings);
   await db.update(wines).set(patch).where(eq(wines.id, wine.id));
-  return { slug: wine.slug, approvedCount: drafts.length };
+  return {
+    slug: wine.slug,
+    wineName: wine.name,
+    approvedCount: drafts.length,
+    pairings: nextPairings,
+  };
 }

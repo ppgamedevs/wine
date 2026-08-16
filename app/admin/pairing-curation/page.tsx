@@ -32,7 +32,8 @@ export default async function AdminPairingCurationPage({
   const catalog = normalizeWineRows(rows as WineWithRelations[]);
   const batch = selectBalancedCurationBatch(catalog, 30);
   const cards = batch.map(buildCurationCard);
-  const initialIndex = slug ? Math.max(cards.findIndex((card) => card.slug === slug), 0) : 0;
+  const currentSlug =
+    slug && cards.some((card) => card.slug === slug) ? slug : cards[0]?.slug;
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-6 py-10">
@@ -53,7 +54,7 @@ export default async function AdminPairingCurationPage({
           </Button>
         </div>
       </div>
-      <PairingCurationWorkbench cards={cards} initialIndex={initialIndex} />
+      <PairingCurationWorkbench cards={cards} currentSlug={currentSlug} />
     </main>
   );
 }
