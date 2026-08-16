@@ -4,6 +4,7 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
+import { resolveCellarDisplay } from "@/lib/cellar-display";
 import { formatRon, wineTypeLabel } from "@/lib/format";
 import type { WineWithRelations } from "@/types";
 
@@ -63,12 +64,17 @@ function buildSpecs(wine: WineWithRelations): SpecRow[] {
     wine.priceAvg
       ? { label: "Pret mediu", value: formatRon(wine.priceAvg) }
       : { label: "Pret mediu", value: "N/A" },
-    wine.cellarPotential
-      ? {
-          label: "Potential invechire",
-          value: `pana la ${wine.cellarPotential} ani`,
-        }
-      : { label: "Potential invechire", value: "N/A" },
+    ...((): SpecRow[] => {
+      const cellar = resolveCellarDisplay({
+        type: wine.type,
+        price: wine.currentPrice ?? wine.priceAvg,
+        cellarPotential: wine.cellarPotential,
+        drinkabilityStart: wine.drinkabilityStart,
+        drinkabilityEnd: wine.drinkabilityEnd,
+        producerContent: wine.producerContent,
+      });
+      return cellar ? [{ label: cellar.label, value: cellar.value }] : [];
+    })(),
     wine.overpricedRisk
       ? {
           label: "Risc suprapret",

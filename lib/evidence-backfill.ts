@@ -22,12 +22,29 @@ import {
 } from "@/lib/integrity-scan";
 import type { ProducerPageContent } from "@/lib/schema";
 import { wines } from "@/lib/schema";
+import { detectSourceConflicts, SOURCE_CONFLICT_CODES } from "@/lib/source-conflicts";
 import {
   classifySourceUrl,
   hasDedicatedProducerParser,
   isOfficialProducerSource,
   type WineSourceType,
 } from "@/lib/source-trust";
+
+export const BLOCKING_IDENTITY_CONFLICT_CODES = new Set<string>([
+  SOURCE_CONFLICT_CODES.SOURCE_CONFLICT_TYPE,
+  SOURCE_CONFLICT_CODES.SOURCE_CONFLICT_SWEETNESS,
+  SOURCE_CONFLICT_CODES.SOURCE_CONFLICT_GRAPES,
+  SOURCE_CONFLICT_CODES.SOURCE_CONFLICT_VINTAGE,
+]);
+
+export type RecoveryClass =
+  | "FULLY_RECOVERABLE"
+  | "PARTIALLY_RECOVERABLE"
+  | "CLEANUP_ONLY"
+  | "HUMAN_REVIEW"
+  | "NO_SOURCE"
+  | "SOURCE_CONFLICT"
+  | "FETCH_FAILED";
 import {
   enrichWineFromProducerSite,
   type ProducerCanonicalFacts,
@@ -119,8 +136,11 @@ export interface WineEvidenceDiff {
     | "unrecoverable"
     | "fetch_failed"
     | "no_source";
+  recoveryClass: RecoveryClass;
   safeRepairs: string[];
   humanReview: string[];
+  applySafe: boolean;
+  identityConflicts: string[];
 }
 
 export interface EvidenceBackfillReport {
@@ -159,12 +179,41 @@ export interface EvidenceBackfillReport {
     examples: Array<{ slug: string; code: string; message: string }>;
   };
   foodPairingsNote: string;
-  wines: WineEvidenceDiff[];
+    wines: WineEvidenceDiff[];
   diagnostic: WineEvidenceDiff[];
+  recoveryClasses: Record<RecoveryClass, number>;
+  simulation?: EvidenceCleanupSimulation;
+}
+
+export interface EvidenceCleanupSimulation {
+  blockingWinesBefore: number;
+  blockingIssuesBefore: number;
+  blockingWinesAfterEvidence: number;
+  blockingIssuesAfterEvidence: number;
+  blockingWinesAfterCleanup: number;
+  blockingIssuesAfterCleanup: number;
+  cleanWinesAfter: number;
+  mediumAfter: number;
+  lowAfter: number;
+  highAfter: number;
 }
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isSiteChrome(text: string): boolean {
+  return (
+    text.length > 1800 &&
+    /politica de |copyright 20|login ro|cosul meu|coșul meu/i.test(text)
+  );
+}
+
+function usableSourceExcerpt(text: string | undefined): string | undefined {
+  const trimmed = text?.trim();
+  if (!trimmed) return undefined;
+  if (isSiteChrome(trimmed)) return undefined;
+  return trimmed.slice(0, 2500);
 }
 
 function issueCodes(issues: IntegrityIssue[]): string[] {
@@ -324,9 +373,11 @@ export function buildEvidencePatch(
       facts.grapes = fetched.canonical.grapeVarieties.map((grape) => grape.name);
     }
   }
+  const excerpt = usableSourceExcerpt(fetched.producerText);
+  const pdfExcerpt = usableSourceExcerpt(fetched.pdfText);
   const incoming: ProducerPageContent = {
-    tastingNotes: fetched.producerText || fetched.pdfText || undefined,
-    viticulture: fetched.pdfText ? fetched.pdfText.slice(0, 4000) : undefined,
+    tastingNotes: excerpt ?? pdfExcerpt,
+    viticulture: pdfExcerpt,
     sourceUrls: [fetched.producerPageUrl, fetched.tastingSheetUrl].filter(
       (url): url is string => Boolean(url),
     ),
@@ -341,13 +392,17 @@ export function buildEvidencePatch(
   const mergedContent = mergeProducerContent(wine.producerContent, incoming);
   const patch: EvidenceWritePatch = {};
 
-  patch.producerContent = mergedContent;
+  const hasFacts = Object.keys(facts).length > 0;
+  const hasExcerpt = Boolean(excerpt || pdfExcerpt);
+  const hasNewUrl =
+    (!wine.producerPageUrl?.trim() && Boolean(fetched.producerPageUrl)) ||
+    (!wine.tastingSheetUrl?.trim() && Boolean(fetched.tastingSheetUrl));
+  if (hasFacts || hasExcerpt || hasNewUrl) {
+    patch.producerContent = mergedContent;
+  }
 
-  if (!wine.tastingNotes?.trim() && (fetched.producerText || fetched.pdfText)) {
-    patch.tastingNotes = mergeTastingNotes(
-      wine.tastingNotes,
-      fetched.producerText || fetched.pdfText,
-    );
+  if (!wine.tastingNotes?.trim() && excerpt) {
+    patch.tastingNotes = mergeTastingNotes(wine.tastingNotes, excerpt);
   }
   if (!wine.producerPageUrl?.trim() && fetched.producerPageUrl) {
     patch.producerPageUrl = fetched.producerPageUrl;
@@ -355,39 +410,42 @@ export function buildEvidencePatch(
   if (!wine.tastingSheetUrl?.trim() && fetched.tastingSheetUrl) {
     patch.tastingSheetUrl = fetched.tastingSheetUrl;
   }
-  if (wine.alcohol == null && extracted.alcohol !== "unknown") {
-    patch.alcohol = extracted.alcohol;
+  if (wine.alcohol == null && fetched.canonical?.alcohol != null) {
+    patch.alcohol = fetched.canonical.alcohol;
   }
-  if (wine.acidity == null && extracted.acidity !== "unknown") {
-    patch.acidity = extracted.acidity;
-  }
-  if (wine.sugar == null && extracted.sugar !== "unknown") {
-    patch.sugar = extracted.sugar;
+  if (wine.acidity == null && fetched.canonical?.acidity != null) {
+    patch.acidity = fetched.canonical.acidity;
   }
   if (
+    excerpt &&
     wine.drinkabilityStart == null &&
     extracted.drinkabilityStart !== "unknown"
   ) {
     patch.drinkabilityStart = extracted.drinkabilityStart;
   }
-  if (wine.drinkabilityEnd == null && extracted.drinkabilityEnd !== "unknown") {
+  if (
+    excerpt &&
+    wine.drinkabilityEnd == null &&
+    extracted.drinkabilityEnd !== "unknown"
+  ) {
     patch.drinkabilityEnd = extracted.drinkabilityEnd;
   }
 
+  const finalPatch = Object.keys(patch).length > 0 ? patch : null;
   const afterWine: BackfillWine = {
     ...wine,
-    producerContent: mergedContent,
-    tastingNotes: patch.tastingNotes ?? wine.tastingNotes,
-    producerPageUrl: patch.producerPageUrl ?? wine.producerPageUrl,
-    tastingSheetUrl: patch.tastingSheetUrl ?? wine.tastingSheetUrl,
-    alcohol: patch.alcohol ?? wine.alcohol,
-    acidity: patch.acidity ?? wine.acidity,
-    sugar: patch.sugar ?? wine.sugar,
-    drinkabilityStart: patch.drinkabilityStart ?? wine.drinkabilityStart,
-    drinkabilityEnd: patch.drinkabilityEnd ?? wine.drinkabilityEnd,
+    producerContent: finalPatch?.producerContent ?? wine.producerContent,
+    tastingNotes: finalPatch?.tastingNotes ?? wine.tastingNotes,
+    producerPageUrl: finalPatch?.producerPageUrl ?? wine.producerPageUrl,
+    tastingSheetUrl: finalPatch?.tastingSheetUrl ?? wine.tastingSheetUrl,
+    alcohol: finalPatch?.alcohol ?? wine.alcohol,
+    acidity: finalPatch?.acidity ?? wine.acidity,
+    sugar: wine.sugar,
+    drinkabilityStart: finalPatch?.drinkabilityStart ?? wine.drinkabilityStart,
+    drinkabilityEnd: finalPatch?.drinkabilityEnd ?? wine.drinkabilityEnd,
   };
 
-  return { patch, mergedContent, extracted, afterWine };
+  return { patch: finalPatch, mergedContent, extracted, afterWine };
 }
 
 function classifyStoredSource(wine: BackfillWine): WineSourceType {
@@ -426,8 +484,11 @@ export function diffWineEvidence(
       wouldWrite: false,
       patch: null,
       disposition: "fetch_failed",
+      recoveryClass: "FETCH_FAILED",
       safeRepairs: planDeterministicRepairs(wine, beforeIssues).actions,
       humanReview: issueCodes(beforeBlocking),
+      applySafe: false,
+      identityConflicts: [],
     };
   }
 
@@ -461,6 +522,22 @@ export function diffWineEvidence(
   }
 
   const repairs = planDeterministicRepairs(afterWine, afterIssues);
+  const safe = prepareSafeApplyPatch(wine, patch);
+  const humanReview = remaining.filter(
+    (code) =>
+      code.startsWith("SOURCE_CONFLICT") ||
+      code === "AGEING_EDITORIAL_CONTRADICTION" ||
+      code === "TYPE_EDITORIAL_CONTRADICTION" ||
+      code === "sweetness_contradiction",
+  );
+  const draft = {
+    disposition,
+    resolved,
+    remaining,
+    safeRepairs: repairs.actions,
+    fetchFailed: false,
+    humanReview,
+  };
 
   return {
     wineId: wine.id,
@@ -479,15 +556,104 @@ export function diffWineEvidence(
     ),
     evidenceRecovered: extracted ? evidenceLabels(extracted) : [],
     fetchFailed: false,
-    wouldWrite: patch != null,
-    patch,
+    wouldWrite: safe.patch != null,
+    patch: safe.patch,
     disposition,
+    recoveryClass: classifyRecovery(draft),
     safeRepairs: repairs.actions,
-    humanReview: remaining.filter(
-      (code) =>
-        code.startsWith("SOURCE_CONFLICT") ||
-        code === "AGEING_EDITORIAL_CONTRADICTION",
-    ),
+    humanReview,
+    applySafe: safe.applySafe && safe.patch != null,
+    identityConflicts: safe.identityConflicts,
+  };
+}
+
+export function classifyRecovery(diff: {
+  disposition: WineEvidenceDiff["disposition"];
+  resolved: string[];
+  remaining: string[];
+  safeRepairs: string[];
+  fetchFailed: boolean;
+  humanReview?: string[];
+}): RecoveryClass {
+  if (diff.fetchFailed || diff.disposition === "fetch_failed") return "FETCH_FAILED";
+  if (diff.remaining.some((code) => BLOCKING_IDENTITY_CONFLICT_CODES.has(code))) {
+    return "SOURCE_CONFLICT";
+  }
+  if (hasHumanReviewSignal(diff) && diff.resolved.length === 0 && diff.disposition !== "fully_recoverable") {
+    return "HUMAN_REVIEW";
+  }
+  if (diff.disposition === "no_source") return "NO_SOURCE";
+  if (diff.disposition === "fully_recoverable") return "FULLY_RECOVERABLE";
+  if (diff.disposition === "partially_recoverable" || diff.resolved.length > 0) {
+    return "PARTIALLY_RECOVERABLE";
+  }
+  if (diff.safeRepairs.length > 0) return "CLEANUP_ONLY";
+  if (hasHumanReviewSignal(diff)) return "HUMAN_REVIEW";
+  return diff.disposition === "unrecoverable" ? "CLEANUP_ONLY" : "NO_SOURCE";
+}
+
+function hasHumanReviewSignal(diff: {
+  remaining: string[];
+  humanReview?: string[];
+}): boolean {
+  const codes = [...diff.remaining, ...(diff.humanReview ?? [])];
+  return codes.some(
+    (code) =>
+      BLOCKING_IDENTITY_CONFLICT_CODES.has(code) ||
+      code === "AGEING_EDITORIAL_CONTRADICTION" ||
+      code === "TYPE_EDITORIAL_CONTRADICTION" ||
+      code === "sweetness_contradiction",
+  );
+}
+
+export function stripIdentityFactsFromPatch(
+  patch: EvidenceWritePatch | null,
+): EvidenceWritePatch | null {
+  if (!patch?.producerContent?.facts) return patch;
+  const facts = { ...patch.producerContent.facts };
+  delete facts.type;
+  delete facts.sweetness;
+  delete facts.vintage;
+  delete facts.grapes;
+  return {
+    ...patch,
+    producerContent: {
+      ...patch.producerContent,
+      facts,
+    },
+  };
+}
+
+export function prepareSafeApplyPatch(
+  wine: BackfillWine,
+  patch: EvidenceWritePatch | null,
+): { patch: EvidenceWritePatch | null; applySafe: boolean; identityConflicts: string[] } {
+  if (!patch) return { patch: null, applySafe: false, identityConflicts: [] };
+
+  const facts = patch.producerContent?.facts;
+  const conflicts = facts
+    ? detectSourceConflicts(
+        {
+          id: wine.id,
+          slug: wine.slug,
+          alcohol: wine.alcohol,
+          sweetness: wine.sweetness,
+          vintage: wine.vintage,
+          type: wine.type,
+          grapeVarieties: wine.grapeVarieties,
+        },
+        facts,
+      ).filter((issue) => BLOCKING_IDENTITY_CONFLICT_CODES.has(issue.code))
+    : [];
+
+  if (conflicts.length === 0) {
+    return { patch, applySafe: true, identityConflicts: [] };
+  }
+
+  return {
+    patch: stripIdentityFactsFromPatch(patch),
+    applySafe: true,
+    identityConflicts: [...new Set(conflicts.map((issue) => issue.code))],
   };
 }
 
@@ -571,12 +737,55 @@ async function loadBackfillWines(): Promise<BackfillWine[]> {
   }));
 }
 
+export function simulateEvidenceThenCleanup(
+  allWines: BackfillWine[],
+  diffs: WineEvidenceDiff[],
+): EvidenceCleanupSimulation {
+  const before = runIntegrityChecks(allWines);
+  const beforeGroups = groupIssuesByWine(before.issues, allWines);
+  const diffById = new Map(diffs.map((diff) => [diff.wineId, diff]));
+
+  const afterEvidence = allWines.map((wine) => {
+    const diff = diffById.get(wine.id);
+    if (!diff?.applySafe || !diff.patch) return wine;
+    return applyEvidencePatchIdempotent(wine, diff.patch);
+  });
+  const evidenceReport = runIntegrityChecks(afterEvidence);
+  const evidenceGroups = groupIssuesByWine(evidenceReport.issues, afterEvidence);
+
+  const afterCleanup = afterEvidence.map((wine) => {
+    const issues = evidenceReport.issues.filter((issue) => issue.wineId === wine.id);
+    const { next } = planDeterministicRepairs(wine, issues);
+    return { ...wine, ...next };
+  });
+  const cleanupReport = runIntegrityChecks(afterCleanup);
+  const cleanupGroups = groupIssuesByWine(cleanupReport.issues, afterCleanup);
+  const verified = afterCleanup.filter((wine) => wine.status === "verified");
+  const clean = verified.filter(
+    (wine) => !cleanupGroups.some((group) => group.wineId === wine.id && group.issues.length > 0),
+  ).length;
+
+  return {
+    blockingWinesBefore: beforeGroups.filter((group) => group.blocking > 0).length,
+    blockingIssuesBefore: before.issues.filter(isPublicationBlockingIssue).length,
+    blockingWinesAfterEvidence: evidenceGroups.filter((group) => group.blocking > 0).length,
+    blockingIssuesAfterEvidence: evidenceReport.issues.filter(isPublicationBlockingIssue).length,
+    blockingWinesAfterCleanup: cleanupGroups.filter((group) => group.blocking > 0).length,
+    blockingIssuesAfterCleanup: cleanupReport.issues.filter(isPublicationBlockingIssue).length,
+    cleanWinesAfter: clean,
+    mediumAfter: cleanupReport.summary.issuesBySeverity.medium,
+    lowAfter: cleanupReport.summary.issuesBySeverity.low,
+    highAfter: cleanupReport.summary.issuesBySeverity.high,
+  };
+}
+
 export async function runEvidenceBackfill(options: {
   apply?: boolean;
   wineSlug?: string;
   blockingOnly?: boolean;
   all?: boolean;
   limit?: number;
+  offset?: number;
   deps?: EvidenceBackfillDeps;
 }): Promise<EvidenceBackfillReport> {
   const dryRun = options.apply !== true;
@@ -606,8 +815,9 @@ export async function runEvidenceBackfill(options: {
     return 0;
   });
 
-  if (options.limit != null && options.limit > 0) {
-    queue = queue.slice(0, options.limit);
+  const offset = options.offset != null && options.offset > 0 ? options.offset : 0;
+  if (offset > 0 || (options.limit != null && options.limit > 0)) {
+    queue = queue.slice(offset, options.limit != null ? offset + options.limit : undefined);
   }
 
   const fetchEvidence = options.deps?.fetchEvidence ?? defaultFetchEvidence;
@@ -625,7 +835,7 @@ export async function runEvidenceBackfill(options: {
     const diff = diffWineEvidence(wine, fetched);
     diffs.push(diff);
 
-    if (!dryRun && diff.patch && !diff.fetchFailed) {
+    if (!dryRun && diff.applySafe && diff.patch && !diff.fetchFailed) {
       await persist(wine.id, diff.patch);
     }
 
@@ -722,5 +932,15 @@ export async function runEvidenceBackfill(options: {
     diagnostic: diffs.filter((item) =>
       (DIAGNOSTIC_SLUGS as readonly string[]).includes(item.slug),
     ),
+    recoveryClasses: {
+      FULLY_RECOVERABLE: diffs.filter((item) => item.recoveryClass === "FULLY_RECOVERABLE").length,
+      PARTIALLY_RECOVERABLE: diffs.filter((item) => item.recoveryClass === "PARTIALLY_RECOVERABLE").length,
+      CLEANUP_ONLY: diffs.filter((item) => item.recoveryClass === "CLEANUP_ONLY").length,
+      HUMAN_REVIEW: diffs.filter((item) => item.recoveryClass === "HUMAN_REVIEW").length,
+      NO_SOURCE: diffs.filter((item) => item.recoveryClass === "NO_SOURCE").length,
+      SOURCE_CONFLICT: diffs.filter((item) => item.recoveryClass === "SOURCE_CONFLICT").length,
+      FETCH_FAILED: diffs.filter((item) => item.recoveryClass === "FETCH_FAILED").length,
+    },
+    simulation: simulateEvidenceThenCleanup(allWines, diffs),
   };
 }

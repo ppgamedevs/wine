@@ -7,7 +7,9 @@ import {
 import {
   applyEvidencePatchIdempotent,
   buildEvidencePatch,
+  classifyRecovery,
   diffWineEvidence,
+  prepareSafeApplyPatch,
   type BackfillWine,
   type EvidenceFetchResult,
 } from "@/lib/evidence-backfill";
@@ -313,6 +315,47 @@ describe("L. AI extraction cannot introduce facts absent from source text", () =
       ["Maturat in stejar", "taninuri catifelate", "12 luni in baric francez"],
     );
     expect(kept).toEqual(["Maturat in stejar"]);
+  });
+});
+
+describe("identity conflicts are not applied automatically", () => {
+  it("strips type and sweetness facts before write", () => {
+    const stored = wine({ type: "rose", sweetness: "sec" });
+    const { patch } = buildEvidencePatch(stored, {
+      ok: true,
+      fetchFailed: false,
+      producerPageUrl: "https://avincis.ro/vin",
+      producerText: "Maturat in stejar.",
+      combinedText: "Maturat in stejar.",
+      canonical: {
+        name: "Test",
+        grapeVarieties: [{ name: "Cabernet Sauvignon" }],
+        vintage: 2021,
+        alcohol: 13.5,
+        acidity: null,
+        sweetness: "demisec",
+        imageUrl: null,
+        color: "rosu",
+      },
+    });
+    const safe = prepareSafeApplyPatch(stored, patch);
+    expect(safe.identityConflicts.length).toBeGreaterThan(0);
+    expect(safe.patch?.producerContent?.facts?.type).toBeUndefined();
+    expect(safe.patch?.producerContent?.facts?.sweetness).toBeUndefined();
+    expect(safe.patch?.producerContent?.facts?.oakAged).toBe(true);
+    expect(safe.applySafe).toBe(true);
+  });
+
+  it("classifies remaining identity conflict as SOURCE_CONFLICT", () => {
+    expect(
+      classifyRecovery({
+        disposition: "partially_recoverable",
+        resolved: ["UNSUPPORTED_OAK_CLAIM"],
+        remaining: ["SOURCE_CONFLICT_TYPE"],
+        safeRepairs: [],
+        fetchFailed: false,
+      }),
+    ).toBe("SOURCE_CONFLICT");
   });
 });
 

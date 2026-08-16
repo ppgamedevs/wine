@@ -5,6 +5,7 @@
  *   npx tsx scripts/evidence-backfill.ts --wine=slug
  *   npx tsx scripts/evidence-backfill.ts --blocking-only
  *   npx tsx scripts/evidence-backfill.ts --limit=20
+ *   npx tsx scripts/evidence-backfill.ts --offset=20 --limit=20
  *   npx tsx scripts/evidence-backfill.ts --apply
  *
  * Default is dry-run / report only. --apply writes only source-backed
@@ -26,7 +27,9 @@ async function main() {
   const all = process.argv.includes("--all");
   const wineSlug = readArg("wine");
   const limitRaw = readArg("limit");
+  const offsetRaw = readArg("offset");
   const limit = limitRaw ? Number.parseInt(limitRaw, 10) : undefined;
+  const offset = offsetRaw ? Number.parseInt(offsetRaw, 10) : undefined;
 
   const report = await runEvidenceBackfill({
     apply,
@@ -34,6 +37,7 @@ async function main() {
     blockingOnly: blockingOnly || (!all && !wineSlug),
     all,
     limit: Number.isFinite(limit) ? limit : undefined,
+    offset: Number.isFinite(offset) ? offset : undefined,
   });
 
   if (asJson) {
@@ -68,8 +72,18 @@ async function main() {
   );
   console.log(`[evidence-backfill] ${report.foodPairingsNote}`);
 
-  const sample = report.diagnostic.length > 0 ? report.diagnostic : report.wines.slice(0, 20);
-  console.log(`\nDiagnostic (${sample.length}):`);
+  console.log(
+    `[evidence-backfill] classes full=${report.recoveryClasses.FULLY_RECOVERABLE} partial=${report.recoveryClasses.PARTIALLY_RECOVERABLE} cleanup=${report.recoveryClasses.CLEANUP_ONLY} review=${report.recoveryClasses.HUMAN_REVIEW} noSource=${report.recoveryClasses.NO_SOURCE} conflict=${report.recoveryClasses.SOURCE_CONFLICT} fetchFail=${report.recoveryClasses.FETCH_FAILED}`,
+  );
+  if (report.simulation) {
+    const sim = report.simulation;
+    console.log(
+      `[evidence-backfill] simulation blockingWines ${sim.blockingWinesBefore}->evidence ${sim.blockingWinesAfterEvidence}->cleanup ${sim.blockingWinesAfterCleanup} issues ${sim.blockingIssuesBefore}->${sim.blockingIssuesAfterEvidence}->${sim.blockingIssuesAfterCleanup} cleanAfter=${sim.cleanWinesAfter} high=${sim.highAfter} medium=${sim.mediumAfter} low=${sim.lowAfter}`,
+    );
+  }
+
+  const sample = report.wines;
+  console.log(`\nBlocking queue (${sample.length}):`);
   for (const item of sample) {
     console.log(`\nWine: ${item.slug}`);
     console.log(`  Before: ${item.beforeHigh} high, ${item.beforeMedium} medium, ${item.beforeBlocking} blocking`);

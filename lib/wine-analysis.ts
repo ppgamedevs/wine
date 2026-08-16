@@ -1,3 +1,4 @@
+import { resolveCellarDisplay } from "@/lib/cellar-display";
 import { formatRon } from "@/lib/format";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
@@ -36,9 +37,20 @@ export function buildWorthItAnalysis(wine: WineWithRelations): WorthItAnalysis {
         wine.foodMatchScore
           ? `Food Match ${wine.foodMatchScore}/100: se potriveste bine cu mancarea romaneasca clasica.`
           : "Se potriveste bine cu preparate traditionale romanesti.",
-        wine.cellarPotential
-          ? `Potential de invechire ${wine.cellarPotential}/10 ani: poate evolua frumos in pivnita.`
-          : "Potrivit pentru consum in urmatorii 2-3 ani.",
+        (() => {
+          const cellar = resolveCellarDisplay({
+            type: wine.type,
+            price: wine.currentPrice ?? wine.priceAvg,
+            cellarPotential: wine.cellarPotential,
+            drinkabilityStart: wine.drinkabilityStart,
+            drinkabilityEnd: wine.drinkabilityEnd,
+            producerContent: wine.producerContent,
+          });
+          if (cellar?.kind === "verified") {
+            return `${cellar.label}: ${cellar.value}.`;
+          }
+          return "Orientare generala de pastrare: consum in urmatorii 2-3 ani, daca nu exista fereastra documentata.";
+        })(),
         wine.beginnerFriendly
           ? "Accesibil si pentru incepatori: profil echilibrat, fara surprize neplacute."
           : "Profil mai complex, recomandat celor cu experienta in vinuri.",
@@ -188,8 +200,16 @@ export function buildWineProsCons(wine: WineWithRelations): WineProsCons {
     pros.push("Profil accesibil pentru incepatori.");
   }
 
-  if (wine.cellarPotential && wine.cellarPotential >= 5) {
-    pros.push(`Potential de invechire ${wine.cellarPotential} ani.`);
+  const cellar = resolveCellarDisplay({
+    type: wine.type,
+    price: wine.currentPrice ?? wine.priceAvg,
+    cellarPotential: wine.cellarPotential,
+    drinkabilityStart: wine.drinkabilityStart,
+    drinkabilityEnd: wine.drinkabilityEnd,
+    producerContent: wine.producerContent,
+  });
+  if (cellar?.kind === "verified") {
+    pros.push(`${cellar.label}: ${cellar.value}.`);
   }
 
   const risk = wine.overpricedRisk ?? "medium";
