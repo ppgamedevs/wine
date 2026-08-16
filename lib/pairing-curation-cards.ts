@@ -1,5 +1,6 @@
 import {
   generatePairingDrafts,
+  partitionPairingDrafts,
   previewCurationImpact,
   validatePairingDrafts,
   type PairingDraft,
@@ -37,6 +38,7 @@ export interface CurationCard {
   existingPairings: Array<{
     dish: string;
     note?: string;
+    category?: string;
     source?: string;
     curatedAt?: string;
     curatedBy?: string;
@@ -51,7 +53,8 @@ export interface CurationCard {
 
 export function buildCurationCard(wine: WineWithRelations): CurationCard {
   const drafts = generatePairingDrafts(wine);
-  const issues = validatePairingDrafts(wine, drafts);
+  const { newDrafts } = partitionPairingDrafts(drafts, wine.foodPairings);
+  const issues = validatePairingDrafts(wine, newDrafts);
   return {
     id: wine.id,
     slug: wine.slug,
@@ -79,6 +82,7 @@ export function buildCurationCard(wine: WineWithRelations): CurationCard {
     existingPairings: wine.foodPairings.map((pairing) => ({
       dish: pairing.dish,
       note: pairing.note,
+      category: pairing.category,
       source: pairing.source,
       curatedAt: pairing.curatedAt,
       curatedBy: pairing.curatedBy,
@@ -87,7 +91,7 @@ export function buildCurationCard(wine: WineWithRelations): CurationCard {
     })),
     drafts,
     warnings: issues.map((issue) => issue.message),
-    impact: previewCurationImpact(wine, drafts),
+    impact: previewCurationImpact(wine, newDrafts),
     previewWine: wine,
   };
 }

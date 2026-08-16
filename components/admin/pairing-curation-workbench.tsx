@@ -4,9 +4,14 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { approveCuratedPairingsAction } from "@/app/admin/actions";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { CurationCard } from "@/lib/pairing-curation-cards";
 import { basisProvenanceLabel } from "@/lib/curated-evidence";
+import {
+  draftMatchesExistingPairing,
+  partitionPairingDrafts,
+} from "@/lib/pairing-curation";
 import { previewCurationImpact } from "@/lib/pairing-curation-preview";
 import {
   PAIRING_REVIEW_SKIP_STORAGE_KEY,
@@ -14,6 +19,8 @@ import {
   applyApprovedPairingsToCards,
   approvalSuccessMessage,
   clearKeyedStateForSlug,
+  formatCuratedAt,
+  reviewPairingMeta,
   draftSelectionKey,
   mergeServerCardsPreserveOrder,
   nextReviewSlug,
@@ -88,9 +95,14 @@ export function PairingCurationWorkbench({
   const slugs = lockedSlugsRef.current;
   const card = localCards.find((item) => item.slug === activeSlug) ?? localCards[0];
 
+  const { newDrafts, alreadyApprovedDrafts } = useMemo(() => {
+    if (!card) return { newDrafts: [], alreadyApprovedDrafts: [] };
+    return partitionPairingDrafts(card.drafts, card.existingPairings);
+  }, [card]);
+
   const selectedDrafts = useMemo(() => {
     if (!card) return [];
-    return card.drafts
+    return newDrafts
       .filter((draft) => selected[draftSelectionKey(card.slug, draft.dish)] === true)
       .map((draft) => {
         const edit = edits[draftSelectionKey(card.slug, draft.dish)];
@@ -104,8 +116,9 @@ export function PairingCurationWorkbench({
             ? draft.basis
             : [...draft.basis, "editorial_judgment" as const],
         } satisfies PairingDraft;
-      });
-  }, [card, edits, selected]);
+      })
+      .filter((draft) => !draftMatchesExistingPairing(draft, card.existingPairings));
+  }, [card, edits, newDrafts, selected]);
 
   const selectedImpact = useMemo(() => {
     if (!card) return null;
@@ -233,7 +246,12 @@ export function PairingCurationWorkbench({
           >
             Fara asociere
           </Button>
-          <Button type="button" size="sm" disabled={pending} onClick={approveSelected}>
+          <Button
+            type="button"
+            size="sm"
+            disabled={pending || newDrafts.length === 0}
+            onClick={approveSelected}
+          >
             {pending ? "Se salveaza..." : "Aproba selectia"}
           </Button>
         </div>
@@ -324,19 +342,34 @@ export function PairingCurationWorkbench({
           {card.existingPairings.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">Niciuna.</p>
           ) : (
-            <ul className="mt-2 list-disc pl-5 text-sm">
-              {card.existingPairings.map((pairing) => (
-                <li key={pairing.dish}>
-                  {pairing.dish}
-                  {pairing.source ? ` · ${pairing.source}` : ""}
-                  {pairing.strength ? ` · ${pairing.strength}` : ""}
-                  {pairing.curatedBy ? ` · ${pairing.curatedBy}` : ""}
-                  {pairing.curatedAt ? ` · ${pairing.curatedAt}` : ""}
-                  {pairing.basis && pairing.basis.length > 0
-                    ? ` · ${pairing.basis.join(", ")}`
-                    : ""}
-                </li>
-              ))}
+            <ul className="mt-3 space-y-3">
+              {card.existingPairings.map((pairing) => {
+                const meta = reviewPairingMeta(pairing.strength, pairing.basis);
+                const curatedAt = formatCuratedAt(pairing.curatedAt);
+                return (
+                  <li
+                    key={pairing.dish}
+                    className="rounded-lg border border-border/70 bg-muted/20 px-3 py-2"
+                  >
+                    <p className="text-sm font-medium">{pairing.dish}</p>
+                    {pairing.note ? (
+                      <p className="mt-1 text-sm text-foreground/90">
+                        „{pairing.note}”
+                      </p>
+                    ) : null}
+                    {meta ? (
+                      <p className="mt-1 text-sm text-muted-foreground">{meta}</p>
+                    ) : null}
+                    {pairing.curatedBy || curatedAt ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {[pairing.curatedBy, curatedAt]
+                          .filter((item): item is string => Boolean(item))
+                          .join(" · ")}
+                      </p>
+                    ) : null}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </section>
@@ -348,7 +381,12 @@ export function PairingCurationWorkbench({
               {warning}
             </p>
           ))}
-          {card.drafts.map((draft) => {
+          {newDrafts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nu exista propuneri noi. Asocierile existente sunt listate mai sus.
+            </p>
+          ) : null}
+          {newDrafts.map((draft) => {
             const key = draftSelectionKey(card.slug, draft.dish);
             const edit = edits[key] ?? {
               dish: draft.dish,
@@ -422,6 +460,25 @@ export function PairingCurationWorkbench({
               </label>
             );
           })}
+          {alreadyApprovedDrafts.map((draft) => (
+            <div
+              key={draftSelectionKey(card.slug, draft.dish)}
+              className="rounded-xl border border-border bg-muted/40 p-4 opacity-70"
+            >
+              <div className="flex items-start gap-3">
+                <input type="checkbox" checked disabled className="mt-1" />
+                <div className="flex-1 space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium">{draft.dish}</p>
+                    <Badge variant="secondary">Deja aprobat</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {draft.category} · corespunde unei asocieri VinIntel existente
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
         </section>
       </div>
     </div>

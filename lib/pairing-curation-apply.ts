@@ -7,6 +7,7 @@ import {
   assertCurationAdmin,
   assertShadowUnchanged,
   buildCurationWritePatch,
+  draftMatchesExistingPairing,
   toApprovedFoodPairings,
   lockDraftBasis,
   validatePairingDrafts,
@@ -40,13 +41,19 @@ export async function approveCuratedPairingsForWine(input: {
     throw new Error("Vinul nu este disponibil pentru curatare.");
   }
 
-  const drafts = input.drafts.map((draft) =>
+  const incoming = input.drafts.map((draft) =>
     lockDraftBasis(wine, {
       ...draft,
       category: draft.category as FoodCategoryId,
       provenanceLocked: draft.provenanceLocked ?? true,
     }),
   );
+  const drafts = incoming.filter(
+    (draft) => !draftMatchesExistingPairing(draft, wine.foodPairings),
+  );
+  if (drafts.length === 0) {
+    throw new Error("Toate asocierile selectate sunt deja aprobate.");
+  }
   const issues = validatePairingDrafts(wine, drafts);
   if (issues.some((issue) => issue.level === "error")) {
     throw new Error(issues.filter((issue) => issue.level === "error")[0]?.message);

@@ -94,6 +94,55 @@ function fold(value: string): string {
     .trim();
 }
 
+function dishAliasFolds(dish: string): string[] {
+  const folded = fold(dish);
+  const row = EDITORIAL_DISHES.find(
+    (item) =>
+      fold(item.dish) === folded ||
+      item.aliases.some((alias) => fold(alias) === folded),
+  );
+  if (!row) return [folded];
+  return [fold(row.dish), ...row.aliases.map((alias) => fold(alias))];
+}
+
+function pairingCategoryKey(item: { dish: string; category?: string }): string | null {
+  if (item.category?.trim()) return fold(item.category);
+  return categorizeFoodText(item.dish)[0] ?? null;
+}
+
+export function draftMatchesExistingPairing(
+  draft: { dish: string; category: string },
+  existing: Array<{ dish: string; category?: string }>,
+): boolean {
+  const draftDishes = new Set(dishAliasFolds(draft.dish));
+  const draftCategory = fold(draft.category) || pairingCategoryKey(draft);
+  return existing.some((pairing) => {
+    if (dishAliasFolds(pairing.dish).some((dish) => draftDishes.has(dish))) {
+      return true;
+    }
+    const existingCategory = pairingCategoryKey(pairing);
+    return Boolean(
+      draftCategory && existingCategory && draftCategory === existingCategory,
+    );
+  });
+}
+
+export function partitionPairingDrafts<T extends { dish: string; category: string }>(
+  drafts: T[],
+  existing: Array<{ dish: string; category?: string }>,
+): { newDrafts: T[]; alreadyApprovedDrafts: T[] } {
+  const newDrafts: T[] = [];
+  const alreadyApprovedDrafts: T[] = [];
+  for (const draft of drafts) {
+    if (draftMatchesExistingPairing(draft, existing)) {
+      alreadyApprovedDrafts.push(draft);
+    } else {
+      newDrafts.push(draft);
+    }
+  }
+  return { newDrafts, alreadyApprovedDrafts };
+}
+
 function grapeNames(wine: WineWithRelations): string[] {
   return (wine.grapeVarieties ?? []).map((grape) => grape.name);
 }
@@ -313,6 +362,13 @@ export function validatePairingDrafts(
         message: `Categoria pentru "${draft.dish}" nu este in taxonomie.`,
       });
     }
+    if (draftMatchesExistingPairing(draft, wine.foodPairings)) {
+      issues.push({
+        level: "error",
+        code: "already_approved",
+        message: `"${draft.dish}" este deja aprobat pentru acest vin.`,
+      });
+    }
     const folded = fold(draft.dish);
     if (foldedDishes.has(folded)) {
       issues.push({
@@ -371,7 +427,7 @@ export function toApprovedFoodPairings(
 ): FoodPairing[] {
   const next = [...existing];
   for (const draft of drafts) {
-    if (next.some((pairing) => fold(pairing.dish) === fold(draft.dish))) continue;
+    if (draftMatchesExistingPairing(draft, next)) continue;
     next.push({
       dish: draft.dish,
       note: draft.rationale,

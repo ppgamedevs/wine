@@ -90,6 +90,41 @@ export function approvalSuccessMessage(
   return `✓ ${approvedCount} asocieri salvate pentru ${wineName}.`;
 }
 
+export function reviewStrengthLabel(strength?: string): string | null {
+  if (strength === "strong") return "Strong";
+  if (strength === "good") return "Good";
+  if (strength === "possible") return "Possible";
+  return null;
+}
+
+export function reviewBasisLabel(basis?: string[]): string | null {
+  if (!basis || basis.length === 0) return null;
+  if (basis.includes("producer_evidence")) return "Recomandarea producatorului";
+  if (basis.includes("verified_style") || basis.includes("technical_data")) {
+    return "Stil verificat";
+  }
+  return "Judecata editoriala";
+}
+
+export function reviewPairingMeta(strength?: string, basis?: string[]): string | null {
+  return [reviewStrengthLabel(strength), reviewBasisLabel(basis)]
+    .filter((item): item is string => Boolean(item))
+    .join(" · ") || null;
+}
+
+export function formatCuratedAt(value?: string): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("ro-RO", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function parseSkippedSlugs(raw: string | null): string[] {
   if (!raw) return [];
   try {

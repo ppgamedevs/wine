@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   assertCurationAdmin,
   buildCurationWritePatch,
+  draftMatchesExistingPairing,
   generatePairingDrafts,
   isVinIntelCuratedPairing,
+  partitionPairingDrafts,
   previewCurationImpact,
   publicPairingAttribution,
   publicProducerAttribution,
@@ -175,6 +177,63 @@ describe("pairing curation", () => {
     expect(getSecondaryScoringMode()).toBe("shadow");
     buildCurationWritePatch(toApprovedFoodPairings([draft()], []));
     expect(getSecondaryScoringMode()).toBe("shadow");
+  });
+
+  it("same dish cannot be approved twice", () => {
+    const existing = toApprovedFoodPairings(
+      [draft({ dish: "Peste alb", category: "fish" })],
+      [],
+    );
+    expect(existing).toHaveLength(1);
+    const again = toApprovedFoodPairings(
+      [draft({ dish: "Peste alb", category: "fish" })],
+      existing,
+    );
+    expect(again).toHaveLength(1);
+    expect(again[0]?.dish).toBe("Peste alb");
+    expect(
+      draftMatchesExistingPairing(
+        draft({ dish: "Peste alb", category: "fish" }),
+        existing,
+      ),
+    ).toBe(true);
+    const issues = validatePairingDrafts(
+      wine({
+        slug: "already-fish",
+        type: "white",
+        foodPairings: existing,
+      }),
+      [draft({ dish: "Peste alb", category: "fish" })],
+    );
+    expect(issues.some((issue) => issue.code === "already_approved")).toBe(true);
+  });
+
+  it("same category cannot be approved twice", () => {
+    const existing = toApprovedFoodPairings(
+      [draft({ dish: "Peste alb", category: "fish" })],
+      [],
+    );
+    const again = toApprovedFoodPairings(
+      [draft({ dish: "Fructe de mare", category: "fish" })],
+      existing,
+    );
+    expect(again).toHaveLength(1);
+    expect(again[0]?.dish).toBe("Peste alb");
+    expect(
+      draftMatchesExistingPairing(
+        draft({ dish: "Fructe de mare", category: "fish" }),
+        existing,
+      ),
+    ).toBe(true);
+    const { newDrafts, alreadyApprovedDrafts } = partitionPairingDrafts(
+      [
+        draft({ dish: "Peste alb", category: "fish" }),
+        draft({ dish: "Branzeturi proaspete", category: "cheese" }),
+      ],
+      existing,
+    );
+    expect(alreadyApprovedDrafts.map((item) => item.dish)).toEqual(["Peste alb"]);
+    expect(newDrafts.map((item) => item.dish)).toEqual(["Branzeturi proaspete"]);
   });
 });
 

@@ -5,6 +5,8 @@ import {
   addSkippedSlug,
   applyApprovedPairingsToCards,
   approvalSuccessMessage,
+  formatCuratedAt,
+  reviewPairingMeta,
   clearKeyedStateForSlug,
   draftSelectionKey,
   mergeServerCardsPreserveOrder,
@@ -99,6 +101,13 @@ describe("pairing curation review session", () => {
       [keyA]: { dish: "Peste alb edit", rationale: "A", strength: "strong" as const },
     };
     expect(edits[keyB]).toBeUndefined();
+  });
+
+  it("existing pairing review copy leads with rationale, not raw metadata", () => {
+    expect(reviewPairingMeta("good", ["verified_style", "editorial_judgment"])).toBe(
+      "Good · Stil verificat",
+    );
+    expect(formatCuratedAt("2026-08-16T18:03:50.827Z")).toContain("2026");
   });
 
   it("F: success message references the approved wine, not the next wine", () => {
