@@ -273,6 +273,7 @@ export function toApprovedFoodPairings(
       curatedBy: PAIRING_CURATOR_ID,
       basis: draft.basis,
       strength: draft.strength,
+      ...(draft.dishId ? { dishId: draft.dishId } : {}),
     });
   }
   return next;

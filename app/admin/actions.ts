@@ -472,6 +472,9 @@ const approvePairingsSchema = z.object({
         strength: z.enum(["strong", "good", "possible"]),
         styleOnlyWarning: z.boolean(),
         provenanceLocked: z.boolean().optional(),
+        originalDish: z.string().min(2).max(80).optional(),
+        originalRationale: z.string().min(8).max(400).optional(),
+        dishId: z.string().min(2).max(80).optional(),
       }),
     )
     .min(1)
@@ -494,6 +497,9 @@ export async function approveCuratedPairingsAction(input: {
     strength: "strong" | "good" | "possible";
     styleOnlyWarning: boolean;
     provenanceLocked?: boolean;
+    originalDish?: string;
+    originalRationale?: string;
+    dishId?: string;
   }>;
 }): Promise<
   | {

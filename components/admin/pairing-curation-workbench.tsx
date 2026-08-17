@@ -28,8 +28,11 @@ import {
   approvalSuccessMessage,
   canApproveCurationSelection,
   clearKeyedStateForSlug,
+  FIRST_BATCH_COMPLETE_MESSAGE,
+  FOUR_PAIRINGS_WARNING,
   NO_NEW_CURATION_DRAFTS_MESSAGE,
   UNKNOWN_DISH_CATEGORY_CARD_MESSAGE,
+  pendingReviewSlugs,
   dishFromCurationError,
   reviewApprovedAtLabel,
   reviewPairingMeta,
@@ -72,6 +75,7 @@ export function PairingCurationWorkbench({
   );
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [draftErrors, setDraftErrors] = useState<Record<string, string>>({});
+  const [showCurated, setShowCurated] = useState(false);
   const [skipped, setSkipped] = useState<string[]>([]);
   const [edits, setEdits] = useState<
     Record<string, { dish: string; rationale: string; strength: FoodPairingStrength }>
@@ -92,9 +96,14 @@ export function PairingCurationWorkbench({
   }, [serverCards]);
 
   useEffect(() => {
-    const next = resolveCurrentSlug(lockedSlugsRef.current, currentSlug);
+    const pending = pendingReviewSlugs(localCards, skipped);
+    const next = resolveCurrentSlug(
+      lockedSlugsRef.current,
+      currentSlug,
+      showCurated ? undefined : pending,
+    );
     if (next) setActiveSlug(next);
-  }, [currentSlug]);
+  }, [currentSlug, localCards, showCurated, skipped]);
 
   useEffect(() => {
     if (messageKind !== "success" || !message) return;
@@ -145,6 +154,8 @@ export function PairingCurationWorkbench({
               basis: draft.basis.includes("editorial_judgment")
                 ? draft.basis
                 : [...draft.basis, "editorial_judgment" as const],
+              originalDish: draft.dish,
+              originalRationale: draft.rationale,
             }
           : draft;
         return resolveDraftProducerProvenance(edited, producerContext);
@@ -158,8 +169,11 @@ export function PairingCurationWorkbench({
   }, [card, selectedDrafts]);
 
   const progress = reviewProgress(localCards, skipped);
+  const pendingSlugs = pendingReviewSlugs(localCards, skipped);
   const status = card ? reviewCardStatus(card, skipped) : "pending";
   const position = card ? reviewPosition(slugs, card.slug) : 0;
+  const batchComplete = progress.pending === 0 && progress.total > 0;
+  const navSlugs = showCurated ? slugs : pendingSlugs.length > 0 ? pendingSlugs : slugs;
 
   if (!card || !selectedImpact) {
     return <p className="text-sm text-muted-foreground">Nu exista vinuri in lot.</p>;
@@ -189,7 +203,7 @@ export function PairingCurationWorkbench({
         JSON.stringify(next),
       );
     }
-    const nextSlug = nextReviewSlug(slugs, card.slug);
+    const nextSlug = nextReviewSlug(slugs, card.slug, showCurated ? undefined : pendingSlugs);
     if (nextSlug) goTo(nextSlug);
   }
 
@@ -230,6 +244,9 @@ export function PairingCurationWorkbench({
           strength: draft.strength,
           styleOnlyWarning: draft.styleOnlyWarning,
           provenanceLocked: draft.provenanceLocked,
+          originalDish: draft.originalDish,
+          originalRationale: draft.originalRationale,
+          dishId: draft.dishId,
         })),
       });
       if (!result.ok) {
@@ -264,7 +281,11 @@ export function PairingCurationWorkbench({
           approvalSuccessMessage(result.approvedCount, approvedName),
       );
       setMessageKind("success");
-      const nextSlug = nextReviewSlug(slugs, approvedSlug);
+      const nextSlug = nextReviewSlug(
+        slugs,
+        approvedSlug,
+        showCurated ? undefined : pendingSlugs.filter((slug) => slug !== approvedSlug),
+      );
       if (nextSlug) goTo(nextSlug, { keepMessage: true });
     });
   }
@@ -281,6 +302,19 @@ export function PairingCurationWorkbench({
             {progress.curated} curate · {progress.skipped} sarite ·{" "}
             {progress.pending} in asteptare · status {status}
           </p>
+          {batchComplete ? (
+            <p className="text-sm font-medium text-foreground">
+              {FIRST_BATCH_COMPLETE_MESSAGE}
+            </p>
+          ) : null}
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={showCurated}
+              onChange={(event) => setShowCurated(event.target.checked)}
+            />
+            Arata si vinurile deja curate
+          </label>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -288,7 +322,7 @@ export function PairingCurationWorkbench({
             variant="outline"
             size="sm"
             onClick={() => {
-              const previous = prevReviewSlug(slugs, card.slug);
+              const previous = prevReviewSlug(navSlugs, card.slug);
               if (previous) goTo(previous);
             }}
           >
@@ -299,7 +333,7 @@ export function PairingCurationWorkbench({
             variant="outline"
             size="sm"
             onClick={() => {
-              const next = nextReviewSlug(slugs, card.slug);
+              const next = nextReviewSlug(slugs, card.slug, showCurated ? undefined : pendingSlugs);
               if (next) goTo(next);
             }}
           >
@@ -398,11 +432,14 @@ export function PairingCurationWorkbench({
         </section>
 
         <section className="rounded-xl border border-border p-4">
-          <h3 className="font-medium">Recomandarea producatorului</h3>
+          <h3 className="font-medium">{card.producerCulinaryLabel}</h3>
           {card.producerCulinary ? (
             <p className="mt-2 text-sm">{card.producerCulinary}</p>
           ) : (
-            <p className="mt-2 text-sm text-muted-foreground">Fara evidenta culinara oficiala.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Fara recomandare culinara oficiala. Textul de degustare nu este tratat ca
+              asociere.
+            </p>
           )}
           <ul className="mt-3 space-y-2 text-sm">
             {card.producerClaims.map((claim) => (
@@ -449,7 +486,14 @@ export function PairingCurationWorkbench({
         </section>
 
         <section className="space-y-3">
-          <h3 className="font-medium">Propuneri (draft, nu sunt curate)</h3>
+          <h3 className="font-medium">
+            {card.existingPairings.length > 0
+              ? "Sugestii noi"
+              : "Propuneri initiale"}
+          </h3>
+          {card.existingPairings.length >= 4 ? (
+            <p className="text-sm text-amber-800">{FOUR_PAIRINGS_WARNING}</p>
+          ) : null}
           {card.warnings.map((warning) => (
             <p key={warning} className="text-sm text-amber-800">
               {warning}

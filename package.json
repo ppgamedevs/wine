@@ -30,7 +30,11 @@
     "scores:recalculate": "tsx scripts/recalculate-secondary-scores.ts",
     "food-evidence:backfill": "tsx scripts/food-evidence-backfill.ts",
     "scores:shadow-benchmark": "tsx scripts/shadow-benchmark.ts",
-    "pairing-curation:generate": "tsx scripts/pairing-curation-generate.ts"
+    "pairing-curation:generate": "tsx scripts/pairing-curation-generate.ts",
+    "pairing:golden-audit": "tsx scripts/pairing-golden-audit.ts",
+    "pairing:canonicalize": "tsx scripts/pairing-canonicalize.ts",
+    "pairing:provenance-audit": "tsx scripts/pairing-provenance-audit.ts",
+    "pairing:catalog-benchmark": "tsx scripts/pairing-catalog-benchmark.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",

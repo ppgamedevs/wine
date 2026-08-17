@@ -1,0 +1,2339 @@
+{
+  "report": {
+    "generatedAt": "2026-08-17T21:38:37.331Z",
+    "mode": "shadow",
+    "verifiedWines": 232,
+    "firstBatchSize": 30,
+    "firstBatchCurated": 30,
+    "totalCuratedWines": 30,
+    "totalCuratedPairings": 102,
+    "averagePairingsPerWine": 3.4,
+    "strengthDistribution": {
+      "good": 70,
+      "strong": 32
+    },
+    "basisDistribution": {
+      "editorial_judgment": 102,
+      "verified_style": 102,
+      "producer_evidence": 8,
+      "technical_data": 4
+    },
+    "producerBacked": 8,
+    "structuredStyle": 102,
+    "editorialOnly": 0,
+    "dishFrequency": {
+      "Sarmale": 12,
+      "Plachie de crap": 7,
+      "Rata pe varza": 7,
+      "Bulz cu brânză de burduf": 5,
+      "Branzeturi maturate": 4,
+      "Ciulama de ciuperci": 4,
+      "Mici": 4,
+      "Ciulama de pui": 3,
+      "Ciulama de pui cu mămăligă": 3,
+      "Hamsii prăjite": 3,
+      "Pastrama de oaie": 3,
+      "Pui la ceaun cu pâine de casă": 3,
+      "Telemea de capră": 3,
+      "Carnati afumati cu mamaliga": 2,
+      "Ciuperci cu mamaliga": 2,
+      "Drob de miel": 2,
+      "Friptură de vită la cuptor": 2,
+      "Sarmale în foi de viță": 2,
+      "Tocăniță de vânat": 2,
+      "Tochitura moldoveneasca": 2,
+      "Varza a la Cluj": 2,
+      "Aperitive": 1,
+      "Branza de burduf": 1,
+      "Brânză de burduf cu pâine de casă": 1,
+      "Brânzeturi maturate": 1,
+      "Branzeturi proaspete": 1,
+      "Cârnați afumați cu mămăligă": 1,
+      "Cotlete de miel": 1,
+      "Crap prajit cu mamaliga": 1,
+      "Friptură de vită cu sos de ciuperci": 1,
+      "Fructe de mare": 1,
+      "Iepure la cuptor": 1,
+      "Mamaliga cu branza si smantana": 1,
+      "Mămăligă cu brânză și smântână": 1,
+      "Pastrav la gratar cu mamaliga": 1,
+      "Peste alb": 1,
+      "Piept de rață": 1,
+      "Plăcintă dobrogeană": 1,
+      "Pomana porcului": 1,
+      "Pui la ceaun": 1,
+      "Rață pe varză": 1,
+      "Salată de icre de știucă": 1,
+      "Salată de vinete cu pâine de casă": 1,
+      "Sarmale de post": 1,
+      "Tocană de porc cu prune": 1,
+      "Tocanita de vanat": 1
+    },
+    "familyFrequency": {
+      "(none)": 33,
+      "cabbage-roll": 15,
+      "duck": 8,
+      "delta-fish": 7,
+      "aged-cheese": 6,
+      "grilled-mince": 4,
+      "chicken-cream": 3,
+      "cured-lamb": 3,
+      "game-stew": 3,
+      "rich-pork-stew": 3,
+      "smoked-pork": 3,
+      "mountain-cheese": 2,
+      "mushroom": 2,
+      "roast-lamb": 2,
+      "cheese-pie": 1,
+      "chicken-rustic": 1,
+      "fresh-cheese": 1,
+      "fried-fish": 1,
+      "rabbit": 1,
+      "seafood": 1,
+      "starter": 1,
+      "trout": 1
+    },
+    "wineryDistribution": {
+      "Balla Geza": 8,
+      "Budureasca": 7,
+      "Avincis": 5,
+      "Cramele Recas": 5,
+      "Crama Gabai": 3,
+      "Murfatlar": 2
+    },
+    "historicalRejections": "unknown",
+    "historicalRejectionsNote": "Rejected drafts were not persisted for the first 30 wines. APPROVED is known. REJECTED is unknown.",
+    "slugs": [
+      "cramele-recas-solo-quinta-roze-2025",
+      "cramele-recas-cuvee-uberland-2021",
+      "cramele-recas-selene-feteasca-neagra-2024",
+      "cramele-recas-explicit-rara-neagra-merlot-2024",
+      "cramele-recas-explicit-feteasca-neagra-2023",
+      "avincis-rosu-avincis-negru-de-dragasani-sec-0-75l",
+      "avincis-domnul-de-roua-rosu-2019",
+      "avincis-vila-dobrusa-feteasca-regala-tamaioasa-romaneasca-2016",
+      "avincis-vila-dobrusa-negru-de-dragasani-merlot-2018",
+      "avincis-vila-dobrusa-rose-negru-de-dragasani-cabernet-sauvignon-2022",
+      "balla-geza-feteasca-regala-2025",
+      "balla-geza-feteasca-neagra-2022",
+      "balla-geza-sauvignon-blanc-feteasca-regala-2023",
+      "balla-geza-feteasca-neagra-2022-kolna",
+      "balla-geza-feteasca-neagra-2022-stonewines",
+      "balla-geza-feteasca-neagra-cabernet-franc-2021-stonewines",
+      "balla-geza-frizzy-2025-vin-perlant",
+      "balla-geza-feteasca-neagra-reserve-2020-editie-limitata",
+      "budureasca-clasic-fume-demisec-2025",
+      "budureasca-clasic-feteasca-neagra-sec-2021",
+      "budureasca-exuberant-rose-demisec-screw-cap-2023",
+      "budureasca-cuvee-regia-noir-demisec-dop-2022",
+      "budureasca-cuvee-regia-noir-demisec-screw-cap-2023",
+      "budureasca-cuvee-regia-rose-demisec-screw-cap-2023",
+      "budureasca-cuvee-regia-blanc-demisec-screw-cap-2023",
+      "crama-gabai-vin-roze-sec-miraz-roze-2021",
+      "crama-gabai-vin-alb-sec-miraz-alb-2021",
+      "crama-gabai-vin-alb-sec-feteasca-alba-2019",
+      "murfatlar-sable-noble-rosu",
+      "murfatlar-sable-noble-roze"
+    ]
+  },
+  "records": [
+    {
+      "slug": "cramele-recas-solo-quinta-roze-2025",
+      "name": "Solo Quinta Roze",
+      "winery": "Cramele Recas",
+      "winerySlug": "cramele-recas",
+      "vintage": 2025,
+      "type": "rose",
+      "sweetness": "sec",
+      "grapes": [
+        "Merlot",
+        "Syrah",
+        "Fetească Neagră",
+        "Novac",
+        "Negru de Drăgășani"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": "Salate cu pește; Preparate la cuptor pe bază de curcan; Somon la grătar sau la cuptor; Fructe de mare; Tartar de ton sau somon; Potârniche; Pește de talie medie; Sushi; Bucătărie asiatică; Brânzeturi semitari; Deserturi cu piersici, caise; Prăjitură cu fructe confiate.",
+      "producerTasting": "De culoare roz coral, strălucitor, Solo Quinta Roze impresionează olfactiv prin arome de fructe roșii bine coapte (căpșuni, zmeură) si flori: violete și bujori. Arome proaspete de vară completeaza buchetul acestui roze nobil obținut într-un an călduros. Finalul este unul intens, bazat pe note de prospețime tropicale. Un roze ce se distinge prin finețe și complexitate, dar și putere, perfect pentru a fi savurat în asocieri culinare diverse.",
+      "foodEvidence": [
+        {
+          "category": "fish",
+          "dish": "Salate cu pește",
+          "excerpt": "Salate cu pește; Preparate la cuptor pe bază de curcan; Somon la grătar sau la cuptor; Fructe de mare; Tartar de ton sau somon; Potârniche; Pește de talie medie; Sushi; Bucătărie asiatică; Brânzeturi semitari; Deserturi cu piersici, caise; Prăjitură cu fructe confiate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/solo-quinta-roze/"
+        },
+        {
+          "category": "poultry",
+          "dish": "Preparate la cuptor pe bază de curcan",
+          "excerpt": "Salate cu pește; Preparate la cuptor pe bază de curcan; Somon la grătar sau la cuptor; Fructe de mare; Tartar de ton sau somon; Potârniche; Pește de talie medie; Sushi; Bucătărie asiatică; Brânzeturi semitari; Deserturi cu piersici, caise; Prăjitură cu fructe confiate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/solo-quinta-roze/"
+        },
+        {
+          "category": "grilled_fish",
+          "dish": "Somon la grătar",
+          "excerpt": "Salate cu pește; Preparate la cuptor pe bază de curcan; Somon la grătar sau la cuptor; Fructe de mare; Tartar de ton sau somon; Potârniche; Pește de talie medie; Sushi; Bucătărie asiatică; Brânzeturi semitari; Deserturi cu piersici, caise; Prăjitură cu fructe confiate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/solo-quinta-roze/"
+        },
+        {
+          "category": "fish",
+          "dish": "Fructe de mare",
+          "excerpt": "Salate cu pește; Preparate la cuptor pe bază de curcan; Somon la grătar sau la cuptor; Fructe de mare; Tartar de ton sau somon; Potârniche; Pește de talie medie; Sushi; Bucătărie asiatică; Brânzeturi semitari; Deserturi cu piersici, caise; Prăjitură cu fructe confiate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/solo-quinta-roze/"
+        },
+        {
+          "category": "fish",
+          "dish": "somon",
+          "excerpt": "Salate cu pește; Preparate la cuptor pe bază de curcan; Somon la grătar sau la cuptor; Fructe de mare; Tartar de ton sau somon; Potârniche; Pește de talie medie; Sushi; Bucătărie asiatică; Brânzeturi semitari; Deserturi cu piersici, caise; Prăjitură cu fructe confiate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/solo-quinta-roze/"
+        },
+        {
+          "category": "fish",
+          "dish": "Pește de talie medie",
+          "excerpt": "Salate cu pește; Preparate la cuptor pe bază de curcan; Somon la grătar sau la cuptor; Fructe de mare; Tartar de ton sau somon; Potârniche; Pește de talie medie; Sushi; Bucătărie asiatică; Brânzeturi semitari; Deserturi cu piersici, caise; Prăjitură cu fructe confiate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/solo-quinta-roze/"
+        },
+        {
+          "category": "cheese",
+          "dish": "Brânzeturi semitari",
+          "excerpt": "Salate cu pește; Preparate la cuptor pe bază de curcan; Somon la grătar sau la cuptor; Fructe de mare; Tartar de ton sau somon; Potârniche; Pește de talie medie; Sushi; Bucătărie asiatică; Brânzeturi semitari; Deserturi cu piersici, caise; Prăjitură cu fructe confiate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/solo-quinta-roze/"
+        },
+        {
+          "category": "dessert",
+          "dish": "Prăjitură cu fructe confiate.",
+          "excerpt": "Salate cu pește; Preparate la cuptor pe bază de curcan; Somon la grătar sau la cuptor; Fructe de mare; Tartar de ton sau somon; Potârniche; Pește de talie medie; Sushi; Bucătărie asiatică; Brânzeturi semitari; Deserturi cu piersici, caise; Prăjitură cu fructe confiate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/solo-quinta-roze/"
+        }
+      ],
+      "pairings": [
+        {
+          "dish": "Plachie de crap",
+          "category": "fish",
+          "note": "Plachia de crap, cu ceapă și sos de roșii, este o alegere foarte interesantă pentru un rosé sec gastronomic din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T08:07:44.513Z",
+          "curatedBy": "admin",
+          "family": "delta-fish"
+        },
+        {
+          "dish": "Rata pe varza",
+          "category": "poultry",
+          "note": "Rața pe varză se potrivește bine cu un rosé sec cu suficientă prezență pentru un preparat bogat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T08:07:44.513Z",
+          "curatedBy": "admin",
+          "family": "duck"
+        },
+        {
+          "dish": "Ciulama de ciuperci",
+          "category": "vegetable",
+          "note": "Ciulamaua de ciuperci se potrivește bine cu un rosé sec, mai ales prin textura cremoasă și gustul delicat al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T08:07:44.513Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 70,
+      "giftScore": 64,
+      "foodMatchScore": 80
+    },
+    {
+      "slug": "cramele-recas-cuvee-uberland-2021",
+      "name": "Cuvée Überland",
+      "winery": "Cramele Recas",
+      "winerySlug": "cramele-recas",
+      "vintage": 2021,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Merlot",
+        "Cabernet Sauvignon",
+        "Fetească Neagră",
+        "Negru de Drăgășani"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": "Cotlet de miel în crustă de fistic; Piept de rață; Paste cu trufe și parmezan; Antricot de vită rasa Wagyu; Filet mignon cu sos de vin roșu; Cotlete de berbecuț cu piure; Brânzeturi cu mucegai albastru (Roquefort, Stillton, Gorgonzolla); Deserturi pe bază de ciocolată amară și f",
+      "producerTasting": "De culoare roșu rubin, aproape opac, olfactiv vinul se prezintă intens, cu un echilibru perfect între fruct și note lemnoase: coacăze negre, afine și smochine coapte. În plan secundar distingem note complexe de lemn ars, ciocolată și vișine. Gustativ, ediția 2021 a Cuvée-ului se distinge prin structura sa impozantă și corpul ferm, dar elegant. Cuvee Überland 2021 este un vin cu potențial de învechire de cel puțin 15 ani. Pentru a fi savurat tânăr recomandăm aerarea vinului în decantor.",
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Piept de rață",
+          "category": "poultry",
+          "note": "Pieptul de rață este recomandat de producător și se potrivește foarte bine cu un roșu sec complex din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "producer_evidence",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T15:46:24.259Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Sarmalele se potrivesc foarte bine cu un roșu sec din acest stil, mai ales prin caracterul bogat și consistent al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T15:46:24.259Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Cotlete de miel",
+          "category": "festive_traditional",
+          "note": "Cotletele de miel sunt recomandate de producător pentru Cuvée Überland și se potrivesc foarte bine cu un vin roșu sec și intens.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "producer_evidence",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T15:46:24.259Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Carnati afumati cu mamaliga",
+          "category": "pork",
+          "note": "Cârnații afumați cu mămăligă sunt o alegere foarte bună pentru un roșu sec din acest stil, mai ales prin gustul intens și afumat al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "technical_data",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T15:46:24.259Z",
+          "curatedBy": "admin",
+          "family": "smoked-pork"
+        }
+      ],
+      "valueScore": 71,
+      "giftScore": 70,
+      "foodMatchScore": 84
+    },
+    {
+      "slug": "cramele-recas-selene-feteasca-neagra-2024",
+      "name": "Selene Fetească Neagră",
+      "winery": "Cramele Recas",
+      "winerySlug": "cramele-recas",
+      "vintage": 2024,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Neagră"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": "O Fetească Neagră structurată și corpolentă este perfectă pentru a acompania feluri de mâncare mai &#8222;bogate&#8221; : T-bone de vită maturat, Osso-bucco, dar ideal si pentru preparate tradiționale: sarmale în foi de viță, tocănițe de vânat, plăcinte sărate.",
+      "producerTasting": "Culoare densă, rubiniu cu reflexii violete. Olfactiv, vinul se prezintă intens, imediat de la deschidere, dominat de fructe de pădure: afine, mure și vișine în dulceață. După aerare, vinul ne surprinde cu note de ciocolată neagră, curmale și lemn dulce. Gustativ, vinul surprinde prin corpul său cu o structură formată din taninuri coapte și alcool perfect integrat. Final lung și textural cu arome de cafea, nucșoară și cardamon.",
+      "foodEvidence": [
+        {
+          "category": "beef",
+          "dish": ": T-bone de vită maturat",
+          "excerpt": "O Fetească Neagră structurată și corpolentă este perfectă pentru a acompania feluri de mâncare mai &#8222;bogate&#8221; : T-bone de vită maturat, Osso-bucco, dar ideal si pentru preparate tradiționale: sarmale în foi de viță, tocănițe de vânat, plăcinte sărate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/selene-feteasca-neagra/"
+        },
+        {
+          "category": "sarmale",
+          "dish": "pentru preparate tradiționale: sarmale în foi de viță",
+          "excerpt": "O Fetească Neagră structurată și corpolentă este perfectă pentru a acompania feluri de mâncare mai &#8222;bogate&#8221; : T-bone de vită maturat, Osso-bucco, dar ideal si pentru preparate tradiționale: sarmale în foi de viță, tocănițe de vânat, plăcinte sărate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/selene-feteasca-neagra/"
+        },
+        {
+          "category": "beef",
+          "dish": "pentru preparate tradiționale: sarmale în foi de viță",
+          "excerpt": "O Fetească Neagră structurată și corpolentă este perfectă pentru a acompania feluri de mâncare mai &#8222;bogate&#8221; : T-bone de vită maturat, Osso-bucco, dar ideal si pentru preparate tradiționale: sarmale în foi de viță, tocănițe de vânat, plăcinte sărate.",
+          "evidenceClass": "PRODUCER_EXACT",
+          "sourceType": "producer_page",
+          "sourceUrl": "https://cramelerecas.ro/vinuri/selene-feteasca-neagra/"
+        }
+      ],
+      "pairings": [
+        {
+          "dish": "Sarmale în foi de viță",
+          "category": "sarmale",
+          "note": "Sarmalele în foi de viță sunt recomandate chiar de producător și se potrivesc foarte bine cu o Fetească Neagră structurată și corpolentă.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "producer_evidence",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T09:53:55.008Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Tocăniță de vânat",
+          "category": "poultry",
+          "note": "Tocănițele de vânat sunt recomandate de producător pentru acest vin și se potrivesc foarte bine cu un preparat intens și bogat.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "producer_evidence",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T09:53:55.008Z",
+          "curatedBy": "admin",
+          "family": "game-stew"
+        },
+        {
+          "dish": "Pomana porcului",
+          "category": "pork",
+          "note": "Pomana porcului este o alegere foarte bună pentru o Fetească Neagră cu suficientă prezență pentru preparate consistente.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "technical_data",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T09:53:55.008Z",
+          "curatedBy": "admin",
+          "family": "rich-pork-stew"
+        },
+        {
+          "dish": "Pastrama de oaie",
+          "category": "festive_traditional",
+          "note": "Pastrama de oaie se potrivește foarte bine cu o Fetească Neagră din acest stil, mai ales lângă un preparat intens și bine condimentat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T09:53:55.008Z",
+          "curatedBy": "admin",
+          "family": "cured-lamb"
+        }
+      ],
+      "valueScore": 79,
+      "giftScore": 64,
+      "foodMatchScore": 80
+    },
+    {
+      "slug": "cramele-recas-explicit-rara-neagra-merlot-2024",
+      "name": "EXPLICIT Rară Neagră & Merlot",
+      "winery": "Cramele Recas",
+      "winerySlug": "cramele-recas",
+      "vintage": 2024,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Rară Neagră",
+        "Merlot"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": "Tocană de porc cu prune; Sarmale în foi de viță; Friptură de vită cu sos de ciuperci; Paste cu sosuri roșii și carne; Brânzeturi maturate de tip Cheddar, Pecorino și Gouda.",
+      "producerTasting": "Sunt de o culoare roșie-rubin strălucitoare. Aromatic, soiurile mele, Rară Neagră și Merlot, dezvăluie o complexitate seducătoare: cireșe negre, vanilie, coacăze negre și violete. Sunt un vin echilibrat, cu o aciditate proaspătă și un final plăcut.Taninurile bine integrate ai Merlot-ului se împletesc armonios cu aciditatea vibrantă a soiului Rară Neagră, rezultând un gust complex și persistent.",
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale în foi de viță",
+          "category": "sarmale",
+          "note": "Sarmalele în foi de viță sunt recomandate de producător și se potrivesc foarte bine cu un roșu sec din Rară Neagră și Merlot.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "producer_evidence",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T21:25:49.244Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Tocană de porc cu prune",
+          "category": "pork",
+          "note": "Tocana de porc cu prune este recomandată de producător și se potrivește foarte bine cu acest roșu sec, mai ales prin combinația dintre carnea consistentă și nota dulce a prunelor.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "producer_evidence",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T21:25:49.244Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Friptură de vită cu sos de ciuperci",
+          "category": "beef",
+          "note": "Friptura de vită cu sos de ciuperci este recomandată de producător și este o alegere foarte potrivită pentru un vin roșu sec din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "producer_evidence",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T21:25:49.244Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Brânzeturi maturate",
+          "category": "cheese",
+          "note": "Brânzeturile maturate precum Pecorino, Gouda sau Cheddar sunt recomandate de producător și se potrivesc bine cu acest roșu sec.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T21:25:49.244Z",
+          "curatedBy": "admin",
+          "family": "aged-cheese"
+        }
+      ],
+      "valueScore": 60,
+      "giftScore": 64,
+      "foodMatchScore": 80
+    },
+    {
+      "slug": "cramele-recas-explicit-feteasca-neagra-2023",
+      "name": "EXPLICIT Fetească neagră",
+      "winery": "Cramele Recas",
+      "winerySlug": "cramele-recas",
+      "vintage": 2023,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Neagră"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": "Nuanțele mele sunt de un roșu-vișiniu, cu reflexe violacee. La nivel gustativ, te voi cuceri cu aromele intense de fructe de pădure: mure, făguțe si zmeură. După aerare, îmi vei descoperi notele fine de lemn și scorțișoară. Sunt o Fetească neagră cu structură și corp. Finalul meu este unul lung și catifelat. Sunt un vechi soi românesc pentru o nouă revoluție în lumea internațională a vinului!",
+      "producerTasting": "Nuanțele mele sunt de un roșu-vișiniu, cu reflexe violacee. La nivel gustativ, te voi cuceri cu aromele intense de fructe de pădure: mure, făguțe si zmeură. După aerare, îmi vei descoperi notele fine de lemn și scorțișoară. Sunt o Fetească neagră cu structură și corp. Finalul meu este unul lung și catifelat. Sunt un vechi soi românesc pentru o nouă revoluție în lumea internațională a vinului!",
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Sarmalele se potrivesc foarte bine cu o Fetească Neagră secă, mai ales lângă un preparat bogat și consistent.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T21:28:01.742Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Rata pe varza",
+          "category": "poultry",
+          "note": "Rața pe varză este o alegere foarte bună pentru o Fetească Neagră secă, potrivită pentru un preparat bogat și intens.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T21:28:01.742Z",
+          "curatedBy": "admin",
+          "family": "duck"
+        },
+        {
+          "dish": "Bulz cu brânză de burduf",
+          "category": "cheese",
+          "note": "Bulzul cu brânză de burduf se potrivește foarte bine cu o Fetească Neagră secă, mai ales prin gustul sărat și consistent al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T21:28:01.742Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Tocăniță de vânat",
+          "category": "game",
+          "note": "Tocănița de vânat este o alegere foarte potrivită pentru o Fetească Neagră secă din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "producer_evidence",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T21:28:01.742Z",
+          "curatedBy": "admin",
+          "family": "game-stew"
+        }
+      ],
+      "valueScore": 58,
+      "giftScore": 64,
+      "foodMatchScore": 80
+    },
+    {
+      "slug": "avincis-rosu-avincis-negru-de-dragasani-sec-0-75l",
+      "name": "Rosu Avincis Negru de Dragasani, Sec, 0.75l",
+      "winery": "Avincis",
+      "winerySlug": "avincis",
+      "vintage": null,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Negru de Dragasani"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Cârnați afumați cu mămăligă",
+          "category": "pork",
+          "note": "Cârnații afumați cu mămăligă se potrivesc foarte bine cu un Negru de Drăgășani sec, mai ales prin gustul intens și afumat al preparatului.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T17:55:51.724Z",
+          "curatedBy": "admin",
+          "family": "smoked-pork"
+        },
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Sarmalele sunt o alegere foarte bună pentru un vin roșu sec din Negru de Drăgășani.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T17:55:51.724Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Friptură de vită la cuptor",
+          "category": "beef",
+          "note": "Friptura de vită la cuptor se potrivește foarte bine cu un roșu sec din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T17:55:51.724Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Drob de miel",
+          "category": "festive_traditional",
+          "note": "Drobul de miel, cu verdețuri și condimente, este o alegere foarte potrivită pentru un Negru de Drăgășani sec.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T17:55:51.724Z",
+          "curatedBy": "admin",
+          "family": "roast-lamb"
+        }
+      ],
+      "valueScore": 66,
+      "giftScore": 80,
+      "foodMatchScore": 74
+    },
+    {
+      "slug": "avincis-domnul-de-roua-rosu-2019",
+      "name": "Domnul de Rouă Roșu",
+      "winery": "Avincis",
+      "winerySlug": "avincis",
+      "vintage": 2019,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Feteasca Neagra",
+        "Cabernet Sauvignon",
+        "Pinot Noir"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Un roșu sec din Fetească Neagră, Cabernet Sauvignon și Pinot Noir se potrivește foarte bine cu sarmalele și gustul lor bogat.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:37:12.542Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Rata pe varza",
+          "category": "poultry",
+          "note": "Rața pe varză se potrivește foarte bine cu un vin roșu sec, suficient de prezent pentru un preparat bogat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:37:12.542Z",
+          "curatedBy": "admin",
+          "family": "duck"
+        },
+        {
+          "dish": "Bulz cu brânză de burduf",
+          "category": "cheese",
+          "note": "Bulzul cu brânză de burduf este o alegere excelentă lângă un roșu sec, mai ales prin caracterul sărat și consistent al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:37:12.542Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Drob de miel",
+          "category": "festive_traditional",
+          "note": "Drobul de miel, bogat în verdețuri și arome, se potrivește foarte bine cu un vin roșu sec din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:37:12.542Z",
+          "curatedBy": "admin",
+          "family": "roast-lamb"
+        }
+      ],
+      "valueScore": 70,
+      "giftScore": 64,
+      "foodMatchScore": 74
+    },
+    {
+      "slug": "avincis-vila-dobrusa-feteasca-regala-tamaioasa-romaneasca-2016",
+      "name": "Vila Dobrușa - Fetească Regală & Tămâioasă Romănească",
+      "winery": "Avincis",
+      "winerySlug": "avincis",
+      "vintage": 2016,
+      "type": "white",
+      "sweetness": "demisec",
+      "grapes": [
+        "Feteasca Regala",
+        "Tamaioasa Romaneasca"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Crap prajit cu mamaliga",
+          "category": "fish",
+          "note": "Crapul prăjit cu mămăligă se potrivește foarte bine cu un alb demisec din Fetească Regală și Tămâioasă Românească.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:43:55.503Z",
+          "curatedBy": "admin",
+          "family": "fried-fish"
+        },
+        {
+          "dish": "Ciulama de pui cu mămăligă",
+          "category": "poultry",
+          "note": "Ciulamaua de pui cu mămăligă se potrivește bine cu un alb demisec, mai ales alături de sosul cremos al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:43:55.503Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Plăcintă dobrogeană",
+          "category": "cheese",
+          "note": "Plăcinta dobrogeană, sărată și bogată în brânză, se potrivește foarte bine cu un alb demisec din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:43:55.503Z",
+          "curatedBy": "admin",
+          "family": "cheese-pie"
+        }
+      ],
+      "valueScore": 70,
+      "giftScore": 64,
+      "foodMatchScore": 87
+    },
+    {
+      "slug": "avincis-vila-dobrusa-negru-de-dragasani-merlot-2018",
+      "name": "Vila Dobrușa - Negru de Drăgășani & Merlot",
+      "winery": "Avincis",
+      "winerySlug": "avincis",
+      "vintage": 2018,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Negru de Dragasani",
+        "Merlot"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Un roșu sec din Negru de Drăgășani și Merlot se potrivește foarte bine cu sarmalele și gustul lor bogat.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:47:07.654Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Rata pe varza",
+          "category": "poultry",
+          "note": "Rața pe varză se potrivește foarte bine cu un vin roșu sec din acest stil, suficient de prezent pentru un preparat bogat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:47:07.654Z",
+          "curatedBy": "admin",
+          "family": "duck"
+        },
+        {
+          "dish": "Carnati afumati cu mamaliga",
+          "category": "pork",
+          "note": "Cârnații afumați cu mămăligă sunt o alegere excelentă pentru un roșu sec din acest stil, mai ales prin gustul intens și afumat al preparatului.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:47:07.654Z",
+          "curatedBy": "admin",
+          "family": "smoked-pork"
+        },
+        {
+          "dish": "Bulz cu brânză de burduf",
+          "category": "cheese",
+          "note": "Bulzul cu brânză de burduf se potrivește foarte bine cu un vin roșu sec, mai ales prin caracterul sărat și consistent al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:47:07.654Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 70,
+      "giftScore": 64,
+      "foodMatchScore": 74
+    },
+    {
+      "slug": "avincis-vila-dobrusa-rose-negru-de-dragasani-cabernet-sauvignon-2022",
+      "name": "Vila Dobrușa Rosé - Negru de Drăgășani & Cabernet Sauvignon",
+      "winery": "Avincis",
+      "winerySlug": "avincis",
+      "vintage": 2022,
+      "type": "rose",
+      "sweetness": "sec",
+      "grapes": [
+        "Negru de Dragasani",
+        "Cabernet Sauvignon"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": "Vila Dobrușa Rosé - Negru de Drăgășani & Cabernet Sauvignon - Avincis Coș Login RO &nbsp;&nbsp;|&nbsp;&nbsp; EN Noutăți Vin și cultură Acasă Despre noi Cine suntem Ce înseamnă AVINCIS Istoric Istoria AVINCIS în imagini Crama și podgoria Galerie Video Vinuri Vinuri albe Vinuri roșii Vinuri rose Domnul de Rouă Vila Dobrușa Premii Harta locațiilor Magazin online Rezervări Vila Dobrușa Vizitează domeniul Degustare de vinuri Contact RO &nbsp;&nbsp;|&nbsp;&nbsp; EN Coșul meu &nbsp; Nu ai niciun produs în coș. Vino în magazinul nostru Acasă &nbsp; / &nbsp; Vinuri&nbsp; / &nbsp; Vila Dobrușa Vinuri albe Vinuri roșii Vinuri rose Domnul de Rouă Vila Dobrușa Premii Harta locațiilor Vila Dobrușa Rosé - Negru de Drăgășani & Cabernet Sauvignon Vila Dobrușa Rosé - Negru de Drăgășani & Cabernet Sauvignon Vin rose premiat o dată Silver Medal VINARIUM 2023, RO Vila Dobrușa Rosé - Negru de Drăgășani & Cabernet Sauvignon 2022 Este un vin cu gust proaspăt și răcoritor , cu o culoare asemănătoare cu cea a cojii de ceapă, deschis, cu reflexii portocalii și un buchet cu arome de grepfrut și zmeură.&nbsp; A se servi foarte rece, la 7˚C, alături de aperitive reci. Acompaniază foarte bine salatele proaspete de sezon, peștele la grătar sau puiul în sos dulce-picant. &nbsp; Tipul vinului: Sec &copy; COPYRIGHT 2026 AVINCIS Politica de confidențialitate &nbsp;&nbsp; Termeni și condiții &nbsp;&nbsp; Politica de livrare &nbsp;&nbsp; Politica de retur &nbsp;&nbsp; Politica modulelor de tip cookie AVINCIS VINURI SRL Sediu social: str. Dr. Grigore Romniceanu nr. 15 sector 5, 050574, București Email: avincis.vinuri@avincis.ro; Tel: 0751199415 CUI: RO22180956 --> -->",
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Plachie de crap",
+          "category": "fish",
+          "note": "Plachia de crap, cu sosul ei bogat de ceapă și roșii, se potrivește foarte bine cu un rosé sec din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:49:56.732Z",
+          "curatedBy": "admin",
+          "family": "delta-fish"
+        },
+        {
+          "dish": "Pui la ceaun cu pâine de casă",
+          "category": "poultry",
+          "note": "Puiul la ceaun, servit cu pâine de casă, este o alegere foarte bună pentru un rosé sec, fără să ceară un vin greu.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:49:56.732Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Ciuperci cu mamaliga",
+          "category": "vegetable",
+          "note": "Ciupercile cu mămăligă se potrivesc bine cu un rosé sec, mai ales când preparatul rămâne simplu și aromat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:49:56.732Z",
+          "curatedBy": "admin",
+          "family": "mushroom"
+        },
+        {
+          "dish": "Bulz cu brânză de burduf",
+          "category": "cheese",
+          "note": "Bulzul cu brânză de burduf se potrivește bine cu un rosé sec, care poate însoți preparatul fără să-l acopere.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:49:56.732Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 70,
+      "giftScore": 64,
+      "foodMatchScore": 87
+    },
+    {
+      "slug": "balla-geza-feteasca-regala-2025",
+      "name": "Fetească Regală",
+      "winery": "Balla Geza",
+      "winerySlug": "balla-geza",
+      "vintage": 2025,
+      "type": "white",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Regală"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": "Caracterizat printr-o buna armonie intre aroma florala si gust vinul ne bucura cu note fresh de mere de vara, citrice si pepene galben.",
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Peste alb",
+          "category": "fish",
+          "note": "Un vin alb sec se potrivește bine cu pește cu carne albă.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:09:02.748Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Branzeturi proaspete",
+          "category": "cheese",
+          "note": "Un vin alb sec se potrivește bine cu brânzeturi proaspete și ușoare.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:09:02.748Z",
+          "curatedBy": "admin",
+          "family": "fresh-cheese"
+        }
+      ],
+      "valueScore": 68,
+      "giftScore": 64,
+      "foodMatchScore": 84
+    },
+    {
+      "slug": "balla-geza-feteasca-neagra-2022",
+      "name": "Fetească Neagră",
+      "winery": "Balla Geza",
+      "winerySlug": "balla-geza",
+      "vintage": 2022,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Neagră"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Un vin roșu sec este o alegere potrivită pentru sarmale și alte preparate consistente.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:31:55.822Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Mici",
+          "category": "grilled_meat",
+          "note": "Un vin roșu sec se potrivește bine cu mici și alte preparate la grătar.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:31:55.822Z",
+          "curatedBy": "admin",
+          "family": "grilled-mince"
+        },
+        {
+          "dish": "Branzeturi maturate",
+          "category": "cheese",
+          "note": "Brânzeturile maturate se potrivesc foarte bine cu un vin roșu sec",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:31:55.822Z",
+          "curatedBy": "admin",
+          "family": "aged-cheese"
+        }
+      ],
+      "valueScore": 68,
+      "giftScore": 64,
+      "foodMatchScore": 84
+    },
+    {
+      "slug": "balla-geza-sauvignon-blanc-feteasca-regala-2023",
+      "name": "Sauvignon Blanc & Fetească Regală",
+      "winery": "Balla Geza",
+      "winerySlug": "balla-geza",
+      "vintage": 2023,
+      "type": "white",
+      "sweetness": "sec",
+      "grapes": [
+        "Sauvignon Blanc",
+        "Fetească Regală"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Hamsii prăjite",
+          "category": "fish",
+          "note": "Hamsiile prăjite, servite cu lămâie, se potrivesc foarte bine cu un alb sec din Sauvignon Blanc și Fetească Regală.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T16:18:55.897Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Ciulama de pui",
+          "category": "poultry",
+          "note": "Ciulamaua de pui, cu sosul ei cremos, se potrivește bine cu un alb sec din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T16:18:55.897Z",
+          "curatedBy": "admin",
+          "family": "chicken-cream"
+        },
+        {
+          "dish": "Telemea de capră",
+          "category": "cheese",
+          "note": "Telemeaua de capră, servită simplu cu roșii și pâine bună, se potrivește foarte bine cu un alb sec din Sauvignon Blanc și Fetească Regală.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T16:18:55.897Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 68,
+      "giftScore": 64,
+      "foodMatchScore": 80
+    },
+    {
+      "slug": "balla-geza-feteasca-neagra-2022-kolna",
+      "name": "Fetească Neagră",
+      "winery": "Balla Geza",
+      "winerySlug": "balla-geza",
+      "vintage": 2022,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Neagră"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Un vin roșu sec este o alegere potrivită pentru sarmale și alte preparate consistente.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T19:04:57.214Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Mici",
+          "category": "grilled_meat",
+          "note": "Un vin roșu sec se potrivește bine cu mici și alte preparate la grătar.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T19:04:57.214Z",
+          "curatedBy": "admin",
+          "family": "grilled-mince"
+        },
+        {
+          "dish": "Branzeturi maturate",
+          "category": "cheese",
+          "note": "Brânzeturile maturate se potrivesc foarte bine cu un vin roșu sec.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T19:04:57.214Z",
+          "curatedBy": "admin",
+          "family": "aged-cheese"
+        }
+      ],
+      "valueScore": 68,
+      "giftScore": 64,
+      "foodMatchScore": 84
+    },
+    {
+      "slug": "balla-geza-feteasca-neagra-2022-stonewines",
+      "name": "Fetească Neagră",
+      "winery": "Balla Geza",
+      "winerySlug": "balla-geza",
+      "vintage": 2022,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Neagră"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Tochitura moldoveneasca",
+          "category": "grilled_meat",
+          "note": "Feteasca Neagră se potrivește foarte bine cu tochitura moldovenească, un preparat bogat și intens",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "technical_data",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T15:44:02.912Z",
+          "curatedBy": "admin",
+          "family": "rich-pork-stew"
+        },
+        {
+          "dish": "Varza a la Cluj",
+          "category": "sarmale",
+          "note": "Varza à la Cluj se potrivește bine cu un vin roșu sec, mai ales prin caracterul consistent al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T15:44:02.912Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Tocanita de vanat",
+          "category": "game",
+          "note": "Tocănița de vânat este o alegere foarte potrivită pentru un vin roșu sec din Fetească Neagră.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T15:44:02.912Z",
+          "curatedBy": "admin",
+          "family": "game-stew"
+        },
+        {
+          "dish": "Pastrama de oaie",
+          "category": "festive_traditional",
+          "note": "Pastrama de oaie se potrivește excelent cu o Fetească Neagră, mai ales prin gustul intens și condimentat al preparatului.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T15:44:02.912Z",
+          "curatedBy": "admin",
+          "family": "cured-lamb"
+        }
+      ],
+      "valueScore": 68,
+      "giftScore": 64,
+      "foodMatchScore": 80
+    },
+    {
+      "slug": "balla-geza-feteasca-neagra-cabernet-franc-2021-stonewines",
+      "name": "Fetească Neagră & Cabernet Franc",
+      "winery": "Balla Geza",
+      "winerySlug": "balla-geza",
+      "vintage": 2021,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Neagră",
+        "Cabernet Franc"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": "Vinuri | Balla Géza Despre noi Wine Tourism Vinuri Galerie Distribuitori Contact ro ro Vinuri ¬ Vinuri Toate Classic Kolna Stonewines Vin perlant Vin spumant Ediție limitată Distilate premium sec alb Mustoasă de Măderat 2024 Detalii sec alb Fetească Regală 2025 Detalii sec alb Sauvignon Blanc 2025 Detalii demisec alb Furmint 2024 Detalii sec alb Chardonnay 2022 Detalii sec alb Pinot Gris 2021 Detalii sec roșu Cadarca 2023 Detalii sec roșu Fetească Neagră 2022 Detalii sec roșu Blaufrankisch 2021 Detalii sec roșu Pinot Noir 2022 Detalii sec roșu Merlot 2023 Detalii sec roșu Cabernet Sauvignon 2021 Detalii sec alb Mustoasă de Măderat 2023 Detalii sec alb Sauvignon Blanc &amp; Fetească Regală 2023 Detalii sec alb Sauvignon Blanc 2024 Detalii sec alb Riesling de Rhin 2023 Detalii dulce alb Tămâioasă Românească 2023 Detalii sec rosé Rosé Cadarca 2024 Detalii sec roșu Cadarca 2022 Detalii sec roșu Fetească Neagră 2022 Detalii sec roșu Blaufrankisch 2020 Detalii sec roșu Merlot 2022 Detalii sec roșu Cabernet Franc 2020 Detalii sec roșu Cabernet Sauvignon 2021 Detalii sec roșu Cabernet Sauvignon &amp; Cabernet Franc 2021 Detalii sec roșu Syrah 2019 Detalii sec alb Furmint 2022 Detalii sec alb Chardonnay 2022 Detalii sec roșu Cadarca 2022 Detalii sec roșu Fetească Neagră 2022 Detalii sec roșu Blaufrankisch 2019 Detalii sec roșu Fetească Neagră &amp; Cabernet Franc 2021 Detalii sec roșu Cabernet Franc 2020 Detalii sec roșu Cabernet Sauvignon 2016 Detalii sec alb Frizzy 2025 Detalii sec rosé Rozzy 2024 Detalii brut, metoda traditionala alb Clarus Alb 2023 Detalii sec roșu Cadarca Reserve 2020 Detalii sec roșu Pinot Noir Reserve 2020 Detalii sec roșu Fetească Neagră Reserve 2020 Detalii sec roșu Merlot Reserve 2020 Detalii sec roșu Cuvée Reserve 2020 Detalii sec roșu Grand Cuvée Reserve 2020 Detalii sec roșu Aradinum Cuvée 2021 Detalii sec roșu David Cuvée 2015 Detalii dulce roșu Cadarissima 2023 Detalii Distilat din Mustoasa de Maderat 2021 Detalii Distilat din Muscat Ottonel 2021 Detalii Distilat din Tămâioasă Românească 2021 Detalii Distilat din Cadarcă 2021 Detalii Distilat din Fetească Neagră 2021 Detalii Distilat din Cabernet Franc 2021 Detalii Mustoasă de Măderat alb &sdot; sec Olfactiv vinul te invita la o plimbare prin viile inflorite de pe dealurile din Păuliș iar la gust are un corp plin, ușor mineral cu note de mere verzi, carcei de vita și un pic de ghimbir pe final. Categoria: Classic Soi: Mustoasă de Maderăt An de producție: 2024 Culoare: alb Tip: sec Al",
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Un vin roșu sec, cu structură potrivită pentru preparate consistente, este o alegere bună pentru sarmale.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:07:33.630Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Mici",
+          "category": "grilled_meat",
+          "note": "Un vin roșu sec este o alegere potrivită pentru mici și alte preparate consistente la grătar.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:07:33.630Z",
+          "curatedBy": "admin",
+          "family": "grilled-mince"
+        },
+        {
+          "dish": "Branzeturi maturate",
+          "category": "cheese",
+          "note": "Vinul roșu sec se potrivește bine cu brânzeturile maturate.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:07:33.630Z",
+          "curatedBy": "admin",
+          "family": "aged-cheese"
+        }
+      ],
+      "valueScore": 72,
+      "giftScore": 64,
+      "foodMatchScore": 84
+    },
+    {
+      "slug": "balla-geza-frizzy-2025-vin-perlant",
+      "name": "Frizzy",
+      "winery": "Balla Geza",
+      "winerySlug": "balla-geza",
+      "vintage": 2025,
+      "type": "sparkling",
+      "sweetness": "sec",
+      "grapes": [
+        "Muscat Ottonel",
+        "Tămâioasă Românească",
+        "Traminer",
+        "Mustoasă de Măderat"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Aperitive",
+          "category": "vegetable",
+          "note": "Un spumant sec și ușor este o alegere potrivită pentru aperitive.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:03:50.827Z",
+          "curatedBy": "admin",
+          "family": "starter"
+        },
+        {
+          "dish": "Fructe de mare",
+          "category": "fish",
+          "note": "Stilul spumant și sec îl face o alegere potrivită pentru fructe de mare.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T18:03:50.827Z",
+          "curatedBy": "admin",
+          "family": "seafood"
+        }
+      ],
+      "valueScore": 69,
+      "giftScore": 64,
+      "foodMatchScore": 74
+    },
+    {
+      "slug": "balla-geza-feteasca-neagra-reserve-2020-editie-limitata",
+      "name": "Fetească Neagră Reserve",
+      "winery": "Balla Geza",
+      "winerySlug": "balla-geza",
+      "vintage": 2020,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Neagră"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Un vin roșu sec se potrivește bine cu sarmale și alte preparate consistente.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T19:06:46.693Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Mici",
+          "category": "grilled_meat",
+          "note": "Un vin roșu sec este o alegere potrivită pentru mici și alte preparate la grătar.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T19:06:46.693Z",
+          "curatedBy": "admin",
+          "family": "grilled-mince"
+        },
+        {
+          "dish": "Branzeturi maturate",
+          "category": "cheese",
+          "note": "Brânzeturile maturate se potrivesc foarte bine cu un vin roșu sec.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T19:06:46.693Z",
+          "curatedBy": "admin",
+          "family": "aged-cheese"
+        }
+      ],
+      "valueScore": 68,
+      "giftScore": 64,
+      "foodMatchScore": 84
+    },
+    {
+      "slug": "budureasca-clasic-fume-demisec-2025",
+      "name": "Clasic FUME Demisec",
+      "winery": "Budureasca",
+      "winerySlug": "budureasca",
+      "vintage": 2025,
+      "type": "white",
+      "sweetness": "demisec",
+      "grapes": [
+        "Chardonnay",
+        "Sauvignon Blanc",
+        "Fetească Regală",
+        "Pinot Gris"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Hamsii prăjite",
+          "category": "fish",
+          "note": "Hamsiile prăjite, servite simplu cu lămâie, se potrivesc foarte bine cu un alb demisec din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:05:18.220Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Ciulama de pui cu mămăligă",
+          "category": "poultry",
+          "note": "Ciulamaua de pui cu mămăligă se potrivește bine cu un alb demisec, fără să ceară un vin greu.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:05:18.220Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Telemea de capră",
+          "category": "cheese",
+          "note": "Telemeaua de capră se potrivește foarte bine cu un alb demisec, mai ales servită simplu, cu pâine și legume proaspete.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:05:18.220Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 72,
+      "giftScore": 64,
+      "foodMatchScore": 87
+    },
+    {
+      "slug": "budureasca-clasic-feteasca-neagra-sec-2021",
+      "name": "Clasic Fetească Neagră Sec",
+      "winery": "Budureasca",
+      "winerySlug": "budureasca",
+      "vintage": 2021,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Neagră"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Tochitura moldoveneasca",
+          "category": "grilled_meat",
+          "note": "Feteasca Neagră se potrivește foarte bine cu tochitura moldovenească, un preparat bogat și intens.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "technical_data",
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:41:34.562Z",
+          "curatedBy": "admin",
+          "family": "rich-pork-stew"
+        },
+        {
+          "dish": "Varza a la Cluj",
+          "category": "sarmale",
+          "note": "Un vin roșu sec este o alegere foarte bună pentru varză à la Cluj și aromele consistente ale preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:41:34.562Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Pastrama de oaie",
+          "category": "festive_traditional",
+          "note": "Feteasca Neagră este o alegere excelentă lângă pastramă de oaie, mai ales servită cu mămăligă.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:41:34.562Z",
+          "curatedBy": "admin",
+          "family": "cured-lamb"
+        },
+        {
+          "dish": "Rata pe varza",
+          "category": "poultry",
+          "note": "Un vin roșu sec se potrivește foarte bine cu rață pe varză, un preparat bogat care cere un vin cu suficientă prezență.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:41:34.562Z",
+          "curatedBy": "admin",
+          "family": "duck"
+        }
+      ],
+      "valueScore": 76,
+      "giftScore": 64,
+      "foodMatchScore": 80
+    },
+    {
+      "slug": "budureasca-exuberant-rose-demisec-screw-cap-2023",
+      "name": "Exuberant Rosé Demisec (screw-cap)",
+      "winery": "Budureasca",
+      "winerySlug": "budureasca",
+      "vintage": 2023,
+      "type": "rose",
+      "sweetness": "demisec",
+      "grapes": [
+        "Fetească Neagră",
+        "Merlot",
+        "Pinot Noir"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Plachie de crap",
+          "category": "fish",
+          "note": "Plachia de crap, cu sosul ei bogat de ceapă și roșii, se potrivește foarte bine cu un rosé demisec din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T18:27:51.429Z",
+          "curatedBy": "admin",
+          "family": "delta-fish"
+        },
+        {
+          "dish": "Iepure la cuptor",
+          "category": "poultry",
+          "note": "Iepurele la cuptor se potrivește bine cu un rosé demisec din acest stil, fără să ceară un vin roșu greu.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T18:27:51.429Z",
+          "curatedBy": "admin",
+          "family": "rabbit"
+        },
+        {
+          "dish": "Ciulama de ciuperci",
+          "category": "vegetable",
+          "note": "Ciulamaua de ciuperci, cremoasă și aromată, se potrivește foarte bine cu un rosé demisec.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T18:27:51.429Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 72,
+      "giftScore": 64,
+      "foodMatchScore": 87
+    },
+    {
+      "slug": "budureasca-cuvee-regia-noir-demisec-dop-2022",
+      "name": "Cuvée Regia Noir Demisec (dop)",
+      "winery": "Budureasca",
+      "winerySlug": "budureasca",
+      "vintage": 2022,
+      "type": "red",
+      "sweetness": "demisec",
+      "grapes": [
+        "Fetească Neagră",
+        "Pinot Noir"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Un vin roșu demisec din Fetească Neagră și Pinot Noir se potrivește foarte bine cu sarmalele și gustul lor bogat.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:52:53.023Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Rata pe varza",
+          "category": "poultry",
+          "note": "Rața pe varză se potrivește foarte bine cu un vin roșu demisec, suficient de prezent pentru un preparat bogat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:52:53.023Z",
+          "curatedBy": "admin",
+          "family": "duck"
+        },
+        {
+          "dish": "Branza de burduf",
+          "category": "cheese",
+          "note": "Brânza de burduf, sărată și intensă, se potrivește bine cu un vin roșu demisec.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:52:53.023Z",
+          "curatedBy": "admin",
+          "family": "aged-cheese"
+        }
+      ],
+      "valueScore": 73,
+      "giftScore": 64,
+      "foodMatchScore": 96
+    },
+    {
+      "slug": "budureasca-cuvee-regia-noir-demisec-screw-cap-2023",
+      "name": "Cuvée Regia Noir Demisec (screw-cap)",
+      "winery": "Budureasca",
+      "winerySlug": "budureasca",
+      "vintage": 2023,
+      "type": "red",
+      "sweetness": "demisec",
+      "grapes": [
+        "Fetească Neagră",
+        "Pinot Noir"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Sarmalele se potrivesc foarte bine cu un roșu demisec din Fetească Neagră și Pinot Noir, mai ales prin caracterul bogat al preparatului.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T17:57:59.132Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Rață pe varză",
+          "category": "poultry",
+          "note": "Rața pe varză se potrivește foarte bine cu un roșu demisec, suficient de prezent pentru un preparat bogat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T17:57:59.132Z",
+          "curatedBy": "admin",
+          "family": "duck"
+        },
+        {
+          "dish": "Bulz cu brânză de burduf",
+          "category": "cheese",
+          "note": "Bulzul cu brânză de burduf este o alegere foarte bună lângă un roșu demisec, datorită gustului sărat și consistent al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T17:57:59.132Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 72,
+      "giftScore": 64,
+      "foodMatchScore": 97
+    },
+    {
+      "slug": "budureasca-cuvee-regia-rose-demisec-screw-cap-2023",
+      "name": "Cuvée Regia Rosé Demisec (screw-cap)",
+      "winery": "Budureasca",
+      "winerySlug": "budureasca",
+      "vintage": 2023,
+      "type": "rose",
+      "sweetness": "demisec",
+      "grapes": [
+        "Fetească Neagră",
+        "Merlot",
+        "Pinot Noir"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Plachie de crap",
+          "category": "fish",
+          "note": "Un rosé demisec este o alegere foarte bună pentru plachie de crap, mai ales datorită caracterului bogat și ușor dulce-acrișor al preparatului.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:58:48.181Z",
+          "curatedBy": "admin",
+          "family": "delta-fish"
+        },
+        {
+          "dish": "Pui la ceaun",
+          "category": "poultry",
+          "note": "Puiul la ceaun se potrivește bine cu un rosé demisec, mai ales când preparatul este rumenit și bine condimentat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:58:48.181Z",
+          "curatedBy": "admin",
+          "family": "chicken-rustic"
+        },
+        {
+          "dish": "Ciuperci cu mamaliga",
+          "category": "vegetable",
+          "note": "Ciupercile cu mămăligă sunt o alegere foarte potrivită pentru un rosé demisec, fără să ceară un vin greu.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T20:58:48.181Z",
+          "curatedBy": "admin",
+          "family": "mushroom"
+        }
+      ],
+      "valueScore": 73,
+      "giftScore": 64,
+      "foodMatchScore": 87
+    },
+    {
+      "slug": "budureasca-cuvee-regia-blanc-demisec-screw-cap-2023",
+      "name": "Cuvée Regia Blanc Demisec (screw-cap)",
+      "winery": "Budureasca",
+      "winerySlug": "budureasca",
+      "vintage": 2023,
+      "type": "white",
+      "sweetness": "demisec",
+      "grapes": [
+        "Sauvignon Blanc",
+        "Tămâioasă Românească",
+        "Fetească Regală"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Hamsii prăjite",
+          "category": "fish",
+          "note": "Hamsiile prăjite, servite cu lămâie, se potrivesc foarte bine cu un alb demisec dintr-un blend aromatic.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:08:18.331Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Ciulama de pui cu mămăligă",
+          "category": "poultry",
+          "note": "Ciulamaua de pui cu mămăligă se potrivește bine cu un alb demisec, mai ales alături de sosul cremos al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:08:18.331Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Telemea de capră",
+          "category": "cheese",
+          "note": "Telemeaua de capră, servită simplu cu roșii și pâine bună, este o alegere foarte potrivită pentru un alb demisec din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T21:08:18.331Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 72,
+      "giftScore": 64,
+      "foodMatchScore": 96
+    },
+    {
+      "slug": "crama-gabai-vin-roze-sec-miraz-roze-2021",
+      "name": "Vin Roze Sec – Miraz Roze",
+      "winery": "Crama Gabai",
+      "winerySlug": "crama-gabai",
+      "vintage": 2021,
+      "type": "rose",
+      "sweetness": "sec",
+      "grapes": [
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Pinot Noir"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": "Vin Roze Sec &#8211; Miraz Roze | Crama Gabai TRANSPORT GRATUIT LA COMENZI DE PESTE 400 RON LOGIN Str. Complexului nr. 30, Valu lui Traian, Constanța office@cramagabai.ro ACASĂ CRAMA GABAI POVESTE DEGUSTARE MAGAZIN CONTACT BLOG Din dragoste și pasiune pentru vin Vinurile Gabai Vin Roze Sec &#8211; Miraz Roze Roz- pastel moderat. Olfactiv agreabil și intens, cu fructe de pădure roșii seducătoare, cum ar fi coacăzele roșii, zmeură, o tuşă de rodie, voal floral de trandafiri și bujori proaspăt tăiați, cu o tentă citrică. Palatin proaspăt și crocant, suculent, de structură elegantă și digestă, încadrată de note de plante aromate și zesturi, postgustul este proaspăt, piperat, cu note coajă de grapefruit, fructe roșii mustoase și caracter floral. Foarte bun. Se apreciază timp de 1-2 ani cu salată de cicoare, piept de rață uscat si rodie sau un tartar de bonită. 78,00&nbsp; lei Garanție SGR (+0.50 lei) Cantitate Vin Roze Sec - Miraz Roze Adaugă în Coș Cod Produs: 0044 Categorii: Crama Gabai , Vinuri rose INFORMAȚII TRANSPORT DESPRE LIVRARE Crama Gabai vine în întâmpinarea iubitorilor de vinuri de calitate și vă oferă posibilitatea achiziționării vinurilor online. Partenerii nostri, pentru transportul în cele mai bune condiții ale vinului sunt cei de la Sameday, Urgent Cargus care asigură o livrare promptă și in siguranță a vinurilor noastre în orice colț al țării. &nbsp; DE CE SĂ COMANZI DE LA NOI? Livrare gratuită la comenzi ce depășesc 400 lei Transport în cutii securizate Plată online prin card Descriere Informații suplimentare Soi/Variety: Cabernet Sauvignon + Merlot + Pinot Noir Tip/Type: Vin Roze Sec/ Dry Rose Wine Apelatiune/Appellation: DOC-CMD MURFATLAR An recolta/Vintage: 2021 Alcool/Abv: 13% Volum/Volume: 750 ml A fi servit/To be served: Rece/ Chilled 7-10 °C Limited #5520 bottles Informații suplimentare Greutate 1,5 kg Produse similare Vin Alb Sec &#8211; Riesling Italian 50,00&nbsp; lei Vin Rose Sec &#8211; Pinot Rose 55,00&nbsp; lei Vin Alb DemiSec &#8211; Riesling Italian 50,00&nbsp; lei Vin Rosu Sec &#8211; MERLOT Oak Cask 140,00&nbsp; lei COMANDĂ UN VIN PREMIUM COMANDĂ Crama Gabai s-a născut din dragoste pentru vinul de calitate. Binecuvântați de Dumnezeu cu pământ bun și roditor, cu soare cald și suflet curat, vrem să vă facem părtași la frumusețea și zestrea meleagurilor dobrogene, transpuse în savoarea unui pahar de vin de la Crama Gabai . DESPRE POVESTE CRAMA GABAI DEGUSTARE CONTACT INFORMATII MAGAZIN GDPR TERMENI CUM COMAND ? JURIDIC ANPC SA",
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Pui la ceaun cu pâine de casă",
+          "category": "poultry",
+          "note": "Puiul la ceaun, servit cu pâine de casă, se potrivește foarte bine cu un rosé sec din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:29:07.758Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Plachie de crap",
+          "category": "fish",
+          "note": "Plachia de crap, cu sosul ei bogat de ceapă și roșii, se potrivește foarte bine cu un rosé sec din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:29:07.758Z",
+          "curatedBy": "admin",
+          "family": "delta-fish"
+        },
+        {
+          "dish": "Mamaliga cu branza si smantana",
+          "category": "cheese",
+          "note": "Mamaliga cu branza si smantana aduce sare si grasime, iar un roze sec din acest stil le poate echilibra fara sa le acopere.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:29:07.758Z",
+          "curatedBy": "admin",
+          "family": "mountain-cheese"
+        },
+        {
+          "dish": "Ciulama de ciuperci",
+          "category": "vegetable",
+          "note": "Ciulamaua de ciuperci se potrivește bine cu un rosé sec, mai ales prin textura cremoasă și gustul delicat al preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:29:07.758Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 78,
+      "giftScore": 64,
+      "foodMatchScore": 74
+    },
+    {
+      "slug": "crama-gabai-vin-alb-sec-miraz-alb-2021",
+      "name": "Vin Alb Sec – Miraz Alb",
+      "winery": "Crama Gabai",
+      "winerySlug": "crama-gabai",
+      "vintage": 2021,
+      "type": "white",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Albă",
+        "Riesling Italian",
+        "Muscat Ottonel",
+        "Chardonnay"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Ciulama de pui",
+          "category": "poultry",
+          "note": "Ciulamaua de pui, cu sosul ei cremos, se potrivește foarte bine cu un vin alb sec din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T18:29:34.922Z",
+          "curatedBy": "admin",
+          "family": "chicken-cream"
+        },
+        {
+          "dish": "Plachie de crap",
+          "category": "fish",
+          "note": "Plachia de crap, cu ceapă și sos de roșii, este o alegere interesantă pentru un alb sec din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T18:29:34.922Z",
+          "curatedBy": "admin",
+          "family": "delta-fish"
+        },
+        {
+          "dish": "Mămăligă cu brânză și smântână",
+          "category": "cheese",
+          "note": "Mămăliga cu brânză și smântână se potrivește foarte bine cu un alb sec, mai ales prin combinația sărată și cremoasă a preparatului.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T18:29:34.922Z",
+          "curatedBy": "admin",
+          "family": "mountain-cheese"
+        }
+      ],
+      "valueScore": 65,
+      "giftScore": 60,
+      "foodMatchScore": 80
+    },
+    {
+      "slug": "crama-gabai-vin-alb-sec-feteasca-alba-2019",
+      "name": "Vin Alb Sec – Fetească Albă",
+      "winery": "Crama Gabai",
+      "winerySlug": "crama-gabai",
+      "vintage": 2019,
+      "type": "white",
+      "sweetness": "sec",
+      "grapes": [
+        "Fetească Albă"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Pastrav la gratar cu mamaliga",
+          "category": "grilled_fish",
+          "note": "Pastrav la gratar cu mamaliga este una dintre cele mai interesante alegeri romanesti pentru un alb sec din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:33:19.504Z",
+          "curatedBy": "admin",
+          "family": "trout"
+        },
+        {
+          "dish": "Salată de icre de știucă",
+          "category": "fish",
+          "note": "Salata de icre de știucă, servită cu pâine prăjită, se potrivește foarte bine cu un vin alb sec din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:33:19.504Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Ciulama de pui",
+          "category": "poultry",
+          "note": "Ciulamaua de pui, cu sosul ei cremos, se potrivește foarte bine cu un alb sec din acest stil.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:33:19.504Z",
+          "curatedBy": "admin",
+          "family": "chicken-cream"
+        },
+        {
+          "dish": "Salată de vinete cu pâine de casă",
+          "category": "vegetable",
+          "note": "Salata de vinete cu pâine de casă se potrivește foarte bine cu un alb sec, mai ales ca aperitiv.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:33:19.504Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 67,
+      "giftScore": 60,
+      "foodMatchScore": 74
+    },
+    {
+      "slug": "murfatlar-sable-noble-rosu",
+      "name": "Sable Noble Roșu",
+      "winery": "Murfatlar",
+      "winerySlug": "murfatlar",
+      "vintage": null,
+      "type": "red",
+      "sweetness": "sec",
+      "grapes": [
+        "Merlot",
+        "Cabernet Sauvignon",
+        "Fetească Neagră"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Sarmale",
+          "category": "sarmale",
+          "note": "Sarmalele se potrivesc foarte bine cu un roșu sec din Merlot, Cabernet Sauvignon și Fetească Neagră, mai ales prin caracterul bogat al preparatului.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T16:24:25.501Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        },
+        {
+          "dish": "Rata pe varza",
+          "category": "poultry",
+          "note": "Rața pe varză este o alegere foarte bună pentru un vin roșu sec din acest stil, suficient de prezent pentru un preparat bogat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T16:24:25.501Z",
+          "curatedBy": "admin",
+          "family": "duck"
+        },
+        {
+          "dish": "Friptură de vită la cuptor",
+          "category": "beef",
+          "note": "Merlot in amestec este un stil de rosu care poate sta bine langa friptura de vita.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T16:24:25.501Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Brânză de burduf cu pâine de casă",
+          "category": "cheese",
+          "note": "Brânza de burduf, servită cu pâine de casă, se potrivește foarte bine cu un vin roșu sec, mai ales prin gustul intens și sărat.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-17T16:24:25.501Z",
+          "curatedBy": "admin",
+          "family": null
+        }
+      ],
+      "valueScore": 68,
+      "giftScore": 64,
+      "foodMatchScore": 80
+    },
+    {
+      "slug": "murfatlar-sable-noble-roze",
+      "name": "Sable Noble Roze",
+      "winery": "Murfatlar",
+      "winerySlug": "murfatlar",
+      "vintage": null,
+      "type": "rose",
+      "sweetness": "sec",
+      "grapes": [
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Fetească Neagră"
+      ],
+      "inFirstBatch": true,
+      "producerCulinary": null,
+      "producerTasting": null,
+      "foodEvidence": [],
+      "pairings": [
+        {
+          "dish": "Pui la ceaun cu pâine de casă",
+          "category": "poultry",
+          "note": "Puiul la ceaun, servit cu pâine de casă, se potrivește foarte bine cu un rosé sec din acest stil.",
+          "strength": "strong",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:36:08.528Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Plachie de crap",
+          "category": "fish",
+          "note": "Plachia de crap, cu sosul ei bogat de ceapă și roșii, se potrivește foarte bine cu un rosé sec.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:36:08.528Z",
+          "curatedBy": "admin",
+          "family": "delta-fish"
+        },
+        {
+          "dish": "Ciulama de ciuperci",
+          "category": "vegetable",
+          "note": "Ciulamaua de ciuperci, cremoasă și aromată, se potrivește foarte bine cu un rosé sec, fără să ceară un vin greu.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:36:08.528Z",
+          "curatedBy": "admin",
+          "family": null
+        },
+        {
+          "dish": "Sarmale de post",
+          "category": "sarmale",
+          "note": "Sarmalele de post, cu orez, legume și verdețuri, sunt o alegere foarte bună pentru un rosé sec.",
+          "strength": "good",
+          "source": "vinintel_curated",
+          "basis": [
+            "verified_style",
+            "editorial_judgment"
+          ],
+          "curatedAt": "2026-08-16T22:36:08.528Z",
+          "curatedBy": "admin",
+          "family": "cabbage-roll"
+        }
+      ],
+      "valueScore": 69,
+      "giftScore": 64,
+      "foodMatchScore": 74
+    }
+  ]
+}

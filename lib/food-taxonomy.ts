@@ -3,6 +3,7 @@
  * Folosita de Food Versatility, dish match, Occasion Match si /vin-pentru.
  * Nu este o ontologie completa: doar categorii necesare catalogului actual.
  */
+import { foldRomanianText } from "@/lib/pairing/romanian-text";
 
 export const FOOD_CATEGORY_IDS = [
   "sarmale",
@@ -43,11 +44,13 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
       "sarmalute",
       "varza a la cluj",
       "sarmale de post",
+      "sarmale in foi de vita",
+      "sarmale clasice",
     ],
   },
   {
     id: "grilled_meat",
-    label: "Carne la gratar",
+    label: "Carne la grătar",
     synonyms: [
       "carne la gratar",
       "carne rosie la gratar",
@@ -65,7 +68,7 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   },
   {
     id: "grilled_fish",
-    label: "Peste la gratar",
+    label: "Pește la grătar",
     synonyms: [
       "peste la gratar",
       "peste grill",
@@ -80,7 +83,7 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   },
   {
     id: "grilled_vegetable",
-    label: "Legume la gratar",
+    label: "Legume la grătar",
     synonyms: ["legume la gratar", "legume grill", "salata la gratar"],
   },
   {
@@ -96,16 +99,20 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
       "fasole cu ciolan",
       "carnati afumati cu mamaliga",
       "pomana porcului",
+      "chiftele",
+      "parjoale",
+      "piftie de porc",
+      "tocana de porc cu prune",
     ],
   },
   {
     id: "beef",
-    label: "Vita",
+    label: "Vită",
     synonyms: ["vita", "steak", "antricot", "vita la gratar", "friptura de vita"],
   },
   {
     id: "poultry",
-    label: "Pasare",
+    label: "Pasăre",
     synonyms: [
       "pui",
       "rata",
@@ -119,11 +126,13 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
       "iepure la cuptor",
       "tocana de iepure",
       "iepure",
+      "piept de rata",
+      "piftie de curcan",
     ],
   },
   {
     id: "game",
-    label: "Vanat",
+    label: "Vânat",
     synonyms: [
       "vanat",
       "carne de vanat",
@@ -140,7 +149,7 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   },
   {
     id: "fish",
-    label: "Peste",
+    label: "Pește",
     synonyms: [
       "peste",
       "peste alb",
@@ -162,12 +171,15 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   },
   {
     id: "cheese",
-    label: "Branza",
+    label: "Brânză",
     synonyms: [
       "branza",
       "branzeturi",
       "cascaval",
       "telemea",
+      "telemea de capra",
+      "telemea de oaie",
+      "telemea de vaca",
       "branza matura",
       "branzeturi maturate",
       "branzeturi proaspete",
@@ -230,12 +242,12 @@ export const FOOD_CATEGORIES: FoodCategoryDefinition[] = [
   },
   {
     id: "chocolate",
-    label: "Ciocolata",
+    label: "Ciocolată",
     synonyms: ["ciocolata", "chocolate"],
   },
   {
     id: "festive_traditional",
-    label: "Masa festiva",
+    label: "Masă festivă",
     synonyms: [
       "masa festiva",
       "sarbatori",
@@ -257,13 +269,7 @@ const CATEGORY_BY_ID = new Map(
 );
 
 export function normalizeFoodToken(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return foldRomanianText(value);
 }
 
 function findBoundedIndexes(haystack: string, needle: string): number[] {

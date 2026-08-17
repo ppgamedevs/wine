@@ -162,6 +162,13 @@
       "when": 1784029821361,
       "tag": "0023_outgoing_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1784300000000,
+      "tag": "0024_pairing_curation_events",
+      "breakpoints": true
     }
   ]
 }

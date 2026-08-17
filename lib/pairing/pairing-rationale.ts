@@ -11,70 +11,73 @@ function grapeMention(profile: WinePairingProfile): string | null {
   return `${first} in amestec`;
 }
 
+function styleLabel(profile: WinePairingProfile): string {
+  if (profile.type === "red") return "rosu";
+  if (profile.type === "white") return "alb";
+  if (profile.type === "rose") return "roze";
+  if (profile.type === "sparkling") return "spumant";
+  if (profile.type === "orange") return "orange";
+  return "de desert";
+}
+
+function sweetLabel(profile: WinePairingProfile): string {
+  if (profile.sweetness === "sec") return "sec";
+  if (profile.sweetness === "demisec") return "demisec";
+  if (profile.sweetness === "demidulce") return "demidulce";
+  return "dulce";
+}
+
 export function pairingRationale(
   profile: WinePairingProfile,
   dish: RomanianDishProfile,
   exactProducer: boolean,
 ): string {
   const grape = grapeMention(profile);
-  const style =
-    profile.type === "red"
-      ? "rosu"
-      : profile.type === "white"
-        ? "alb"
-        : profile.type === "rose"
-          ? "roze"
-          : profile.type === "sparkling"
-            ? "spumant"
-            : profile.type === "orange"
-              ? "orange"
-              : "de desert";
-  const sweet =
-    profile.sweetness === "sec"
-      ? "sec"
-      : profile.sweetness === "demisec"
-        ? "demisec"
-        : profile.sweetness === "demidulce"
-          ? "demidulce"
-          : "dulce";
+  const style = styleLabel(profile);
+  const sweet = sweetLabel(profile);
+  const dishName = dish.name;
 
   if (exactProducer) {
-    return `Producatorul mentioneaza acest tip de preparat, iar ${dish.name.toLowerCase()} ramane o alegere fireasca de verificat la masa.`;
+    return `${dishName} este recomandat de producator si se potriveste foarte bine cu un ${style} ${sweet} din acest stil.`;
   }
 
   if (dish.foodCategory === "dessert" || dish.foodCategory === "chocolate") {
-    return `${dish.name} cere un vin cu dulceata, iar un ${style} ${sweet} din acest stil poate tine pasul cu desertul.`;
+    return `${dishName} cere un vin cu dulceata, iar un ${style} ${sweet} poate tine pasul cu desertul.`;
+  }
+
+  if (dish.family === "sour-soup") {
+    return `${dishName} are aciditate de ciorba, iar un ${style} ${sweet} mai proaspat este o alegere mai fireasca decat un vin greu.`;
   }
 
   if (dish.protein === "duck") {
-    return `Merge foarte bine langa ${dish.name.toLowerCase()}, unde un ${style} ${sweet} poate tine pasul cu preparatul bogat.`;
+    return `Merge foarte bine langa ${dishName.toLowerCase()}, unde un ${style} ${sweet} poate tine pasul cu preparatul bogat.`;
   }
   if (dish.protein === "rabbit") {
-    return `Pentru ${dish.name.toLowerCase()}, un ${style} ${sweet} mai fin este o alegere mai fireasca decat un vin greu.`;
+    return `Pentru ${dishName.toLowerCase()}, un ${style} ${sweet} mai fin este o alegere mai fireasca decat un vin greu.`;
   }
-  if (dish.family === "delta-fish" || dish.family === "trout") {
-    return `${dish.name} este una dintre cele mai interesante alegeri romanesti pentru un ${style} ${sweet} din acest stil.`;
+  if (dish.family === "delta-fish" || dish.family === "trout" || dish.family === "pikeperch") {
+    return `${dishName} este o alegere foarte buna pentru un ${style} ${sweet} din acest stil.`;
   }
-  if (dish.family === "roe" || dish.family === "cheese-pie") {
-    return `${dish.name} functioneaza ca un inceput romanesc clar, mai ales langa un ${style} ${sweet} cu energie.`;
+  if (dish.family === "roe" || dish.family === "roe-carp" || dish.family === "roe-pike" || dish.family === "cheese-pie") {
+    return `${dishName} se potriveste foarte bine ca inceput de masa langa un ${style} ${sweet}.`;
   }
   if (dish.family === "smoked-pork") {
-    return `Un ${style} ${sweet} mai consistent poate sta langa ${dish.name.toLowerCase()}, unde fumul si sarea cer un vin cu prezenta.`;
+    return `Un ${style} ${sweet} mai consistent poate sta langa ${dishName.toLowerCase()}, unde fumul si sarea cer un vin cu prezenta.`;
   }
   if (dish.family === "mountain-cheese" || dish.family === "aged-cheese") {
-    return `${dish.name} aduce sare si grasime, iar un ${style} ${sweet} din acest stil le poate echilibra fara sa le acopere.`;
+    return `${dishName} aduce sare si grasime, iar un ${style} ${sweet} din acest stil le poate echilibra fara sa le acopere.`;
   }
-  if (dish.family === "cabbage-roll") {
-    return `${dish.name} este o masa romaneasca clasica pentru un ${style} ${sweet}, cu destula prezenta pentru varza si umplutura.`;
+  if (dish.family === "cabbage-roll" || dish.family === "vine-leaf-roll") {
+    return `${dishName} este o masa romaneasca clasica pentru un ${style} ${sweet}, cu destula prezenta pentru umplutura.`;
   }
   if (dish.foodCategory === "vegetable") {
-    return `Pentru ${dish.name.toLowerCase()}, un ${style} ${sweet} este o alegere mai fireasca decat un vin greu.`;
+    return `Pentru ${dishName.toLowerCase()}, un ${style} ${sweet} este o alegere mai fireasca decat un vin greu.`;
   }
   if (grape && profile.type === "red") {
-    return `${grape} este un stil de rosu care poate sta bine langa ${dish.name.toLowerCase()}.`;
+    return `${grape} se potriveste foarte bine cu ${dishName.toLowerCase()}.`;
   }
   if (grape && (profile.type === "white" || profile.type === "sparkling")) {
-    return `Un ${style} ${sweet} din zona ${grape} se potriveste natural cu ${dish.name.toLowerCase()}.`;
+    return `Un ${style} ${sweet} din ${grape} merge foarte bine langa ${dishName.toLowerCase()}.`;
   }
-  return `Un ${style} ${sweet} din acest stil poate merge bine langa ${dish.name.toLowerCase()}.`;
+  return `Un ${style} ${sweet} din acest stil este o alegere foarte buna pentru ${dishName.toLowerCase()}.`;
 }

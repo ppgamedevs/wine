@@ -87,6 +87,7 @@ export function isExactOrNearExactProducerMention(
   if (mentionWords.length < 2) return false;
   return names.some((name) => {
     const dishWords = mentionTokens(name);
+    if (dishWords.length === 0) return false;
     return (
       mentionWords.every((word) => dishWords.includes(word)) ||
       dishWords.every((word) => mentionWords.includes(word))

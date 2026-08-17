@@ -39,6 +39,9 @@ export interface FoodPairing {
   curatedBy?: string;
   basis?: FoodPairingBasis[];
   strength?: FoodPairingStrength;
+  /** Stable Romanian dish identity. Optional; existing pairings may omit it. */
+  dishId?: string;
+  servingVariantId?: string;
 }
 
 export interface AvailabilityEntry {
@@ -906,6 +909,56 @@ export const scoreOverridesRelations = relations(
       references: [wines.id],
     }),
   }),
+);
+
+export type PairingCurationEventAction =
+  | "approved"
+  | "approved_after_edit"
+  | "rejected"
+  | "skipped_wine"
+  | "review_later";
+
+/**
+ * Append-only curation feedback. Never writes Value/Gift/Food scores.
+ */
+export const pairingCurationEvents = sqliteTable(
+  "pairing_curation_events",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    wineSlug: text("wine_slug").notNull(),
+    proposedDishId: text("proposed_dish_id"),
+    proposedDish: text("proposed_dish"),
+    proposedRationale: text("proposed_rationale"),
+    proposedStrength: text("proposed_strength"),
+    proposedBasis: text("proposed_basis", { mode: "json" }).$type<FoodPairingBasis[] | null>(),
+    action: text("action", {
+      enum: [
+        "approved",
+        "approved_after_edit",
+        "rejected",
+        "skipped_wine",
+        "review_later",
+      ],
+    }).notNull(),
+    finalDishId: text("final_dish_id"),
+    finalDish: text("final_dish"),
+    finalRationale: text("final_rationale"),
+    finalStrength: text("final_strength"),
+    finalBasis: text("final_basis", { mode: "json" }).$type<FoodPairingBasis[] | null>(),
+    reviewer: text("reviewer").notNull().default("admin"),
+    generatorVersion: integer("generator_version"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("pairing_curation_events_wine_idx").on(table.wineId),
+    index("pairing_curation_events_slug_idx").on(table.wineSlug),
+    index("pairing_curation_events_created_idx").on(table.createdAt),
+  ],
 );
 
 export const usersRelations = relations(users, ({ many }) => ({

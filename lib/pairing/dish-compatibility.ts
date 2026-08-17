@@ -148,8 +148,26 @@ export function scoreDishCompatibility(
     score -= 6;
   }
 
+  if (dish.family === "sour-soup" || dish.sour || dish.acidity >= 4) {
+    if (profile.type === "red" && profile.intensity >= 4) score -= 14;
+    if (profile.type === "red" && (profile.alcohol ?? 0) >= 13.5) score -= 6;
+    if (profile.type === "white" || profile.type === "sparkling") score += 8;
+    if (profile.type === "rose" && dish.smoke >= 4) score += 4;
+  }
+
+  if (dish.family === "aspic-turkey") {
+    if (profile.type === "sparkling" || profile.type === "white") score += 8;
+    if (profile.type === "red" && profile.intensity >= 4) score -= 10;
+  }
+  if (dish.family === "aspic-pork" && profile.type === "red") score += 3;
+
+  if (dish.family === "tomato-meatball" && profile.type === "white") score -= 6;
+  if (dish.family === "fried-meatball" && profile.type === "white") score += 2;
+
   if (exactProducer) score += 18;
   else if (categoryProducer) score += 7;
+
+  score += (dish.specificity ?? 2) - 2;
 
   if (dish.romanian) score += 3 + dish.discoveryValue * 0.7;
   else score -= 4;

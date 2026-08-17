@@ -21,4 +21,6 @@ export interface PairingDraft {
   romanianDiscovery?: boolean;
   romanianRegion?: string | null;
   producerProvenanceClass?: ProducerProvenanceClass;
+  originalDish?: string;
+  originalRationale?: string;
 }

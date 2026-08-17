@@ -14,9 +14,11 @@ import {
   applyProducerProvenanceToDraft,
   classifyProducerProvenance,
 } from "@/lib/pairing/producer-provenance";
+import { goldenSpecificityPrior } from "@/lib/pairing/golden-curation-dataset";
 import {
   findRomanianDishByName,
   ROMANIAN_DISHES,
+  ROMANIAN_PAIRING_GENERATOR_VERSION,
 } from "@/lib/pairing/romanian-dishes";
 import { buildWinePairingProfile } from "@/lib/pairing/wine-pairing-profile";
 import type { FoodPairingBasis, FoodPairingStrength } from "@/lib/schema";
@@ -24,6 +26,8 @@ import type { WineWithRelations } from "@/types";
 
 export const INSUFFICIENT_PAIRING_DATA_MESSAGE =
   "Nu avem suficiente date pentru a propune patru asocieri bune.";
+
+export { ROMANIAN_PAIRING_GENERATOR_VERSION };
 
 export function generateRomanianPairingDrafts(
   wine: WineWithRelations,
@@ -58,8 +62,23 @@ export function generateRomanianPairingDrafts(
         return existing?.family === row.dish.family;
       });
     })
+    .map((row) => {
+      let score = row.score;
+      if (row.exactProducer) score += 6;
+      score += goldenSpecificityPrior(row.dish.id);
+      if (
+        (row.dish.family === "sour-soup" || row.dish.family === "smoked-soup") &&
+        !row.exactProducer
+      ) {
+        score -= 8;
+      }
+      return { ...row, score };
+    })
     .sort((left, right) => {
       if (right.score !== left.score) return right.score - left.score;
+      const leftSpecific = left.dish.specificity ?? 2;
+      const rightSpecific = right.dish.specificity ?? 2;
+      if (rightSpecific !== leftSpecific) return rightSpecific - leftSpecific;
       return left.dish.id.localeCompare(right.dish.id);
     });
 

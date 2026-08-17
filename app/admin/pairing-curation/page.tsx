@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { normalizeWineRows } from "@/lib/normalize-wine";
 import { buildCurationCard } from "@/lib/pairing-curation-cards";
 import { selectBalancedCurationBatch } from "@/lib/pairing-curation";
+import { pendingReviewSlugs } from "@/lib/pairing-curation-review";
 import { wines } from "@/lib/schema";
 import type { WineWithRelations } from "@/types";
 
@@ -32,8 +33,11 @@ export default async function AdminPairingCurationPage({
   const catalog = normalizeWineRows(rows as WineWithRelations[]);
   const batch = selectBalancedCurationBatch(catalog, 30);
   const cards = batch.map(buildCurationCard);
+  const pending = pendingReviewSlugs(cards, []);
   const currentSlug =
-    slug && cards.some((card) => card.slug === slug) ? slug : cards[0]?.slug;
+    slug && cards.some((card) => card.slug === slug)
+      ? slug
+      : pending[0] ?? cards[0]?.slug;
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-6 py-10">

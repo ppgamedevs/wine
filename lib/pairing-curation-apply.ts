@@ -19,6 +19,11 @@ import type { FoodCategoryId } from "@/lib/food-taxonomy";
 import { normalizeWineRows } from "@/lib/normalize-wine";
 import type { FoodPairing } from "@/lib/schema";
 import type { WineWithRelations } from "@/types";
+import {
+  curationEventFromApproval,
+  recordCurationEvents,
+} from "@/lib/pairing/curation-events";
+import { mapDishToCanonical } from "@/lib/pairing/dish-canonicalize";
 
 export async function approveCuratedPairingsForWine(input: {
   wineId: number;
@@ -62,6 +67,25 @@ export async function approveCuratedPairingsForWine(input: {
   const nextPairings = toApprovedFoodPairings(drafts, wine.foodPairings);
   const patch = buildCurationWritePatch(nextPairings);
   await db.update(wines).set(patch).where(eq(wines.id, wine.id));
+  await recordCurationEvents(
+    drafts.map((draft) => {
+      const mapped = mapDishToCanonical(draft.dish);
+      return curationEventFromApproval({
+        wineId: wine.id,
+        wineSlug: wine.slug,
+        proposedDish: draft.originalDish ?? draft.dish,
+        proposedRationale: draft.originalRationale ?? draft.rationale,
+        proposedStrength: draft.strength,
+        proposedBasis: draft.basis,
+        finalDish: draft.dish,
+        finalRationale: draft.rationale,
+        finalStrength: draft.strength,
+        finalBasis: draft.basis,
+        proposedDishId: draft.dishId ?? mapped.dishId,
+        finalDishId: draft.dishId ?? mapped.dishId,
+      });
+    }),
+  );
   return {
     slug: wine.slug,
     wineName: wine.name,

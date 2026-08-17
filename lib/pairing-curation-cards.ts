@@ -10,6 +10,10 @@ import {
   resolveFoodCategoryForDish,
 } from "@/lib/pairing-curation-match";
 import { INSUFFICIENT_PAIRING_DATA_MESSAGE } from "@/lib/pairing/generate-romanian-drafts";
+import {
+  displayProducerCulinary,
+  uniqueProducerExcerpts,
+} from "@/lib/pairing/producer-evidence-display";
 import type { WineWithRelations } from "@/types";
 
 export interface ProducerClaimView {
@@ -37,6 +41,7 @@ export interface CurationCard {
   acidity: number | null;
   sugar: number | null;
   producerCulinary: string | null;
+  producerCulinaryLabel: string;
   producerClaims: ProducerClaimView[];
   existingPairings: Array<{
     dish: string;
@@ -58,6 +63,9 @@ export function buildCurationCard(wine: WineWithRelations): CurationCard {
   const drafts = generatePairingDrafts(wine);
   const { newDrafts } = partitionPairingDrafts(drafts, wine.foodPairings);
   const issues = validatePairingDrafts(wine, newDrafts);
+  const producerDisplay = displayProducerCulinary(
+    wine.producerContent?.culinaryPairings,
+  );
   return {
     id: wine.id,
     slug: wine.slug,
@@ -73,14 +81,22 @@ export function buildCurationCard(wine: WineWithRelations): CurationCard {
     alcohol: wine.alcohol,
     acidity: wine.acidity,
     sugar: wine.sugar,
-    producerCulinary: wine.producerContent?.culinaryPairings ?? null,
-    producerClaims: (wine.producerContent?.foodEvidence ?? []).map((claim) => ({
-      dish: claim.dish,
-      category: claim.category,
-      excerpt: claim.excerpt,
-      sourceUrl: claim.sourceUrl ?? null,
-      sourceType: claim.sourceType,
-      confidence: claim.confidence,
+    producerCulinary: producerDisplay.text || null,
+    producerCulinaryLabel: producerDisplay.textClassLabel,
+    producerClaims: uniqueProducerExcerpts(
+      (wine.producerContent?.foodEvidence ?? []).map((claim) => ({
+        dish: claim.dish,
+        category: claim.category,
+        excerpt: claim.excerpt,
+        sourceUrl: claim.sourceUrl ?? null,
+      })),
+    ).map((item) => ({
+      dish: item.dishes.join(", "),
+      category: item.categories.join(", "),
+      excerpt: item.excerpt,
+      sourceUrl: item.sourceUrl,
+      sourceType: item.textClassLabel,
+      confidence: 0,
     })),
     existingPairings: wine.foodPairings.map((pairing) => ({
       dish: pairing.dish,

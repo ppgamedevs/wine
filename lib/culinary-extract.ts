@@ -53,8 +53,13 @@ const CHROME_BODY_PATTERNS: RegExp[] = [
   /toate drepturile rezervate/i,
   /copyright\s+\d{4}/i,
   /politica de confidentialitate/i,
+  /politica de cookies/i,
+  /privacy policy/i,
+  /terms and conditions/i,
+  /termeni si conditii/i,
   /folosim cookie/i,
   /foloseste cookies/i,
+  /this site uses cookies/i,
   /adauga in cos/i,
   /produse similare/i,
   /you may also like/i,
@@ -63,7 +68,14 @@ const CHROME_BODY_PATTERNS: RegExp[] = [
   /follow us/i,
   /manage consent/i,
   /cookieuri necesare/i,
+  /preferinte cookies/i,
+  /accepta cookies/i,
   /consumul responsabil/i,
+  /google analytics/i,
+  /gdpr/i,
+  /meniu principal/i,
+  /contacteaza-ne/i,
+  /politica cookies/i,
 ];
 
 const CULINARY_STOP_PATTERNS: RegExp[] = [
@@ -148,7 +160,13 @@ export function sanitizeCulinaryText(text: string | null | undefined): string {
 
 export function isCulinaryChromeText(text: string): boolean {
   const hits = CHROME_BODY_PATTERNS.filter((pattern) => pattern.test(text)).length;
-  return hits >= 2 || /toate drepturile rezervate/i.test(text);
+  if (hits >= 2 || /toate drepturile rezervate/i.test(text)) return true;
+  const foodCats = categorizeFoodText(text).length;
+  if (hits >= 1 && foodCats === 0) return true;
+  if (/manage consent|cookieuri necesare|viewed_cookie_policy/i.test(text) && foodCats <= 1) {
+    return true;
+  }
+  return false;
 }
 
 export function isTastingNoteLeak(text: string): boolean {

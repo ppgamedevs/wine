@@ -8,8 +8,10 @@ import {
   formatCuratedAt,
   canApproveCurationSelection,
   NO_NEW_CURATION_DRAFTS_MESSAGE,
+  FIRST_BATCH_COMPLETE_MESSAGE,
   UNKNOWN_DISH_CATEGORY_CARD_MESSAGE,
   dishFromCurationError,
+  pendingReviewSlugs,
   reviewPairingMeta,
   clearKeyedStateForSlug,
   draftSelectionKey,
@@ -179,6 +181,16 @@ describe("pairing curation review session", () => {
 
   it("K: shadow remains shadow", () => {
     expect(getSecondaryScoringMode()).toBe("shadow");
+  });
+
+  it("defaults to the first pending wine and names the completed batch", () => {
+    const cards = [
+      card("wine-a", [{ dish: "Mici", source: "vinintel_curated" }]),
+      card("wine-b"),
+    ];
+    expect(pendingReviewSlugs(cards, [])).toEqual(["wine-b"]);
+    expect(resolveCurrentSlug(["wine-a", "wine-b"], null, ["wine-b"])).toBe("wine-b");
+    expect(FIRST_BATCH_COMPLETE_MESSAGE).toContain("30 / 30");
   });
 
   it("approval error can be attached to the edited dish", () => {

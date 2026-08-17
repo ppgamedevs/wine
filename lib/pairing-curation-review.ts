@@ -53,21 +53,48 @@ export function reviewProgress(
   };
 }
 
+export const FIRST_BATCH_COMPLETE_MESSAGE =
+  "Primul batch este complet: 30 / 30 vinuri revizuite.";
+
+export const FOUR_PAIRINGS_WARNING =
+  "Vinul are deja 4 asocieri curate. Adauga una noua doar daca aduce o directie culinara distincta.";
+
+export function pendingReviewSlugs(
+  cards: ReviewCardLike[],
+  skipped: string[],
+): string[] {
+  return cards
+    .filter((card) => reviewCardStatus(card, skipped) === "pending")
+    .map((card) => card.slug);
+}
+
 export function resolveCurrentSlug(
   slugs: string[],
   requested?: string | null,
+  pendingSlugs?: string[],
 ): string | null {
   if (requested && slugs.includes(requested)) return requested;
+  if (pendingSlugs && pendingSlugs.length > 0) return pendingSlugs[0] ?? null;
   return slugs[0] ?? null;
 }
 
 export function nextReviewSlug(
   slugs: string[],
   currentSlug: string,
+  pendingSlugs?: string[],
 ): string | null {
-  const index = slugs.indexOf(currentSlug);
-  if (index < 0 || index >= slugs.length - 1) return null;
-  return slugs[index + 1] ?? null;
+  const pool = pendingSlugs && pendingSlugs.length > 0 ? pendingSlugs : slugs;
+  const index = pool.indexOf(currentSlug);
+  if (index >= 0 && index < pool.length - 1) return pool[index + 1] ?? null;
+  const allIndex = slugs.indexOf(currentSlug);
+  if (allIndex < 0 || allIndex >= slugs.length - 1) return null;
+  if (pendingSlugs && pendingSlugs.length > 0) {
+    const nextPending = slugs
+      .slice(allIndex + 1)
+      .find((slug) => pendingSlugs.includes(slug));
+    return nextPending ?? null;
+  }
+  return slugs[allIndex + 1] ?? null;
 }
 
 export function prevReviewSlug(

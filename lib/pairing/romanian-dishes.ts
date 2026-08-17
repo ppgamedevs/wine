@@ -3,6 +3,31 @@
  * Not bottle evidence. Broad FoodCategoryId stays for scoring.
  */
 import type { FoodCategoryId } from "@/lib/food-taxonomy";
+import { ROMANIAN_DISH_EXTENSIONS } from "@/lib/pairing/romanian-dish-extensions";
+import { foldRomanianText } from "@/lib/pairing/romanian-text";
+
+export const ROMANIAN_PAIRING_GENERATOR_VERSION = 2;
+
+export interface DishServingVariant {
+  id: string;
+  name: string;
+  accompaniments?: string[];
+}
+
+export const ACCOMPANIMENT_VOCABULARY = [
+  "mamaliga",
+  "paine de casa",
+  "paine cu maia",
+  "paine de secara",
+  "paine cu seminte",
+  "paine din grau dur",
+  "lipie",
+  "mujdei",
+  "smantana",
+  "muraturi",
+  "legume proaspete",
+  "salata",
+] as const;
 
 export type DishProtein =
   | "pork"
@@ -52,7 +77,10 @@ export interface RomanianDishProfile {
   romanian: boolean;
   romanianRegion: string | null;
   discoveryValue: TraitLevel;
-}
+  servingVariants?: DishServingVariant[];
+    recommendedAccompaniments?: string[];
+    specificity?: TraitLevel;
+  }
 
 function dish(
   profile: RomanianDishProfile,
@@ -60,10 +88,10 @@ function dish(
   return profile;
 }
 
-export const ROMANIAN_DISHES: RomanianDishProfile[] = [
+const CORE_ROMANIAN_DISHES: RomanianDishProfile[] = [
   dish({
     id: "sarmale",
-    name: "Sarmale",
+    name: "Sarmale clasice",
     foodCategory: "sarmale",
     protein: "pork",
     cookingMethods: ["stewed"],
@@ -75,7 +103,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     smoke: 1,
     spice: 2,
     sour: true,
-    aliases: ["sarma", "sarmalute"],
+    aliases: ["sarmale", "sarma", "sarmalute", "sarmale in foi de varza"],
     family: "cabbage-roll",
     romanian: true,
     romanianRegion: "Transilvania",
@@ -83,7 +111,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "varza-a-la-cluj",
-    name: "Varza a la Cluj",
+    name: "Varză a la Cluj",
     foodCategory: "sarmale",
     protein: "pork",
     cookingMethods: ["baked", "stewed"],
@@ -123,7 +151,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "tochitura-moldoveneasca",
-    name: "Tochitura moldoveneasca",
+    name: "Tochitură moldovenească",
     foodCategory: "grilled_meat",
     protein: "pork",
     cookingMethods: ["stewed", "fried"],
@@ -199,7 +227,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "carnati-afumati-cu-mamaliga",
-    name: "Carnati afumati cu mamaliga",
+    name: "Cârnați afumați cu mămăligă",
     foodCategory: "pork",
     protein: "pork",
     cookingMethods: ["smoked", "grilled"],
@@ -237,7 +265,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "pastrama-de-oaie",
-    name: "Pastrama de oaie",
+    name: "Pastramă de oaie",
     foodCategory: "festive_traditional",
     protein: "lamb",
     cookingMethods: ["smoked", "grilled"],
@@ -275,7 +303,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "drob",
-    name: "Drob",
+    name: "Drob de miel",
     foodCategory: "festive_traditional",
     protein: "lamb",
     cookingMethods: ["baked"],
@@ -286,7 +314,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     sweetness: 1,
     smoke: 1,
     spice: 2,
-    aliases: ["drob de miel"],
+    aliases: ["drob"],
     family: "roast-lamb",
     romanian: true,
     romanianRegion: null,
@@ -294,7 +322,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "rata-pe-varza",
-    name: "Rata pe varza",
+    name: "Rață pe varză",
     foodCategory: "poultry",
     protein: "duck",
     cookingMethods: ["roasted", "stewed"],
@@ -330,6 +358,13 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     romanian: true,
     romanianRegion: null,
     discoveryValue: 4,
+    servingVariants: [
+      {
+        id: "paine-de-casa",
+        name: "Pui la ceaun cu pâine de casă",
+        accompaniments: ["paine de casa"],
+      },
+    ],
   }),
   dish({
     id: "ostropel-de-pui",
@@ -345,6 +380,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     smoke: 1,
     spice: 2,
     tomatoRich: true,
+    sour: true,
     aliases: ["ostropel"],
     family: "chicken-sauce",
     romanian: true,
@@ -370,6 +406,13 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     romanian: true,
     romanianRegion: "Moldova",
     discoveryValue: 4,
+    servingVariants: [
+      {
+        id: "mamaliga",
+        name: "Ciulama de pui cu mămăligă",
+        accompaniments: ["mamaliga"],
+      },
+    ],
   }),
   dish({
     id: "curcan-la-cuptor",
@@ -411,7 +454,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "tocana-de-iepure",
-    name: "Tocana de iepure",
+    name: "Tocană de iepure",
     foodCategory: "poultry",
     protein: "rabbit",
     cookingMethods: ["stewed"],
@@ -431,7 +474,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "tocanita-de-vanat",
-    name: "Tocanita de vanat",
+    name: "Tocăniță de vânat",
     foodCategory: "game",
     protein: "game",
     cookingMethods: ["stewed"],
@@ -456,7 +499,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "friptura-de-vita",
-    name: "Friptura de vita",
+    name: "Friptură de vită la cuptor",
     foodCategory: "beef",
     protein: "beef",
     cookingMethods: ["roasted"],
@@ -467,8 +510,15 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     sweetness: 1,
     smoke: 2,
     spice: 1,
-    aliases: ["vita la cuptor", "friptura de vita"],
+    aliases: ["vita la cuptor", "friptura de vita", "friptura de vita la cuptor"],
     family: "roast-beef",
+    servingVariants: [
+      {
+        id: "sos-de-ciuperci",
+        name: "Friptură de vită cu sos de ciuperci",
+        accompaniments: [],
+      },
+    ],
     romanian: true,
     romanianRegion: null,
     discoveryValue: 2,
@@ -515,7 +565,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "crap-prajit-cu-mamaliga",
-    name: "Crap prajit cu mamaliga",
+    name: "Crap prăjit",
     foodCategory: "fish",
     protein: "fish",
     cookingMethods: ["fried"],
@@ -527,7 +577,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     smoke: 1,
     spice: 1,
     fried: true,
-    aliases: ["crap prajit"],
+    aliases: ["crap prajit", "crap prajit cu mamaliga"],
     family: "fried-fish",
     romanian: true,
     romanianRegion: "Delta Dunarii",
@@ -535,7 +585,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "scrumbie-de-dunare",
-    name: "Scrumbie de Dunare",
+    name: "Scrumbie de Dunăre",
     foodCategory: "fish",
     protein: "fish",
     cookingMethods: ["grilled", "fried"],
@@ -554,7 +604,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "pastrav-la-gratar-cu-mamaliga",
-    name: "Pastrav la gratar cu mamaliga",
+    name: "Păstrăv la grătar",
     foodCategory: "grilled_fish",
     protein: "fish",
     cookingMethods: ["grilled"],
@@ -565,8 +615,9 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     sweetness: 1,
     smoke: 2,
     spice: 1,
-    aliases: ["pastrav", "pastrav cu mamaliga"],
+    aliases: ["pastrav", "pastrav la gratar", "pastrav la gratar cu mamaliga"],
     family: "trout",
+    recommendedAccompaniments: ["mamaliga"],
     romanian: true,
     romanianRegion: null,
     discoveryValue: 4,
@@ -593,7 +644,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "hamsii",
-    name: "Hamsii",
+    name: "Hamsii prăjite",
     foodCategory: "fish",
     protein: "fish",
     cookingMethods: ["fried"],
@@ -605,7 +656,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     smoke: 1,
     spice: 1,
     fried: true,
-    aliases: ["hamsii"],
+    aliases: ["hamsii", "hamsii prajite"],
     family: "fried-fish",
     romanian: true,
     romanianRegion: "Dobrogea",
@@ -613,7 +664,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "salata-de-icre",
-    name: "Salata de icre",
+    name: "Salată de icre",
     foodCategory: "fish",
     protein: "seafood",
     cookingMethods: ["raw"],
@@ -632,7 +683,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "peste-la-cuptor",
-    name: "Peste la cuptor",
+    name: "Pește la cuptor",
     foodCategory: "fish",
     protein: "fish",
     cookingMethods: ["baked"],
@@ -670,7 +721,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "zacusca",
-    name: "Zacusca",
+    name: "Zacuscă",
     foodCategory: "vegetable",
     protein: "none",
     cookingMethods: ["baked", "stewed"],
@@ -690,7 +741,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "salata-de-vinete",
-    name: "Salata de vinete",
+    name: "Salată de vinete",
     foodCategory: "vegetable",
     protein: "none",
     cookingMethods: ["baked"],
@@ -701,15 +752,22 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     sweetness: 1,
     smoke: 3,
     spice: 1,
-    aliases: ["vinete"],
+    aliases: ["vinete", "salata de vinete"],
     family: "vegetable-spread",
     romanian: true,
     romanianRegion: null,
     discoveryValue: 4,
+    servingVariants: [
+      {
+        id: "paine-de-casa",
+        name: "Salată de vinete cu pâine de casă",
+        accompaniments: ["paine de casa"],
+      },
+    ],
   }),
   dish({
     id: "ciuperci-cu-mamaliga",
-    name: "Ciuperci cu mamaliga",
+    name: "Ciuperci cu mămăligă",
     foodCategory: "vegetable",
     protein: "none",
     cookingMethods: ["stewed", "fried"],
@@ -748,7 +806,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "ghiveci",
-    name: "Ghiveci",
+    name: "Ghiveci de legume",
     foodCategory: "vegetable",
     protein: "none",
     cookingMethods: ["stewed"],
@@ -760,7 +818,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     smoke: 1,
     spice: 2,
     tomatoRich: true,
-    aliases: ["ghiveci"],
+    aliases: ["ghiveci", "ghiveci de legume"],
     family: "vegetable-stew",
     romanian: true,
     romanianRegion: null,
@@ -768,7 +826,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "ardei-copti",
-    name: "Ardei copti",
+    name: "Ardei copți",
     foodCategory: "vegetable",
     protein: "none",
     cookingMethods: ["baked"],
@@ -787,7 +845,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "fasole-batuta",
-    name: "Fasole batuta",
+    name: "Fasole bătută cu ceapă",
     foodCategory: "vegetable",
     protein: "none",
     cookingMethods: ["boiled"],
@@ -798,7 +856,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     sweetness: 1,
     smoke: 1,
     spice: 1,
-    aliases: ["fasole batuta"],
+    aliases: ["fasole batuta", "fasole batuta cu ceapa"],
     family: "bean-spread",
     romanian: true,
     romanianRegion: null,
@@ -817,15 +875,22 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     sweetness: 1,
     smoke: 2,
     spice: 1,
-    aliases: ["bulz"],
+    aliases: ["bulz", "bulz cu branza de burduf"],
     family: "mountain-cheese",
     romanian: true,
     romanianRegion: "Transilvania",
     discoveryValue: 5,
+    servingVariants: [
+      {
+        id: "branza-de-burduf",
+        name: "Bulz cu brânză de burduf",
+        accompaniments: ["branza de burduf"],
+      },
+    ],
   }),
   dish({
     id: "mamaliga-cu-branza-si-smantana",
-    name: "Mamaliga cu branza si smantana",
+    name: "Mămăligă cu brânză și smântână",
     foodCategory: "cheese",
     protein: "none",
     cookingMethods: ["boiled"],
@@ -837,7 +902,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     smoke: 1,
     spice: 1,
     creamRich: true,
-    aliases: ["mamaliga cu branza"],
+    aliases: ["mamaliga cu branza", "mamaliga cu branza si smantana"],
     family: "mountain-cheese",
     romanian: true,
     romanianRegion: null,
@@ -845,7 +910,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "branza-de-burduf",
-    name: "Branza de burduf",
+    name: "Brânză de burduf",
     foodCategory: "cheese",
     protein: "none",
     cookingMethods: ["fermented"],
@@ -856,11 +921,18 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
     sweetness: 1,
     smoke: 1,
     spice: 1,
-    aliases: ["burduf"],
+    aliases: ["burduf", "branza de burduf"],
     family: "aged-cheese",
     romanian: true,
     romanianRegion: "Transilvania",
     discoveryValue: 5,
+    servingVariants: [
+      {
+        id: "paine-de-casa",
+        name: "Brânză de burduf cu pâine de casă",
+        accompaniments: ["paine de casa"],
+      },
+    ],
   }),
   dish({
     id: "telemea",
@@ -883,7 +955,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "cascaval-maturat",
-    name: "Cascaval maturat",
+    name: "Cașcaval maturat",
     foodCategory: "cheese",
     protein: "none",
     cookingMethods: ["fermented"],
@@ -902,7 +974,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "placinta-dobrogeana",
-    name: "Placinta dobrogeana",
+    name: "Plăcintă dobrogeană",
     foodCategory: "cheese",
     protein: "none",
     cookingMethods: ["baked"],
@@ -940,7 +1012,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "pasca",
-    name: "Pasca",
+    name: "Pască",
     foodCategory: "dessert",
     protein: "none",
     cookingMethods: ["baked"],
@@ -959,7 +1031,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "papanasi",
-    name: "Papanasi",
+    name: "Papanași",
     foodCategory: "dessert",
     protein: "none",
     cookingMethods: ["fried"],
@@ -979,7 +1051,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "poale-n-brau",
-    name: "Poale-n brau",
+    name: "Poale-n brâu",
     foodCategory: "dessert",
     protein: "none",
     cookingMethods: ["baked"],
@@ -1017,7 +1089,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "placinta-cu-mere",
-    name: "Placinta cu mere",
+    name: "Plăcintă cu mere",
     foodCategory: "dessert",
     protein: "none",
     cookingMethods: ["baked"],
@@ -1036,7 +1108,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "placinta-cu-dovleac",
-    name: "Placinta cu dovleac",
+    name: "Plăcintă cu dovleac",
     foodCategory: "dessert",
     protein: "none",
     cookingMethods: ["baked"],
@@ -1055,7 +1127,7 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
   dish({
     id: "clatite-cu-dulceata",
-    name: "Clatite cu dulceata",
+    name: "Clătite cu dulceață",
     foodCategory: "dessert",
     protein: "none",
     cookingMethods: ["fried"],
@@ -1114,25 +1186,32 @@ export const ROMANIAN_DISHES: RomanianDishProfile[] = [
   }),
 ];
 
+export const ROMANIAN_DISHES: RomanianDishProfile[] = [
+  ...CORE_ROMANIAN_DISHES,
+  ...ROMANIAN_DISH_EXTENSIONS,
+];
+
 const BY_ID = new Map(ROMANIAN_DISHES.map((item) => [item.id, item]));
 
 export function foldDishName(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
+  return foldRomanianText(value);
+}
+
+function dishSearchNames(item: RomanianDishProfile): string[] {
+  return [
+    item.id,
+    item.name,
+    ...item.aliases,
+    ...(item.servingVariants ?? []).flatMap((variant) => [variant.id, variant.name]),
+  ];
 }
 
 export function findRomanianDishByName(name: string): RomanianDishProfile | null {
   const folded = foldDishName(name);
+  if (!folded) return null;
   return (
-    ROMANIAN_DISHES.find(
-      (item) =>
-        foldDishName(item.name) === folded ||
-        item.aliases.some((alias) => foldDishName(alias) === folded) ||
-        item.id === folded,
+    ROMANIAN_DISHES.find((item) =>
+      dishSearchNames(item).some((entry) => foldDishName(entry) === folded),
     ) ?? null
   );
 }

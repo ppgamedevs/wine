@@ -12,31 +12,31 @@ export const EDITORIAL_DISHES: Array<{
   category: FoodCategoryId;
   aliases: string[];
 }> = [
-  { dish: "Sarmale", category: "sarmale", aliases: ["sarma", "sarmalute"] },
+  { dish: "Sarmale clasice", category: "sarmale", aliases: ["sarmale", "sarma", "sarmalute"] },
   { dish: "Mici", category: "grilled_meat", aliases: ["mititei"] },
   { dish: "Carne de vita la gratar", category: "grilled_meat", aliases: ["vita la gratar"] },
   { dish: "Ceafa de porc", category: "pork", aliases: ["porc", "cotlet"] },
   { dish: "Carne de miel", category: "festive_traditional", aliases: ["miel"] },
-  { dish: "Pasare", category: "poultry", aliases: ["pui", "rata"] },
+  { dish: "Pasăre", category: "poultry", aliases: ["pui", "rata"] },
   {
-    dish: "Tocanita de vanat",
+    dish: "Tocăniță de vânat",
     category: "game",
-    aliases: ["tocanite de vanat", "tocana de vanat", "carne de vanat"],
+    aliases: ["tocanita de vanat", "tocanite de vanat", "tocana de vanat", "carne de vanat"],
   },
-  { dish: "Peste alb", category: "fish", aliases: [] },
+  { dish: "Pește alb", category: "fish", aliases: [] },
   { dish: "Somon", category: "fish", aliases: ["peste gras"] },
   { dish: "Fructe de mare", category: "fish", aliases: [] },
   { dish: "Paste", category: "pasta", aliases: ["spaghetti"] },
   { dish: "Pizza", category: "pizza", aliases: [] },
-  { dish: "Branzeturi proaspete", category: "cheese", aliases: ["telemea"] },
-  { dish: "Branzeturi maturate", category: "cheese", aliases: ["branza matura"] },
+  { dish: "Brânzeturi proaspete", category: "cheese", aliases: ["telemea"] },
+  { dish: "Brânzeturi maturate", category: "cheese", aliases: ["branza matura"] },
   { dish: "Legume", category: "vegetable", aliases: [] },
   { dish: "Salate", category: "vegetable", aliases: ["salata"] },
   { dish: "Aperitive", category: "vegetable", aliases: [] },
   { dish: "Cozonac", category: "dessert", aliases: [] },
-  { dish: "Pasca", category: "dessert", aliases: [] },
+  { dish: "Pască", category: "dessert", aliases: [] },
   { dish: "Desert cu fructe", category: "dessert", aliases: [] },
-  { dish: "Desert cu ciocolata", category: "chocolate", aliases: ["ciocolata"] },
+  { dish: "Desert cu ciocolată", category: "chocolate", aliases: ["ciocolata"] },
 ];
 
 export function resolveFoodCategoryForDish(
