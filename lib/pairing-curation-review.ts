@@ -110,6 +110,14 @@ export function reviewBasisLabel(basis?: string[]): string | null {
 export const NO_NEW_CURATION_DRAFTS_MESSAGE =
   "Toate propunerile disponibile au fost deja revizuite pentru acest vin.";
 
+export const UNKNOWN_DISH_CATEGORY_CARD_MESSAGE =
+  "Categoria preparatului lipseste din taxonomie.";
+
+export function dishFromCurationError(message: string): string | null {
+  const quoted = message.match(/"([^"]+)"/);
+  return quoted?.[1]?.trim() || null;
+}
+
 export function reviewPairingMeta(strength?: string, basis?: string[]): string | null {
   const detail = [reviewStrengthLabel(strength), reviewBasisLabel(basis)]
     .filter((item): item is string => Boolean(item))

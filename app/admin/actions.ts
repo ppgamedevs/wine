@@ -512,7 +512,7 @@ export async function approveCuratedPairingsAction(input: {
         strength?: string;
       }>;
     }
-  | { ok: false; error: string }
+  | { ok: false; error: string; dish?: string }
 > {
   await assertAdmin();
 
@@ -548,9 +548,16 @@ export async function approveCuratedPairingsAction(input: {
       pairings: result.pairings,
     };
   } catch (error) {
+    const dish =
+      error && typeof error === "object" && "dish" in error
+        ? typeof error.dish === "string"
+          ? error.dish
+          : undefined
+        : undefined;
     return {
       ok: false,
       error: error instanceof Error ? error.message : "Aprobarea a esuat.",
+      dish,
     };
   }
 }

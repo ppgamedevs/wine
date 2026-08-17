@@ -5,9 +5,11 @@ import {
   type PairingDraft,
   type ScoreImpactPreview,
 } from "@/lib/pairing-curation";
-import { partitionPairingDrafts } from "@/lib/pairing-curation-match";
+import {
+  partitionPairingDrafts,
+  resolveFoodCategoryForDish,
+} from "@/lib/pairing-curation-match";
 import { INSUFFICIENT_PAIRING_DATA_MESSAGE } from "@/lib/pairing/generate-romanian-drafts";
-import type { FoodCategoryId } from "@/lib/food-taxonomy";
 import type { WineWithRelations } from "@/types";
 
 export interface ProducerClaimView {
@@ -109,7 +111,7 @@ export function draftFromEdit(
     ...draft,
     dish: dish.trim(),
     rationale: rationale.trim(),
-    category: draft.category as FoodCategoryId,
+    category: resolveFoodCategoryForDish(dish.trim(), draft.category),
     basis: draft.basis.includes("editorial_judgment")
       ? draft.basis
       : [...draft.basis, "editorial_judgment"],

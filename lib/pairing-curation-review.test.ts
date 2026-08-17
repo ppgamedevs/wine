@@ -8,6 +8,8 @@ import {
   formatCuratedAt,
   canApproveCurationSelection,
   NO_NEW_CURATION_DRAFTS_MESSAGE,
+  UNKNOWN_DISH_CATEGORY_CARD_MESSAGE,
+  dishFromCurationError,
   reviewPairingMeta,
   clearKeyedStateForSlug,
   draftSelectionKey,
@@ -177,6 +179,15 @@ describe("pairing curation review session", () => {
 
   it("K: shadow remains shadow", () => {
     expect(getSecondaryScoringMode()).toBe("shadow");
+  });
+
+  it("approval error can be attached to the edited dish", () => {
+    expect(
+      dishFromCurationError(
+        'Categoria pentru "Tocanita de vanat" nu este in taxonomie.',
+      ),
+    ).toBe("Tocanita de vanat");
+    expect(UNKNOWN_DISH_CATEGORY_CARD_MESSAGE).toContain("taxonomie");
   });
 
   it("Mai tarziu does not count as reviewed", () => {

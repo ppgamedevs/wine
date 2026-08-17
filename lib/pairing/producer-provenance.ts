@@ -24,6 +24,7 @@ const BROAD_PRODUCER_TERMS = new Set([
   "rata",
   "curcan",
   "iepure",
+  "vanat",
   "peste",
   "peste alb",
   "fructe de mare",

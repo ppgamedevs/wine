@@ -11,6 +11,7 @@ import {
   toApprovedFoodPairings,
   lockDraftBasis,
   validatePairingDrafts,
+  PairingCurationError,
   type PairingDraft,
 } from "@/lib/pairing-curation";
 import { wines } from "@/lib/schema";
@@ -50,8 +51,12 @@ export async function approveCuratedPairingsForWine(input: {
   );
   const drafts = prepareApprovalDrafts(incoming, wine.foodPairings);
   const issues = validatePairingDrafts(wine, drafts);
-  if (issues.some((issue) => issue.level === "error")) {
-    throw new Error(issues.filter((issue) => issue.level === "error")[0]?.message);
+  const firstError = issues.find((issue) => issue.level === "error");
+  if (firstError) {
+    throw new PairingCurationError(firstError.message, {
+      dish: firstError.dish,
+      code: firstError.code,
+    });
   }
 
   const nextPairings = toApprovedFoodPairings(drafts, wine.foodPairings);

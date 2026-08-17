@@ -53,6 +53,19 @@ export interface PairingValidationIssue {
   level: "error" | "warning";
   code: string;
   message: string;
+  dish?: string;
+}
+
+export class PairingCurationError extends Error {
+  readonly dish?: string;
+  readonly code?: string;
+
+  constructor(message: string, options?: { dish?: string; code?: string }) {
+    super(message);
+    this.name = "PairingCurationError";
+    this.dish = options?.dish;
+    this.code = options?.code;
+  }
 }
 
 export type { ScoreImpactPreview };
@@ -146,16 +159,23 @@ export function validatePairingDrafts(
         level: "error",
         code: "fake_producer_basis",
         message: "Nu poti marca o asociere ca evidenta de producator fara sursa oficiala.",
+        dish: draft.dish,
       });
     }
     if (!draft.dish.trim()) {
-      issues.push({ level: "error", code: "empty_dish", message: "Felul nu poate fi gol." });
+      issues.push({
+        level: "error",
+        code: "empty_dish",
+        message: "Felul nu poate fi gol.",
+        dish: draft.dish,
+      });
     }
     if (!draft.rationale.trim()) {
       issues.push({
         level: "error",
         code: "empty_rationale",
         message: "Motivarea nu poate fi goala.",
+        dish: draft.dish,
       });
     }
     if (SENSORY_CLAIM_RE.test(draft.rationale)) {
@@ -163,6 +183,7 @@ export function validatePairingDrafts(
         level: "error",
         code: "unsupported_sensory",
         message: "Motivarea nu poate inventa tanin, stejar sau arome de sticla.",
+        dish: draft.dish,
       });
     }
     const cats = categorizeFoodText(draft.dish);
@@ -172,6 +193,7 @@ export function validatePairingDrafts(
         level: "error",
         code: "unknown_category",
         message: `Categoria pentru "${draft.dish}" nu este in taxonomie.`,
+        dish: draft.dish,
       });
     }
     if (draftMatchesExistingPairing(draft, wine.foodPairings)) {
@@ -179,6 +201,7 @@ export function validatePairingDrafts(
         level: "error",
         code: "already_approved",
         message: `"${draft.dish}" este deja aprobat pentru acest vin.`,
+        dish: draft.dish,
       });
     }
     const folded = fold(draft.dish);
@@ -187,6 +210,7 @@ export function validatePairingDrafts(
         level: "error",
         code: "duplicate_dish",
         message: `Fel duplicat: ${draft.dish}.`,
+        dish: draft.dish,
       });
     }
     foldedDishes.add(folded);

@@ -16,7 +16,9 @@ import {
 } from "@/lib/pairing/producer-provenance";
 import {
   draftMatchesExistingPairing,
+  isKnownPairingDish,
   partitionPairingDrafts,
+  resolveFoodCategoryForDish,
 } from "@/lib/pairing-curation-match";
 import { previewCurationImpact } from "@/lib/pairing-curation-preview";
 import {
@@ -27,6 +29,8 @@ import {
   canApproveCurationSelection,
   clearKeyedStateForSlug,
   NO_NEW_CURATION_DRAFTS_MESSAGE,
+  UNKNOWN_DISH_CATEGORY_CARD_MESSAGE,
+  dishFromCurationError,
   reviewApprovedAtLabel,
   reviewPairingMeta,
   draftSelectionKey,
@@ -67,6 +71,7 @@ export function PairingCurationWorkbench({
     null,
   );
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [draftErrors, setDraftErrors] = useState<Record<string, string>>({});
   const [skipped, setSkipped] = useState<string[]>([]);
   const [edits, setEdits] = useState<
     Record<string, { dish: string; rationale: string; strength: FoodPairingStrength }>
@@ -136,6 +141,7 @@ export function PairingCurationWorkbench({
               dish: edit.dish,
               rationale: edit.rationale,
               strength: edit.strength,
+              category: resolveFoodCategoryForDish(edit.dish, draft.category),
               basis: draft.basis.includes("editorial_judgment")
                 ? draft.basis
                 : [...draft.basis, "editorial_judgment" as const],
@@ -163,6 +169,7 @@ export function PairingCurationWorkbench({
     if (!options?.keepMessage) {
       setMessage(null);
       setMessageKind(null);
+      setDraftErrors({});
     }
     setActiveSlug(slug);
     router.replace(pairingCurationPath(slug), { scroll: false });
@@ -193,6 +200,22 @@ export function PairingCurationWorkbench({
       setMessageKind("error");
       return;
     }
+    const localErrors: Record<string, string> = {};
+    for (const draft of newDrafts) {
+      const key = draftSelectionKey(card.slug, draft.dish);
+      if (selected[key] !== true) continue;
+      const dish = edits[key]?.dish ?? draft.dish;
+      if (!isKnownPairingDish(dish)) {
+        localErrors[key] = UNKNOWN_DISH_CATEGORY_CARD_MESSAGE;
+      }
+    }
+    if (Object.keys(localErrors).length > 0) {
+      setDraftErrors(localErrors);
+      setMessage(Object.values(localErrors)[0] ?? UNKNOWN_DISH_CATEGORY_CARD_MESSAGE);
+      setMessageKind("error");
+      return;
+    }
+    setDraftErrors({});
     const approvedSlug = card.slug;
     const approvedName = card.name;
     startTransition(async () => {
@@ -212,8 +235,25 @@ export function PairingCurationWorkbench({
       if (!result.ok) {
         setMessage(result.error);
         setMessageKind("error");
+        const failedDish = result.dish ?? dishFromCurationError(result.error);
+        if (failedDish) {
+          const failedDraft = newDrafts.find((draft) => {
+            const key = draftSelectionKey(approvedSlug, draft.dish);
+            const currentDish = edits[key]?.dish ?? draft.dish;
+            return currentDish === failedDish;
+          });
+          if (failedDraft) {
+            const cardMessage = /nu este in taxonomie/i.test(result.error)
+              ? UNKNOWN_DISH_CATEGORY_CARD_MESSAGE
+              : result.error;
+            setDraftErrors({
+              [draftSelectionKey(approvedSlug, failedDraft.dish)]: cardMessage,
+            });
+          }
+        }
         return;
       }
+      setDraftErrors({});
       setLocalCards((current) =>
         applyApprovedPairingsToCards(current, approvedSlug, result.pairings),
       );
@@ -449,12 +489,17 @@ export function PairingCurationWorkbench({
                     <input
                       className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
                       value={edit.dish}
-                      onChange={(event) =>
+                      onChange={(event) => {
                         setEdits((current) => ({
                           ...current,
                           [key]: { ...edit, dish: event.target.value },
-                        }))
-                      }
+                        }));
+                        setDraftErrors((current) => {
+                          const next = { ...current };
+                          delete next[key];
+                          return next;
+                        });
+                      }}
                     />
                     <textarea
                       className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
@@ -487,6 +532,11 @@ export function PairingCurationWorkbench({
                     </p>
                     {relatedNotice ? (
                       <p className="text-xs text-amber-800">{RELATED_PRODUCER_NOTICE}</p>
+                    ) : null}
+                    {draftErrors[key] ? (
+                      <p className="text-xs text-amber-800">
+                        ⚠ {draftErrors[key]}
+                      </p>
                     ) : null}
                     <label className="block text-xs text-muted-foreground">
                       Strength recomandare

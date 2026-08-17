@@ -85,7 +85,7 @@ export function buildWinePairingProfile(
     culinaryLaundryRejected: wine.producerContent?.culinaryLaundryRejected,
     culinaryChromeRejected: wine.producerContent?.culinaryChromeRejected,
   });
-  const producerCategories = (["sarmale", "grilled_meat", "pork", "beef", "poultry", "fish", "cheese", "vegetable", "dessert", "festive_traditional"] as FoodCategoryId[]).filter(
+  const producerCategories = (["sarmale", "grilled_meat", "pork", "beef", "poultry", "game", "fish", "cheese", "vegetable", "dessert", "festive_traditional"] as FoodCategoryId[]).filter(
     (category) => hasSafeProducerEvidenceForCategory(context, category),
   );
   const producerExactDishes = (wine.producerContent?.foodEvidence ?? [])

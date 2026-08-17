@@ -18,6 +18,11 @@ export const EDITORIAL_DISHES: Array<{
   { dish: "Ceafa de porc", category: "pork", aliases: ["porc", "cotlet"] },
   { dish: "Carne de miel", category: "festive_traditional", aliases: ["miel"] },
   { dish: "Pasare", category: "poultry", aliases: ["pui", "rata"] },
+  {
+    dish: "Tocanita de vanat",
+    category: "game",
+    aliases: ["tocanite de vanat", "tocana de vanat", "carne de vanat"],
+  },
   { dish: "Peste alb", category: "fish", aliases: [] },
   { dish: "Somon", category: "fish", aliases: ["peste gras"] },
   { dish: "Fructe de mare", category: "fish", aliases: [] },
@@ -33,6 +38,19 @@ export const EDITORIAL_DISHES: Array<{
   { dish: "Desert cu fructe", category: "dessert", aliases: [] },
   { dish: "Desert cu ciocolata", category: "chocolate", aliases: ["ciocolata"] },
 ];
+
+export function resolveFoodCategoryForDish(
+  dish: string,
+  fallback: FoodCategoryId,
+): FoodCategoryId {
+  const library = findRomanianDishByName(dish);
+  if (library) return library.foodCategory;
+  return categorizeFoodText(dish)[0] ?? fallback;
+}
+
+export function isKnownPairingDish(dish: string): boolean {
+  return Boolean(findRomanianDishByName(dish) || categorizeFoodText(dish)[0]);
+}
 
 export function foldPairingText(value: string): string {
   return value
