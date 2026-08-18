@@ -28,6 +28,12 @@ import {
   type IntegritySeverity,
   type WineIssueGroup,
 } from "@/lib/integrity-scan";
+import { recoverWineFromStored } from "@/lib/tech-facts/recover";
+import { TECH_INTEGRITY_CODES } from "@/lib/tech-facts/scan";
+import {
+  TechFactsFilters,
+  TechFactsWorkbench,
+} from "@/components/admin/tech-facts-workbench";
 
 export const metadata: Metadata = {
   title: "Admin data quality",
@@ -87,6 +93,14 @@ export default async function AdminDataQualityPage({
     columns: {
       id: true,
       slug: true,
+      name: true,
+      vintage: true,
+      type: true,
+      sweetness: true,
+      alcohol: true,
+      acidity: true,
+      sugar: true,
+      grapeVarieties: true,
       producerPageUrl: true,
       tastingSheetUrl: true,
       sourceUrl: true,
@@ -94,7 +108,9 @@ export default async function AdminDataQualityPage({
       producerContent: true,
       descriptionEditorial: true,
       tasteProfile: true,
+      status: true,
     },
+    with: { winery: { columns: { name: true, slug: true } } },
   });
   const wineById = new Map(wineRows.map((row) => [row.id, row]));
 
@@ -127,6 +143,38 @@ export default async function AdminDataQualityPage({
   );
 
   const codes = Object.keys(report.summary.issuesByCode).sort();
+  const techCounts = Object.fromEntries(
+    TECH_INTEGRITY_CODES.map((code) => [code, report.summary.issuesByCode[code] ?? 0]),
+  );
+  const techRecoveries = wineRows
+    .filter((row) => row.status === "verified")
+    .map((row) =>
+      recoverWineFromStored({
+        id: row.id,
+        slug: row.slug,
+        name: row.name,
+        wineryName: row.winery?.name ?? null,
+        winerySlug: row.winery?.slug ?? null,
+        vintage: row.vintage,
+        type: row.type,
+        sweetness: row.sweetness,
+        alcohol: row.alcohol,
+        acidity: row.acidity,
+        sugar: row.sugar,
+        grapeVarieties: row.grapeVarieties,
+        producerPageUrl: row.producerPageUrl,
+        tastingSheetUrl: row.tastingSheetUrl,
+        sourceUrl: row.sourceUrl,
+        tastingNotes: row.tastingNotes,
+        producerContent: row.producerContent,
+      }),
+    )
+    .filter(
+      (row) =>
+        row.wineClass !== "NO_TECH_SOURCE" ||
+        row.fields.some((field) => field.storedClass === "UNSOURCED_STORED"),
+    )
+    .slice(0, 40);
 
   return (
     <main className="mx-auto max-w-7xl space-y-10 px-6 py-10">
@@ -228,6 +276,21 @@ export default async function AdminDataQualityPage({
           </Button>
         </div>
       </form>
+
+      <section aria-labelledby="tech-heading" className="space-y-3">
+        <h2
+          id="tech-heading"
+          className="font-serif text-2xl font-semibold text-foreground"
+        >
+          Fapte tehnice
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Provenienta alcool / aciditate / zahar. Valori publice nu sunt
+          ascunse. Prompt 13 decide apply-ul.
+        </p>
+        <TechFactsFilters counts={techCounts} />
+        <TechFactsWorkbench recoveries={techRecoveries} />
+      </section>
 
       <section aria-labelledby="blocking-heading" className="space-y-3">
         <h2

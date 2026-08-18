@@ -1,3 +1,10 @@
+import {
+  parseAlcoholClaim,
+  parseResidualSugarClaim,
+  parseTotalAcidityClaim,
+  sourceContainsNumericClaim,
+} from "@/lib/tech-facts/parse";
+
 export type WineSweetnessLevel = "sec" | "demisec" | "demidulce" | "dulce";
 
 export interface WineTechSpecs {
@@ -19,22 +26,6 @@ const SWEETNESS_LEVELS: WineSweetnessLevel[] = [
   "dulce",
   "sec",
 ];
-
-function normalizeDecimal(raw: string): number | null {
-  const cleaned = raw.replace(/\s/g, "").replace(",", ".");
-  const value = Number.parseFloat(cleaned);
-  return Number.isFinite(value) ? value : null;
-}
-
-function clampAlcohol(value: number): number | null {
-  if (value < 8 || value > 18) return null;
-  return Math.round(value * 10) / 10;
-}
-
-function clampGramPerLiter(value: number, max = 300): number | null {
-  if (value < 0 || value > max) return null;
-  return Math.round(value * 10) / 10;
-}
 
 /** Infer sweetness from wine name or page copy (Romanian retail labels). */
 export function parseSweetnessFromText(
@@ -71,68 +62,19 @@ export function parseSweetnessFromText(
 }
 
 export function parseAlcoholFromText(pageText: string): number | null {
-  const patterns = [
-    /vol\.?\s*alc\.?[:\s]+(\d{1,2}(?:[.,]\d{1,2})?)\s*%/i,
-    /concentrat(?:ie|ia)\s+alcoolic[aă][:\s]+(\d{1,2}(?:[.,]\d{1,2})?)\s*%/i,
-    /alcool[:\s]+(\d{1,2}(?:[.,]\d{1,2})?)\s*%/i,
-    /(\d{1,2}(?:[.,]\d{1,2})?)\s*%\s*vol\.?/i,
-    /(\d{1,2}(?:[.,]\d{1,2})?)\s*%\s*alcool/i,
-  ];
-
-  for (const pattern of patterns) {
-    const match = pageText.match(pattern);
-    if (match?.[1]) {
-      const value = normalizeDecimal(match[1]);
-      if (value != null) {
-        const clamped = clampAlcohol(value);
-        if (clamped != null) return clamped;
-      }
-    }
-  }
-
-  return null;
+  return parseAlcoholClaim(pageText)?.value ?? null;
 }
 
 export function parseSugarFromText(pageText: string): number | null {
-  const patterns = [
-    /z[aă]har\s+rezidual[:\s]+(\d+(?:[.,]\d+)?)\s*g/i,
-    /(\d+(?:[.,]\d+)?)\s*g\s*\/\s*l\s*z[aă]har/i,
-    /(\d+(?:[.,]\d+)?)\s*g\/l\s*z[aă]har/i,
-  ];
-
-  for (const pattern of patterns) {
-    const match = pageText.match(pattern);
-    if (match?.[1]) {
-      const value = normalizeDecimal(match[1]);
-      if (value != null) {
-        const clamped = clampGramPerLiter(value, 250);
-        if (clamped != null) return clamped;
-      }
-    }
-  }
-
-  return null;
+  const parsed = parseResidualSugarClaim(pageText);
+  if (!parsed || parsed.ambiguous) return null;
+  return parsed.value;
 }
 
 export function parseAcidityFromText(pageText: string): number | null {
-  const patterns = [
-    /aciditate[:\s]+(\d+(?:[.,]\d+)?)\s*g\s*\/?\s*l?/i,
-    /(\d+(?:[.,]\d+)?)\s*g\s*\/\s*l\s*aciditate/i,
-    /(\d+(?:[.,]\d+)?)\s*g\/l\s*aciditate/i,
-  ];
-
-  for (const pattern of patterns) {
-    const match = pageText.match(pattern);
-    if (match?.[1]) {
-      const value = normalizeDecimal(match[1]);
-      if (value != null) {
-        const clamped = clampGramPerLiter(value, 20);
-        if (clamped != null) return clamped;
-      }
-    }
-  }
-
-  return null;
+  const parsed = parseTotalAcidityClaim(pageText);
+  if (!parsed || parsed.ambiguous || parsed.unit !== "g/L") return null;
+  return parsed.value;
 }
 
 export function extractTechSpecsFromPage(
@@ -147,23 +89,30 @@ export function extractTechSpecsFromPage(
   };
 }
 
-function pick<T>(aiValue: T | null | undefined, ruleValue: T | null): T | null {
-  if (aiValue !== null && aiValue !== undefined) return aiValue;
-  return ruleValue;
+function aiNumberIfQuoted(
+  pageText: string,
+  value: number | null | undefined,
+  label: string,
+): number | null {
+  if (value == null) return null;
+  if (!sourceContainsNumericClaim(pageText, value)) return null;
+  if (!new RegExp(label, "i").test(pageText)) return null;
+  return value;
 }
 
-/** Merge AI extraction with deterministic page parsing. */
+/**
+ * Single-source resolution. Deterministic parse wins.
+ * AI may only survive when the numeric token exists in this source text.
+ */
 export function resolveTechSpecs(input: ResolveTechSpecsInput): WineTechSpecs {
   const fromPage = extractTechSpecsFromPage(input.wineName, input.pageText);
   const fromName = parseSweetnessFromText(input.wineName, "");
 
   return {
-    sweetness:
-      fromName ??
-      pick(input.ai?.sweetness ?? null, fromPage.sweetness),
-    alcohol: pick(input.ai?.alcohol ?? null, fromPage.alcohol),
-    sugar: pick(input.ai?.sugar ?? null, fromPage.sugar),
-    acidity: pick(input.ai?.acidity ?? null, fromPage.acidity),
+    sweetness: fromName ?? fromPage.sweetness ?? input.ai?.sweetness ?? null,
+    alcohol: fromPage.alcohol ?? aiNumberIfQuoted(input.pageText, input.ai?.alcohol, "alcool"),
+    sugar: fromPage.sugar ?? aiNumberIfQuoted(input.pageText, input.ai?.sugar, "zahar"),
+    acidity: fromPage.acidity ?? aiNumberIfQuoted(input.pageText, input.ai?.acidity, "aciditate"),
   };
 }
 

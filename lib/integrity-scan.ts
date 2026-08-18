@@ -20,6 +20,7 @@ import type {
   WineMedal,
 } from "@/lib/schema";
 import { detectSourceConflicts } from "@/lib/source-conflicts";
+import { detectTechnicalFactIssues } from "@/lib/tech-facts/scan";
 import { VALUE_SCORE_EXCEPTIONAL_MIN } from "@/lib/value-score-thresholds";
 import { isValidWineVintage } from "@/lib/wine-vintage";
 
@@ -717,6 +718,7 @@ export function runIntegrityChecks(
     ...detectThinContent(input),
     ...detectContradictorySweetnessText(input),
     ...detectEditorialTruthIssues(input),
+    ...detectTechnicalFactIssues(input),
   ];
 
   const duplicateGroups = detectDuplicateCandidates(input);

@@ -34,6 +34,7 @@ export interface MurfatlarCanonicalFacts {
   vintage: number | null;
   alcohol: number | null;
   acidity: number | null;
+  sugar: number | null;
   sweetness: WineSweetnessLevel | null;
   imageUrl: string | null;
   color: "alb" | "roze" | "rosu" | "spumant" | null;
@@ -521,6 +522,7 @@ export function parseMurfatlarProducerFacts(
     vintage: null,
     alcohol: null,
     acidity: null,
+    sugar: null,
     sweetness: wine.sweetness,
     imageUrl: wine.imageUrl,
     color: wine.color,

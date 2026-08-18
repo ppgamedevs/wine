@@ -34,7 +34,10 @@
     "pairing:golden-audit": "tsx scripts/pairing-golden-audit.ts",
     "pairing:canonicalize": "tsx scripts/pairing-canonicalize.ts",
     "pairing:provenance-audit": "tsx scripts/pairing-provenance-audit.ts",
-    "pairing:catalog-benchmark": "tsx scripts/pairing-catalog-benchmark.ts"
+    "pairing:catalog-benchmark": "tsx scripts/pairing-catalog-benchmark.ts",
+    "tech:audit": "tsx scripts/tech-audit.ts",
+    "tech:recover": "tsx scripts/tech-recover.ts",
+    "tech:score-impact": "tsx scripts/tech-score-impact.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",

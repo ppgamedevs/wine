@@ -1,6 +1,10 @@
 import { fetchPageWithResolution } from "@/lib/fetch-page-html";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import type { GrapeVarietyShare } from "@/lib/schema";
+import {
+  parseResidualSugarClaim,
+  parseTotalAcidityClaim,
+} from "@/lib/tech-facts/parse";
 import type { WineSweetnessLevel } from "@/lib/wine-tech-specs";
 import { normalizeSourceUrl, slugify } from "@/lib/wine-url";
 
@@ -35,6 +39,7 @@ export interface GabaiCanonicalFacts {
   vintage: number | null;
   alcohol: number | null;
   acidity: number | null;
+  sugar: number | null;
   sweetness: WineSweetnessLevel | null;
   imageUrl: string | null;
   color: "alb" | "roze" | "rosu" | "spumant" | null;
@@ -263,6 +268,10 @@ function extractGabaiSpecMap(html: string): Record<string, string> {
       map.vintage = value;
     } else if (key.includes("alcool") || key.includes("abv")) {
       map.alcohol = value;
+    } else if (key.includes("aciditate") && !key.includes("volatil")) {
+      map.acidity = value;
+    } else if (key.includes("zahar") || key.includes("residual")) {
+      map.sugar = value;
     } else if (key.includes("volume") || key.includes("volum")) {
       map.volume = value;
     }
@@ -426,12 +435,21 @@ export function parseGabaiProducerFacts(
   const wine = parseGabaiProductPage(html, pageUrl);
   if (!wine) return null;
 
+  const specs = extractGabaiSpecMap(html);
+  const acidity = specs.acidity
+    ? parseTotalAcidityClaim(`Aciditate totala ${specs.acidity}`)
+    : null;
+  const sugar = specs.sugar
+    ? parseResidualSugarClaim(`Zahar rezidual ${specs.sugar}`)
+    : null;
+
   return {
     name: wine.name,
     grapeVarieties: wine.grapeVarieties,
     vintage: wine.vintage,
     alcohol: wine.alcohol,
-    acidity: null,
+    acidity: acidity && !acidity.ambiguous ? acidity.value : null,
+    sugar: sugar && !sugar.ambiguous ? sugar.value : null,
     sweetness: wine.sweetness,
     imageUrl: wine.imageUrl,
     color: wine.color,

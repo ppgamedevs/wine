@@ -366,6 +366,7 @@ export function buildEvidencePatch(
   if (fetched.canonical) {
     if (fetched.canonical.alcohol != null) facts.alcohol = fetched.canonical.alcohol;
     if (fetched.canonical.acidity != null) facts.acidity = fetched.canonical.acidity;
+    if (fetched.canonical.sugar != null) facts.sugar = fetched.canonical.sugar;
     if (fetched.canonical.sweetness) facts.sweetness = fetched.canonical.sweetness;
     if (fetched.canonical.vintage != null) facts.vintage = fetched.canonical.vintage;
     if (fetched.canonical.color) facts.type = fetched.canonical.color;
@@ -410,12 +411,8 @@ export function buildEvidencePatch(
   if (!wine.tastingSheetUrl?.trim() && fetched.tastingSheetUrl) {
     patch.tastingSheetUrl = fetched.tastingSheetUrl;
   }
-  if (wine.alcohol == null && fetched.canonical?.alcohol != null) {
-    patch.alcohol = fetched.canonical.alcohol;
-  }
-  if (wine.acidity == null && fetched.canonical?.acidity != null) {
-    patch.acidity = fetched.canonical.acidity;
-  }
+  // Canonical alcohol/acidity/sugar stay in producerContent.facts.
+  // wines.* technical columns are applied only by Prompt 13 SAFE_AUTOMATIC.
   if (
     excerpt &&
     wine.drinkabilityStart == null &&

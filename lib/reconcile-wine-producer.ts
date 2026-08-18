@@ -139,8 +139,8 @@ async function reconcileOneWine(wineId: number): Promise<boolean> {
   };
 
   if (c?.sweetness) patch.sweetness = c.sweetness;
-  if (c?.alcohol != null) patch.alcohol = c.alcohol;
-  if (c?.acidity != null) patch.acidity = c.acidity;
+  // Technical numbers require field-level provenance + exact vintage.
+  // This script no longer writes alcohol/acidity/sugar. Prompt 13 applies SAFE_AUTOMATIC.
 
   const producerText = producer.producerText ?? "";
   const isOrangeWine =

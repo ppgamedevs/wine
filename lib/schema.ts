@@ -551,6 +551,70 @@ export const wines = sqliteTable(
   ],
 );
 
+export type WineFactField =
+  | "alcohol"
+  | "acidity"
+  | "sugar"
+  | "sweetness"
+  | "vintage"
+  | "grape_varieties"
+  | "wine_type"
+  | "serving_temperature";
+
+export type WineFactExtractionMethod =
+  | "deterministic"
+  | "constrained_llm"
+  | "manual";
+
+export type WineFactIdentityMatch =
+  | "EXACT_WINE_EXACT_VINTAGE"
+  | "EXACT_WINE_UNDATED_SOURCE"
+  | "EXACT_WINE_DIFFERENT_VINTAGE"
+  | "LIKELY_WINE"
+  | "CATALOG_LEVEL"
+  | "PRODUCT_MISMATCH";
+
+/**
+ * Field-level technical claims. Canonical public values stay on `wines`.
+ */
+export const wineFactEvidence = sqliteTable(
+  "wine_fact_evidence",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    field: text("field").$type<WineFactField>().notNull(),
+    valueJson: text("value_json", { mode: "json" })
+      .$type<string | number | string[]>()
+      .notNull(),
+    unit: text("unit"),
+    sourceUrl: text("source_url"),
+    sourceType: text("source_type").notNull(),
+    sourceWineName: text("source_wine_name"),
+    sourceVintage: integer("source_vintage"),
+    sourceDocumentTitle: text("source_document_title"),
+    excerpt: text("excerpt").notNull(),
+    extractionMethod: text("extraction_method")
+      .$type<WineFactExtractionMethod>()
+      .notNull(),
+    identityMatchClass: text("identity_match_class")
+      .$type<WineFactIdentityMatch>()
+      .notNull(),
+    confidence: real("confidence").notNull(),
+    observedAt: text("observed_at").notNull(),
+    sourceHash: text("source_hash"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("wine_fact_evidence_wine_idx").on(table.wineId),
+    index("wine_fact_evidence_field_idx").on(table.field),
+    index("wine_fact_evidence_hash_idx").on(table.sourceHash),
+  ],
+);
+
 /* -------------------------------------------------------------------------- */
 /*                            Community wine reports                           */
 /* -------------------------------------------------------------------------- */
@@ -838,6 +902,14 @@ export const winesRelations = relations(wines, ({ one, many }) => ({
   wineVotes: many(wineVotes),
   reports: many(wineReports),
   submissionNotifications: many(wineSubmissionNotifications),
+  factEvidence: many(wineFactEvidence),
+}));
+
+export const wineFactEvidenceRelations = relations(wineFactEvidence, ({ one }) => ({
+  wine: one(wines, {
+    fields: [wineFactEvidence.wineId],
+    references: [wines.id],
+  }),
 }));
 
 export const scoresHistoryRelations = relations(scoresHistory, ({ one }) => ({

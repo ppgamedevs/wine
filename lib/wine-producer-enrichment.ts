@@ -46,6 +46,7 @@ export interface ProducerCanonicalFacts {
   vintage: number | null;
   alcohol: number | null;
   acidity: number | null;
+  sugar: number | null;
   sweetness: WineSweetnessLevel | null;
   imageUrl: string | null;
   color: "alb" | "roze" | "rosu" | "spumant" | null;
@@ -676,6 +677,9 @@ export function parseRecasProducerFacts(
   const acidityMatch = plain.match(
     /Aciditate\s*(\d{1,2}(?:[.,]\d{1,2})?)\s*g\s*\/\s*l/i,
   );
+  const sugarMatch = plain.match(
+    /Z[aă]har\s+rezidual\s*(\d{1,3}(?:[.,]\d{1,2})?)\s*g\s*\/\s*l/i,
+  );
   const sweetnessMatch = plain.match(
     /Clasificare\s*(Sec|Demisec|Demidulce|Dulce)/i,
   );
@@ -727,6 +731,7 @@ export function parseRecasProducerFacts(
     vintage,
     alcohol: alcoholMatch?.[1] ? parseDecimalToken(alcoholMatch[1]) : null,
     acidity: acidityMatch?.[1] ? parseDecimalToken(acidityMatch[1]) : null,
+    sugar: sugarMatch?.[1] ? parseDecimalToken(sugarMatch[1]) : null,
     sweetness: sweetnessMatch?.[1]
       ? parseSweetnessLabel(sweetnessMatch[1])
       : null,
@@ -819,6 +824,7 @@ export function parseAvincisProducerFacts(
     vintage,
     alcohol: alcoholMatch?.[1] ? parseDecimalToken(alcoholMatch[1]) : null,
     acidity: null,
+    sugar: null,
     sweetness: sweetnessMatch?.[1]
       ? parseSweetnessLabel(sweetnessMatch[1])
       : null,

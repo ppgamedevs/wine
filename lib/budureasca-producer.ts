@@ -36,6 +36,7 @@ export interface BudureascaCanonicalFacts {
   vintage: number | null;
   alcohol: number | null;
   acidity: number | null;
+  sugar: number | null;
   sweetness: WineSweetnessLevel | null;
   imageUrl: string | null;
   color: "alb" | "rosu" | "roze" | "spumant" | null;
@@ -449,6 +450,7 @@ export function parseBudureascaProducerFacts(
     vintage: wine.vintage,
     alcohol: wine.alcohol,
     acidity: null,
+    sugar: null,
     sweetness: wine.sweetness,
     imageUrl: wine.imageUrl,
     color: wine.color,

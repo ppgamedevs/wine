@@ -1,5 +1,9 @@
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import type { GrapeVarietyShare } from "@/lib/schema";
+import {
+  parseResidualSugarClaim,
+  parseTotalAcidityClaim,
+} from "@/lib/tech-facts/parse";
 import type { WineSweetnessLevel } from "@/lib/wine-tech-specs";
 import { slugify } from "@/lib/wine-url";
 
@@ -13,6 +17,7 @@ export interface BallaGezaCanonicalFacts {
   vintage: number | null;
   alcohol: number | null;
   acidity: number | null;
+  sugar: number | null;
   sweetness: WineSweetnessLevel | null;
   imageUrl: string | null;
   color: "alb" | "roze" | "rosu" | "spumant" | null;
@@ -27,6 +32,8 @@ export interface BallaGezaWineRecord {
   sweetness: WineSweetnessLevel | null;
   grapeVarieties: GrapeVarietyShare[];
   alcohol: number | null;
+  acidity: number | null;
+  sugar: number | null;
   volumeMl: number | null;
   imageUrl: string | null;
   tastingNotes: string | null;
@@ -216,6 +223,10 @@ function parseBallaGezaModalBlock(
   const colorRaw = parseListField(block, "Culoare");
   const tipRaw = parseListField(block, "Tip");
   const alcoholRaw = parseListField(block, "Alcool");
+  const acidityRaw = parseListField(block, "Aciditate");
+  const sugarRaw =
+    parseListField(block, "Zahar rezidual") ??
+    parseListField(block, "Zahăr rezidual");
   const volumeRaw = parseListField(block, "Butelii");
 
   const topColorMatch = block.match(
@@ -258,6 +269,16 @@ function parseBallaGezaModalBlock(
     sweetness,
     grapeVarieties: parseGrapeVarieties(grapeRaw),
     alcohol: alcoholRaw ? parseDecimalToken(alcoholRaw) : null,
+    acidity: (() => {
+      if (!acidityRaw) return null;
+      const parsed = parseTotalAcidityClaim(`Aciditate totala ${acidityRaw}`);
+      return parsed && !parsed.ambiguous ? parsed.value : null;
+    })(),
+    sugar: (() => {
+      if (!sugarRaw) return null;
+      const parsed = parseResidualSugarClaim(`Zahar rezidual ${sugarRaw}`);
+      return parsed && !parsed.ambiguous ? parsed.value : null;
+    })(),
     volumeMl: parseVolumeMl(volumeRaw),
     imageUrl,
     tastingNotes,
@@ -376,7 +397,8 @@ export function parseBallaGezaProducerFacts(
     grapeVarieties: wine.grapeVarieties,
     vintage: wine.vintage,
     alcohol: wine.alcohol,
-    acidity: null,
+    acidity: wine.acidity,
+    sugar: wine.sugar,
     sweetness: wine.sweetness,
     imageUrl: wine.imageUrl,
     color: wine.color,

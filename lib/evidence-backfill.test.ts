@@ -333,6 +333,7 @@ describe("identity conflicts are not applied automatically", () => {
         vintage: 2021,
         alcohol: 13.5,
         acidity: null,
+        sugar: null,
         sweetness: "demisec",
         imageUrl: null,
         color: "rosu",
