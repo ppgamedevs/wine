@@ -181,6 +181,8 @@ function sweetnessAdjust(
 }
 
 function resolveTargetCategories(dish: string): FoodCategoryId[] {
+  const canonicalDish = findRomanianDishByName(dish);
+  if (canonicalDish) return [canonicalDish.foodCategory];
   const categories = categorizeFoodText(dish);
   if (categories.length > 0) return categories;
   return [];

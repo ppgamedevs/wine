@@ -1,4 +1,5 @@
 import { scoreWineForDish } from "@/lib/recommendation/dish-match";
+import { usesPublicOccasionMatch } from "@/lib/recommendation/occasion-match-mode";
 import { rankWinesForOccasion } from "@/lib/recommendation/occasion-match";
 import type { OccasionId } from "@/lib/sommelier";
 import type { FaqEntry } from "@/lib/seo";
@@ -128,7 +129,7 @@ export function rankWinesForDishDetailed(
       wine.priceAvg <= budget,
   );
 
-  if (config.occasionId) {
+  if (config.occasionId && usesPublicOccasionMatch()) {
     return rankWinesForOccasion(subset, {
       occasion: config.occasionId,
       budgetMin: 0,

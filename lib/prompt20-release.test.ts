@@ -3,6 +3,10 @@ import { afterEach, describe, expect, it } from "vitest";
 import { GOLDEN_CURATION_STATS } from "@/lib/pairing/golden-curation-dataset";
 import { isPublicProducerBackedPairing } from "@/lib/pairing-curation";
 import {
+  getDishPairingPage,
+  rankWinesForDishDetailed,
+} from "@/lib/dish-pairing-pages";
+import {
   dishMatchSpecificity,
   scoreWineForDish,
 } from "@/lib/recommendation/dish-match";
@@ -120,6 +124,31 @@ describe("Prompt 20 display-only release architecture", () => {
     );
     expect(display).toBe(shadow);
   });
+
+  it("keeps Occasion Match off public dish pages until its separate gate is public", () => {
+    const config = getDishPairingPage("sarmale");
+    expect(config).not.toBeNull();
+    const candidate = wine({ id: 1, slug: "candidate" });
+    const dish = scoreWineForDish(candidate, config!.dishName);
+    const occasion = scoreWineForOccasion(candidate, {
+      occasion: config!.occasionId!,
+      budgetMin: 0,
+      budgetMax: config!.defaultBudget,
+      budgetSpecified: true,
+      budgetConstraint: "hard",
+      dish: config!.dishName,
+    });
+
+    setOccasionMatchModeForTests("internal");
+    expect(rankWinesForDishDetailed([candidate], config!)[0]?.score).toBe(
+      dish.score,
+    );
+
+    setOccasionMatchModeForTests("public");
+    expect(rankWinesForDishDetailed([candidate], config!)[0]?.score).toBe(
+      occasion?.score,
+    );
+  });
 });
 
 describe("Prompt 20 buyer and recommendation correctness", () => {
@@ -162,6 +191,16 @@ describe("Prompt 20 buyer and recommendation correctness", () => {
     expect(
       dishMatchSpecificity("Sarmale de post", "sarmale in foi de vita"),
     ).toBe(1);
+  });
+
+  it("resolves ciorbă variants canonically instead of dropping to an unknown soup", () => {
+    expect(scoreWineForDish(wine({ id: 1, slug: "red" }), "Ciorbă de burtă").categoryMatched)
+      .toBe(true);
+    expect(
+      dishMatchSpecificity("Ciorbă de burtă", "Ciorbă de burtă"),
+    ).toBeGreaterThan(
+      dishMatchSpecificity("Ciorbă de perișoare", "Ciorbă de burtă"),
+    );
   });
 
   it("requires trusted sweetness or exact producer evidence for dessert", () => {
