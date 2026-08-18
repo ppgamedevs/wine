@@ -527,6 +527,16 @@ export function topListRankScore(
   }
 }
 
+function contextualRankingExplanation(budget?: number): string {
+  const budgetPrefix =
+    budget == null
+      ? ""
+      : `Bugetul sub ${budget} lei este o constrângere fermă. `;
+  return usesPublicOccasionMatch()
+    ? `${budgetPrefix}Ordonarea folosește Occasion Match, același scor afișat în coloana Potrivire.`
+    : `${budgetPrefix}Ordonarea folosește potrivirea publică existentă pentru buget și context.`;
+}
+
 function buildGenericFaq(
   topic: string,
   wines: WineWithRelations[],
@@ -561,7 +571,7 @@ function buildGenericFaq(
         rankMetric === "gift"
           ? "Folosim Gift Score (0-100): cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul."
           : rankMetric === "relevance"
-            ? "Ordonam dupa Occasion Match, scorul contextual folosit si in tabelul de potrivire. Nu folosim Food Match sau Value Score ca inlocuitor de afisare."
+            ? contextualRankingExplanation()
             : "Folosim Value Score, un indicator de la 0 la 100 care masoara raportul calitate-pret, combinat cu date despre preturi actuale in RON si potrivirea cu mancarea romaneasca.",
     },
     {
@@ -635,7 +645,7 @@ function buildComboFaq(
     },
     {
       question: `Cum alegem vinurile pentru ${occasionLabel}?`,
-      answer: `Bugetul sub ${budget} lei este o constrangere ferma. Ordonarea foloseste Occasion Match, acelasi scor afisat in coloana Potrivire.`,
+      answer: contextualRankingExplanation(budget),
     },
     {
       question: "Pot vedea detalii despre fiecare vin?",

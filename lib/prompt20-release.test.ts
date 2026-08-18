@@ -149,6 +149,31 @@ describe("Prompt 20 display-only release architecture", () => {
       occasion?.score,
     );
   });
+
+  it("does not advertise Occasion Match on public SEO lists while the gate is internal", () => {
+    const catalog = [
+      wine({ id: 1, slug: "first", priceAvg: 30 }),
+      wine({ id: 2, slug: "second", priceAvg: 40 }),
+    ];
+    setOccasionMatchModeForTests("internal");
+    const internal = resolveTopList(
+      "vinuri-sub-50-lei-pentru-sarmale",
+      catalog,
+    );
+    expect(internal?.faq.map((entry) => entry.answer).join(" ")).not.toContain(
+      "Occasion Match",
+    );
+
+    setSecondaryScoringModeForTests("live");
+    setOccasionMatchModeForTests("public");
+    const publicList = resolveTopList(
+      "vinuri-sub-50-lei-pentru-sarmale",
+      catalog,
+    );
+    expect(publicList?.faq.map((entry) => entry.answer).join(" ")).toContain(
+      "Occasion Match",
+    );
+  });
 });
 
 describe("Prompt 20 buyer and recommendation correctness", () => {
