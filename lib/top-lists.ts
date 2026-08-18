@@ -1,5 +1,6 @@
 import { formatRon, wineTypeLabel } from "@/lib/format";
 import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
+import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
 import { usesPublicOccasionMatch } from "@/lib/recommendation/occasion-match-mode";
 import { usesSecondaryV2Ranking } from "@/lib/scoring-v2/secondary-scoring-mode";
 import { giftScoreInputFromWine } from "@/lib/scoring-v2/wine-score-inputs";
@@ -264,6 +265,13 @@ function byPublicGiftScore(a: WineWithRelations, b: WineWithRelations): number {
   return a.slug.localeCompare(b.slug);
 }
 
+/** Staged Gift ranking. Display mode intentionally keeps legacy ordering. */
+export function sortWinesByGiftRanking(
+  wines: WineWithRelations[],
+): WineWithRelations[] {
+  return [...wines].sort(byPublicGiftScore);
+}
+
 function legacyOccasionDisplayScore(wine: WineWithRelations): number {
   return wine.foodMatchScore ?? wine.valueScore ?? 0;
 }
@@ -345,7 +353,7 @@ export function resolveTopList(
 
   // Gift wines.
   if (slug === "vinuri-cadou") {
-    const wines = [...allWines].sort(byPublicGiftScore).slice(0, 12);
+    const wines = sortWinesByGiftRanking(allWines).slice(0, 12);
     const rankScores = wines.map(publicGiftScore);
     return {
       slug,
@@ -514,16 +522,15 @@ export function topListRankScore(
   rankMetric: TopListRankMetric,
   displayedScore?: number | null,
 ): number | null {
-  if (displayedScore != null) return displayedScore;
   switch (rankMetric) {
     case "gift":
-      return publicGiftScore(wine);
+      return resolvePublicSecondaryScores(wine).gift.score;
     case "relevance":
       return usesSecondaryV2Ranking() && usesPublicOccasionMatch()
-        ? null
-        : legacyOccasionDisplayScore(wine);
+        ? displayedScore ?? null
+        : resolvePublicSecondaryScores(wine).food.score;
     default:
-      return wine.valueScore ?? null;
+      return displayedScore ?? wine.valueScore ?? null;
   }
 }
 
@@ -551,18 +558,17 @@ function buildGenericFaq(
         ? "scor de potrivire"
         : "Value Score";
   const scoreValue =
-    rankScores?.[0] ??
-    (rankMetric === "gift"
-        ? top
-        ? publicGiftScore(top)
-        : undefined
-      : top?.valueScore);
+    top == null
+      ? undefined
+      : topListRankScore(top, rankMetric, rankScores?.[0]);
 
   return [
     {
       question: `Care sunt cele mai bune ${topic}?`,
       answer: top
-        ? `In acest moment, ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""} conduce clasamentul, cu ${scoreLabel} ${scoreValue ?? "N/A"}/100 la un pret de ${formatRon(top.priceAvg)}.`
+        ? scoreValue == null
+          ? `In acest moment, ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""} conduce clasamentul la un pret de ${formatRon(top.priceAvg)}. Nu afisam un ${scoreLabel} numeric fara suficiente date publice.`
+          : `In acest moment, ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""} conduce clasamentul, cu ${scoreLabel} ${scoreValue}/100 la un pret de ${formatRon(top.priceAvg)}.`
         : `Lista este actualizata periodic in functie de preturi si evaluari.`,
     },
     {
@@ -635,12 +641,15 @@ function buildComboFaq(
   rankScores: number[],
 ): FaqEntry[] {
   const top = wines[0];
-  const topMatch = rankScores[0];
+  const topMatch =
+    top == null ? null : topListRankScore(top, "relevance", rankScores[0]);
   return [
     {
       question: `Ce vin sub ${budget} lei se potriveste pentru ${occasionLabel}?`,
       answer: top
-        ? `Recomandam ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""}, la ${formatRon(top.priceAvg)}. Scorul de potrivire pentru ${occasionLabel} este ${topMatch ?? "N/A"}/100.`
+        ? topMatch == null
+          ? `Recomandam ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""}, la ${formatRon(top.priceAvg)}. Nu afisam un scor numeric de potrivire fara suficiente date publice.`
+          : `Recomandam ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""}, la ${formatRon(top.priceAvg)}. Scorul de potrivire pentru ${occasionLabel} este ${topMatch}/100.`
         : `Actualizam selectia pentru ${occasionLabel} in functie de disponibilitate.`,
     },
     {

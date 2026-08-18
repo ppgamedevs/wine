@@ -3,6 +3,7 @@ import { CHAT_SOMMELIER_BASE_PROMPT } from "@/lib/ai/prompts";
 import { resolveWineImage } from "@/lib/wine-images";
 import { formatWineMedalsForSommelier } from "@/lib/wine-medals";
 import { formatProducerContentForSommelier } from "@/lib/producer-page-extract";
+import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
 import type { ChatWineRecommendation } from "@/lib/sommelier-chat-types";
 import { hybridRetrieve } from "@/lib/sommelier-rag";
 import {
@@ -199,6 +200,18 @@ export function buildChatSommelierSystemPrompt(
       const producerSummary = formatProducerContentForSommelier(
         wine.producerContent,
       );
+      const secondary = resolvePublicSecondaryScores(wine);
+      const publicScoreLine = [
+        `Value ${wine.valueScore ?? "N/A"}/100`,
+        secondary.gift.score != null
+          ? `Gift ${secondary.gift.score}/100`
+          : null,
+        secondary.food.score != null
+          ? `Versatilitate ${secondary.food.score}/100`
+          : null,
+      ]
+        .filter((part): part is string => part != null)
+        .join(" | ");
 
       return [
         `${index + 1}. slug: ${wine.slug}`,
@@ -207,7 +220,7 @@ export function buildChatSommelierSystemPrompt(
         `   Tip: ${wine.type}`,
         `   Pret: ${price != null ? `${price} RON` : "indisponibil"}`,
         `   Soiuri: ${grapes || "N/A"}`,
-        `   Value ${wine.valueScore ?? "N/A"}/100 | Food Match ${wine.foodMatchScore ?? "N/A"}/100`,
+        `   ${publicScoreLine}`,
         medalsSummary ? `   Medalii: ${medalsSummary}` : null,
         producerSummary ? `   Producator (site): ${producerSummary}` : null,
         foodNotes ? `   Pairing mancare: ${foodNotes}` : null,

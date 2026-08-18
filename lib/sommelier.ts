@@ -8,6 +8,10 @@ import {
   type RecommendationStatus,
 } from "@/lib/recommendation";
 import { usesPublicOccasionMatch } from "@/lib/recommendation/occasion-match-mode";
+import {
+  resolvePublicSecondaryScores,
+  sanitizePublicSecondaryCopy,
+} from "@/lib/scoring-v2/public-secondary-display";
 import { usesSecondaryV2Ranking } from "@/lib/scoring-v2/secondary-scoring-mode";
 import { formatWineMedalsForSommelier } from "@/lib/wine-medals";
 import type { WineWithRelations } from "@/types";
@@ -109,6 +113,14 @@ export function buildWineContextBlock(wine: WineWithRelations): string {
     .join("; ");
   const medalsSummary = formatWineMedalsForSommelier(wine.medals);
   const producerSummary = formatProducerContentForSommelier(wine.producerContent);
+  const secondary = resolvePublicSecondaryScores(wine);
+  const publicScores = [
+    `Value ${wine.valueScore ?? "N/A"}`,
+    secondary.gift.score != null ? `Gift ${secondary.gift.score}` : null,
+    secondary.food.score != null ? `Food ${secondary.food.score}` : null,
+  ]
+    .filter((part): part is string => part != null)
+    .join(", ");
 
   const safeExpert = sanitizeExpertNotesForDownstream(wine.expertNotes, {
     type: wine.type,
@@ -140,20 +152,20 @@ EXPERT_NOTES (doar sectiuni sustinute de evidenta; nu trata restul ca fapt):
 - Things you should know: ${safeExpert.thingsYouShouldKnow.join(" | ") || "N/A"}`
     : "(expert_notes absente sau nesustinute; nu inventa taninuri/stejar/arome)";
 
-  return `---
+  return sanitizePublicSecondaryCopy(`---
 slug: ${wine.slug}
 Nume: ${wine.name}
 Crama: ${wine.winery?.name ?? "N/A"} | Regiune: ${wine.region?.name ?? "N/A"}
 Tip: ${wine.type} | ${wine.priceAvg ?? "?"} RON
 Soiuri: ${grapes}
-Scoruri: Value ${wine.valueScore ?? "N/A"}, Gift ${wine.giftScore ?? "N/A"}, Food ${wine.foodMatchScore ?? "N/A"}
+Scoruri publice: ${publicScores}
 ${medalsSummary ? `Medalii: ${medalsSummary}` : "Medalii: niciuna in baza de date"}
 ${producerSummary ? `Producator (site): ${producerSummary}` : ""}
 Note: ${wine.tastingNotes ?? "N/A"}
 Pairing-uri mancare: ${pairings || "N/A"}
 Pairing-uri desert: ${dessertPairings || "N/A"}
 ${expert}
----`;
+---`, wine);
 }
 
 export function buildWineContextForLLM(wines: WineWithRelations[]): string {

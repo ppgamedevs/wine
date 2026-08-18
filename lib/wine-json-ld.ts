@@ -2,6 +2,8 @@ import { formatRon } from "@/lib/format";
 import { resolveWineImage } from "@/lib/wine-images";
 import type { WineFaqItem } from "@/lib/wine-analysis";
 import { absoluteUrl } from "@/lib/seo";
+import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
+import type { WineLikeForSecondaryScores } from "@/lib/scoring-v2/wine-score-inputs";
 import { buildWineFullTitle } from "@/lib/wine-vintage";
 import {
   getVerifiedTechnicalValue,
@@ -31,7 +33,11 @@ export type WineStructuredDataInput = Pick<
   | "region"
   | "createdAt"
   | "updatedAt"
->;
+> &
+  WineLikeForSecondaryScores & {
+    giftScore?: number | null;
+    foodMatchScore?: number | null;
+  };
 
 function winePageUrl(slug: string): string {
   return absoluteUrl(`/wines/${slug}`);
@@ -95,7 +101,9 @@ export function buildWineProductNode(
   return {
     "@type": "Product",
     name: wine.name,
-    description: wine.tastingNotes ?? `Vin romanesc ${wine.name}.`,
+    description: wine.tastingNotes
+      ? sanitizePublicSecondaryCopy(wine.tastingNotes, wine)
+      : `Vin romanesc ${wine.name}.`,
     url,
     ...(imageUrl ? { image: imageUrl } : {}),
     ...(wineryName ? { brand: { "@type": "Brand", name: wineryName } } : {}),
@@ -158,7 +166,9 @@ export function buildWineJsonLd(
     "@context": SCHEMA_CONTEXT,
     "@type": "Wine",
     name: wine.name,
-    description: wine.tastingNotes ?? `${wine.name} din ${regionName ?? "Romania"}.`,
+    description: wine.tastingNotes
+      ? sanitizePublicSecondaryCopy(wine.tastingNotes, wine)
+      : `${wine.name} din ${regionName ?? "Romania"}.`,
     url,
     ...(imageUrl
       ? {

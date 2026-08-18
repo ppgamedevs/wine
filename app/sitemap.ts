@@ -13,6 +13,7 @@ import {
 } from "@/lib/dish-pairing-pages";
 import { getAllJournalArticles } from "@/lib/journal";
 import { absoluteUrl } from "@/lib/seo";
+import { flattenSitemapRouteFamilies } from "@/lib/sitemap-validation";
 import { getResolvableTopListSlugs, MIN_INDEXABLE_TOP_LIST_WINES } from "@/lib/top-lists";
 
 export const revalidate = 3600;
@@ -170,15 +171,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  return [
-    ...staticRoutes,
-    ...wineRoutes,
-    ...wineryRoutes,
-    ...topListRoutes,
-    ...regionRoutes,
-    ...soiuriRoutes,
-    ...vinPentruRoutes,
-    ...studiiRoutes,
-    ...journalArticleRoutes,
-  ];
+  return flattenSitemapRouteFamilies({
+    static: staticRoutes,
+    wines: wineRoutes,
+    wineries: wineryRoutes,
+    topLists: topListRoutes,
+    regions: regionRoutes,
+    soiuri: soiuriRoutes,
+    vinPentru: vinPentruRoutes,
+    studii: studiiRoutes,
+    journal: journalArticleRoutes,
+  });
 }

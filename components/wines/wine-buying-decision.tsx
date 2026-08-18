@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { VinScoreBadge } from "@/components/wines/vin-score-badge";
 import { isVinIntelCuratedPairing } from "@/lib/pairing-curation";
-import { publicGiftScoreDisplay } from "@/lib/scoring-v2/public-secondary-display";
+import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
 import { formatRon } from "@/lib/format";
 import { buildWorthItAnalysis } from "@/lib/wine-analysis";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
@@ -37,7 +37,7 @@ export function WineBuyingDecision({ wine }: { wine: WineWithRelations }) {
   const pricing = buildWinePriceViewModel(wine);
   const analysis = buildWorthItAnalysis(wine);
   const pairing = selectQuickDecisionPairing(wine.foodPairings);
-  const gift = publicGiftScoreDisplay(wine);
+  const { gift } = resolvePublicSecondaryScores(wine);
   const hasOffer = pricing.purchaseLink != null;
 
   return (

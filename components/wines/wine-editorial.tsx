@@ -14,6 +14,7 @@ import {
 } from "@/components/wines/editorial-icons";
 import { getVinScoreMeta } from "@/lib/format";
 import { sanitizeEditorialText } from "@/lib/editorial-text";
+import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
 
@@ -50,6 +51,8 @@ function pairingTone(score: number | undefined): string {
 }
 
 export function WineEditorial({ wine }: { wine: WineWithRelations }) {
+  const publicEditorialText = (text: string | null | undefined) =>
+    sanitizeEditorialText(sanitizePublicSecondaryCopy(text, wine));
   const hasDescription = Boolean(wine.descriptionEditorial?.trim());
   const hasThings = (wine.thingsYouShouldKnow ?? []).length > 0;
   const hasTaste = Boolean(wine.tasteProfile?.trim());
@@ -84,7 +87,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
           icon={EditorialWineIcon}
         >
           <p className="max-w-3xl text-base leading-relaxed text-foreground/90">
-            {sanitizeEditorialText(wine.descriptionEditorial)}
+            {publicEditorialText(wine.descriptionEditorial)}
           </p>
         </EditorialBlock>
       ) : null}
@@ -96,7 +99,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
           icon={EditorialTasteIcon}
         >
           <p className="max-w-3xl text-base leading-relaxed text-foreground/90">
-            {sanitizeEditorialText(wine.tasteProfile)}
+            {publicEditorialText(wine.tasteProfile)}
           </p>
         </EditorialBlock>
       ) : null}
@@ -117,7 +120,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
                   className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-wine"
                   aria-hidden="true"
                 />
-                {sanitizeEditorialText(item)}
+                {publicEditorialText(item)}
               </li>
             ))}
           </ul>
@@ -153,7 +156,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
                     ) : null}
                   </div>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {sanitizeEditorialText(pairing.note)}
+                    {publicEditorialText(pairing.note)}
                   </p>
                 </CardContent>
               </Card>
@@ -195,7 +198,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
                     ) : null}
                   </div>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {sanitizeEditorialText(pairing.note)}
+                    {publicEditorialText(pairing.note)}
                   </p>
                 </CardContent>
               </Card>

@@ -3,6 +3,7 @@ import {
   filterWinesByBudget,
   filterWinesByType,
   getTopWinesByValue,
+  sortWinesByGiftRanking,
 } from "@/lib/top-lists";
 import { formatRon } from "@/lib/format";
 import type { WineWithRelations } from "@/types";
@@ -41,9 +42,7 @@ export function BudgetPageSections({ allWines, budget }: BudgetPageSectionsProps
     3,
   );
   const giftCheap = getTopWinesByValue(
-    [...filterWinesByBudget(allWines, 50)].sort(
-      (a, b) => (b.giftScore ?? 0) - (a.giftScore ?? 0),
-    ),
+    sortWinesByGiftRanking(filterWinesByBudget(allWines, 50)),
     3,
     false,
   );

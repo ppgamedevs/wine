@@ -20,6 +20,11 @@ export interface PublicScoreDisplay {
   provisional: boolean;
 }
 
+export interface PublicSecondaryScores {
+  gift: PublicScoreDisplay;
+  food: PublicScoreDisplay;
+}
+
 const GIFT_HIDE_BELOW = 40;
 const GIFT_LIMITED_BELOW = 55;
 
@@ -83,4 +88,58 @@ export function publicFoodScoreDisplay(
           : provenanceCaption,
     provisional: food.provisional,
   };
+}
+
+/**
+ * Canonical public view model for secondary scores.
+ *
+ * Public cards, copy, SEO and AI context must consume this resolver instead of
+ * reading stored Gift/Food fields. Ranking and internal diagnostics remain
+ * separate and may intentionally use their own staged rollout semantics.
+ */
+export function resolvePublicSecondaryScores(
+  wine: WineLikeForSecondaryScores & {
+    giftScore?: number | null;
+    foodMatchScore?: number | null;
+  },
+): PublicSecondaryScores {
+  return {
+    gift: publicGiftScoreDisplay(wine),
+    food: publicFoodScoreDisplay(wine),
+  };
+}
+
+/**
+ * Defensive boundary for persisted or generated prose. It rewrites explicit
+ * secondary-score claims to the current public view model and removes numeric
+ * precision when that score is hidden.
+ */
+export function sanitizePublicSecondaryCopy(
+  text: string | null | undefined,
+  wine: WineLikeForSecondaryScores & {
+    giftScore?: number | null;
+    foodMatchScore?: number | null;
+  },
+): string {
+  if (!text) return "";
+  const { gift, food } = resolvePublicSecondaryScores(wine);
+  const giftReplacement =
+    gift.score == null
+      ? gift.caption ?? "Gift Score indisponibil."
+      : `Gift Score ${gift.score}/100`;
+  const foodReplacement =
+    food.score == null
+      ? food.caption ??
+        "Nu avem încă suficiente date pentru un scor general precis de versatilitate la masă."
+      : `Versatilitate la masă ${food.score}/100`;
+
+  return text
+    .replace(
+      /\bGift Score\b\s*(?:(?:este|de)\s*)?:?\s*\d{1,3}(?:\/100)?/gi,
+      giftReplacement,
+    )
+    .replace(
+      /\b(?:Food Match|Versatilitatea? la mas[ăa])\b\s*(?:(?:este|de)\s*)?:?\s*\d{1,3}(?:\/100)?/gi,
+      foodReplacement,
+    );
 }

@@ -13,6 +13,7 @@ import {
   buildValueScoreBreakdown,
   valueScoreInputFromWine,
 } from "@/lib/scoring";
+import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
 import { Users } from "lucide-react";
@@ -75,7 +76,10 @@ function BreakdownTable({
   const breakdown = buildValueScoreBreakdown(input);
   const storedScore = wine.valueScore;
   const editorialSummary = wine.valueExplanation?.trim()
-    ? splitValueExplanation(wine.valueExplanation).summary
+    ? sanitizePublicSecondaryCopy(
+        splitValueExplanation(wine.valueExplanation).summary,
+        wine,
+      )
     : null;
 
   return (

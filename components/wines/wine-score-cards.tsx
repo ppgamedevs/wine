@@ -6,10 +6,7 @@ import {
 import { EditorialSectionIcon } from "@/components/wines/editorial-section-icon";
 import { VinScoreBadge } from "@/components/wines/vin-score-badge";
 import { sanitizeEditorialText } from "@/lib/editorial-text";
-import {
-  publicFoodScoreDisplay,
-  publicGiftScoreDisplay,
-} from "@/lib/scoring-v2/public-secondary-display";
+import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
 import type { WineWithRelations } from "@/types";
 import type { ComponentType, SVGProps } from "react";
 
@@ -55,8 +52,7 @@ function ScoreCard({
 }
 
 export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
-  const gift = publicGiftScoreDisplay(wine);
-  const food = publicFoodScoreDisplay(wine);
+  const { gift, food } = resolvePublicSecondaryScores(wine);
 
   return (
     <section aria-labelledby="wine-scores-heading">

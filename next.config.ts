@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Journal metadata is read from Markdown during sitemap ISR regeneration.
+  // Explicit tracing keeps those files available in the deployed function.
+  outputFileTracingIncludes: {
+    "/sitemap.xml": ["./content/journal/**/*.md"],
+  },
   async redirects() {
     return [
       {

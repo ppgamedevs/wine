@@ -3,6 +3,7 @@ import {
   getVerifiedTechnicalValue,
   type PublicTechnicalTrust,
 } from "@/lib/tech-facts/public-trust";
+import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
 import { formatRon } from "@/lib/format";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
@@ -52,9 +53,7 @@ export function buildWorthItAnalysis(wine: WineWithRelations): WorthItAnalysis {
       summary: `${wine.name} ofera un raport calitate-pret solid la ${priceLabel}, cu Value Score ${value}/100 si ${overpricedLabel[risk]}.`,
       bullets: [
         `Value Score ${value}/100: peste pragul nostru de recomandare (${MIN_RECOMMENDED_VALUE_SCORE}/100).`,
-        wine.foodMatchScore
-          ? `Versatilitate la masa ${wine.foodMatchScore}/100: utilitate larga la masa, nu potrivire cu un fel anume.`
-          : "Se potriveste bine cu preparate traditionale romanesti.",
+        "Vezi asocierile culinare evaluate separat pentru acest vin.",
         (() => {
           const cellar = resolveCellarDisplay({
             type: wine.type,
@@ -86,9 +85,7 @@ export function buildWorthItAnalysis(wine: WineWithRelations): WorthItAnalysis {
         overpricedLabel[risk] === "risc ridicat de suprapret"
           ? "Atentie la pret: pentru acelasi buget pot exista optiuni cu scor mai bun."
           : "Pretul este rezonabil pentru calitatea oferita, fara a fi o achizitie evidenta.",
-        wine.giftScore && wine.giftScore >= 80
-          ? `Gift Score ${wine.giftScore}/100: functioneaza bine ca dar.`
-          : "Mai potrivit pentru consum personal decat ca dar premium.",
+        "Verifică secțiunea de utilizare pentru cadou și masă înainte de alegere.",
         `Pentru recomandari clare, cauta vinuri cu cel putin ${MIN_RECOMMENDED_VALUE_SCORE}/100 Value Score.`,
       ],
     };
@@ -120,6 +117,11 @@ export function buildWineFaq(wine: WineWithRelations): WineFaqItem[] {
   const price = formatRon(wine.priceAvg);
   const topPairing =
     wine.foodPairings?.[0]?.dish ?? "mancare traditionala romaneasca";
+  const { food } = resolvePublicSecondaryScores(wine);
+  const foodAnswer =
+    food.score == null
+      ? `Recomandam in special ${topPairing}. ${food.caption ?? "Nu avem încă suficiente date pentru un scor general precis de versatilitate la masă."} Potrivirea cu preparatul se evalueaza separat.`
+      : `Recomandam in special ${topPairing}. Versatilitatea la masa este ${food.score}/100${food.caption ? ` (${food.caption.toLowerCase()})` : ""}; potrivirea cu preparatul se evalueaza separat.`;
 
   return [
     {
@@ -128,7 +130,7 @@ export function buildWineFaq(wine: WineWithRelations): WineFaqItem[] {
     },
     {
       question: `Ce mancare se potriveste cu ${wine.name}?`,
-      answer: `Recomandam in special ${topPairing}. Versatilitatea la masa este ${wine.foodMatchScore ?? "N/A"}/100; potrivirea de fel se calculeaza separat.`,
+      answer: foodAnswer,
     },
     {
       question: `Merita ${wine.name} banii?`,
@@ -207,14 +209,6 @@ export function buildWineProsCons(
     pros.push(`Value Score ${value}/100: recomandare clara la acest pret.`);
   } else if (value >= VALUE_SCORE_NEUTRAL_MIN) {
     pros.push(`Value Score ${value}/100: alegere acceptabila, fara surprize majore.`);
-  }
-
-  if (wine.foodMatchScore && wine.foodMatchScore >= 75) {
-    pros.push(`Versatilitate la masa ${wine.foodMatchScore}/100: compatibilitate larga, nu un fel anume.`);
-  }
-
-  if (wine.giftScore && wine.giftScore >= 80) {
-    pros.push(`Gift Score ${wine.giftScore}/100: functioneaza bine ca dar.`);
   }
 
   if (wine.beginnerFriendly) {
