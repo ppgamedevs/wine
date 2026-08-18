@@ -60,6 +60,7 @@ function sweetnessFromLabel(wine: EligibilityWine): string | null {
     .toLowerCase();
   if (/\bdemidulce\b/.test(hay)) return "demidulce";
   if (/\bdemisec\b/.test(hay)) return "demisec";
+  if (/\b(extra brut|brut)\b/.test(hay)) return "sec";
   if (/\bdulce\b/.test(hay)) return "dulce";
   if (/\bsec\b/.test(hay)) return "sec";
   return null;

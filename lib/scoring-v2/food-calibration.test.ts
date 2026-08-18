@@ -144,7 +144,9 @@ describe("Food calibration pairs", () => {
     });
     expect(food.displayable).toBe(false);
     expect(publicFoodScoreDisplay(wine).score).toBeNull();
-    expect(publicFoodScoreDisplay(wine).caption).toBe("Date insuficiente");
+    expect(publicFoodScoreDisplay(wine).caption).toBe(
+      "Avem încă puține dovezi pentru un scor general de versatilitate.",
+    );
     setSecondaryScoringModeForTests(null);
   });
 });

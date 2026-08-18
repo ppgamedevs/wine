@@ -5,6 +5,7 @@ import { matchDishPairingSlug } from "@/lib/dish-pairing-pages";
 import { buildGenericPairingGuidance } from "@/lib/generic-pairing-guidance";
 import {
   isVinIntelCuratedPairing,
+  isPublicProducerBackedPairing,
   publicPairingAttribution,
   publicProducerAttribution,
 } from "@/lib/pairing-curation";
@@ -30,6 +31,18 @@ export function WinePairings({
   technicalTrust: PublicTechnicalTrust;
 }) {
   const evaluatedPairings = wine.foodPairings ?? [];
+  const visiblePairings = [...evaluatedPairings]
+    .sort((left, right) => {
+      const rank = { strong: 3, good: 2, possible: 1 } as const;
+      return (
+        (rank[right.strength ?? "possible"] ?? 0) -
+        (rank[left.strength ?? "possible"] ?? 0)
+      );
+    })
+    .slice(0, 4);
+  const producerGuidance = sanitizeCulinaryText(
+    wine.producerContent?.culinaryPairings,
+  );
   const hasEvaluatedPairings = evaluatedPairings.length > 0;
 
   if (!hasEvaluatedPairings) {
@@ -54,22 +67,12 @@ export function WinePairings({
           id="pairings-heading"
           className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
         >
-          Pairing-uri cu mancare
+          Cu ce îl mănânci
         </h2>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          Nu avem inca o evaluare de pairing specifica acestui vin. Iata o
-          orientare generala pentru acest tip de vin, nu o recomandare
-          verificata pentru aceasta sticla.
+          Nu avem încă o asociere specifică evaluată pentru acest vin. Arătăm
+          doar o orientare generală pentru stilul său.
         </p>
-        {sanitizeCulinaryText(wine.producerContent?.culinaryPairings) ? (
-          <p className="mt-3 text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">
-              {publicProducerAttribution()}
-            </span>
-            {": "}
-            {sanitizeCulinaryText(wine.producerContent?.culinaryPairings)}
-          </p>
-        ) : null}
         <Card className="mt-6 border-border/70 bg-secondary/20">
           <CardContent className="flex items-start gap-4 p-5">
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-wine/10 text-wine">
@@ -97,23 +100,15 @@ export function WinePairings({
         id="pairings-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Pairing-uri cu mancare romaneasca
+          Cu ce îl mănânci
       </h2>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        Asocieri evaluate pentru acest vin.
+        Până la patru asocieri practice, evaluate pentru acest vin.
       </p>
-      {sanitizeCulinaryText(wine.producerContent?.culinaryPairings) ? (
-        <p className="mt-3 text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">
-            {publicProducerAttribution()}
-          </span>
-          {": "}
-          {sanitizeCulinaryText(wine.producerContent?.culinaryPairings)}
-        </p>
-      ) : null}
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        {evaluatedPairings.map((pairing) => {
+        {visiblePairings.map((pairing) => {
           const dishSlug = matchDishPairingSlug(pairing.dish);
+          const producerBacked = isPublicProducerBackedPairing(wine, pairing);
           const dishHeading = (
             <h3 className="font-medium text-foreground">
               {dishSlug ? (
@@ -141,7 +136,11 @@ export function WinePairings({
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-2">
                     {dishHeading}
-                    {pairing.score && !isVinIntelCuratedPairing(pairing) ? (
+                    {producerBacked ? (
+                      <span className="shrink-0 text-xs font-medium text-wine">
+                        {publicProducerAttribution()}
+                      </span>
+                    ) : pairing.score && !isVinIntelCuratedPairing(pairing) ? (
                       <span
                         className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${pairingTone(pairing.score)}`}
                       >
@@ -164,6 +163,16 @@ export function WinePairings({
           );
         })}
       </div>
+      {producerGuidance ? (
+        <details className="mt-5 rounded-xl border border-border/70 bg-secondary/20">
+          <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            Recomandările culinare ale producătorului
+          </summary>
+          <p className="border-t border-border/70 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+            {producerGuidance}
+          </p>
+        </details>
+      ) : null}
     </section>
   );
 }

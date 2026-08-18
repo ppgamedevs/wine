@@ -1,15 +1,12 @@
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { EditorialSectionIcon } from "@/components/wines/editorial-section-icon";
-import { EditorialValueIcon } from "@/components/wines/editorial-icons";
 import { VinScoreBadge } from "@/components/wines/vin-score-badge";
 import { WineCommunityVoteButton } from "@/components/wines/wine-community-vote-button";
 import {
   COMMUNITY_SCORE_EXPLANATION,
   formatCommunityVoteLabel,
   getCommunityScoreDisplay,
-  VININTEL_SCORE_EXPLANATION,
 } from "@/lib/community-score";
 import { splitValueExplanation, sanitizeEditorialText } from "@/lib/editorial-text";
 import {
@@ -82,9 +79,9 @@ function BreakdownTable({
     : null;
 
   return (
-    <div className="mt-8 space-y-4">
+    <div className="space-y-4">
       <h3 className="font-serif text-xl font-semibold text-foreground">
-        De ce am dat acest scor
+        Cum am calculat Value Score
       </h3>
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
         VinIntel Value Score separa calitatea intrinseca (Q) de eficienta
@@ -211,36 +208,16 @@ export function WineDualScores({ wine }: { wine: WineWithRelations }) {
 
   return (
     <section aria-labelledby="wine-dual-scores-heading" className="scroll-mt-24">
-      <div className="flex items-center gap-3">
-        <EditorialSectionIcon icon={EditorialValueIcon} />
-        <h2
-          id="wine-dual-scores-heading"
-          className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
-        >
-          Scoruri VinIntel
-        </h2>
-      </div>
-
+      <h2
+        id="wine-dual-scores-heading"
+        className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
+      >
+        Ce spun utilizatorii
+      </h2>
       <Card className="mt-5 border-border/70">
         <CardContent className="p-6 sm:p-8">
-          <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
-            {hasVinIntelScore ? (
-              <ScoreColumn
-                title="VinIntel Value Score"
-                badge={
-                  <div className="flex flex-col items-start gap-2">
-                    <VinScoreBadge score={wine.valueScore!} size="lg" />
-                    <Badge variant="outline" className="border-wine/30 text-wine">
-                      Scor expert
-                    </Badge>
-                  </div>
-                }
-                explanation={VININTEL_SCORE_EXPLANATION}
-              />
-            ) : null}
-
-            <ScoreColumn
-              title="Community Score"
+          <ScoreColumn
+              title="Scorul comunității"
               badge={
                 community.score != null ? (
                   <div className="flex flex-col items-start gap-2">
@@ -263,7 +240,7 @@ export function WineDualScores({ wine }: { wine: WineWithRelations }) {
                 community.isLiveCommunity
                   ? COMMUNITY_SCORE_EXPLANATION
                   : community.score != null
-                    ? `${COMMUNITY_SCORE_EXPLANATION} (date estimate din surse externe pana la primele voturi VinIntel.)`
+                    ? `${COMMUNITY_SCORE_EXPLANATION} Date estimate din surse externe până la primele voturi VinIntel.`
                     : COMMUNITY_SCORE_EXPLANATION
               }
               footer={
@@ -276,11 +253,25 @@ export function WineDualScores({ wine }: { wine: WineWithRelations }) {
                 />
               }
             />
-          </div>
-
-          {hasVinIntelScore ? <BreakdownTable wine={wine} /> : null}
         </CardContent>
       </Card>
+
+      {hasVinIntelScore ? (
+        <details className="mt-8 rounded-xl border border-border/70 bg-card">
+          <summary className="cursor-pointer px-5 py-4 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            Cum am calculat Value Score
+          </summary>
+          <div className="border-t border-border/70 px-5 py-6 sm:px-8">
+            <BreakdownTable wine={wine} />
+            <a
+              href="/cum-functioneaza-scorurile"
+              className="mt-5 inline-flex text-sm font-medium text-wine hover:underline"
+            >
+              Vezi metodologia completă
+            </a>
+          </div>
+        </details>
+      ) : null}
     </section>
   );
 }

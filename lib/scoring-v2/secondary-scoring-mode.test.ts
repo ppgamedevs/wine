@@ -9,8 +9,15 @@ import {
   publicGiftScoreDisplay,
 } from "@/lib/scoring-v2/public-secondary-display";
 import {
+  parseOccasionMatchMode,
+  setOccasionMatchModeForTests,
+  usesPublicOccasionMatch,
+} from "@/lib/recommendation/occasion-match-mode";
+import {
   parseSecondaryScoringMode,
   setSecondaryScoringModeForTests,
+  usesSecondaryV2Display,
+  usesSecondaryV2Ranking,
 } from "@/lib/scoring-v2/secondary-scoring-mode";
 import type { WineWithRelations } from "@/types";
 
@@ -55,6 +62,7 @@ const sommelierInput = {
 
 afterEach(() => {
   setSecondaryScoringModeForTests(null);
+  setOccasionMatchModeForTests(null);
 });
 
 describe("secondary scoring mode", () => {
@@ -62,7 +70,26 @@ describe("secondary scoring mode", () => {
     expect(parseSecondaryScoringMode(undefined)).toBe("shadow");
     expect(parseSecondaryScoringMode("")).toBe("shadow");
     expect(parseSecondaryScoringMode("nonsense")).toBe("shadow");
+    expect(parseSecondaryScoringMode("DISPLAY")).toBe("display");
     expect(parseSecondaryScoringMode("LIVE")).toBe("live");
+    expect(parseOccasionMatchMode(undefined)).toBe("internal");
+    expect(parseOccasionMatchMode("nonsense")).toBe("internal");
+  });
+
+  it("keeps display, ranking and Occasion release decisions independent", () => {
+    setSecondaryScoringModeForTests("shadow");
+    expect(usesSecondaryV2Display()).toBe(false);
+    expect(usesSecondaryV2Ranking()).toBe(false);
+
+    setSecondaryScoringModeForTests("display");
+    expect(usesSecondaryV2Display()).toBe(true);
+    expect(usesSecondaryV2Ranking()).toBe(false);
+    expect(usesPublicOccasionMatch()).toBe(false);
+
+    setSecondaryScoringModeForTests("live");
+    expect(usesSecondaryV2Display()).toBe(true);
+    expect(usesSecondaryV2Ranking()).toBe(true);
+    expect(usesPublicOccasionMatch()).toBe(false);
   });
 
   it("shadow does not change public gift ranking or display vs stored scores", () => {
@@ -109,7 +136,49 @@ describe("secondary scoring mode", () => {
     }
   });
 
-  it("live uses one v2 system for ranking and display", () => {
+  it("display changes eligible UI values but preserves shadow ranking", () => {
+    const wines = [
+      catalogWine({
+        id: 1,
+        slug: "alpha",
+        priceAvg: 40,
+        foodPairings: [{ dish: "Sarmale" }],
+        foodMatchScore: 40,
+        giftScore: 40,
+      }),
+      catalogWine({
+        id: 2,
+        slug: "beta",
+        priceAvg: 42,
+        valueScore: 90,
+        foodMatchScore: 96,
+        giftScore: 80,
+      }),
+    ];
+
+    setSecondaryScoringModeForTests("shadow");
+    const shadowGiftOrder = resolveTopList("vinuri-cadou", wines)?.wines.map(
+      (wine) => wine.slug,
+    );
+    const shadowOccasionOrder = resolveTopList(
+      "vinuri-sub-50-lei-pentru-sarmale",
+      wines,
+    )?.wines.map((wine) => wine.slug);
+    const legacyGiftDisplay = publicGiftScoreDisplay(wines[0]!).score;
+
+    setSecondaryScoringModeForTests("display");
+    expect(resolveTopList("vinuri-cadou", wines)?.wines.map((wine) => wine.slug)).toEqual(
+      shadowGiftOrder,
+    );
+    expect(
+      resolveTopList("vinuri-sub-50-lei-pentru-sarmale", wines)?.wines.map(
+        (wine) => wine.slug,
+      ),
+    ).toEqual(shadowOccasionOrder);
+    expect(publicGiftScoreDisplay(wines[0]!).score).not.toBe(legacyGiftDisplay);
+  });
+
+  it("live ranking still requires the independent public Occasion gate", () => {
     setSecondaryScoringModeForTests("live");
     const wines = [
       catalogWine({
@@ -129,6 +198,11 @@ describe("secondary scoring mode", () => {
         giftScore: 80,
       }),
     ];
+    expect(recommendWines(wines, sommelierInput, 10).map((rec) => rec.wine.slug)).not.toEqual(
+      recommendWinesLive(wines, sommelierInput, 10).map((rec) => rec.wine.slug),
+    );
+
+    setOccasionMatchModeForTests("public");
     const list = resolveTopList("vinuri-sub-50-lei-pentru-sarmale", wines);
     const recs = recommendWinesLive(wines, sommelierInput, 10);
     expect(list).not.toBeNull();

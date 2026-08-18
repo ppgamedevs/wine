@@ -168,7 +168,7 @@ describe("pairing curation", () => {
   });
 
   it("K: public producer attribution is not VinIntel curation", () => {
-    expect(publicProducerAttribution()).toBe("Recomandarea producatorului");
+    expect(publicProducerAttribution()).toBe("Recomandat și de producător");
     expect(
       publicPairingAttribution({ dish: "Sarmale", source: "vinintel_curated" }),
     ).toBe("Recomandare VinIntel");

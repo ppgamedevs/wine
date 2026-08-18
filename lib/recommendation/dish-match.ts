@@ -20,9 +20,13 @@ import {
   foodCategoryLabel,
   isDessertCategory,
   isGrillCategory,
-  normalizeFoodToken,
   type FoodCategoryId,
 } from "@/lib/food-taxonomy";
+import {
+  findRomanianDishByName,
+  foldDishName,
+} from "@/lib/pairing/romanian-dishes";
+import { isExactOrNearExactProducerMention } from "@/lib/pairing/producer-provenance";
 import { clamp, roundScore } from "@/lib/scoring-v2/math";
 import type { FoodPairing, ProducerPageContent } from "@/lib/schema";
 import type { DishMatchResult } from "@/lib/recommendation/types";
@@ -33,6 +37,7 @@ export interface DishMatchWine {
   acidity?: number | null;
   foodPairings?: FoodPairing[] | null;
   producerContent?: ProducerPageContent | null;
+  sweetnessTrust?: "verified" | "catalog_only" | "conflicting" | "unknown";
 }
 
 const GENERIC_TYPE_FIT: Record<string, Partial<Record<FoodCategoryId, number>>> = {
@@ -181,13 +186,39 @@ function resolveTargetCategories(dish: string): FoodCategoryId[] {
   return [];
 }
 
-function pairingHitsDish(pairingDish: string, dish: string, categories: FoodCategoryId[]): boolean {
+export function dishMatchSpecificity(
+  pairingDish: string,
+  dish: string,
+  categories = resolveTargetCategories(dish),
+): 0 | 1 | 2 | 3 | 4 {
+  const pairingNorm = foldDishName(pairingDish);
+  const dishNorm = foldDishName(dish);
+  if (pairingNorm && pairingNorm === dishNorm) return 4;
+
+  const pairingProfile = findRomanianDishByName(pairingDish);
+  const dishProfile = findRomanianDishByName(dish);
+  if (pairingProfile && dishProfile) {
+    if (pairingProfile.id === dishProfile.id) return 4;
+    if (pairingProfile.family === dishProfile.family) return 2;
+    if (pairingProfile.foodCategory === dishProfile.foodCategory) return 1;
+  }
+
   const pairingCats = categorizeFoodText(pairingDish);
-  if (pairingCats.some((category) => categories.includes(category))) return true;
-  const pairingNorm = normalizeFoodToken(pairingDish);
-  const dishNorm = normalizeFoodToken(dish);
-  if (!pairingNorm || !dishNorm || dishNorm.length < 6) return false;
-  return pairingNorm === dishNorm;
+  return pairingCats.some((category) => categories.includes(category)) ? 1 : 0;
+}
+
+function producerMentionsExactDish(producerText: string, dish: string): boolean {
+  const foldedDish = foldDishName(dish);
+  return producerText
+    .split(/[,;.]+/)
+    .some((mention) => {
+      const foldedMention = foldDishName(mention);
+      const direct =
+        foldedMention === foldedDish ||
+        (foldedDish.split(" ").length >= 2 &&
+          foldedMention.includes(foldedDish));
+      return direct || isExactOrNearExactProducerMention(mention, dish);
+    });
 }
 
 function isFocusedDessertRecommendation(text: string): boolean {
@@ -207,19 +238,60 @@ function producerTextIsUsable(text: string): boolean {
   return true;
 }
 
+export function hasUnsafeCulinaryRecommendationText(
+  wine: DishMatchWine,
+): boolean {
+  const text = wine.producerContent?.culinaryPairings ?? "";
+  return (
+    isCulinaryChromeText(text) ||
+    isTastingNoteLeak(text) ||
+    isLaundryListText(text)
+  );
+}
+
 export function scoreWineForDish(wine: DishMatchWine, dish: string): DishMatchResult {
   const categories = resolveTargetCategories(dish);
   const type = normalizeType(wine.type);
   const reasons: string[] = [];
 
-  const curatedHit = (wine.foodPairings ?? []).some((pairing) =>
-    pairingHitsDish(pairing.dish, dish, categories),
+  const bestCuratedSpecificity = (wine.foodPairings ?? []).reduce(
+    (best, pairing) =>
+      Math.max(best, dishMatchSpecificity(pairing.dish, dish, categories)),
+    0,
   );
-  if (curatedHit) {
-    reasons.push(`Pairing structurat pentru ${dish}.`);
+  if (bestCuratedSpecificity > 0) {
+    const exact = bestCuratedSpecificity >= 3;
+    reasons.push(
+      exact
+        ? `Asociere evaluată exact pentru ${dish}.`
+        : bestCuratedSpecificity === 2
+          ? `Asociere evaluată pentru un preparat apropiat din aceeași familie.`
+          : `Asociere evaluată doar la nivelul categoriei culinare.`,
+    );
+    const dessertTarget = categories.some(isDessertCategory);
+    const trustedSweetness = wine.sweetnessTrust === "verified";
+    const dessertCompatible =
+      wine.type === "dessert" ||
+      wine.sweetness === "dulce" ||
+      wine.sweetness === "demidulce";
+    const confidence =
+      dessertTarget && (!trustedSweetness || !dessertCompatible)
+        ? 38
+        : exact
+          ? 88
+          : bestCuratedSpecificity === 2
+            ? 64
+            : 48;
     return {
-      score: 90,
-      confidence: 86,
+      score:
+        dessertTarget && (!trustedSweetness || !dessertCompatible)
+          ? 52
+          : exact
+            ? 90
+            : bestCuratedSpecificity === 2
+              ? 72
+              : 58,
+      confidence,
       reasons,
       evidenceLevel: 1,
       categoryMatched: true,
@@ -235,7 +307,7 @@ export function scoreWineForDish(wine: DishMatchWine, dish: string): DishMatchRe
     wine.sweetness === "demidulce";
   const producerUsable = producerTextIsUsable(producerText);
   const producerExact =
-    producerUsable && pairingHitsDish(producerText, dish, categories);
+    producerUsable && producerMentionsExactDish(producerText, dish);
   const producerGrillRelated =
     producerUsable &&
     categories.some(isGrillCategory) &&
@@ -243,11 +315,16 @@ export function scoreWineForDish(wine: DishMatchWine, dish: string): DishMatchRe
     !producerExact;
 
   if (dessertTarget && producerUsable && isFocusedDessertRecommendation(producerText)) {
-    if (dessertWine || wine.sweetness === "demisec") {
+    const trustworthySweetness = wine.sweetnessTrust === "verified";
+    if (
+      producerExact ||
+      (trustworthySweetness &&
+        (dessertWine || wine.sweetness === "demisec"))
+    ) {
       reasons.push("Recomandare culinara oficiala, concentrata pe desert.");
       return {
-        score: dessertWine ? 82 : 70,
-        confidence: dessertWine ? 74 : 58,
+        score: producerExact ? 82 : dessertWine ? 78 : 68,
+        confidence: producerExact ? 74 : dessertWine ? 68 : 56,
         reasons,
         evidenceLevel: 2,
         categoryMatched: true,
@@ -267,14 +344,9 @@ export function scoreWineForDish(wine: DishMatchWine, dish: string): DishMatchRe
   }
 
   if (producerGrillRelated) {
-    reasons.push("Producatorul recomanda un tip diferit de gratar, nu acelasi fel.");
-    return {
-      score: 46,
-      confidence: 52,
-      reasons,
-      evidenceLevel: 2,
-      categoryMatched: true,
-    };
+    reasons.push(
+      "Producătorul recomandă alt tip de grătar; folosim doar compatibilitatea generală de stil.",
+    );
   }
 
   if (categories.length === 0) {
@@ -293,6 +365,30 @@ export function scoreWineForDish(wine: DishMatchWine, dish: string): DishMatchRe
   const acidityKnown = wine.acidity != null;
   const styleSupported =
     acidityKnown || Boolean(wine.sweetness && wine.type);
+
+  const dessertIdentityCompatible =
+    type === "dessert" ||
+    wine.sweetness === "dulce" ||
+    wine.sweetness === "demidulce";
+  if (
+    dessertTarget &&
+    (wine.sweetnessTrust !== "verified" || !dessertIdentityCompatible)
+  ) {
+    return {
+      score: Math.min(
+        roundScore(adjusted),
+        wine.sweetness === "sec" ? 30 : 46,
+      ),
+      confidence: 30,
+      reasons: [
+        wine.sweetnessTrust !== "verified"
+          ? "Dulceața vinului nu este verificată pentru o recomandare sigură de desert."
+          : "Stilul de dulceață verificat nu este potrivit pentru o recomandare sigură de desert.",
+      ],
+      evidenceLevel: 4,
+      categoryMatched: true,
+    };
+  }
 
   if (styleSupported && acidityKnown) {
     reasons.push(

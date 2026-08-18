@@ -2,19 +2,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   EditorialFoodMatchIcon,
   EditorialGiftIcon,
-  EditorialValueIcon,
 } from "@/components/wines/editorial-icons";
 import { EditorialSectionIcon } from "@/components/wines/editorial-section-icon";
 import { VinScoreBadge } from "@/components/wines/vin-score-badge";
-import { splitValueExplanation, sanitizeEditorialText } from "@/lib/editorial-text";
+import { sanitizeEditorialText } from "@/lib/editorial-text";
 import {
   publicFoodScoreDisplay,
   publicGiftScoreDisplay,
 } from "@/lib/scoring-v2/public-secondary-display";
-import {
-  MIN_RECOMMENDED_VALUE_SCORE,
-  VALUE_SCORE_NEUTRAL_MIN,
-} from "@/lib/value-score-thresholds";
 import type { WineWithRelations } from "@/types";
 import type { ComponentType, SVGProps } from "react";
 
@@ -59,36 +54,19 @@ function ScoreCard({
   );
 }
 
-function valueScoreFallbackDescription(): string {
-  return `Cat de bun este vinul raportat la pretul cerut. Peste ${MIN_RECOMMENDED_VALUE_SCORE} inseamna ca merita banii; ${VALUE_SCORE_NEUTRAL_MIN}-${MIN_RECOMMENDED_VALUE_SCORE - 1} este pret mediu; sub ${VALUE_SCORE_NEUTRAL_MIN} recomandam alternative.`;
-}
-
-function valueScoreDescription(wine: WineWithRelations): string {
-  const raw = wine.valueExplanation?.trim();
-  if (!raw) {
-    return valueScoreFallbackDescription();
-  }
-
-  const { summary } = splitValueExplanation(raw);
-  return summary || valueScoreFallbackDescription();
-}
-
 export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
   const gift = publicGiftScoreDisplay(wine);
   const food = publicFoodScoreDisplay(wine);
 
   return (
     <section aria-labelledby="wine-scores-heading">
-      <h2 id="wine-scores-heading" className="sr-only">
-        Scoruri VinIntel
+      <h2
+        id="wine-scores-heading"
+        className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
+      >
+        Pentru ce este potrivit
       </h2>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <ScoreCard
-          label="VinIntel Score"
-          score={wine.valueScore}
-          description={valueScoreDescription(wine)}
-          icon={EditorialValueIcon}
-        />
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <ScoreCard
           label="Gift Score"
           score={gift.score}
@@ -96,18 +74,18 @@ export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
           description={
             gift.caption && gift.score != null
               ? gift.caption
-              : "Cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul."
+              : "Cât de sigură și convingătoare este sticla ca alegere de cadou, din calitatea estimată, încrederea în date, valoare și caracterul distinctiv. Nu evaluăm ambalajul."
           }
           icon={EditorialGiftIcon}
         />
         <ScoreCard
-          label="Versatilitate la masa"
+          label="Versatilitate la masă"
           score={food.score}
           emptyLabel={food.score == null ? food.caption : null}
           description={
             food.caption && food.score != null
               ? food.caption
-              : "Cat de versatil este vinul la masa, in general. Nu inseamna compatibilitate cu un fel anume; potrivirea de fel se calculeaza separat."
+              : "Cât de versatil este vinul la masă, în general. Nu înseamnă compatibilitate cu un fel anume; potrivirea cu preparatul se evaluează separat."
           }
           icon={EditorialFoodMatchIcon}
         />

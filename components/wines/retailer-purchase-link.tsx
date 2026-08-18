@@ -19,7 +19,7 @@ interface RetailerPurchaseLinkProps {
 export function RetailerPurchaseLink({
   url,
   retailerName,
-  label = "Cumpara",
+  label = "Vezi oferta",
   size = "default",
   variant = "default",
   showNote = false,
@@ -77,8 +77,8 @@ export function RetailerPurchaseLink({
       {showNote ? (
         <p className="text-xs leading-relaxed text-muted-foreground">
           {retailer
-            ? `Deschidem pagina produsului pe ${retailer}, intr-un tab nou. Comanda se finalizeaza direct la magazin.`
-            : "Deschidem pagina produsului intr-un tab nou. Comanda se finalizeaza direct la magazin."}
+            ? `Deschidem pagina produsului pe ${retailer}, într-un tab nou. Comanda se finalizează direct la magazin.`
+            : "Deschidem pagina produsului într-un tab nou. Comanda se finalizează direct la magazin."}
         </p>
       ) : null}
     </div>

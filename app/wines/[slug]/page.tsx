@@ -12,8 +12,6 @@ import { WineRelatedSections } from "@/components/wines/wine-related-sections";
 import { WineScoreCards } from "@/components/wines/wine-score-cards";
 import { WineSpecsTable } from "@/components/wines/wine-specs-table";
 import { WineWineryLink } from "@/components/wines/wine-winery-link";
-import { WineWorthIt } from "@/components/wines/wine-worth-it";
-import { WineProsCons } from "@/components/wines/wine-pros-cons";
 import { WineDataFreshness } from "@/components/wines/wine-data-freshness";
 import { WineReportButton } from "@/components/wines/wine-report-button";
 import { WineCatalogNotice } from "@/components/wines/wine-catalog-notice";
@@ -130,10 +128,17 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
         <WineCatalogNotice message={EXISTING_WINE_CATALOG_MESSAGE} />
       ) : null}
       <main className="flex-1">
-        <WineHero wine={wine} />
+        <WineHero wine={wine} technicalTrust={technicalTrust} />
 
-        <div className="mx-auto max-w-6xl space-y-16 px-6 py-14">
-          <WineEditorial wine={wine} />
+        <div className="mx-auto max-w-6xl space-y-14 px-6 py-10 sm:space-y-16 sm:py-14">
+          <WineAvailability wine={wine} />
+          <WinePairings wine={wine} technicalTrust={technicalTrust} />
+          <WineScoreCards wine={wine} />
+          <WineRelatedSections
+            wine={wine}
+            similar={similar}
+            recommended={recommended}
+          />
           <WineDualScores wine={wine} />
 
           {wine.status === "user_submitted" ? (
@@ -151,16 +156,12 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
             </section>
           ) : null}
 
-          <WineScoreCards wine={wine} />
+          <WineSpecsTable wine={wine} trust={technicalTrust} />
           <WineDataFreshness wine={wine} />
-          <WineWorthIt wine={wine} />
-          <WineProsCons wine={wine} technicalTrust={technicalTrust} />
+          <WineEditorial wine={wine} />
           {wine.winery ? (
             <WineWineryLink wine={wine} wineCount={wineryWineCount} />
           ) : null}
-          <WineSpecsTable wine={wine} trust={technicalTrust} />
-          <WinePairings wine={wine} technicalTrust={technicalTrust} />
-          <WineAvailability wine={wine} />
           <WineFaq items={faq} />
 
           {wine.winery ? (
@@ -170,11 +171,6 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
             />
           ) : null}
 
-          <WineRelatedSections
-            wine={wine}
-            similar={similar}
-            recommended={recommended}
-          />
         </div>
       </main>
       <SiteFooter />

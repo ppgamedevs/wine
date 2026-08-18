@@ -1,6 +1,7 @@
 import { formatRon, wineTypeLabel } from "@/lib/format";
 import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
-import { usesPublicSecondaryV2 } from "@/lib/scoring-v2/secondary-scoring-mode";
+import { usesPublicOccasionMatch } from "@/lib/recommendation/occasion-match-mode";
+import { usesSecondaryV2Ranking } from "@/lib/scoring-v2/secondary-scoring-mode";
 import { giftScoreInputFromWine } from "@/lib/scoring-v2/wine-score-inputs";
 import type { FaqEntry } from "@/lib/seo";
 import {
@@ -250,7 +251,7 @@ function liveGiftScore(wine: WineWithRelations): number {
 }
 
 function publicGiftScore(wine: WineWithRelations): number {
-  if (usesPublicSecondaryV2()) return liveGiftScore(wine);
+  if (usesSecondaryV2Ranking()) return liveGiftScore(wine);
   return wine.giftScore ?? 0;
 }
 
@@ -291,7 +292,7 @@ function rankForOccasion(
     preferredWinerySlugs: [],
     absurdRequest: false,
   };
-  return usesPublicSecondaryV2()
+  return usesSecondaryV2Ranking() && usesPublicOccasionMatch()
     ? recommendWinesLive(subset, input, limit)
     : recommendWines(subset, input, limit);
 }
@@ -428,7 +429,7 @@ export function resolveTopList(
     const recs = rankForOccasion(allWines, budget, occasionId, 10);
     if (recs.length === 0) return null;
     const wines = recs.map((rec) => rec.wine);
-    const rankScores = usesPublicSecondaryV2()
+    const rankScores = usesSecondaryV2Ranking() && usesPublicOccasionMatch()
       ? recs.map((rec) => rec.matchScore)
       : wines.map(legacyOccasionDisplayScore);
 
@@ -518,7 +519,9 @@ export function topListRankScore(
     case "gift":
       return publicGiftScore(wine);
     case "relevance":
-      return usesPublicSecondaryV2() ? null : legacyOccasionDisplayScore(wine);
+      return usesSecondaryV2Ranking() && usesPublicOccasionMatch()
+        ? null
+        : legacyOccasionDisplayScore(wine);
     default:
       return wine.valueScore ?? null;
   }

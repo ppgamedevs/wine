@@ -35,7 +35,7 @@ import { findRomanianDishByName } from "@/lib/pairing/romanian-dishes";
 import type { PairingDraft } from "@/lib/pairing-curation-types";
 import type { FoodPairing } from "@/lib/schema";
 import { isAutochthonousGrapeMix } from "@/lib/scoring";
-import { getSecondaryScoringMode } from "@/lib/scoring-v2/secondary-scoring-mode";
+import { usesSecondaryV2Display } from "@/lib/scoring-v2/secondary-scoring-mode";
 import type { WineWithRelations } from "@/types";
 
 export const PAIRING_CURATOR_ID = "admin";
@@ -294,8 +294,10 @@ export function assertCurationAdmin(authenticated: boolean): void {
 }
 
 export function assertShadowUnchanged(): void {
-  if (getSecondaryScoringMode() === "live") {
-    throw new Error("Curation must not run while public secondary scoring is live.");
+  if (usesSecondaryV2Display()) {
+    throw new Error(
+      "Curation must not run while public secondary v2 display is enabled.",
+    );
   }
 }
 
@@ -469,6 +471,25 @@ export function publicPairingAttribution(pairing: FoodPairing): string {
     : "Asociere evaluata";
 }
 
+/**
+ * Public producer attribution is resolved from current exact culinary evidence,
+ * never from a stored legacy basis flag alone.
+ */
+export function isPublicProducerBackedPairing(
+  wine: WineWithRelations,
+  pairing: FoodPairing,
+): boolean {
+  const category =
+    findRomanianDishByName(pairing.dish)?.foodCategory ??
+    categorizeFoodText(pairing.dish)[0];
+  if (!category) return false;
+  return hasExactOrNearExactProducerEvidence(
+    wineEvidenceContext(wine),
+    pairing.dish,
+    category,
+  );
+}
+
 export function publicProducerAttribution(): string {
-  return "Recomandarea producatorului";
+  return "Recomandat și de producător";
 }

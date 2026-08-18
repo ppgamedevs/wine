@@ -526,6 +526,7 @@ export async function getRecommendedWines(
     const rows = await db.query.wines.findMany({
       where: andCatalog(
         ne(wines.id, wine.id),
+        eq(wines.type, wine.type),
         gte(wines.valueScore, MIN_RECOMMENDED_VALUE_SCORE),
       ),
       with: { winery: true, region: true },

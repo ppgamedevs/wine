@@ -3,6 +3,7 @@
  * Read-only: computes v2 in memory and never persists scores or recommendations.
  */
 import "../lib/load-env";
+import { createHash } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { eq } from "drizzle-orm";
 import { db } from "../lib/db";
@@ -30,9 +31,14 @@ import {
   type OccasionMatchInput,
 } from "../lib/recommendation/occasion-match";
 import { wineFactEvidence, wines } from "../lib/schema";
+import { resolveTopList, TOP_LIST_SLUGS } from "../lib/top-lists";
 import { calculateFoodVersatility } from "../lib/scoring-v2/food-versatility";
 import { calculateGiftScore } from "../lib/scoring-v2/gift-score";
-import { getSecondaryScoringMode } from "../lib/scoring-v2/secondary-scoring-mode";
+import {
+  getSecondaryScoringMode,
+  parseSecondaryScoringMode,
+  setSecondaryScoringModeForTests,
+} from "../lib/scoring-v2/secondary-scoring-mode";
 import {
   foodVersatilityInputFromWine,
   giftScoreInputFromWine,
@@ -63,6 +69,11 @@ const DISHES = [
   "Ciorbă de burtă",
   "Papanași",
 ] as const;
+
+const KNOWN_DISPUTED_SWEETNESS_SLUGS = new Set([
+  "budureasca-spumant-prima-stilla-rose-sec-2016",
+  "budureasca-dark-count-cabernet-feteasca-neagra-demisec-2020",
+]);
 
 interface Scenario {
   id: string;
@@ -102,6 +113,15 @@ function average(values: number[]): number {
 
 function median(values: number[]): number {
   return distributionStats(values).median;
+}
+
+function rankingHash(catalog: WineWithRelations[], mode: "shadow" | "display"): string {
+  setSecondaryScoringModeForTests(mode);
+  const rankings = TOP_LIST_SLUGS.map((slug) => ({
+    slug,
+    wines: resolveTopList(slug, catalog)?.wines.map((wine) => wine.slug) ?? [],
+  }));
+  return createHash("sha256").update(JSON.stringify(rankings)).digest("hex");
 }
 
 function pearson(left: number[], right: number[]): number | null {
@@ -159,14 +179,26 @@ function comparison(rows: Array<{ slug: string; legacy: number; v2: number }>) {
   };
 }
 
-function selectRepresentative20(
+function selectRepresentativeMatrix(
   catalog: WineWithRelations[],
   giftById: Map<number, ReturnType<typeof calculateGiftScore>>,
   foodById: Map<number, ReturnType<typeof calculateFoodVersatility>>,
   evidenceByWine: Map<number, number>,
 ) {
   const sorted = [...catalog].sort((left, right) => (left.priceAvg ?? 9999) - (right.priceAvg ?? 9999));
+  const wineryQuotas = [
+    ["cramele-recas", 5],
+    ["balla-geza", 5],
+    ["budureasca", 5],
+    ["avincis", 3],
+    ["gabai", 3],
+    ["murfatlar", 2],
+  ] as const;
+  const wineryMatrix = wineryQuotas.flatMap(([slug, count]) =>
+    catalog.filter((wine) => wine.winery?.slug === slug).slice(0, count),
+  );
   const candidates = [
+    ...wineryMatrix,
     ...sorted.slice(0, 3),
     ...sorted.slice(-3),
     ...[...catalog].sort((left, right) => (right.valueScore ?? 0) - (left.valueScore ?? 0)).slice(0, 3),
@@ -174,8 +206,16 @@ function selectRepresentative20(
     ...["red", "white", "rose", "sparkling", "orange"].flatMap((type) =>
       catalog.filter((wine) => wine.type === type).slice(0, 2),
     ),
+    ...catalog.filter((wine) => wine.priceAvg == null).slice(0, 2),
+    ...catalog
+      .filter(
+        (wine) =>
+          wine.affiliateLinks.length === 0 &&
+          !wine.availability.some((entry) => Boolean(entry.url)),
+      )
+      .slice(0, 2),
   ];
-  const unique = [...new Map(candidates.map((wine) => [wine.id, wine])).values()].slice(0, 20);
+  const unique = [...new Map(candidates.map((wine) => [wine.id, wine])).values()];
   return unique.map((wine) => {
     const gift = giftById.get(wine.id)!;
     const food = foodById.get(wine.id)!;
@@ -216,8 +256,20 @@ async function main() {
   if (process.argv.includes("--apply")) {
     throw new Error("product:release-gate is read-only and refuses --apply");
   }
-  const mode = getSecondaryScoringMode();
-  if (mode !== "shadow") throw new Error(`Prompt 19 requires shadow mode, got ${mode}`);
+  const productionMode = getSecondaryScoringMode();
+  if (productionMode !== "shadow") {
+    throw new Error(
+      `Product release diagnostics require production shadow mode, got ${productionMode}`,
+    );
+  }
+  const requestedSimulation = argValue("simulate-mode");
+  const mode = requestedSimulation
+    ? parseSecondaryScoringMode(requestedSimulation)
+    : productionMode;
+  if (mode !== "shadow" && mode !== "display") {
+    throw new Error("Only shadow and display simulations are allowed");
+  }
+  setSecondaryScoringModeForTests(mode);
   const dbRows = await db.query.wines.findMany({
     with: { winery: true, region: true },
     where: eq(wines.status, "verified"),
@@ -232,6 +284,21 @@ async function main() {
     evidenceByWine.set(row.wineId, (evidenceByWine.get(row.wineId) ?? 0) + 1);
     if (row.field === "sweetness") verifiedSweetnessWineIds.add(row.wineId);
   }
+  const recommendationCatalog = catalog.map((wine) => {
+    const eligibility = assessRecommendationEligibility(wine);
+    return {
+      ...wine,
+      sweetnessTrust:
+        wine.sweetness == null
+          ? ("unknown" as const)
+          : eligibility === "REVIEW_REQUIRED" ||
+              KNOWN_DISPUTED_SWEETNESS_SLUGS.has(wine.slug)
+            ? ("conflicting" as const)
+            : verifiedSweetnessWineIds.has(wine.id)
+              ? ("verified" as const)
+              : ("catalog_only" as const),
+    };
+  });
 
   const giftById = new Map(
     catalog.map((wine) => [wine.id, calculateGiftScore(giftScoreInputFromWine(wine))]),
@@ -340,13 +407,15 @@ async function main() {
     ? calculateFoodVersatility(foodVersatilityInputFromWine(correctedWine))
     : null;
   const overlayOccasion = explicit
-    ? rankWinesForOccasion(catalog, { occasion: "sarbatori" }).findIndex(
+    ? rankWinesForOccasion(recommendationCatalog, { occasion: "sarbatori" }).findIndex(
         (row) => row.wine.id === explicit.wine.id,
       ) + 1
     : 0;
   const correctedCatalog = correctedWine
-    ? catalog.map((wine) => (wine.id === correctedWine.id ? correctedWine : wine))
-    : catalog;
+    ? recommendationCatalog.map((wine) =>
+        wine.id === correctedWine.id ? { ...correctedWine, sweetnessTrust: wine.sweetnessTrust } : wine,
+      )
+    : recommendationCatalog;
   const correctedOverlayOccasion = explicit
     ? rankWinesForOccasion(correctedCatalog, { occasion: "sarbatori" }).findIndex(
         (row) => row.wine.id === explicit.wine.id,
@@ -354,7 +423,7 @@ async function main() {
     : 0;
 
   const occasionLists = OCCASIONS.map((occasion) => {
-    const ranked = rankWinesForOccasion(catalog, { occasion }).slice(0, 10);
+    const ranked = rankWinesForOccasion(recommendationCatalog, { occasion }).slice(0, 10);
     return {
       occasion,
       rows: ranked.map((row, index) => {
@@ -374,6 +443,7 @@ async function main() {
           occasionScore: row.score,
           occasionConfidence: row.confidence,
           eligibility: row.eligibility,
+          status: row.status,
           reasons: row.reasons,
           sanity: classifyOccasionSanity({
             occasion,
@@ -401,7 +471,7 @@ async function main() {
     ["sarmale", 50], ["sarmale", 100],
   ] as Array<[OccasionId, number]>;
   const budgetSensitivity = budgetCases.map(([occasion, budgetMax]) => {
-    const rows = rankWinesForOccasion(catalog, {
+    const rows = rankWinesForOccasion(recommendationCatalog, {
       occasion,
       budgetMax,
       budgetSpecified: true,
@@ -416,7 +486,7 @@ async function main() {
   });
 
   const scenarios = SCENARIOS.map((scenario) => {
-    let rows = rankWinesForOccasion(catalog, {
+    let rows = rankWinesForOccasion(recommendationCatalog, {
       occasion: scenario.occasion,
       ...(scenario.budgetMax != null
         ? { budgetMax: scenario.budgetMax, budgetSpecified: true, budgetConstraint: "hard" as const }
@@ -426,7 +496,7 @@ async function main() {
       ...(scenario.dish ? { dish: scenario.dish } : {}),
     });
     if (scenario.id === "fish") {
-      rows = catalog
+      rows = recommendationCatalog
         .map((wine) => {
           const dish = scoreWineForDish(wine, "pește");
           return {
@@ -440,32 +510,68 @@ async function main() {
         .filter((row) => row.eligibility !== "REVIEW_REQUIRED")
         .sort((left, right) => right.score - left.score || right.confidence - left.confidence) as typeof rows;
     }
-    const top = rows.slice(0, 5).map((row) => ({
-      slug: row.wine.slug,
-      winery: row.wine.winery?.name ?? "unknown",
-      price: row.wine.priceAvg,
-      type: row.wine.type,
-      sweetness: row.wine.sweetness,
-      score: row.score,
-      confidence: row.confidence,
-      eligibility: row.eligibility,
-      reasons: row.reasons,
-      compliant:
-        (scenario.budgetMax == null || hardBudgetCompliant(row.wine.priceAvg, scenario.budgetMax)) &&
-        (!scenario.color || scenario.color === "any" || row.wine.type === scenario.color) &&
-        (!scenario.sweetness || scenario.sweetness === "any" || row.wine.sweetness === scenario.sweetness),
-    }));
+    const top = rows.slice(0, 5).map((row) => {
+      const constraintViolations: string[] = [];
+      if (
+        scenario.budgetMax != null &&
+        !hardBudgetCompliant(row.wine.priceAvg, scenario.budgetMax)
+      ) {
+        constraintViolations.push("BUDGET");
+      }
+      if (
+        scenario.color &&
+        scenario.color !== "any" &&
+        row.wine.type !== scenario.color
+      ) {
+        constraintViolations.push("COLOR");
+      }
+      if (
+        scenario.sweetness &&
+        scenario.sweetness !== "any" &&
+        row.wine.sweetness !== scenario.sweetness
+      ) {
+        constraintViolations.push("SWEETNESS");
+      }
+      if (row.eligibility === "REVIEW_REQUIRED") {
+        constraintViolations.push("IDENTITY_REVIEW");
+      }
+      const rationaleQuality =
+        row.reasons.length > 0 &&
+        row.reasons.length <= 3 &&
+        !row.reasons.some((reason) =>
+          /tanin|aciditate ridicată|corp amplu|note minerale/i.test(reason),
+        );
+      return {
+        slug: row.wine.slug,
+        winery: row.wine.winery?.name ?? "unknown",
+        price: row.wine.priceAvg,
+        type: row.wine.type,
+        sweetness: row.wine.sweetness,
+        score: row.score,
+        confidence: row.confidence,
+        eligibility: row.eligibility,
+        status: row.status,
+        reasons: row.reasons,
+        constraintViolations,
+        rationaleQuality,
+        identitySafe: row.eligibility !== "REVIEW_REQUIRED",
+        compliant: constraintViolations.length === 0,
+      };
+    });
     const failures = top.filter((row) => !row.compliant || row.eligibility === "REVIEW_REQUIRED").length;
     return {
       ...scenario,
       result: failures > 0 ? "FAIL" : top.some((row) => row.confidence < 50) ? "WEAK" : "PASS",
+      failureReasons: [
+        ...new Set(top.flatMap((row) => row.constraintViolations)),
+      ],
       rows: top,
     };
   });
 
   const dishMatches = DISHES.map((dish) => ({
     dish,
-    rows: catalog
+    rows: recommendationCatalog
       .map((wine) => ({
         slug: wine.slug,
         winery: wine.winery?.name ?? "unknown",
@@ -533,11 +639,21 @@ async function main() {
     recommendationEligibility: row.eligibility,
   }));
 
+  const shadowRankingHash = rankingHash(catalog, "shadow");
+  const displayRankingHash = rankingHash(catalog, "display");
+  setSecondaryScoringModeForTests(mode);
+
   const report = {
-    prompt: 19,
+    prompt: "19+20",
     generatedAt: new Date().toISOString(),
     readOnly: true,
+    productionSecondaryScoringMode: productionMode,
     secondaryScoringMode: mode,
+    rankingModeComparison: {
+      shadowHash: shadowRankingHash,
+      displayHash: displayRankingHash,
+      identical: shadowRankingHash === displayRankingHash,
+    },
     catalog: { verified: catalog.length, evidenceRows: evidence.length },
     value: {
       distribution: distributionStats(valueRows.map((row) => row.value)),
@@ -663,7 +779,7 @@ async function main() {
           sweetness: row.wine.sweetness,
           eligibility: row.eligibility,
           dessertRank:
-            rankWinesForOccasion(catalog, { occasion: "pentru-desert" }).findIndex(
+            rankWinesForOccasion(recommendationCatalog, { occasion: "pentru-desert" }).findIndex(
               (candidate) => candidate.wine.id === row.wine.id,
             ) + 1,
         })),
@@ -674,14 +790,19 @@ async function main() {
           sweetness: row.wine.sweetness,
           eligibility: row.eligibility,
           dessertRank:
-            rankWinesForOccasion(catalog, { occasion: "pentru-desert" }).findIndex(
+            rankWinesForOccasion(recommendationCatalog, { occasion: "pentru-desert" }).findIndex(
               (candidate) => candidate.wine.id === row.wine.id,
             ) + 1,
         })),
     },
     wineryConfidence: wineryShare,
     availability,
-    representativePages: selectRepresentative20(catalog, giftById, foodById, evidenceByWine),
+    representativePages: selectRepresentativeMatrix(
+      catalog,
+      giftById,
+      foodById,
+      evidenceByWine,
+    ),
     topListImpact: {
       gift: {
         legacyTop10: comparison(scoreRows.map((row) => ({ slug: row.slug, legacy: row.legacyGift, v2: row.gift.score }))).legacyTop10,
@@ -714,10 +835,11 @@ async function main() {
     const weak = scenarios.filter((row) => row.result === "WEAK").length;
     const fail = scenarios.filter((row) => row.result === "FAIL").length;
     const markdown = [
-      "# VinIntel Prompt 19 Product Release Gate",
+      "# VinIntel Prompt 19/20 Product Release Gate",
       "",
       `Generated: ${report.generatedAt}`,
-      `Mode: ${mode}`,
+      `Production mode: ${productionMode}`,
+      `Simulated mode: ${mode}`,
       "",
       "## Headline metrics",
       "",
@@ -727,6 +849,7 @@ async function main() {
       `- Occasion sanity: ${JSON.stringify(sanityCounts)}`,
       `- Buyer scenarios: ${pass} PASS, ${weak} WEAK, ${fail} FAIL`,
       `- Availability: ${availability.winesWithUsableCommercialLinks}/${catalog.length} with usable commercial links`,
+      `- Shadow/display ranking hashes identical: ${report.rankingModeComparison.identical}`,
       "",
       "Full row-level data is in the JSON artifact.",
       "",

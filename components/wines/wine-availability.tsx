@@ -1,5 +1,7 @@
 import { BadgeCheck, ShoppingBag } from "lucide-react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RetailerPurchaseLink } from "@/components/wines/retailer-purchase-link";
 import { formatRon } from "@/lib/format";
@@ -8,24 +10,25 @@ import type { WineWithRelations } from "@/types";
 
 export function WineAvailability({ wine }: { wine: WineWithRelations }) {
   const pricing = buildWinePriceViewModel(wine);
+  const hasPrice = pricing.displayPrice != null;
   const isVerified = pricing.isVerifiedRecent;
-  const priceLabel = isVerified ? "Pret actual" : "Pret aproximativ";
+  const priceLabel = isVerified ? "Preț actual" : "Preț aproximativ";
   const retailer =
     pricing.purchaseLink?.retailer ??
     wine.availability?.find((entry) => entry.retailer.trim())?.retailer ??
     "retailer";
 
   return (
-    <section aria-labelledby="price-heading">
+    <section id="disponibilitate" aria-labelledby="price-heading" className="scroll-mt-24">
       <h2
         id="price-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Pret si disponibilitate
+        Preț și disponibilitate
       </h2>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        Informatii preluate din sursa principala a vinului. Comanda se
-        finalizeaza direct la magazinul partener.
+        Prețul și oferta sunt prezentate conform celor mai recente date pe care
+        le avem. Cumpărarea se finalizează la magazin.
       </p>
 
       <Card className="mt-6 border-border/70">
@@ -35,30 +38,45 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
               <ShoppingBag className="h-5 w-5" aria-hidden="true" />
             </span>
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                {isVerified ? (
+              {hasPrice ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  {isVerified ? (
                   <Badge className="gap-1 bg-emerald-600/10 text-emerald-800 hover:bg-emerald-600/15">
                     <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-                    Pret verificat
+                    Preț verificat
                   </Badge>
-                ) : (
+                  ) : (
                   <Badge
                     variant="outline"
                     className="border-amber-500/40 bg-amber-500/10 text-amber-900"
                   >
-                    Pret estimativ
+                    Preț estimativ
                   </Badge>
-                )}
-              </div>
-              <p className="mt-3 text-3xl font-bold leading-none text-foreground">
-                <span className="mr-2 text-base font-medium text-muted-foreground">
-                  {priceLabel}:
-                </span>
-                {formatRon(pricing.displayPrice)}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Sursa principala: {retailer}
-              </p>
+                  )}
+                </div>
+              ) : null}
+              {hasPrice ? (
+                <>
+                  <p className="mt-3 text-3xl font-bold leading-none text-foreground">
+                    <span className="mr-2 text-base font-medium text-muted-foreground">
+                      {priceLabel}:
+                    </span>
+                    {formatRon(pricing.displayPrice)}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Sursa principală: {retailer}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-3 font-medium text-foreground">
+                    Preț indisponibil momentan
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Nu avem momentan o ofertă verificată pentru acest vin.
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
@@ -67,8 +85,13 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
               url={pricing.purchaseLink.url}
               retailerName={pricing.purchaseLink.retailer}
               showNote
+              className="mt-0 [&_a]:h-11"
             />
-          ) : null}
+          ) : (
+            <Button asChild variant="outline" size="lg" className="h-11">
+              <Link href="#alternative">Vezi alternative similare</Link>
+            </Button>
+          )}
         </CardContent>
       </Card>
     </section>

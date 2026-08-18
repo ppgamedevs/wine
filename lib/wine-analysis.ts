@@ -10,6 +10,7 @@ import {
   valueScoreVerdictLabel,
 } from "@/lib/value-score-thresholds";
 import { WINE_TYPE_TO_TOP_SLUG } from "@/lib/top-lists";
+import { resolveWineDisplayPrice } from "@/lib/wine-price";
 import type { WineWithRelations } from "@/types";
 
 export interface WorthItAnalysis {
@@ -27,9 +28,22 @@ const overpricedLabel = {
 
 export function buildWorthItAnalysis(wine: WineWithRelations): WorthItAnalysis {
   const value = wine.valueScore ?? 0;
-  const price = wine.priceAvg;
+  const price = resolveWineDisplayPrice(wine);
   const priceLabel = formatRon(price);
   const risk = wine.overpricedRisk ?? "medium";
+
+  if (price == null) {
+    return {
+      verdict: "partial",
+      headline: "Preț indisponibil momentan",
+      summary:
+        "Nu putem confirma dacă merită cumpărat acum fără un preț curent. Value Score-ul istoric rămâne orientativ.",
+      bullets: [
+        "Nu presupunem un preț atunci când oferta nu este disponibilă.",
+        "Compară alternativele cu preț verificabil înainte de cumpărare.",
+      ],
+    };
+  }
 
   if (value >= MIN_RECOMMENDED_VALUE_SCORE) {
     return {
@@ -56,8 +70,8 @@ export function buildWorthItAnalysis(wine: WineWithRelations): WorthItAnalysis {
           return "Orientare generala de pastrare: consum in urmatorii 2-3 ani, daca nu exista fereastra documentata.";
         })(),
         wine.beginnerFriendly
-          ? "Accesibil si pentru incepatori: profil echilibrat, fara surprize neplacute."
-          : "Profil mai complex, recomandat celor cu experienta in vinuri.",
+          ? "Marcat în catalog ca opțiune accesibilă pentru începători."
+          : "Nu este marcat ca alegere specială pentru începători.",
       ],
     };
   }

@@ -1,21 +1,34 @@
-import { Building2, CheckCircle2, ChevronRight, MapPin } from "lucide-react";
+import { Building2, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
+import { WineBuyingDecision } from "@/components/wines/wine-buying-decision";
 import { WineImage } from "@/components/wines/wine-image";
-import { WinePriceDisplay } from "@/components/wines/wine-price-display";
-import { CommunityBadge } from "@/components/wines/community-badge";
 import { Badge } from "@/components/ui/badge";
-import { wineTypeLabel } from "@/lib/format";
+import { wineSweetnessLabel, wineTypeLabel } from "@/lib/format";
+import {
+  getVerifiedTechnicalValue,
+  type PublicTechnicalTrust,
+} from "@/lib/tech-facts/public-trust";
 import { resolveWineVintage, stripEmbeddedVintageFromName } from "@/lib/wine-vintage";
-import type { WineWithRelations } from "@/types";
+import type { WineSweetness, WineWithRelations } from "@/types";
 
-export function WineHero({ wine }: { wine: WineWithRelations }) {
+export function WineHero({
+  wine,
+  technicalTrust,
+}: {
+  wine: WineWithRelations;
+  technicalTrust: PublicTechnicalTrust;
+}) {
   const displayVintage = resolveWineVintage(wine);
   const displayName = stripEmbeddedVintageFromName(wine.name, displayVintage);
+  const verifiedSweetness = getVerifiedTechnicalValue(
+    technicalTrust,
+    "sweetness",
+  );
 
   return (
     <section className="border-b border-border/60 bg-secondary/20">
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-10 lg:py-12">
-        <div className="relative mx-auto w-full max-w-[260px] sm:max-w-xs lg:mx-0 lg:max-w-sm">
+        <div className="relative order-2 mx-auto w-full max-w-[260px] sm:max-w-xs lg:order-1 lg:mx-0 lg:max-w-sm">
           <WineImage
             slug={wine.slug}
             name={wine.name}
@@ -32,7 +45,7 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
           />
         </div>
 
-        <div className="flex flex-col justify-center">
+        <div className="order-1 flex flex-col justify-center lg:order-2">
           <nav
             aria-label="Breadcrumb"
             className="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
@@ -52,18 +65,14 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
             <Badge variant="outline" className="border-wine/30 text-wine">
               {wineTypeLabel[wine.type]}
             </Badge>
+            {typeof verifiedSweetness === "string" ? (
+              <Badge variant="outline">
+                {wineSweetnessLabel[verifiedSweetness as WineSweetness]}
+              </Badge>
+            ) : null}
             {displayVintage ? (
               <Badge variant="secondary">{displayVintage}</Badge>
             ) : null}
-            {wine.winery?.verified ? (
-              <Badge className="gap-1 bg-wine/10 text-wine hover:bg-wine/15">
-                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                Crama verificată
-              </Badge>
-            ) : (
-              <Badge variant="secondary">Crama neverificată</Badge>
-            )}
-            <CommunityBadge status={wine.status} />
           </div>
 
           <h1 className="mt-4 font-serif text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
@@ -94,15 +103,7 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
             ) : null}
           </div>
 
-          {wine.tastingNotes ? (
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
-              {wine.tastingNotes}
-            </p>
-          ) : null}
-
-          <div className="mt-6">
-            <WinePriceDisplay wine={wine} variant="hero" />
-          </div>
+          <WineBuyingDecision wine={wine} />
         </div>
       </div>
     </section>

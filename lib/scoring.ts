@@ -5,7 +5,7 @@ import {
 import { dessertFoodMatchBoost } from "@/lib/dessert-pairings";
 import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
 import { calculateFoodVersatility } from "@/lib/scoring-v2/food-versatility";
-import { usesPublicSecondaryV2 } from "@/lib/scoring-v2/secondary-scoring-mode";
+import { usesSecondaryV2Ranking } from "@/lib/scoring-v2/secondary-scoring-mode";
 import {
   GIFT_SCORE_ALGORITHM_VERSION,
   FOOD_VERSATILITY_ALGORITHM_VERSION,
@@ -879,7 +879,7 @@ export function calculateInitialScores(input: ScoreInput): InitialScores {
     tasteProfile: input.tasteProfile,
   });
 
-  if (!usesPublicSecondaryV2()) {
+  if (!usesSecondaryV2Ranking()) {
     let giftScore = 6;
     if (cat === "spumant" || cat === "sparkling") giftScore = 8;
     if (price > 100) giftScore = 7;

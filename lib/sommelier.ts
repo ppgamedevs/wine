@@ -5,8 +5,10 @@ import { recommendWinesLegacy } from "@/lib/recommendation/legacy-recommend";
 import {
   rankWinesForOccasion,
   type RecommendationEligibility,
+  type RecommendationStatus,
 } from "@/lib/recommendation";
-import { usesPublicSecondaryV2 } from "@/lib/scoring-v2/secondary-scoring-mode";
+import { usesPublicOccasionMatch } from "@/lib/recommendation/occasion-match-mode";
+import { usesSecondaryV2Ranking } from "@/lib/scoring-v2/secondary-scoring-mode";
 import { formatWineMedalsForSommelier } from "@/lib/wine-medals";
 import type { WineWithRelations } from "@/types";
 
@@ -28,6 +30,7 @@ export interface Recommendation {
   reasons: string[];
   budgetFit: "under" | "ideal" | "over";
   eligibility: RecommendationEligibility;
+  status: RecommendationStatus;
 }
 
 /** Expert AI recommendation enriched with wine data for UI. */
@@ -69,6 +72,7 @@ export function recommendWinesLive(
       reasons,
       budgetFit: computeBudgetFit(wine.priceAvg, input.budgetMin, input.budgetMax),
       eligibility: rec.eligibility,
+      status: rec.status,
     };
   });
 }
@@ -78,7 +82,7 @@ export function recommendWines(
   input: SommelierInput,
   limit = 5,
 ): Recommendation[] {
-  if (!usesPublicSecondaryV2()) {
+  if (!usesSecondaryV2Ranking() || !usesPublicOccasionMatch()) {
     return recommendWinesLegacy(allWines, input, limit).map((rec) => ({
       wine: rec.wine,
       matchScore: rec.matchScore,
@@ -86,6 +90,7 @@ export function recommendWines(
       reasons: rec.reasons,
       budgetFit: rec.budgetFit,
       eligibility: "ELIGIBLE" as const,
+      status: "reasonable" as const,
     }));
   }
   return recommendWinesLive(allWines, input, limit);

@@ -15,10 +15,15 @@ import { clamp, roundScore } from "@/lib/scoring-v2/math";
 import {
   assessRecommendationEligibility,
 } from "@/lib/recommendation/eligibility";
-import { scoreWineForDessert, scoreWineForDish } from "@/lib/recommendation/dish-match";
+import {
+  hasUnsafeCulinaryRecommendationText,
+  scoreWineForDessert,
+  scoreWineForDish,
+} from "@/lib/recommendation/dish-match";
 import type {
   BudgetConstraint,
   OccasionMatchResult,
+  RecommendationStatus,
   ScoreBreakdownItem,
 } from "@/lib/recommendation/types";
 import type { FoodPairing, ProducerPageContent, WineMedal } from "@/lib/schema";
@@ -55,6 +60,7 @@ export interface OccasionMatchWine {
   name?: string;
   type: string;
   sweetness?: string | null;
+  sweetnessTrust?: "verified" | "catalog_only" | "conflicting" | "unknown";
   priceAvg?: number | null;
   valueScore?: number | null;
   estimatedQuality?: number | null;
@@ -293,6 +299,19 @@ function combine(
   };
 }
 
+function recommendationStatus(
+  eligibility: OccasionMatchResult["eligibility"],
+  score: number,
+  confidence: number,
+): RecommendationStatus {
+  if (eligibility === "REVIEW_REQUIRED") return "review_required";
+  if (confidence < 50 || eligibility === "ELIGIBLE_LOW_CONFIDENCE") {
+    return "limited_data";
+  }
+  if (score >= 70 && confidence >= 65) return "recommended";
+  return "reasonable";
+}
+
 export function winePassesHardConstraints(
   wine: OccasionMatchWine,
   input: OccasionMatchInput,
@@ -342,6 +361,15 @@ export function scoreWineForOccasion(
       ? scoreWineForDessert(wine)
       : scoreWineForDish(wine, dishName)
     : undefined;
+  if (
+    input.occasion === "pentru-desert" &&
+    (wine.sweetnessTrust === "conflicting" ||
+      (wine.sweetnessTrust !== "verified" &&
+        hasUnsafeCulinaryRecommendationText(wine)) ||
+      (wine.sweetness === "sec" && (dish?.confidence ?? 0) < 55))
+  ) {
+    return null;
+  }
 
   const parts: WeightedComponent[] = [];
   if (weights.value) {
@@ -487,22 +515,52 @@ export function scoreWineForOccasion(
   if (eligibility === "REVIEW_REQUIRED") {
     score = Math.min(score, 62);
   }
+  if (
+    input.occasion === "pentru-desert" &&
+    dish &&
+    dish.confidence < 40
+  ) {
+    score = Math.min(score, 44);
+    confidence = Math.min(confidence, 39);
+  }
 
   score = clamp(score, 18, 96);
 
   const reasons: string[] = [];
   if (dish?.reasons[0]) reasons.push(dish.reasons[0]);
-  const topParts = [...combined.breakdown].sort((a, b) => b.points - a.points);
-  for (const part of topParts.slice(0, 2)) {
-    reasons.push(`${part.label} ${part.points}/100.`);
+  if (
+    input.budgetSpecified &&
+    wine.priceAvg != null &&
+    input.budgetMax != null
+  ) {
+    reasons.push(
+      `Se încadrează în buget: ${Math.round(wine.priceAvg)} lei din maximum ${Math.round(input.budgetMax)} lei.`,
+    );
+  }
+  if (value != null && reasons.length < 3) {
+    reasons.push(
+      value >= 75
+        ? `Value Score ${value}/100 indică un raport calitate-preț bun.`
+        : `Value Score ${value}/100 este luat în calcul pentru această alegere.`,
+    );
+  }
+  if (
+    reasons.length < 3 &&
+    input.sweetness &&
+    input.sweetness !== "any" &&
+    wine.sweetness === input.sweetness
+  ) {
+    reasons.push(`Respectă stilul de dulceață cerut: ${wine.sweetness}.`);
   }
 
+  const roundedScore = roundScore(score);
   return {
-    score: roundScore(score),
+    score: roundedScore,
     confidence,
     breakdown: combined.breakdown,
     reasons: reasons.slice(0, 3),
     eligibility,
+    status: recommendationStatus(eligibility, roundedScore, confidence),
     dish,
   };
 }
@@ -537,6 +595,7 @@ export function rankWinesForOccasion(
   for (const wine of wines) {
     const result = scoreWineForOccasion(wine, input);
     if (!result) continue;
+    if (result.eligibility === "REVIEW_REQUIRED") continue;
     scored.push({ ...result, wine });
   }
 

@@ -11,6 +11,7 @@ import {
 import { recommendWinesLive } from "@/lib/sommelier";
 import { resolveTopList, topListRankScore } from "@/lib/top-lists";
 import { setSecondaryScoringModeForTests } from "@/lib/scoring-v2/secondary-scoring-mode";
+import { setOccasionMatchModeForTests } from "@/lib/recommendation/occasion-match-mode";
 import type { WineWithRelations } from "@/types";
 import type { OccasionMatchWine } from "@/lib/recommendation/occasion-match";
 
@@ -210,9 +211,7 @@ describe("I: dry red without dessert evidence is not a dessert star", () => {
       estimatedQuality: 88,
     });
     const dessert = scoreWineForOccasion(dryRed, { occasion: "pentru-desert" });
-    expect(dessert).not.toBeNull();
-    expect(dessert?.score).toBeLessThan(70);
-    expect(dessert?.dish?.score).toBeLessThan(40);
+    expect(dessert).toBeNull();
   });
 });
 
@@ -238,6 +237,7 @@ describe("J: multi-category food evidence beats a single pairing", () => {
 describe("K/L: top-list displayed score equals ranking score and JSON-LD order", () => {
   it("keeps Potrivire identical to Occasion Match used for sort", () => {
     setSecondaryScoringModeForTests("live");
+    setOccasionMatchModeForTests("public");
     const wines = [
       catalogWine({
         id: 1,
@@ -280,6 +280,7 @@ describe("K/L: top-list displayed score equals ranking score and JSON-LD order",
     expect(list.wines.map((wine) => wine.slug)).toEqual(recs.map((rec) => rec.wine.slug));
     expect(list.rankScores).toEqual(recs.map((rec) => rec.matchScore));
     setSecondaryScoringModeForTests(null);
+    setOccasionMatchModeForTests(null);
   });
 });
 

@@ -26,6 +26,8 @@ export {
   getSecondaryScoringMode,
   isSecondaryScoringLive,
   parseSecondaryScoringMode,
+  usesSecondaryV2Display,
+  usesSecondaryV2Ranking,
   usesPublicSecondaryV2,
   type SecondaryScoringMode,
 } from "@/lib/scoring-v2/secondary-scoring-mode";

@@ -5,6 +5,12 @@ export type RecommendationEligibility =
   | "ELIGIBLE_LOW_CONFIDENCE"
   | "REVIEW_REQUIRED";
 
+export type RecommendationStatus =
+  | "recommended"
+  | "reasonable"
+  | "limited_data"
+  | "review_required";
+
 export type BudgetConstraint = "hard" | "approximate" | "none";
 
 export interface ScoreBreakdownItem {
@@ -22,6 +28,7 @@ export interface RankedWine {
   reasons: string[];
   breakdown: ScoreBreakdownItem[];
   eligibility: RecommendationEligibility;
+  status: RecommendationStatus;
 }
 
 export interface DishMatchResult {
@@ -38,5 +45,6 @@ export interface OccasionMatchResult {
   breakdown: ScoreBreakdownItem[];
   reasons: string[];
   eligibility: RecommendationEligibility;
+  status: RecommendationStatus;
   dish?: DishMatchResult;
 }

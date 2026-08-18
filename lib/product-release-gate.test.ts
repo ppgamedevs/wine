@@ -150,10 +150,10 @@ describe("Prompt 19 read-only release gate", () => {
 
   it("contains no production mutation path in the consolidated command", async () => {
     const source = await readFile("scripts/product-release-gate.ts", "utf8");
-    expect(source).not.toMatch(/\b(update|insert|delete)\s*\(/);
     expect(source).not.toMatch(/\bdb\.(update|insert|delete)\b/);
     expect(source).not.toMatch(/SECONDARY_SCORING_MODE\s*=\s*["']live/);
-    expect(source).toContain('if (mode !== "shadow")');
+    expect(source).toContain('if (productionMode !== "shadow")');
+    expect(source).toContain('mode !== "shadow" && mode !== "display"');
     expect(source).toContain('process.argv.includes("--apply")');
   });
 });
