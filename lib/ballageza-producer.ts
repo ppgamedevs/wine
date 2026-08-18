@@ -344,6 +344,182 @@ export interface BallaResolveResult {
   candidates: BallaGezaWineRecord[];
 }
 
+export interface BallaAdjudicationWine {
+  wineId: number;
+  slug: string;
+  name: string;
+  vintage: number | null;
+  producerPageUrl: string | null;
+  grapes: string[];
+}
+
+export interface BallaIdentityComparison {
+  wineId: number;
+  slug: string;
+  productId: number;
+  dbName: string;
+  officialName: string;
+  dbVintage: number | null;
+  officialVintage: number | null;
+  officialCategory: string | null;
+  officialColor: BallaGezaWineRecord["color"];
+  dbGrapes: string[];
+  officialGrapes: string[];
+  officialVolumeMl: number | null;
+  officialDeepLink: string;
+  officialImageUrl: string | null;
+  differentiators: string[];
+}
+
+export interface BallaAdjudicationResult {
+  assignments: Array<{
+    wineId: number;
+    slug: string;
+    status: "RESOLVED_EXACT" | "REMAINS_AMBIGUOUS" | "NO_MATCH";
+    productId: number | null;
+    positiveEvidence: string[];
+    candidates: number[];
+  }>;
+  matrix: BallaIdentityComparison[];
+}
+
+function baseIdentityName(value: string): string {
+  return normalizeMatchText(value)
+    .replace(/\b(?:19\d{2}|20\d{2})\b/g, " ")
+    .replace(/\b(?:balla|geza|géza|kolna|stonewine|stonewines|editie limitata)\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function explicitBallaLine(wine: BallaAdjudicationWine): string | null {
+  const value = normalizeMatchText(`${wine.name} ${wine.slug} ${wine.producerPageUrl ?? ""}`);
+  if (value.includes("stonewine")) return "stonewines";
+  if (value.includes("kolna")) return "kolna";
+  if (value.includes("editie limitata")) return "editie limitata";
+  return null;
+}
+
+function categoryMatchesLine(category: string | null, line: string): boolean {
+  const normalized = normalizeMatchText(category ?? "");
+  return Boolean(normalized) && (normalized.includes(line) || line.includes(normalized));
+}
+
+/**
+ * Prompt 17 one-to-one resolver. Explicit line rows reserve their product IDs
+ * first. Generic rows can only use a unique remaining exact name/vintage block.
+ */
+export function adjudicateBallaIdentitySet(
+  wines: BallaAdjudicationWine[],
+  records: BallaGezaWineRecord[],
+): BallaAdjudicationResult {
+  const matrix: BallaIdentityComparison[] = [];
+  const candidateMap = new Map<number, BallaGezaWineRecord[]>();
+  const explicitLines = new Map<number, string | null>();
+
+  for (const wine of wines) {
+    const line = explicitBallaLine(wine);
+    explicitLines.set(wine.wineId, line);
+    const candidates = records.filter((record) => {
+      if (baseIdentityName(record.name) !== baseIdentityName(wine.name)) return false;
+      if (
+        wine.vintage != null &&
+        record.vintage != null &&
+        wine.vintage !== record.vintage
+      ) {
+        return false;
+      }
+      return line ? categoryMatchesLine(record.category, line) : true;
+    });
+    candidateMap.set(wine.wineId, candidates);
+    for (const record of candidates) {
+      const differentiators = [
+        baseIdentityName(record.name) === baseIdentityName(wine.name)
+          ? "EXACT_PRODUCT_NAME"
+          : null,
+        wine.vintage != null && wine.vintage === record.vintage ? "EXACT_VINTAGE" : null,
+        line && categoryMatchesLine(record.category, line) ? "EXACT_LINE" : null,
+        record.producerPageUrl === wine.producerPageUrl ? "EXACT_DEEP_LINK" : null,
+      ].filter((value): value is string => value != null);
+      matrix.push({
+        wineId: wine.wineId,
+        slug: wine.slug,
+        productId: record.productId,
+        dbName: wine.name,
+        officialName: record.name,
+        dbVintage: wine.vintage,
+        officialVintage: record.vintage,
+        officialCategory: record.category,
+        officialColor: record.color,
+        dbGrapes: wine.grapes,
+        officialGrapes: record.grapeVarieties.map((grape) => grape.name),
+        officialVolumeMl: record.volumeMl,
+        officialDeepLink: record.producerPageUrl,
+        officialImageUrl: record.imageUrl,
+        differentiators,
+      });
+    }
+  }
+
+  const reservedProductIds = new Set<number>();
+  const assignments = new Map<number, BallaAdjudicationResult["assignments"][number]>();
+  for (const wine of wines.filter((row) => explicitLines.get(row.wineId))) {
+    const candidates = candidateMap.get(wine.wineId) ?? [];
+    if (candidates.length === 1) {
+      const record = candidates[0]!;
+      reservedProductIds.add(record.productId);
+      assignments.set(wine.wineId, {
+        wineId: wine.wineId,
+        slug: wine.slug,
+        status: "RESOLVED_EXACT",
+        productId: record.productId,
+        positiveEvidence: ["EXACT_PRODUCT_NAME", "EXACT_VINTAGE", "EXACT_LINE"],
+        candidates: [record.productId],
+      });
+    }
+  }
+
+  for (const wine of wines) {
+    if (assignments.has(wine.wineId)) continue;
+    const candidates = (candidateMap.get(wine.wineId) ?? []).filter(
+      (record) => !reservedProductIds.has(record.productId),
+    );
+    if (candidates.length === 1) {
+      const record = candidates[0]!;
+      reservedProductIds.add(record.productId);
+      assignments.set(wine.wineId, {
+        wineId: wine.wineId,
+        slug: wine.slug,
+        status: "RESOLVED_EXACT",
+        productId: record.productId,
+        positiveEvidence: [
+          "EXACT_PRODUCT_NAME",
+          ...(wine.vintage != null && wine.vintage === record.vintage
+            ? ["EXACT_VINTAGE"]
+            : []),
+          "ONE_TO_ONE_REMAINING_PRODUCT",
+        ],
+        candidates: [record.productId],
+      });
+    } else {
+      assignments.set(wine.wineId, {
+        wineId: wine.wineId,
+        slug: wine.slug,
+        status: candidates.length > 1 ? "REMAINS_AMBIGUOUS" : "NO_MATCH",
+        productId: null,
+        positiveEvidence: candidates.length > 1
+          ? ["MISSING_POSITIVE_LINE_EVIDENCE"]
+          : [],
+        candidates: candidates.map((record) => record.productId),
+      });
+    }
+  }
+
+  return {
+    assignments: wines.map((wine) => assignments.get(wine.wineId)!),
+    matrix,
+  };
+}
+
 function inferHintChannel(hint: {
   slug: string;
   vintage: number | null;

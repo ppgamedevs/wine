@@ -47,6 +47,26 @@ export interface SourceFetchAttempt {
   reason: string | null;
 }
 
+export interface SourceProbeObservation {
+  url: string;
+  method: "GET" | "HEAD";
+  ok: boolean;
+  httpStatus: number | null;
+  contentType: string;
+  finalUrl: string | null;
+  redirected: boolean;
+  failureClass: SourceFetchFailureClass | null;
+  reason: string | null;
+  elapsedMs: number;
+  responseHeaders: {
+    server: string | null;
+    retryAfter: string | null;
+    cacheStatus: string | null;
+    requestId: string | null;
+  };
+  body: string | null;
+}
+
 interface FetchOutcome {
   source: FetchedSource | null;
   attempt: SourceFetchAttempt;
@@ -64,6 +84,115 @@ export function classifyHttpFailure(status: number): SourceFetchFailureClass {
   if (status === 408 || status === 425 || status === 429) return "TEMP_ERROR";
   if (status >= 500) return "SERVER_ERROR";
   return "NETWORK_ERROR";
+}
+
+export async function probeOfficialSource(input: {
+  url: string;
+  method?: "GET" | "HEAD";
+  browserAccept?: boolean;
+  timeoutMs?: number;
+}): Promise<SourceProbeObservation> {
+  const method = input.method ?? "GET";
+  const started = Date.now();
+  try {
+    const response = await fetch(input.url, {
+      method,
+      headers: input.browserAccept === false
+        ? { "User-Agent": USER_AGENT }
+        : {
+            Accept: "text/html,application/xhtml+xml,application/pdf;q=0.9,*/*;q=0.8",
+            "Accept-Language": "ro-RO,ro;q=0.9,en;q=0.7",
+            "Cache-Control": "no-cache",
+            "User-Agent": USER_AGENT,
+          },
+      redirect: "follow",
+      signal: AbortSignal.timeout(input.timeoutMs ?? FETCH_TIMEOUT_MS),
+    });
+    const contentType = response.headers.get("content-type") ?? "";
+    const ok = response.ok && isSupportedContentType(contentType, response.url);
+    const failureClass = response.ok
+      ? ok
+        ? null
+        : "INVALID_CONTENT_TYPE"
+      : classifyHttpFailure(response.status);
+    return {
+      url: input.url,
+      method,
+      ok,
+      httpStatus: response.status,
+      contentType,
+      finalUrl: response.url,
+      redirected: response.redirected || response.url !== input.url,
+      failureClass,
+      reason: ok
+        ? null
+        : response.ok
+          ? `Unsupported content type: ${contentType || "missing"}`
+          : `HTTP ${response.status}`,
+      elapsedMs: Date.now() - started,
+      responseHeaders: {
+        server: response.headers.get("server"),
+        retryAfter: response.headers.get("retry-after"),
+        cacheStatus:
+          response.headers.get("cf-cache-status") ??
+          response.headers.get("x-cache") ??
+          response.headers.get("x-cache-status"),
+        requestId:
+          response.headers.get("cf-ray") ??
+          response.headers.get("x-request-id") ??
+          response.headers.get("x-amzn-requestid"),
+      },
+      body: method === "GET" && response.ok
+        ? (await response.text()).slice(0, 2_000_000)
+        : null,
+    };
+  } catch (error) {
+    const isTimeout =
+      error instanceof Error &&
+      (error.name === "TimeoutError" || error.name === "AbortError");
+    return {
+      url: input.url,
+      method,
+      ok: false,
+      httpStatus: null,
+      contentType: "",
+      finalUrl: null,
+      redirected: false,
+      failureClass: isTimeout ? "TIMEOUT" : "NETWORK_ERROR",
+      reason: error instanceof Error ? error.message : "Unknown network error",
+      elapsedMs: Date.now() - started,
+      responseHeaders: {
+        server: null,
+        retryAfter: null,
+        cacheStatus: null,
+        requestId: null,
+      },
+      body: null,
+    };
+  }
+}
+
+export async function probeOfficialSourceRepeated(input: {
+  url: string;
+  attempts?: number;
+  spacingMs?: number;
+}): Promise<SourceProbeObservation[]> {
+  const observations: SourceProbeObservation[] = [];
+  const attempts = Math.max(1, Math.min(input.attempts ?? 3, 3));
+  const spacingMs = Math.max(250, input.spacingMs ?? 750);
+  for (let index = 0; index < attempts; index += 1) {
+    observations.push(
+      await probeOfficialSource({
+        url: input.url,
+        method: "GET",
+        browserAccept: true,
+      }),
+    );
+    if (index + 1 < attempts) {
+      await new Promise((resolve) => setTimeout(resolve, spacingMs));
+    }
+  }
+  return observations;
 }
 
 function isSupportedContentType(contentType: string, url: string): boolean {
@@ -205,7 +334,7 @@ async function fetchOne(url: string): Promise<FetchOutcome> {
       finalUrl: response.url,
       httpStatus: response.status,
       text: stripHtml(html).slice(0, 14_000),
-      html: html.slice(0, 400_000),
+      html: html.slice(0, 2_000_000),
       isPdf: false,
       title,
       redirected,

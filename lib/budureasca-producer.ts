@@ -80,6 +80,14 @@ function parseDecimalToken(raw: string): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
+function parseAlcoholValue(raw: string | null): number | null {
+  if (!raw) return null;
+  const percent = raw.match(/\b(\d{1,2}(?:[.,]\d{1,2})?)\s*%/);
+  const token = percent?.[1] ?? raw.match(/\b(\d{1,2}(?:[.,]\d{1,2})?)\b/)?.[1];
+  const value = token ? parseDecimalToken(token) : null;
+  return value != null && value >= 5 && value <= 25 ? value : null;
+}
+
 function parseSweetnessLabel(raw: string): WineSweetnessLevel | null {
   const norm = normalizeMatchText(raw);
   if (norm.includes("brut natur")) return "sec";
@@ -214,10 +222,7 @@ function extractAttributeValue(html: string, label: string): string | null {
     const text = match?.[1] ? stripHtml(match[1]).replace(/\s+/g, " ").trim() : null;
     if (text) return decodeHtmlEntities(text);
   }
-
-  const plain = stripHtml(html).replace(/\s+/g, " ");
-  const plainMatch = plain.match(new RegExp(`${escaped}\\s*:?\\s*([^\\n#]+)`, "i"));
-  return plainMatch?.[1]?.trim() ?? null;
+  return null;
 }
 
 function parseGrapeVarieties(raw: string | null): GrapeVarietyShare[] {
@@ -227,9 +232,14 @@ function parseGrapeVarieties(raw: string | null): GrapeVarietyShare[] {
     .split(/\*+/)
     .flatMap((segment) => segment.split(/[,;\n]+/))
     .map((part) => part.trim())
-    .filter((part) => part.length > 2 && part.length <= 50);
+    .filter(
+      (part) =>
+        part.length > 2 &&
+        part.length <= 50 &&
+        !/\d|function|modal|cookie|lei|[{}]/i.test(part),
+    );
 
-  if (names.length === 0) return [];
+  if (names.length === 0 || names.length > 8) return [];
 
   const share = Math.round(100 / names.length);
   return names.map((name) => ({ name, percentage: share }));
@@ -437,10 +447,10 @@ export function parseBudureascaProductPage(
     line: inferLineFromName(name),
     color: parseColorLabel(colorRaw) ?? inferColorFromName(name),
     sweetness:
-      parseSweetnessLabel(sweetnessRaw ?? "") ??
-      inferSweetnessFromName(name),
+      inferSweetnessFromName(name) ??
+      parseSweetnessLabel(sweetnessRaw ?? ""),
     grapeVarieties: parseGrapeVarieties(grapeRaw),
-    alcohol: alcoholRaw ? parseDecimalToken(alcoholRaw.replace(/[^\d,.]/g, "")) : null,
+    alcohol: parseAlcoholValue(alcoholRaw),
     volumeMl: parseVolumeMl(volumeRaw),
     price,
     imageUrl: extractOgImage(html, pageUrl),

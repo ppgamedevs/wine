@@ -46,6 +46,8 @@
     "tech:public-audit": "tsx scripts/tech-public-audit.ts",
     "source:audit": "tsx scripts/source-audit.ts",
     "source:health": "tsx scripts/source-health.ts",
+    "source:adjudicate": "tsx scripts/source-adjudicate.ts",
+    "source:prompt18-manifests": "tsx scripts/source-adjudicate.ts --manifests-only",
     "tech:recovery-candidates": "tsx scripts/source-audit.ts"
   },
   "dependencies": {
