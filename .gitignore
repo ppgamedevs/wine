@@ -46,6 +46,7 @@ local.db-*
 *.tsbuildinfo
 next-env.d.ts
 /tmp/prompt18-runs/
+/artifacts/product-release-gate.*
 
 .vercel
 .env*.local

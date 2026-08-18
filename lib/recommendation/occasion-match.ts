@@ -299,6 +299,9 @@ export function winePassesHardConstraints(
 ): boolean {
   const price = wine.priceAvg;
   const constraint = input.budgetConstraint ?? (input.budgetSpecified ? "hard" : "none");
+  if (constraint === "hard" && input.budgetSpecified && price == null) {
+    return false;
+  }
   if (constraint === "hard" && input.budgetSpecified && price != null) {
     if (input.budgetMax != null && price > input.budgetMax) return false;
     if (input.budgetMin != null && input.budgetMin > 0 && price < input.budgetMin) {
