@@ -39,6 +39,7 @@ import type {
   WineTechRecoveryClass,
 } from "@/lib/tech-facts/types";
 import { stripHtml } from "@/lib/fetch-page-text-utils";
+import { parseAvincisProducerFacts } from "@/lib/wine-producer-enrichment";
 
 export interface RecoverableWine {
   id: number;
@@ -98,6 +99,7 @@ export interface WineTechRecovery {
   };
   ballaStatus?: BallaMatchStatus;
   ballaMatch?: {
+    productId: number;
     productName: string | null;
     vintage: number | null;
     category: string | null;
@@ -243,7 +245,13 @@ export async function recoverWineWithSources(
         source.url,
         `${wine.name} ${wine.vintage ?? ""} ${wine.slug}`,
       );
-      ballaStatus = resolved.status;
+      if (
+        resolved.status === "EXACT_MATCH" ||
+        ballaStatus == null ||
+        (ballaStatus === "NO_MATCH" && resolved.status === "AMBIGUOUS_MATCH")
+      ) {
+        ballaStatus = resolved.status;
+      }
       if (resolved.status === "EXACT_MATCH" && resolved.wine) {
         const block = resolved.wine.blockText;
         const extractedClaims = extractClaimsFromSource({
@@ -274,6 +282,7 @@ export async function recoverWineWithSources(
           match: identityClass,
         };
         ballaMatch = {
+          productId: resolved.wine.productId,
           productName: resolved.wine.name,
           vintage: resolved.wine.vintage,
           category: resolved.wine.category,
@@ -361,6 +370,31 @@ export async function recoverWineWithSources(
         match: classifySourceName(wine.name, parsed.name),
       };
       continue;
+    }
+
+    if (source.html && wine.winerySlug === "avincis") {
+      const parsed = parseAvincisProducerFacts(source.html, source.url);
+      if (parsed?.name) {
+        const focusedHtml = extractFocusedProductHtml(source.html);
+        const focusedText = stripHtml(focusedHtml).slice(0, 8000);
+        claims.push(
+          ...extractClaimsFromSource({
+            text: focusedText,
+            url: source.url,
+            sourceType: type,
+            wine: identity,
+            sourceWineName: parsed.name,
+            documentTitle: parsed.name,
+            html: focusedHtml,
+          }),
+        );
+        sourceIdentity = {
+          sourceWineName: parsed.name,
+          sourceVintage: parsed.vintage,
+          match: classifySourceName(wine.name, parsed.name),
+        };
+        continue;
+      }
     }
 
     const focusedHtml = source.html ? extractFocusedProductHtml(source.html) : null;

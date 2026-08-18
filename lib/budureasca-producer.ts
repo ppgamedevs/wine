@@ -42,6 +42,19 @@ export interface BudureascaCanonicalFacts {
   color: "alb" | "rosu" | "roze" | "spumant" | null;
 }
 
+export type BudureascaMatchStatus =
+  | "EXACT_MATCH"
+  | "EXACT_PRODUCT_UNDATED"
+  | "AMBIGUOUS_MATCH"
+  | "NO_MATCH";
+
+export interface BudureascaMatchResult {
+  status: BudureascaMatchStatus;
+  wine: BudureascaWineRecord | null;
+  candidates: BudureascaWineRecord[];
+  reasons: string[];
+}
+
 function decodeHtmlEntities(value: string): string {
   return value
     .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number.parseInt(code, 10)))
@@ -434,6 +447,109 @@ export function parseBudureascaProductPage(
     tastingNotes: extractBudureascaOverviewText(html),
     producerPageUrl: normalizeBudureascaProductUrl(pageUrl),
     sku,
+  };
+}
+
+function identityName(value: string): string {
+  return normalizeMatchText(value)
+    .replace(/\b(?:budureasca|vin|clasic)\b/g, " ")
+    .replace(/\b(?:19\d{2}|20\d{2})\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Strict Prompt 16 matcher. DB vintage is a constraint only. It is never copied
+ * into a source record when the official page is undated.
+ */
+export function matchBudureascaWineRecord(
+  records: BudureascaWineRecord[],
+  input: {
+    name: string;
+    vintage: number | null;
+    line?: string | null;
+    color?: BudureascaWineRecord["color"];
+    sweetness?: WineSweetnessLevel | null;
+    sku?: string | null;
+  },
+): BudureascaMatchResult {
+  if (input.sku) {
+    const skuMatches = records.filter(
+      (record) => record.sku?.trim().toLowerCase() === input.sku?.trim().toLowerCase(),
+    );
+    if (skuMatches.length === 1) {
+      return {
+        status:
+          input.vintage != null && skuMatches[0]!.vintage == null
+            ? "EXACT_PRODUCT_UNDATED"
+            : "EXACT_MATCH",
+        wine: skuMatches[0]!,
+        candidates: skuMatches,
+        reasons: ["Unique exact SKU"],
+      };
+    }
+    if (skuMatches.length > 1) {
+      return {
+        status: "AMBIGUOUS_MATCH",
+        wine: null,
+        candidates: skuMatches,
+        reasons: ["SKU is not unique in current official catalog"],
+      };
+    }
+  }
+
+  const wantedName = identityName(input.name);
+  const nameMatches = records.filter((record) => identityName(record.name) === wantedName);
+  const compatible = nameMatches.filter((record) => {
+    if (input.vintage != null && record.vintage != null && input.vintage !== record.vintage) return false;
+    if (input.sweetness && record.sweetness && input.sweetness !== record.sweetness) return false;
+    if (input.color && record.color && input.color !== record.color) return false;
+    if (
+      input.line &&
+      record.line &&
+      normalizeMatchText(input.line) !== normalizeMatchText(record.line)
+    ) {
+      return false;
+    }
+    return true;
+  });
+  const exactVintage = compatible.filter(
+    (record) => input.vintage == null || record.vintage === input.vintage,
+  );
+  if (exactVintage.length === 1) {
+    return {
+      status: "EXACT_MATCH",
+      wine: exactVintage[0]!,
+      candidates: exactVintage,
+      reasons: ["Exact normalized product name and compatible explicit identity attributes"],
+    };
+  }
+  const undated = compatible.filter((record) => record.vintage == null);
+  if (compatible.length === 1 && undated.length === 1) {
+    return {
+      status: "EXACT_PRODUCT_UNDATED",
+      wine: compatible[0]!,
+      candidates: compatible,
+      reasons: ["Unique exact product identity, official source is undated"],
+    };
+  }
+  if (compatible.length > 1) {
+    return {
+      status: "AMBIGUOUS_MATCH",
+      wine: null,
+      candidates: compatible,
+      reasons: ["Multiple compatible official products require positive differentiating evidence"],
+    };
+  }
+  return {
+    status: "NO_MATCH",
+    wine: null,
+    candidates: nameMatches,
+    reasons: [
+      nameMatches.length > 0
+        ? "Official products with this name conflict on vintage, sweetness, line, or color"
+        : "No exact normalized product name in current official catalog",
+    ],
   };
 }
 

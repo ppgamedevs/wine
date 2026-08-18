@@ -401,7 +401,10 @@ export function resolveBallaGezaWineFromCatalogResult(
   if (channelHint) {
     const channelHits = scored.filter((row) => {
       const category = normalizeMatchText(row.wine.category ?? "");
-      return category.includes(channelHint) || channelHint.includes(category);
+      const categoryMatches =
+        Boolean(category) &&
+        (category.includes(channelHint) || channelHint.includes(category));
+      return row.score >= 40 && categoryMatches;
     });
     if (channelHits.length === 1) {
       return { status: "EXACT_MATCH", wine: channelHits[0]!.wine, candidates: [channelHits[0]!.wine] };

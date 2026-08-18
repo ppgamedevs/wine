@@ -19,6 +19,11 @@ import {
 import { stripHtml } from "@/lib/fetch-page-text-utils";
 import { extractPdfTextFromUrl } from "@/lib/pdf-text";
 import type { GrapeVarietyShare } from "@/lib/schema";
+import {
+  classifyPdfDocument,
+  isAcceptedPdfClass,
+  isRejectedTechnicalDocumentUrl,
+} from "@/lib/tech-facts/pdf-classify";
 import type { WineSweetnessLevel } from "@/lib/wine-tech-specs";
 import { slugify } from "@/lib/wine-url";
 import { extractVintageFromPageText } from "@/lib/wine-vintage";
@@ -1119,9 +1124,9 @@ async function fetchProducerHtml(
   }
 }
 
-function pickBestPdfLink(links: string[], wineName: string): string | null {
+export function pickBestPdfLink(links: string[], wineName: string): string | null {
   const usable = links.filter(
-    (link) => !/privacy|confidentialitate|cookie|terms|termeni|gdpr|policy/i.test(link),
+    (link) => !isRejectedTechnicalDocumentUrl(link),
   );
   if (usable.length === 0) return null;
 
@@ -1142,7 +1147,7 @@ function pickBestPdfLink(links: string[], wineName: string): string | null {
     }
   }
 
-  return best;
+  return bestScore >= 2 ? best : null;
 }
 
 function emptyEnrichment(): ProducerEnrichment {
@@ -1338,10 +1343,22 @@ export async function enrichWineFromProducerSite(input: {
 
   const producerText = stripHtml(bestPage.html).slice(0, MAX_PRODUCER_TEXT_CHARS);
   const pdfLinks = extractPdfLinks(bestPage.html, bestPage.finalUrl);
-  const tastingSheetUrl = pickBestPdfLink(pdfLinks, input.wineName);
-  const pdfText = tastingSheetUrl
-    ? (await extractPdfTextFromUrl(tastingSheetUrl)).slice(0, MAX_PDF_TEXT_CHARS)
+  const pdfCandidateUrl = pickBestPdfLink(pdfLinks, input.wineName);
+  const candidatePdfText = pdfCandidateUrl
+    ? (await extractPdfTextFromUrl(pdfCandidateUrl)).slice(0, MAX_PDF_TEXT_CHARS)
     : "";
+  const pdfClass = pdfCandidateUrl
+    ? classifyPdfDocument({
+        text: candidatePdfText,
+        filename: pdfCandidateUrl,
+        url: pdfCandidateUrl,
+      })
+    : null;
+  const tastingSheetUrl =
+    pdfCandidateUrl && pdfClass && isAcceptedPdfClass(pdfClass)
+      ? pdfCandidateUrl
+      : null;
+  const pdfText = tastingSheetUrl ? candidatePdfText : "";
 
   const combinedText = [producerText, pdfText ? `Fisa degustare PDF: ${pdfText}` : ""]
     .filter(Boolean)

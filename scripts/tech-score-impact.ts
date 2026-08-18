@@ -11,8 +11,8 @@ import { generateRomanianPairingDrafts } from "../lib/pairing/generate-romanian-
 import { auditWineProvenance } from "../lib/pairing/provenance-audit";
 import { valueScoreInputFromWine, calculateValueScore } from "../lib/scoring";
 import { getSecondaryScoringMode } from "../lib/scoring-v2/secondary-scoring-mode";
-import { loadVerifiedTechWines } from "../lib/tech-facts/catalog";
-import { recoverWineFromStored, simulatedSafePatch } from "../lib/tech-facts/recover";
+import { simulatedSafePatch } from "../lib/tech-facts/recover";
+import { runReadOnlyCatalogRecovery } from "../lib/tech-facts/run-recovery";
 import { normalizeWineRows } from "../lib/normalize-wine";
 import type { WineWithRelations } from "../types";
 
@@ -24,7 +24,8 @@ async function main() {
   console.log("SECONDARY_SCORING_MODE", getSecondaryScoringMode());
   console.log("tech:score-impact dry-run. No Value/Gift/Food writes.");
 
-  const catalog = await loadVerifiedTechWines();
+  const recoveryRun = await runReadOnlyCatalogRecovery();
+  const catalog = recoveryRun.wines;
   const fullRows = await db.query.wines.findMany({
     where: eq(wines.status, "verified"),
     with: { winery: true, region: true },
@@ -41,7 +42,8 @@ async function main() {
   const mismatches = provenance.filter((row) => row.proposedBasis);
 
   for (const wine of catalog) {
-    const recovery = recoverWineFromStored(wine);
+    const recovery = recoveryRun.recoveries.find((row) => row.wineId === wine.id);
+    if (!recovery) continue;
     const patch = simulatedSafePatch(recovery);
     const full = byId.get(wine.id);
     if (!full) continue;
@@ -49,7 +51,11 @@ async function main() {
     const after = calculateValueScore(
       valueScoreInputFromWine({
         ...full,
+        alcohol: patch.alcohol ?? full.alcohol,
         acidity: patch.acidity ?? full.acidity,
+        sugar: patch.sugar ?? full.sugar,
+        sweetness:
+          (patch.sweetness as typeof full.sweetness | undefined) ?? full.sweetness,
       }),
     );
     const delta = after - before;

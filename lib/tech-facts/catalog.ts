@@ -6,9 +6,10 @@ import type { RecoverableWine } from "@/lib/tech-facts/recover";
 export async function loadVerifiedTechWines(filter?: {
   winerySlug?: string;
   wineSlug?: string;
+  includeAll?: boolean;
 }): Promise<RecoverableWine[]> {
   const rows = await db.query.wines.findMany({
-    where: eq(wines.status, "verified"),
+    where: filter?.includeAll ? undefined : eq(wines.status, "verified"),
     columns: {
       id: true,
       slug: true,

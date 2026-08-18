@@ -58,14 +58,14 @@ export function parseAlcoholClaim(text: string): ParsedTechNumber | null {
 }
 
 export function parseResidualSugarClaim(text: string): ParsedTechNumber | null {
-  if (/dulceata de|fructe dulci|dulceata placuta/i.test(text) && !/z[aă]har\s+rezidual/i.test(text)) {
+  if (/dulceata de|fructe dulci|dulceata placuta/i.test(text) && !/zah[aă]r\s+rezidual/i.test(text)) {
     return null;
   }
   const patterns = [
-    /z[aă]har\s+rezidual[:\s]+(\d+(?:[.,]\d+)?)\s*(?:g\s*\/\s*l|g\/l|g)/i,
+    /zah[aă]r\s+rezidual[:\s]+(\d+(?:[.,]\d+)?)\s*(?:g\s*\/\s*l|g\/l|g)/i,
     /residual\s+sugar[:\s]+(\d+(?:[.,]\d+)?)\s*(?:g\s*\/\s*l|g\/l)/i,
     /restzucker[:\s]+(\d+(?:[.,]\d+)?)\s*(?:g\s*\/\s*l|g\/l)/i,
-    /(\d+(?:[.,]\d+)?)\s*g\s*\/\s*l\s*z[aă]har/i,
+    /(\d+(?:[.,]\d+)?)\s*g\s*\/\s*l\s*zah[aă]r/i,
   ];
   for (const pattern of patterns) {
     const match = text.match(pattern);

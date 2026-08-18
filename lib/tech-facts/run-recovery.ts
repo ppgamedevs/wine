@@ -5,7 +5,11 @@ import { GOLDEN_CURATION_STATS } from "@/lib/pairing/golden-curation-dataset";
 import { getSecondaryScoringMode } from "@/lib/scoring-v2/secondary-scoring-mode";
 import { buildTechAuditReport } from "@/lib/tech-facts/audit";
 import { loadVerifiedTechWines } from "@/lib/tech-facts/catalog";
-import { fetchOfficialSources, type FetchedSource } from "@/lib/tech-facts/fetch-source";
+import {
+  fetchOfficialSources,
+  type FetchedSource,
+  type SourceFetchAttempt,
+} from "@/lib/tech-facts/fetch-source";
 import { isPrompt14Eligible } from "@/lib/tech-facts/qualify";
 import {
   officialUrlCandidates,
@@ -36,16 +40,18 @@ export async function runReadOnlyCatalogRecovery(filter?: {
   winerySlug?: string;
   wineSlug?: string;
   noFetch?: boolean;
+  includeAll?: boolean;
 }): Promise<{
   wines: RecoverableWine[];
   recoveries: WineTechRecovery[];
-  fetched: { sources: FetchedSource[]; stats: FetchStats };
+  fetched: { sources: FetchedSource[]; attempts: SourceFetchAttempt[]; stats: FetchStats };
 }> {
   const wines = await loadVerifiedTechWines(filter);
   const allUrls = wines.flatMap(officialUrlCandidates);
   const fetched = filter?.noFetch
     ? {
         sources: [] as FetchedSource[],
+        attempts: [] as SourceFetchAttempt[],
         stats: { attempted: 0, ok: 0, failed: 0, redirected: 0, htmlInsteadOfPdf: 0, cached: 0 },
       }
     : await fetchOfficialSources(allUrls);

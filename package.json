@@ -43,7 +43,10 @@
     "tech:provenance-qualify": "tsx scripts/tech-provenance-qualify.ts",
     "tech:evidence-backfill": "tsx scripts/tech-evidence-backfill.ts",
     "tech:production-snapshot": "tsx scripts/tech-production-snapshot.ts",
-    "tech:public-audit": "tsx scripts/tech-public-audit.ts"
+    "tech:public-audit": "tsx scripts/tech-public-audit.ts",
+    "source:audit": "tsx scripts/source-audit.ts",
+    "source:health": "tsx scripts/source-health.ts",
+    "tech:recovery-candidates": "tsx scripts/source-audit.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",

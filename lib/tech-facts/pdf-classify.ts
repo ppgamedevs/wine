@@ -4,7 +4,8 @@
 import { foldRomanianText } from "@/lib/pairing/romanian-text";
 import type { PdfDocumentClass } from "@/lib/tech-facts/types";
 
-const REJECTED_URL = /privacy|confidentialitate|cookie|terms|termeni|gdpr|policy/i;
+const REJECTED_URL =
+  /privacy|confidentialitate|cookie|terms|termeni|gdpr|policy|livrare|retur|shipping|returns|brochure|brosura|catalog[-_ ]?general/i;
 const PRIVACY = /politica de confidentialitate|privacy policy|gdpr|prelucrarea datelor/i;
 const TERMS = /termeni si conditii|terms and conditions|termenii de utilizare/i;
 const MARKETING = /brosura|brochure|catalog general|prezentare crama/i;
