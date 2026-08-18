@@ -48,6 +48,11 @@
     "source:health": "tsx scripts/source-health.ts",
     "source:adjudicate": "tsx scripts/source-adjudicate.ts",
     "source:prompt18-manifests": "tsx scripts/source-adjudicate.ts --manifests-only",
+    "prompt18:freeze-manifests": "tsx scripts/prompt18-freeze-manifests.ts",
+    "prompt18:snapshot": "tsx scripts/prompt18-production-snapshot.ts",
+    "source:manifest-apply": "tsx scripts/prompt18-manifest-apply.ts --manifest=A",
+    "tech:manifest-apply": "tsx scripts/prompt18-manifest-apply.ts --manifest=B",
+    "tech:value-manifest": "tsx scripts/prompt18-manifest-apply.ts --manifest=C",
     "tech:recovery-candidates": "tsx scripts/source-audit.ts"
   },
   "dependencies": {

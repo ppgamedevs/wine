@@ -45,6 +45,7 @@ local.db-*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/tmp/prompt18-runs/
 
 .vercel
 .env*.local
