@@ -352,6 +352,40 @@ export default function ScoringMethodologyPage() {
             </p>
           </section>
 
+          <section
+            id="verificarea-datelor"
+            aria-labelledby="verification-heading"
+            className="scroll-mt-24"
+          >
+            <h2
+              id="verification-heading"
+              className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
+            >
+              Cum verificăm datele despre vin
+            </h2>
+            <div className="mt-3 max-w-3xl space-y-3 leading-relaxed text-muted-foreground">
+              <p>
+                Pentru alcool, aciditate, zahăr și alte date tehnice căutăm
+                surse oficiale ale producătorului. Fișa tehnică este sursa cea
+                mai puternică, iar o pagină sau un catalog oficial poate
+                confirma un fapt când identifică exact vinul.
+              </p>
+              <p>
+                O valoare este marcată <strong>Verificat</strong> doar când
+                sursa poate fi legată de vinul și, unde este cazul, de recolta
+                corectă. Informațiile comercianților nu confirmă automat datele
+                de laborator.
+              </p>
+              <p>
+                Dacă nu avem încă dovada necesară, valoarea poate rămâne
+                vizibilă în catalog cu mențiunea{" "}
+                <strong>Sursă oficială neconfirmată</strong>. Datele lipsă rămân
+                lipsă, iar verificarea faptelor este separată de calculul
+                scorurilor.
+              </p>
+            </div>
+          </section>
+
           <section aria-labelledby="indicators-heading">
             <h2
               id="indicators-heading"

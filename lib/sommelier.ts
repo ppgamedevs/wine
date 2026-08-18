@@ -107,18 +107,18 @@ export function buildWineContextBlock(wine: WineWithRelations): string {
 
   const safeExpert = sanitizeExpertNotesForDownstream(wine.expertNotes, {
     type: wine.type,
-    sweetness: wine.sweetness,
+    sweetness: null,
     grapeVarieties: wine.grapeVarieties,
     regionName: wine.region?.name ?? null,
     wineryName: wine.winery?.name ?? null,
-    vintage: wine.vintage,
+    vintage: null,
     tastingNotes: wine.tastingNotes,
     producerContent: wine.producerContent,
     producerPageUrl: wine.producerPageUrl,
     tastingSheetUrl: wine.tastingSheetUrl,
-    alcohol: wine.alcohol,
-    acidity: wine.acidity,
-    sugar: wine.sugar,
+    alcohol: null,
+    acidity: null,
+    sugar: null,
     foodPairings: wine.foodPairings,
     medals: wine.medals,
   });
@@ -128,7 +128,6 @@ export function buildWineContextBlock(wine: WineWithRelations): string {
 EXPERT_NOTES (doar sectiuni sustinute de evidenta; nu trata restul ca fapt):
 - Istorie: ${safeExpert.history || "N/A"}
 - Terroir: ${safeExpert.terroirSecrets || "N/A"}
-- Vintage: ${safeExpert.vintageQuirks || "N/A"}
 - Pairing science: ${safeExpert.pairingScience || "N/A"}
 - Greseli comune: ${safeExpert.commonMistakes || "N/A"}
 - Aging: ${safeExpert.agingPotential || "N/A"}
@@ -138,9 +137,9 @@ EXPERT_NOTES (doar sectiuni sustinute de evidenta; nu trata restul ca fapt):
 
   return `---
 slug: ${wine.slug}
-Nume: ${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}
+Nume: ${wine.name}
 Crama: ${wine.winery?.name ?? "N/A"} | Regiune: ${wine.region?.name ?? "N/A"}
-Tip: ${wine.type} | Dulceata: ${wine.sweetness ?? "N/A"} | ${wine.priceAvg ?? "?"} RON
+Tip: ${wine.type} | ${wine.priceAvg ?? "?"} RON
 Soiuri: ${grapes}
 Scoruri: Value ${wine.valueScore ?? "N/A"}, Gift ${wine.giftScore ?? "N/A"}, Food ${wine.foodMatchScore ?? "N/A"}
 ${medalsSummary ? `Medalii: ${medalsSummary}` : "Medalii: niciuna in baza de date"}

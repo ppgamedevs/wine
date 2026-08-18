@@ -2,12 +2,10 @@ import { Building2, CheckCircle2, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
 import { WineImage } from "@/components/wines/wine-image";
 import { WinePriceDisplay } from "@/components/wines/wine-price-display";
-import { SourceBadge } from "@/components/wines/source-badge";
 import { CommunityBadge } from "@/components/wines/community-badge";
 import { Badge } from "@/components/ui/badge";
-import { formatLongDate, wineTypeLabel } from "@/lib/format";
+import { wineTypeLabel } from "@/lib/format";
 import { resolveWineVintage, stripEmbeddedVintageFromName } from "@/lib/wine-vintage";
-import { resolveWineFactualSource } from "@/lib/wine-source";
 import type { WineWithRelations } from "@/types";
 
 export function WineHero({ wine }: { wine: WineWithRelations }) {
@@ -40,7 +38,7 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
             className="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
           >
             <Link href="/" className="hover:text-wine">
-              Acasa
+              Acasă
             </Link>
             <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             <Link href="/vinuri" className="hover:text-wine">
@@ -57,18 +55,13 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
             {displayVintage ? (
               <Badge variant="secondary">{displayVintage}</Badge>
             ) : null}
-            {wine.sweetness ? (
-              <Badge variant="secondary" className="capitalize">
-                {wine.sweetness}
-              </Badge>
-            ) : null}
             {wine.winery?.verified ? (
               <Badge className="gap-1 bg-wine/10 text-wine hover:bg-wine/15">
                 <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                Crama verificata
+                Crama verificată
               </Badge>
             ) : (
-              <Badge variant="secondary">Crama neverificata</Badge>
+              <Badge variant="secondary">Crama neverificată</Badge>
             )}
             <CommunityBadge status={wine.status} />
           </div>
@@ -109,13 +102,6 @@ export function WineHero({ wine }: { wine: WineWithRelations }) {
 
           <div className="mt-6">
             <WinePriceDisplay wine={wine} variant="hero" />
-          </div>
-
-          <div className="mt-4">
-            <SourceBadge
-              source={resolveWineFactualSource(wine)}
-              lastUpdated={formatLongDate(wine.updatedAt)}
-            />
           </div>
         </div>
       </div>

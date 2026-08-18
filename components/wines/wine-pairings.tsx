@@ -9,7 +9,11 @@ import {
   publicProducerAttribution,
 } from "@/lib/pairing-curation";
 import { sanitizeCulinaryText } from "@/lib/culinary-extract";
-import type { WineWithRelations } from "@/types";
+import {
+  getVerifiedTechnicalValue,
+  type PublicTechnicalTrust,
+} from "@/lib/tech-facts/public-trust";
+import type { WineSweetness, WineWithRelations } from "@/types";
 
 function pairingTone(score: number | undefined): string {
   if (!score) return "bg-muted text-muted-foreground";
@@ -18,17 +22,30 @@ function pairingTone(score: number | undefined): string {
   return "bg-secondary text-secondary-foreground";
 }
 
-export function WinePairings({ wine }: { wine: WineWithRelations }) {
+export function WinePairings({
+  wine,
+  technicalTrust,
+}: {
+  wine: WineWithRelations;
+  technicalTrust: PublicTechnicalTrust;
+}) {
   const evaluatedPairings = wine.foodPairings ?? [];
   const hasEvaluatedPairings = evaluatedPairings.length > 0;
 
   if (!hasEvaluatedPairings) {
     // Nu inventam pairing-uri specifice acestui vin. Aratam doar o orientare
-    // generala pe tip de vin + dulceata, marcata explicit ca estimare
+    // generala pe tip de vin + dulceata verificata, marcata explicit ca estimare
     // generica, nu ca evaluare a acestui vin (vezi lib/generic-pairing-guidance.ts).
+    const verifiedSweetness = getVerifiedTechnicalValue(
+      technicalTrust,
+      "sweetness",
+    );
     const guidance = buildGenericPairingGuidance({
       type: wine.type,
-      sweetness: wine.sweetness,
+      sweetness:
+        typeof verifiedSweetness === "string"
+          ? (verifiedSweetness as WineSweetness)
+          : null,
     });
 
     return (

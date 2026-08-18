@@ -5,7 +5,7 @@ import {
   GOLDEN_CURATION_STATS,
   GOLDEN_CURATION_WINES,
 } from "@/lib/pairing/golden-curation-dataset";
-import { wines } from "@/lib/schema";
+import { wineFactEvidence, wines } from "@/lib/schema";
 
 function stableHash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
@@ -22,6 +22,8 @@ export interface ProductionInvariantSnapshot {
   editorialPublicHash: string;
   urlsStatusHash: string;
   allWineColumnsHash: string;
+  evidenceRowCount: number;
+  evidenceHash: string;
   goldenWineCount: number;
   goldenPairingCount: number;
   goldenHash: string;
@@ -40,11 +42,17 @@ export interface ProductionInvariantComparison {
   editorialPublicDiffs: number;
   urlsStatusDiffs: number;
   allWineColumnDiffs: number;
+  evidenceRowCountDiff: number;
+  evidenceDiffs: number;
   goldenDiffs: number;
 }
 
 export async function captureProductionInvariantSnapshot(): Promise<ProductionInvariantSnapshot> {
   const rows = await db.select().from(wines).orderBy(wines.id);
+  const evidenceRows = await db
+    .select()
+    .from(wineFactEvidence)
+    .orderBy(wineFactEvidence.id);
   const verified = await db
     .select({ value: count() })
     .from(wines)
@@ -115,6 +123,8 @@ export async function captureProductionInvariantSnapshot(): Promise<ProductionIn
     editorialPublicHash: stableHash(editorialPublic),
     urlsStatusHash: stableHash(urlsStatus),
     allWineColumnsHash: stableHash(rows),
+    evidenceRowCount: evidenceRows.length,
+    evidenceHash: stableHash(evidenceRows),
     goldenWineCount: GOLDEN_CURATION_STATS.wines,
     goldenPairingCount: GOLDEN_CURATION_STATS.pairings,
     goldenHash: stableHash(GOLDEN_CURATION_WINES),
@@ -145,6 +155,14 @@ export function compareProductionInvariantSnapshots(
     allWineColumnDiffs: Number(
       before.allWineColumnsHash !== after.allWineColumnsHash,
     ),
+    evidenceRowCountDiff:
+      before.evidenceRowCount == null
+        ? 0
+        : after.evidenceRowCount - before.evidenceRowCount,
+    evidenceDiffs:
+      before.evidenceHash == null
+        ? 0
+        : Number(before.evidenceHash !== after.evidenceHash),
     goldenDiffs: Number(
       before.goldenHash !== after.goldenHash ||
         before.goldenWineCount !== after.goldenWineCount ||
@@ -163,6 +181,8 @@ export function compareProductionInvariantSnapshots(
     result.editorialPublicDiffs === 0 &&
     result.urlsStatusDiffs === 0 &&
     result.allWineColumnDiffs === 0 &&
+    result.evidenceRowCountDiff === 0 &&
+    result.evidenceDiffs === 0 &&
     result.goldenDiffs === 0;
   return result;
 }

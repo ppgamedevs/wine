@@ -1,4 +1,8 @@
 import { resolveCellarDisplay } from "@/lib/cellar-display";
+import {
+  getVerifiedTechnicalValue,
+  type PublicTechnicalTrust,
+} from "@/lib/tech-facts/public-trust";
 import { formatRon } from "@/lib/format";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
@@ -177,7 +181,10 @@ export interface WineProsCons {
   cons: string[];
 }
 
-export function buildWineProsCons(wine: WineWithRelations): WineProsCons {
+export function buildWineProsCons(
+  wine: WineWithRelations,
+  technicalTrust: PublicTechnicalTrust,
+): WineProsCons {
   const pros: string[] = [];
   const cons: string[] = [];
   const value = wine.valueScore ?? 0;
@@ -219,8 +226,14 @@ export function buildWineProsCons(wine: WineWithRelations): WineProsCons {
     cons.push("Pretul poate fi optimizat: exista optiuni cu scor mai bun.");
   }
 
-  if (wine.alcohol != null && wine.alcohol >= 14.5) {
-    cons.push(`Alcool ${wine.alcohol}%: mai potrivit cu mancare consistenta.`);
+  const verifiedAlcohol = getVerifiedTechnicalValue(
+    technicalTrust,
+    "alcohol",
+  );
+  if (typeof verifiedAlcohol === "number" && verifiedAlcohol >= 14.5) {
+    cons.push(
+      `Alcool ${verifiedAlcohol}%: mai potrivit cu mâncare consistentă.`,
+    );
   }
 
   if (value < VALUE_SCORE_NEUTRAL_MIN) {

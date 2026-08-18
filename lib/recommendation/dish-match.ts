@@ -296,7 +296,7 @@ export function scoreWineForDish(wine: DishMatchWine, dish: string): DishMatchRe
 
   if (styleSupported && acidityKnown) {
     reasons.push(
-      `Stil verificat (${type}${wine.sweetness ? `, ${wine.sweetness}` : ""}) pentru ${foodCategoryLabel(primary)}.`,
+      `Compatibilitate estimată pentru un vin de tip ${type} și ${foodCategoryLabel(primary)}.`,
     );
     return {
       score: roundScore(clamp(adjusted + 4, 12, 84)),

@@ -6,7 +6,7 @@ export * from "@/lib/tech-facts/pdf-classify";
 export * from "@/lib/tech-facts/claims";
 export * from "@/lib/tech-facts/reconcile";
 export * from "@/lib/tech-facts/resolve";
-export * from "@/lib/tech-facts/public-status";
+export * from "@/lib/tech-facts/public-trust";
 export * from "@/lib/tech-facts/recover";
 export * from "@/lib/tech-facts/scan";
 export * from "@/lib/tech-facts/source-identity";

@@ -31,6 +31,7 @@ import { buildWineJsonLd, buildWineMetadataDescription } from "@/lib/wine-json-l
 import { absoluteUrl } from "@/lib/seo";
 import { resolveWineImage } from "@/lib/wine-images";
 import { EXISTING_WINE_CATALOG_MESSAGE } from "@/lib/wine-submission-messages";
+import { getPublicWineTechnicalTrust } from "@/lib/tech-facts/public-trust-query";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -103,14 +104,16 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
 
   if (!wine) notFound();
 
-  const [similar, recommended, wineryWineCount] = await Promise.all([
+  const [similar, recommended, wineryWineCount, technicalTrust] =
+    await Promise.all([
     getSimilarWines(wine, 4),
     getRecommendedWines(wine, 4),
     wine.wineryId ? getWineryWineCount(wine.wineryId) : Promise.resolve(0),
-  ]);
+      getPublicWineTechnicalTrust(wine.id, wine),
+    ]);
 
   const faq = buildWineFaq(wine);
-  const jsonLd = buildWineJsonLd(wine, faq);
+  const jsonLd = buildWineJsonLd(wine, faq, technicalTrust);
 
   return (
     <>
@@ -151,12 +154,12 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
           <WineScoreCards wine={wine} />
           <WineDataFreshness wine={wine} />
           <WineWorthIt wine={wine} />
-          <WineProsCons wine={wine} />
+          <WineProsCons wine={wine} technicalTrust={technicalTrust} />
           {wine.winery ? (
             <WineWineryLink wine={wine} wineCount={wineryWineCount} />
           ) : null}
-          <WineSpecsTable wine={wine} />
-          <WinePairings wine={wine} />
+          <WineSpecsTable wine={wine} trust={technicalTrust} />
+          <WinePairings wine={wine} technicalTrust={technicalTrust} />
           <WineAvailability wine={wine} />
           <WineFaq items={faq} />
 

@@ -77,7 +77,7 @@ function buildWineryFaq(winery: WineryWithWines): FaqEntry[] {
     {
       question: `Care este cel mai bun vin de la ${winery.name}?`,
       answer: top
-        ? `In acest moment, ${top.name}${top.vintage ? ` ${top.vintage}` : ""} conduce, cu Value Score ${top.valueScore ?? "N/A"}/100 la ${formatRon(top.priceAvg)}.`
+        ? `In acest moment, ${top.name} conduce, cu Value Score ${top.valueScore ?? "N/A"}/100 la ${formatRon(top.priceAvg)}.`
         : `Actualizam constant lista de vinuri de la ${winery.name}.`,
     },
     {

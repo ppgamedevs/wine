@@ -3,6 +3,10 @@ import { resolveWineImage } from "@/lib/wine-images";
 import type { WineFaqItem } from "@/lib/wine-analysis";
 import { absoluteUrl } from "@/lib/seo";
 import { buildWineFullTitle } from "@/lib/wine-vintage";
+import {
+  getVerifiedTechnicalValue,
+  type PublicTechnicalTrust,
+} from "@/lib/tech-facts/public-trust";
 import type { WineWithRelations } from "@/types";
 
 const SCHEMA_CONTEXT = "https://schema.org";
@@ -133,6 +137,7 @@ export function buildWineryMakesOfferEntry(
 export function buildWineJsonLd(
   wine: WineWithRelations,
   faq: WineFaqItem[],
+  technicalTrust: PublicTechnicalTrust,
 ) {
   const url = winePageUrl(wine.slug);
   const wineryName = wine.winery?.name;
@@ -140,6 +145,14 @@ export function buildWineJsonLd(
   const { src: imageUrl, alt: imageAlt } = resolveWineImage(wine);
   const offers = buildProductOffers(wine, url);
   const aggregateRating = buildProductAggregateRating(wine);
+  const verifiedAlcohol = getVerifiedTechnicalValue(
+    technicalTrust,
+    "alcohol",
+  );
+  const verifiedVintage = getVerifiedTechnicalValue(
+    technicalTrust,
+    "vintage",
+  );
 
   const wineSchema = {
     "@context": SCHEMA_CONTEXT,
@@ -156,8 +169,12 @@ export function buildWineJsonLd(
           },
         }
       : {}),
-    alcoholContent: wine.alcohol ? `${wine.alcohol}%` : undefined,
-    vintage: wine.vintage ? String(wine.vintage) : undefined,
+    ...(typeof verifiedAlcohol === "number"
+      ? { alcoholContent: `${verifiedAlcohol}%` }
+      : {}),
+    ...(typeof verifiedVintage === "number"
+      ? { vintage: String(verifiedVintage) }
+      : {}),
     color: wine.type,
     countryOfOrigin: {
       "@type": "Country",

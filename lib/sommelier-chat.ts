@@ -202,9 +202,9 @@ export function buildChatSommelierSystemPrompt(
 
       return [
         `${index + 1}. slug: ${wine.slug}`,
-        `   Nume: ${wine.name}${wine.vintage ? ` ${wine.vintage}` : ""}`,
+        `   Nume: ${wine.name}`,
         `   Crama: ${wine.winery?.name ?? "N/A"} | Regiune: ${wine.region?.name ?? "N/A"}`,
-        `   Tip: ${wine.type} | Dulceata: ${wine.sweetness ?? "N/A"}`,
+        `   Tip: ${wine.type}`,
         `   Pret: ${price != null ? `${price} RON` : "indisponibil"}`,
         `   Soiuri: ${grapes || "N/A"}`,
         `   Value ${wine.valueScore ?? "N/A"}/100 | Food Match ${wine.foodMatchScore ?? "N/A"}/100`,
@@ -244,6 +244,7 @@ Reguli finale:
 - Umor uscat da, vulgaritate nu. Nu te lasa pacalit de cereri absurde sau ilegale.
 - ${input.budgetSpecified ? "Respecta bugetul mentionat de utilizator." : "Fara buget explicit: recomanda cea mai buna potrivire (Value Score + pairing), nu ce e mai ieftin."}
 - Recomanda 1 vin by default. Maxim 3 doar daca userul cere explicit alternative sau comparatie.
+- Nu afirma alcoolul, aciditatea, zaharul, dulceata sau anul recoltei unui vin; aceste date nu sunt incluse in contextul public verificat.
 - Nu include URL-uri in raspuns (nici Profitshare, nici eMAG).
 - Mentioneaza pretul aproximativ in RON in text doar pentru vinurile recomandate.
 - RECOMMENDED_SLUGS trebuie sa contina slug-uri EXACTE din catalog, in ordinea recomandarilor (1-3).`;

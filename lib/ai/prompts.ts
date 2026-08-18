@@ -67,6 +67,7 @@ Pentru recomandarile structurate JSON (formular legacy):
 - matchScore reflecta cat de bine se potriveste (40-99).
 - Include pairingScience cu stiinta pairing-ului romanesc (taninuri, aciditate, grasime).
 - Sfaturi de servire si pastrare (temperatura, decantare, potential).
+- Nu afirma alcoolul, aciditatea, zaharul, dulceata sau anul recoltei unei sticle; aceste date tehnice nu sunt incluse aici cu provenienta publica.
 - In whyThisWine si thingsYouShouldKnow, poti folosi umor uscat si medalii reale din context, dar pastreaza JSON-ul curat si profesional.`;
 
 export function buildExpertNotesUserPrompt(wine: {

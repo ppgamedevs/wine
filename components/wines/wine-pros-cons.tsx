@@ -1,9 +1,16 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 import { buildWineProsCons } from "@/lib/wine-analysis";
+import type { PublicTechnicalTrust } from "@/lib/tech-facts/public-trust";
 import type { WineWithRelations } from "@/types";
 
-export function WineProsCons({ wine }: { wine: WineWithRelations }) {
-  const { pros, cons } = buildWineProsCons(wine);
+export function WineProsCons({
+  wine,
+  technicalTrust,
+}: {
+  wine: WineWithRelations;
+  technicalTrust: PublicTechnicalTrust;
+}) {
+  const { pros, cons } = buildWineProsCons(wine, technicalTrust);
 
   if (pros.length === 0 && cons.length === 0) return null;
 

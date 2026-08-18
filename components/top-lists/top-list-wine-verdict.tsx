@@ -18,9 +18,6 @@ function buildWhyInTop(wine: WineWithRelations): string {
   if (wine.valueScore && wine.valueScore >= 75) {
     parts.push(`Value Score ${wine.valueScore}/100`);
   }
-  if (wine.vintage && wine.vintage >= 2022) {
-    parts.push(`vintage ${wine.vintage}`);
-  }
   if (wine.priceAvg) {
     parts.push(`pret bun la ${formatRon(wine.priceAvg)}`);
   }
@@ -32,7 +29,6 @@ function buildWhyInTop(wine: WineWithRelations): string {
 function buildMinus(wine: WineWithRelations): string | null {
   if (!wine.priceAvg) return "pret indisponibil momentan";
   if (wine.overpricedRisk === "high") return "risc moderat de suprapret";
-  if (wine.alcohol && wine.alcohol >= 14.5) return "alcool relativ ridicat";
   if ((wine.availability ?? []).length === 0) return "disponibilitate limitata";
   return null;
 }

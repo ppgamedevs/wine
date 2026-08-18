@@ -42,7 +42,8 @@
     "tech:source-audit": "tsx scripts/tech-source-audit.ts",
     "tech:provenance-qualify": "tsx scripts/tech-provenance-qualify.ts",
     "tech:evidence-backfill": "tsx scripts/tech-evidence-backfill.ts",
-    "tech:production-snapshot": "tsx scripts/tech-production-snapshot.ts"
+    "tech:production-snapshot": "tsx scripts/tech-production-snapshot.ts",
+    "tech:public-audit": "tsx scripts/tech-public-audit.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",
