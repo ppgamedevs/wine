@@ -18,6 +18,9 @@ CREATE TABLE `wine_fact_evidence` (
 	`created_at` text DEFAULT (current_timestamp) NOT NULL,
 	FOREIGN KEY (`wine_id`) REFERENCES `wines`(`id`) ON UPDATE no action ON DELETE cascade
 );
+--> statement-breakpoint
 CREATE INDEX `wine_fact_evidence_wine_idx` ON `wine_fact_evidence` (`wine_id`);
+--> statement-breakpoint
 CREATE INDEX `wine_fact_evidence_field_idx` ON `wine_fact_evidence` (`field`);
+--> statement-breakpoint
 CREATE INDEX `wine_fact_evidence_hash_idx` ON `wine_fact_evidence` (`source_hash`);

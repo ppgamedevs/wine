@@ -18,6 +18,9 @@ CREATE TABLE `pairing_curation_events` (
 	`created_at` text DEFAULT (current_timestamp) NOT NULL,
 	FOREIGN KEY (`wine_id`) REFERENCES `wines`(`id`) ON UPDATE no action ON DELETE cascade
 );
+--> statement-breakpoint
 CREATE INDEX `pairing_curation_events_wine_idx` ON `pairing_curation_events` (`wine_id`);
+--> statement-breakpoint
 CREATE INDEX `pairing_curation_events_slug_idx` ON `pairing_curation_events` (`wine_slug`);
+--> statement-breakpoint
 CREATE INDEX `pairing_curation_events_created_idx` ON `pairing_curation_events` (`created_at`);
