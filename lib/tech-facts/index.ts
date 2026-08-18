@@ -13,4 +13,6 @@ export * from "@/lib/tech-facts/source-identity";
 export * from "@/lib/tech-facts/sweetness-source";
 export * from "@/lib/tech-facts/qualify";
 export * from "@/lib/tech-facts/hash";
+export * from "@/lib/tech-facts/backfill";
+export * from "@/lib/tech-facts/production-snapshot";
 

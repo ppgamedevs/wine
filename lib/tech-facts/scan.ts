@@ -5,7 +5,10 @@ import type { IntegrityIssue, WineScanInput } from "@/lib/integrity-scan";
 import { classifySourceUrl } from "@/lib/source-trust";
 import { extractClaimsFromSource } from "@/lib/tech-facts/claims";
 import { reconcileField } from "@/lib/tech-facts/reconcile";
-import { TECH_CONFLICT_CODES } from "@/lib/tech-facts/types";
+import {
+  TECH_CONFLICT_CODES,
+  type TechFactField,
+} from "@/lib/tech-facts/types";
 
 export const TECH_INTEGRITY_CODES = [
   TECH_CONFLICT_CODES.TECH_ALCOHOL_CONFLICT,
@@ -60,6 +63,7 @@ export function detectTechnicalFactIssues(input: WineScanInput[]): IntegrityIssu
           },
         })
       : [];
+    const persistedEvidence = new Set(wine.evidenceFields ?? []);
 
     const facts = wine.producerContent?.facts;
     if (facts?.alcohol != null) {
@@ -96,7 +100,15 @@ export function detectTechnicalFactIssues(input: WineScanInput[]): IntegrityIssu
         (field !== "sweetness" &&
           result.conflictCode === TECH_CONFLICT_CODES.TECH_EXISTING_VALUE_UNSOURCED &&
           stored != null);
-      if (interesting && result.conflictCode) {
+      if (
+        interesting &&
+        result.conflictCode &&
+        !(
+          result.conflictCode ===
+            TECH_CONFLICT_CODES.TECH_EXISTING_VALUE_UNSOURCED &&
+          persistedEvidence.has(field as TechFactField)
+        )
+      ) {
         const blocking =
           result.candidateClass === "SOURCE_CONFLICT" ||
           result.storedClass === "OFFICIAL_CONFLICT";
@@ -133,7 +145,11 @@ export function detectTechnicalFactIssues(input: WineScanInput[]): IntegrityIssu
       });
     }
 
-    const hasOfficial = Boolean(wine.producerPageUrl || wine.tastingSheetUrl);
+    const hasOfficial = Boolean(
+      wine.producerPageUrl ||
+        wine.tastingSheetUrl ||
+        persistedEvidence.size > 0,
+    );
     if (!hasOfficial && (wine.alcohol != null || wine.acidity != null || wine.sugar != null)) {
       issues.push({
         wineId: wine.id,

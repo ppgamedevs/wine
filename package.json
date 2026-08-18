@@ -40,7 +40,9 @@
     "tech:score-impact": "tsx scripts/tech-score-impact.ts",
     "tech:identity-audit": "tsx scripts/tech-identity-audit.ts",
     "tech:source-audit": "tsx scripts/tech-source-audit.ts",
-    "tech:provenance-qualify": "tsx scripts/tech-provenance-qualify.ts"
+    "tech:provenance-qualify": "tsx scripts/tech-provenance-qualify.ts",
+    "tech:evidence-backfill": "tsx scripts/tech-evidence-backfill.ts",
+    "tech:production-snapshot": "tsx scripts/tech-production-snapshot.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",

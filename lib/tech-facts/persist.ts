@@ -5,7 +5,10 @@ import { db } from "@/lib/db";
 import { wineFactEvidence } from "@/lib/schema";
 import type { TechFactClaim } from "@/lib/tech-facts/types";
 
-function rowsFor(wineId: number, claims: TechFactClaim[]) {
+export function rowsForWineFactEvidence(
+  wineId: number,
+  claims: TechFactClaim[],
+) {
   return claims.map((claim) => ({
     wineId,
     field: claim.field,
@@ -25,12 +28,16 @@ function rowsFor(wineId: number, claims: TechFactClaim[]) {
   }));
 }
 
-export type WineFactEvidenceRow = ReturnType<typeof rowsFor>[number];
+export type WineFactEvidenceRow = ReturnType<
+  typeof rowsForWineFactEvidence
+>[number];
 
-export type EvidenceInsertFn = (rows: WineFactEvidenceRow[]) => Promise<void>;
+export type EvidenceInsertFn = (
+  rows: WineFactEvidenceRow[],
+) => Promise<number>;
 
-async function defaultInsert(rows: WineFactEvidenceRow[]): Promise<void> {
-  await db
+async function defaultInsert(rows: WineFactEvidenceRow[]): Promise<number> {
+  const inserted = await db
     .insert(wineFactEvidence)
     .values(rows)
     .onConflictDoNothing({
@@ -39,7 +46,9 @@ async function defaultInsert(rows: WineFactEvidenceRow[]): Promise<void> {
         wineFactEvidence.field,
         wineFactEvidence.sourceHash,
       ],
-    });
+    })
+    .returning({ id: wineFactEvidence.id });
+  return inserted.length;
 }
 
 export async function persistWineFactEvidenceFailSoft(
@@ -69,7 +78,6 @@ export async function persistWineFactEvidenceStrict(
   insertFn: EvidenceInsertFn = defaultInsert,
 ): Promise<number> {
   if (claims.length === 0) return 0;
-  const values = rowsFor(wineId, claims);
-  await insertFn(values);
-  return values.length;
+  const values = rowsForWineFactEvidence(wineId, claims);
+  return insertFn(values);
 }

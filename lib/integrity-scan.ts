@@ -4,7 +4,7 @@ import {
   validateEditorialClaims,
   type EditorialClaimIssue,
 } from "@/lib/editorial-claim-validator";
-import { db } from "@/lib/db";
+import { db, libsqlClient } from "@/lib/db";
 import {
   calculateQualityConfidence,
   confidencePercent,
@@ -19,8 +19,10 @@ import type {
   ProducerPageContent,
   WineMedal,
 } from "@/lib/schema";
+import { wineFactEvidence } from "@/lib/schema";
 import { detectSourceConflicts } from "@/lib/source-conflicts";
 import { detectTechnicalFactIssues } from "@/lib/tech-facts/scan";
+import type { TechFactField } from "@/lib/tech-facts/types";
 import { VALUE_SCORE_EXCEPTIONAL_MIN } from "@/lib/value-score-thresholds";
 import { isValidWineVintage } from "@/lib/wine-vintage";
 
@@ -86,6 +88,7 @@ export interface WineScanInput {
   drinkabilityStart?: number | null;
   drinkabilityEnd?: number | null;
   foodPairings: FoodPairing[];
+  evidenceFields?: TechFactField[];
   updatedAt: string;
 }
 
@@ -801,6 +804,24 @@ export async function runIntegrityScan(): Promise<IntegrityScanReport> {
     },
   });
 
+  const evidenceByWine = new Map<number, Set<TechFactField>>();
+  const evidenceTable = await libsqlClient.execute(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'wine_fact_evidence'",
+  );
+  if (evidenceTable.rows.length === 1) {
+    const evidence = await db
+      .select({
+        wineId: wineFactEvidence.wineId,
+        field: wineFactEvidence.field,
+      })
+      .from(wineFactEvidence);
+    for (const item of evidence) {
+      const fields = evidenceByWine.get(item.wineId) ?? new Set<TechFactField>();
+      fields.add(item.field);
+      evidenceByWine.set(item.wineId, fields);
+    }
+  }
+
   const input: WineScanInput[] = rows.map((row) => ({
     id: row.id,
     slug: row.slug,
@@ -843,6 +864,7 @@ export async function runIntegrityScan(): Promise<IntegrityScanReport> {
     drinkabilityStart: row.drinkabilityStart,
     drinkabilityEnd: row.drinkabilityEnd,
     foodPairings: row.foodPairings,
+    evidenceFields: [...(evidenceByWine.get(row.id) ?? [])],
     updatedAt: row.updatedAt,
   }));
 
