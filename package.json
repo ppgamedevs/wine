@@ -37,7 +37,10 @@
     "pairing:catalog-benchmark": "tsx scripts/pairing-catalog-benchmark.ts",
     "tech:audit": "tsx scripts/tech-audit.ts",
     "tech:recover": "tsx scripts/tech-recover.ts",
-    "tech:score-impact": "tsx scripts/tech-score-impact.ts"
+    "tech:score-impact": "tsx scripts/tech-score-impact.ts",
+    "tech:identity-audit": "tsx scripts/tech-identity-audit.ts",
+    "tech:source-audit": "tsx scripts/tech-source-audit.ts",
+    "tech:provenance-qualify": "tsx scripts/tech-provenance-qualify.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",

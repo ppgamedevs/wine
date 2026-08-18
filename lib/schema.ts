@@ -564,7 +564,8 @@ export type WineFactField =
 export type WineFactExtractionMethod =
   | "deterministic"
   | "constrained_llm"
-  | "manual";
+  | "manual"
+  | "legacy_producer_fact";
 
 export type WineFactIdentityMatch =
   | "EXACT_WINE_EXACT_VINTAGE"
@@ -572,7 +573,8 @@ export type WineFactIdentityMatch =
   | "EXACT_WINE_DIFFERENT_VINTAGE"
   | "LIKELY_WINE"
   | "CATALOG_LEVEL"
-  | "PRODUCT_MISMATCH";
+  | "PRODUCT_MISMATCH"
+  | "SOURCE_IDENTITY_INCOMPLETE";
 
 /**
  * Field-level technical claims. Canonical public values stay on `wines`.
@@ -612,6 +614,11 @@ export const wineFactEvidence = sqliteTable(
     index("wine_fact_evidence_wine_idx").on(table.wineId),
     index("wine_fact_evidence_field_idx").on(table.field),
     index("wine_fact_evidence_hash_idx").on(table.sourceHash),
+    uniqueIndex("wine_fact_evidence_wine_field_hash_uidx").on(
+      table.wineId,
+      table.field,
+      table.sourceHash,
+    ),
   ],
 );
 

@@ -9,3 +9,8 @@ export * from "@/lib/tech-facts/resolve";
 export * from "@/lib/tech-facts/public-status";
 export * from "@/lib/tech-facts/recover";
 export * from "@/lib/tech-facts/scan";
+export * from "@/lib/tech-facts/source-identity";
+export * from "@/lib/tech-facts/sweetness-source";
+export * from "@/lib/tech-facts/qualify";
+export * from "@/lib/tech-facts/hash";
+

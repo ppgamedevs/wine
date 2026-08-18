@@ -1,8 +1,14 @@
 /**
  * Convert one source text into field-level claims. Never merge sources first.
+ * Never copy the database wine name into source identity.
  */
-import { parseSweetnessFromText, type WineSweetnessLevel } from "@/lib/wine-tech-specs";
 import type { WineSourceType } from "@/lib/source-trust";
+import { claimIdentityHash } from "@/lib/tech-facts/hash";
+import {
+  classifyAgainstSourceIdentity,
+  type DatabaseWineIdentity,
+} from "@/lib/tech-facts/identity";
+import { classifySourceName, extractSourceIdentityFromText } from "@/lib/tech-facts/source-identity";
 import {
   parseAlcoholClaim,
   parseResidualSugarClaim,
@@ -10,34 +16,25 @@ import {
   parseTotalAcidityClaim,
   sourceContainsNumericClaim,
 } from "@/lib/tech-facts/parse";
-import { classifyProductIdentity, type ProductIdentity } from "@/lib/tech-facts/identity";
-import { extractTechnicalSourceVintage } from "@/lib/tech-facts/vintage";
+import { parseSweetnessClaimFromSource } from "@/lib/tech-facts/sweetness-source";
 import type {
   TechExtractionMethod,
   TechFactClaim,
   TechFactField,
 } from "@/lib/tech-facts/types";
+import type { WineSweetnessLevel } from "@/lib/wine-tech-specs";
 
 export interface SourceExtractionInput {
   text: string;
   url: string | null;
   sourceType: WineSourceType;
-  wine: ProductIdentity;
+  wine: DatabaseWineIdentity;
   sourceWineName?: string | null;
   documentTitle?: string | null;
   filename?: string | null;
+  html?: string | null;
   observedAt?: string;
   extractionMethod?: TechExtractionMethod;
-}
-
-function hashClaim(parts: Array<string | number | null>): string {
-  const text = parts.map((part) => String(part ?? "")).join("|");
-  let hash = 2166136261;
-  for (let index = 0; index < text.length; index += 1) {
-    hash ^= text.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(16);
 }
 
 function claim(input: {
@@ -50,34 +47,52 @@ function claim(input: {
   sourceWineName: string | null;
   method: TechExtractionMethod;
   confidence: number;
+  sourceNameClass?: TechFactClaim["sourceNameClass"];
+  sourceVintageClass?: TechFactClaim["sourceVintageClass"];
 }): TechFactClaim {
-  const identity = classifyProductIdentity(input.source.wine, {
-    wineName: input.sourceWineName ?? input.source.wine.wineName,
-    vintage: input.sourceVintage,
-    type: input.source.wine.type,
-    grapes: input.source.wine.grapes,
-    channel: input.source.wine.channel,
+  const extracted = extractSourceIdentityFromText({
+    text: input.source.text,
+    title: input.source.documentTitle,
+    filename: input.source.filename,
+    html: input.source.html,
   });
+  const sourceWineName = input.sourceWineName ?? extracted.sourceWineName;
+  const sourceVintage = input.sourceVintage ?? extracted.sourceVintage;
+  const nameClass = classifySourceName(input.source.wine.wineName, sourceWineName);
+  const identity = classifyAgainstSourceIdentity(input.source.wine, {
+    ...extracted,
+    sourceWineName,
+    sourceVintage,
+    nameClass,
+  });
+  const identityHash = claimIdentityHash([
+    input.field,
+    String(input.value),
+    input.unit,
+    input.source.url,
+    input.source.sourceType,
+    sourceWineName,
+    sourceVintage,
+    input.excerpt,
+  ]);
   return {
     field: input.field,
     value: input.value,
     unit: input.unit,
     sourceUrl: input.source.url,
     sourceType: input.source.sourceType,
-    sourceWineName: input.sourceWineName,
-    sourceVintage: input.sourceVintage,
+    sourceWineName,
+    sourceVintage,
     sourceDocumentTitle: input.source.documentTitle ?? null,
     excerpt: input.excerpt,
     extractionMethod: input.method,
     identityMatchClass: identity,
+    sourceNameClass: input.sourceNameClass ?? nameClass,
+    sourceVintageClass: input.sourceVintageClass ?? extracted.vintageClass,
     confidence: input.confidence,
     observedAt: input.source.observedAt ?? new Date().toISOString(),
-    sourceHash: hashClaim([
-      input.field,
-      String(input.value),
-      input.source.url,
-      input.excerpt,
-    ]),
+    sourceHash: identityHash,
+    claimIdentityHash: identityHash,
   };
 }
 
@@ -85,12 +100,14 @@ export function extractClaimsFromSource(input: SourceExtractionInput): TechFactC
   const text = input.text.trim();
   if (!text) return [];
 
-  const sourceVintage = extractTechnicalSourceVintage({
+  const extracted = extractSourceIdentityFromText({
     text,
     title: input.documentTitle,
     filename: input.filename,
+    html: input.html,
   });
-  const sourceWineName = input.sourceWineName ?? input.wine.wineName;
+  const sourceWineName = input.sourceWineName ?? extracted.sourceWineName;
+  const sourceVintage = extracted.sourceVintage;
   const method = input.extractionMethod ?? "deterministic";
   const claims: TechFactClaim[] = [];
 
@@ -107,6 +124,7 @@ export function extractClaimsFromSource(input: SourceExtractionInput): TechFactC
         sourceWineName,
         method,
         confidence: 0.9,
+        sourceVintageClass: extracted.vintageClass,
       }),
     );
   }
@@ -145,17 +163,14 @@ export function extractClaimsFromSource(input: SourceExtractionInput): TechFactC
     );
   }
 
-  const sweetness = parseSweetnessFromText(input.wine.wineName, text);
+  const sweetness = parseSweetnessClaimFromSource(text);
   if (sweetness) {
-    const excerptMatch = text.match(
-      /\b(sec|demisec|demi[\s-]?sec|demidulce|demi[\s-]?dulce|dulce)\b/i,
-    );
     claims.push(
       claim({
         field: "sweetness",
-        value: sweetness,
+        value: sweetness.value,
         unit: null,
-        excerpt: excerptMatch?.[0] ?? sweetness,
+        excerpt: sweetness.excerpt,
         source: input,
         sourceVintage,
         sourceWineName,
@@ -176,7 +191,7 @@ export function extractClaimsFromSource(input: SourceExtractionInput): TechFactC
         sourceVintage,
         sourceWineName,
         method,
-        confidence: 0.7,
+        confidence: extracted.vintageClass === "SOURCE_VINTAGE_EXPLICIT" ? 0.8 : 0.4,
       }),
     );
   }
@@ -211,9 +226,9 @@ export function verifyAiNumericCandidate(input: {
   if (!sourceContainsNumericClaim(input.sourceText, input.value)) {
     return { accepted: false, excerpt: null };
   }
-  const folded = input.sourceText;
-  const labelNearby = new RegExp(input.label, "i").test(folded);
-  if (!labelNearby) return { accepted: false, excerpt: null };
+  if (!new RegExp(input.label, "i").test(input.sourceText)) {
+    return { accepted: false, excerpt: null };
+  }
   return { accepted: true, excerpt: `${input.label} ${input.value}` };
 }
 

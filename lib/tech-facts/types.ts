@@ -16,7 +16,11 @@ export const TECH_FACT_FIELDS = [
 
 export type TechFactField = (typeof TECH_FACT_FIELDS)[number];
 
-export type TechExtractionMethod = "deterministic" | "constrained_llm" | "manual";
+export type TechExtractionMethod =
+  | "deterministic"
+  | "constrained_llm"
+  | "manual"
+  | "legacy_producer_fact";
 
 export type IdentityMatchClass =
   | "EXACT_WINE_EXACT_VINTAGE"
@@ -24,7 +28,34 @@ export type IdentityMatchClass =
   | "EXACT_WINE_DIFFERENT_VINTAGE"
   | "LIKELY_WINE"
   | "CATALOG_LEVEL"
-  | "PRODUCT_MISMATCH";
+  | "PRODUCT_MISMATCH"
+  | "SOURCE_IDENTITY_INCOMPLETE";
+
+export type SourceNameClass =
+  | "SOURCE_NAME_EXACT"
+  | "SOURCE_NAME_PARTIAL"
+  | "SOURCE_NAME_MISSING"
+  | "SOURCE_NAME_CONFLICT";
+
+export type SourceVintageClass =
+  | "SOURCE_VINTAGE_EXPLICIT"
+  | "SOURCE_VINTAGE_FILENAME_ONLY"
+  | "SOURCE_VINTAGE_INFERRED_WEAK"
+  | "SOURCE_VINTAGE_MISSING";
+
+export type ProvenanceQualification =
+  | "QUALIFIED_EXACT"
+  | "QUALIFIED_CORROBORATED"
+  | "LEGACY_ONLY"
+  | "SOURCE_IDENTITY_MISSING"
+  | "SOURCE_VINTAGE_MISSING"
+  | "DIFFERENT_VINTAGE"
+  | "AMBIGUOUS_PRODUCT"
+  | "SOURCE_CONFLICT"
+  | "UNVERIFIABLE_STORED_FACT"
+  | "RETAILER_ONLY"
+  | "INVALID_DOCUMENT"
+  | "HUMAN_REVIEW_VALUE_CONFLICT";
 
 export type FieldCandidateClass =
   | "SAFE_EXACT"
@@ -90,9 +121,12 @@ export interface TechFactClaim {
   excerpt: string;
   extractionMethod: TechExtractionMethod;
   identityMatchClass: IdentityMatchClass;
+  sourceNameClass?: SourceNameClass;
+  sourceVintageClass?: SourceVintageClass;
   confidence: number;
   observedAt: string;
   sourceHash: string;
+  claimIdentityHash: string;
 }
 
 export interface FieldRecoveryResult {
@@ -105,6 +139,8 @@ export interface FieldRecoveryResult {
   safeAutomatic: boolean;
   claims: TechFactClaim[];
   conflictCode?: TechConflictCode;
+  qualification?: ProvenanceQualification;
+  qualificationReasons?: string[];
 }
 
 export function techValuesEqual(

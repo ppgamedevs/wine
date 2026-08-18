@@ -476,7 +476,7 @@ export function matchMurfatlarVariant(
     return variants.find((variant) => variant.color === "rosu") ?? null;
   }
 
-  return variants[0] ?? null;
+  return null;
 }
 
 export function matchMurfatlarVariantByHash(
@@ -505,7 +505,7 @@ export function parseMurfatlarProductPage(
   }
 
   if (wineName) return matchMurfatlarVariant(variants, wineName);
-  return variants[0] ?? null;
+  return variants.length === 1 ? (variants[0] ?? null) : null;
 }
 
 export function parseMurfatlarProducerFacts(

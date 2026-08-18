@@ -59,9 +59,11 @@ export function TechFactsWorkbench({
         <TableHeader>
           <TableRow>
             <TableHead>Vin</TableHead>
+            <TableHead>Identitate sursa</TableHead>
             <TableHead>Alcool</TableHead>
             <TableHead>Aciditate</TableHead>
             <TableHead>Zahar</TableHead>
+            <TableHead>Dulceata</TableHead>
             <TableHead>Stare</TableHead>
           </TableRow>
         </TableHeader>
@@ -73,13 +75,28 @@ export function TechFactsWorkbench({
                   {row.slug}
                 </Link>
               </TableCell>
-              {(["alcohol", "acidity", "sugar"] as const).map((field) => {
+              <TableCell className="text-xs text-muted-foreground">
+                <div>{row.sourceIdentity?.sourceWineName ?? "sursa fara nume"}</div>
+                <div>Vintage {row.sourceIdentity?.sourceVintage ?? "nedeclarat"}</div>
+                <div>{row.sourceIdentity?.match ?? row.ballaStatus ?? "n/a"}</div>
+              </TableCell>
+              {(["alcohol", "acidity", "sugar", "sweetness"] as const).map((field) => {
                 const item = row.fields.find((entry) => entry.field === field);
                 return (
                   <TableCell key={field} className="text-xs text-muted-foreground">
                     <div>Stocat: {item?.stored ?? "lipsa"}</div>
                     <div>Candidate: {item?.candidate ?? "n/a"}</div>
-                    <div>{item?.candidateClass}</div>
+                    <div>{item?.qualification ?? item?.candidateClass}</div>
+                    {item?.qualificationReasons?.[0] ? (
+                      <div className="mt-1 text-[11px] leading-snug">
+                        {item.qualificationReasons[0]}
+                      </div>
+                    ) : null}
+                    {item?.claims.find((claim) => !claim.excerpt.startsWith("legacy "))?.excerpt ? (
+                      <div className="mt-1 italic">
+                        {item.claims.find((claim) => !claim.excerpt.startsWith("legacy "))?.excerpt}
+                      </div>
+                    ) : null}
                     {item?.claims[0]?.sourceUrl ? (
                       <a
                         className="underline"

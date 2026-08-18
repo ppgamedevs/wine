@@ -1062,7 +1062,7 @@ function extractPdfLinks(html: string, pageUrl: string): string[] {
     if (!raw) continue;
     try {
       const resolved = new URL(raw, pageUrl).toString();
-      if (/risip|confidential|politic|cookie|gdpr|termeni/i.test(resolved)) {
+      if (/risip|confidential|politic|cookie|gdpr|termeni|privacy|policy|terms/i.test(resolved)) {
         continue;
       }
       links.add(resolved);
@@ -1120,13 +1120,16 @@ async function fetchProducerHtml(
 }
 
 function pickBestPdfLink(links: string[], wineName: string): string | null {
-  if (links.length === 0) return null;
+  const usable = links.filter(
+    (link) => !/privacy|confidentialitate|cookie|terms|termeni|gdpr|policy/i.test(link),
+  );
+  if (usable.length === 0) return null;
 
   const tokens = wineNameTokens(wineName);
-  let best = links[0];
+  let best = usable[0];
   let bestScore = -1;
 
-  for (const link of links) {
+  for (const link of usable) {
     const haystack = normalizeMatchText(link);
     let score = 0;
     for (const token of tokens) {

@@ -4,6 +4,7 @@ import {
   parseTotalAcidityClaim,
   sourceContainsNumericClaim,
 } from "@/lib/tech-facts/parse";
+import { parseSweetnessClaimFromSource } from "@/lib/tech-facts/sweetness-source";
 
 export type WineSweetnessLevel = "sec" | "demisec" | "demidulce" | "dulce";
 
@@ -78,11 +79,11 @@ export function parseAcidityFromText(pageText: string): number | null {
 }
 
 export function extractTechSpecsFromPage(
-  wineName: string,
+  _wineName: string,
   pageText: string,
 ): WineTechSpecs {
   return {
-    sweetness: parseSweetnessFromText(wineName, pageText),
+    sweetness: parseSweetnessClaimFromSource(pageText)?.value ?? null,
     alcohol: parseAlcoholFromText(pageText),
     sugar: parseSugarFromText(pageText),
     acidity: parseAcidityFromText(pageText),
@@ -106,10 +107,9 @@ function aiNumberIfQuoted(
  */
 export function resolveTechSpecs(input: ResolveTechSpecsInput): WineTechSpecs {
   const fromPage = extractTechSpecsFromPage(input.wineName, input.pageText);
-  const fromName = parseSweetnessFromText(input.wineName, "");
 
   return {
-    sweetness: fromName ?? fromPage.sweetness ?? input.ai?.sweetness ?? null,
+    sweetness: fromPage.sweetness ?? input.ai?.sweetness ?? null,
     alcohol: fromPage.alcohol ?? aiNumberIfQuoted(input.pageText, input.ai?.alcohol, "alcool"),
     sugar: fromPage.sugar ?? aiNumberIfQuoted(input.pageText, input.ai?.sugar, "zahar"),
     acidity: fromPage.acidity ?? aiNumberIfQuoted(input.pageText, input.ai?.acidity, "aciditate"),

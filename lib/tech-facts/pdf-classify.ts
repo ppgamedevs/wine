@@ -1,13 +1,19 @@
 /**
- * Classify a PDF before any technical facts are accepted.
+ * Reject privacy/terms/cookie documents at discovery AND classification.
  */
 import { foldRomanianText } from "@/lib/pairing/romanian-text";
 import type { PdfDocumentClass } from "@/lib/tech-facts/types";
 
+const REJECTED_URL = /privacy|confidentialitate|cookie|terms|termeni|gdpr|policy/i;
 const PRIVACY = /politica de confidentialitate|privacy policy|gdpr|prelucrarea datelor/i;
 const TERMS = /termeni si conditii|terms and conditions|termenii de utilizare/i;
 const MARKETING = /brosura|brochure|catalog general|prezentare crama/i;
 const SHEET = /fisa (?:tehnica|de degustare)|tasting (?:sheet|note)|technical sheet|analiza fizico/i;
+
+export function isRejectedTechnicalDocumentUrl(url: string | null | undefined): boolean {
+  if (!url?.trim()) return false;
+  return REJECTED_URL.test(url);
+}
 
 export function classifyPdfDocument(input: {
   text: string;
@@ -19,7 +25,7 @@ export function classifyPdfDocument(input: {
   const foldedTitle = foldRomanianText(title);
   const text = input.text.slice(0, 4000);
 
-  if (PRIVACY.test(title) || PRIVACY.test(text) || foldedTitle.includes("confidentialitate")) {
+  if (isRejectedTechnicalDocumentUrl(input.url) || PRIVACY.test(title) || PRIVACY.test(text) || foldedTitle.includes("confidentialitate")) {
     return "PRIVACY_POLICY";
   }
   if (TERMS.test(title) || TERMS.test(text)) {

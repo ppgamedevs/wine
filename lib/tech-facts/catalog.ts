@@ -25,6 +25,9 @@ export async function loadVerifiedTechWines(filter?: {
       sourceUrl: true,
       tastingNotes: true,
       producerContent: true,
+      valueScore: true,
+      giftScore: true,
+      foodMatchScore: true,
     },
     with: { winery: { columns: { name: true, slug: true } } },
   });
@@ -53,5 +56,8 @@ export async function loadVerifiedTechWines(filter?: {
       sourceUrl: row.sourceUrl,
       tastingNotes: row.tastingNotes,
       producerContent: row.producerContent,
+      valueScore: row.valueScore,
+      giftScore: row.giftScore,
+      foodMatchScore: row.foodMatchScore,
     }));
 }

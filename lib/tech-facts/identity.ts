@@ -1,10 +1,11 @@
 /**
- * Product identity matching before technical evidence can be accepted.
+ * Product identity matching. DB identity is the question. Source identity is the answer.
  */
 import { foldRomanianText } from "@/lib/pairing/romanian-text";
-import type { IdentityMatchClass } from "@/lib/tech-facts/types";
+import { classifySourceName, type SourceWineIdentity } from "@/lib/tech-facts/source-identity";
+import type { IdentityMatchClass, SourceNameClass } from "@/lib/tech-facts/types";
 
-export interface ProductIdentity {
+export interface DatabaseWineIdentity {
   wineName: string;
   wineryName?: string | null;
   vintage: number | null;
@@ -15,6 +16,9 @@ export interface ProductIdentity {
   channel?: string | null;
 }
 
+/** @deprecated Use DatabaseWineIdentity. Kept for call-site compatibility. */
+export type ProductIdentity = DatabaseWineIdentity;
+
 const CHANNEL_TOKENS = [
   "stonewines",
   "stonewine",
@@ -22,6 +26,8 @@ const CHANNEL_TOKENS = [
   "channel",
   "horeca",
   "magnum",
+  "reserve",
+  "classic",
   "0.375",
   "0,375",
   "375ml",
@@ -69,14 +75,19 @@ function typeCompatible(left?: string | null, right?: string | null): boolean {
 }
 
 export function classifyProductIdentity(
-  wine: ProductIdentity,
-  source: ProductIdentity,
+  wine: DatabaseWineIdentity,
+  source: DatabaseWineIdentity,
+  nameClass?: SourceNameClass,
 ): IdentityMatchClass {
-  const wineName = foldName(wine.wineName);
-  const sourceName = foldName(source.wineName);
+  if (nameClass === "SOURCE_NAME_MISSING" || !source.wineName?.trim()) {
+    return "SOURCE_IDENTITY_INCOMPLETE";
+  }
+  if (nameClass === "SOURCE_NAME_CONFLICT") {
+    return "PRODUCT_MISMATCH";
+  }
+
   const wineChannel = wine.channel ?? inferChannelToken(wine.wineName);
   const sourceChannel = source.channel ?? inferChannelToken(source.wineName);
-
   if (wineChannel && sourceChannel && wineChannel !== sourceChannel) {
     return "PRODUCT_MISMATCH";
   }
@@ -94,16 +105,23 @@ export function classifyProductIdentity(
     return "PRODUCT_MISMATCH";
   }
 
+  const wineName = foldName(wine.wineName);
+  const sourceName = foldName(source.wineName);
   const namesClose =
     wineName.length > 0 &&
     sourceName.length > 0 &&
-    (wineName === sourceName ||
-      wineName.includes(sourceName) ||
-      sourceName.includes(wineName));
+    (wineName === sourceName || wineName.includes(sourceName) || sourceName.includes(wineName));
 
   if (!namesClose) {
     if (sourceName.split(" ").length >= 2 && wineName.split(" ").length >= 2) {
       return "PRODUCT_MISMATCH";
+    }
+    return "LIKELY_WINE";
+  }
+
+  if (nameClass === "SOURCE_NAME_PARTIAL") {
+    if (wine.vintage != null && source.vintage != null && wine.vintage !== source.vintage) {
+      return "EXACT_WINE_DIFFERENT_VINTAGE";
     }
     return "LIKELY_WINE";
   }
@@ -118,4 +136,24 @@ export function classifyProductIdentity(
     return "EXACT_WINE_EXACT_VINTAGE";
   }
   return "LIKELY_WINE";
+}
+
+export function classifyAgainstSourceIdentity(
+  wine: DatabaseWineIdentity,
+  source: SourceWineIdentity,
+): IdentityMatchClass {
+  const nameClass = classifySourceName(wine.wineName, source.sourceWineName);
+  return classifyProductIdentity(
+    wine,
+    {
+      wineName: source.sourceWineName ?? "",
+      vintage: source.sourceVintage,
+      type: source.sourceType,
+      grapes: source.sourceGrapes,
+      bottleSizeMl: source.sourceBottleSize,
+      sku: source.sourceSku,
+      channel: source.sourceLine,
+    },
+    nameClass,
+  );
 }

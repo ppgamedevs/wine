@@ -38,6 +38,7 @@ export interface BallaGezaWineRecord {
   imageUrl: string | null;
   tastingNotes: string | null;
   producerPageUrl: string;
+  blockText: string;
 }
 
 const BALLAGEZA_CATALOG_BASE = "https://www.ballageza.com/ro/catalog/vinuri";
@@ -287,6 +288,7 @@ function parseBallaGezaModalBlock(
       vintage: Number.isFinite(vintage ?? NaN) ? vintage : null,
       category,
     }),
+    blockText: stripHtml(block).replace(/\s+/g, " ").trim().slice(0, 4000),
   };
 }
 
@@ -334,52 +336,111 @@ function scoreWineMatch(
   return score;
 }
 
+export type BallaMatchStatus = "EXACT_MATCH" | "AMBIGUOUS_MATCH" | "NO_MATCH";
+
+export interface BallaResolveResult {
+  status: BallaMatchStatus;
+  wine: BallaGezaWineRecord | null;
+  candidates: BallaGezaWineRecord[];
+}
+
+function inferHintChannel(hint: {
+  slug: string;
+  vintage: number | null;
+  category: string | null;
+}): string | null {
+  const hay = `${hint.slug} ${hint.category ?? ""}`;
+  if (/stonewine/i.test(hay)) return "stonewines";
+  if (/kolna/i.test(hay)) return "kolna";
+  if (/reserve|editie/i.test(hay)) return "reserve";
+  if (/classic/i.test(hay)) return "classic";
+  return hint.category;
+}
+
+export function resolveBallaGezaWineFromCatalogResult(
+  html: string,
+  pageUrl: string,
+  wineNameHint?: string | null,
+): BallaResolveResult {
+  const wines = parseAllBallaGezaWinesFromCatalog(html);
+  if (wines.length === 0) {
+    return { status: "NO_MATCH", wine: null, candidates: [] };
+  }
+
+  const hint = parseBallaGezaUrlHint(pageUrl);
+  const vintageFromHint =
+    hint?.vintage ??
+    (wineNameHint?.match(/\b(20\d{2})\b/)?.[1]
+      ? Number.parseInt(wineNameHint.match(/\b(20\d{2})\b/)![1]!, 10)
+      : null);
+  const channelHint = hint ? inferHintChannel(hint) : inferChannelFromName(wineNameHint);
+
+  let scored = wines.map((wine) => ({
+    wine,
+    score: hint
+      ? scoreWineMatch(wine, hint, wineNameHint)
+      : scoreWineMatch(
+          wine,
+          {
+            slug: wineSlugFromName(wineNameHint ?? ""),
+            vintage: vintageFromHint,
+            category: channelHint,
+          },
+          wineNameHint,
+        ),
+  }));
+
+  if (vintageFromHint != null) {
+    const vintageHits = scored.filter((row) => row.wine.vintage === vintageFromHint);
+    if (vintageHits.length === 0) {
+      return { status: "NO_MATCH", wine: null, candidates: scored.map((row) => row.wine) };
+    }
+    scored = vintageHits;
+  }
+
+  if (channelHint) {
+    const channelHits = scored.filter((row) => {
+      const category = normalizeMatchText(row.wine.category ?? "");
+      return category.includes(channelHint) || channelHint.includes(category);
+    });
+    if (channelHits.length === 1) {
+      return { status: "EXACT_MATCH", wine: channelHits[0]!.wine, candidates: [channelHits[0]!.wine] };
+    }
+    if (channelHits.length > 1) scored = channelHits;
+  }
+
+  scored.sort((left, right) => right.score - left.score);
+  const top = scored[0];
+  const second = scored[1];
+  if (!top || top.score < 40) {
+    return { status: "NO_MATCH", wine: null, candidates: scored.map((row) => row.wine) };
+  }
+  if (second && second.score >= 40 && top.score - second.score < 10) {
+    return {
+      status: "AMBIGUOUS_MATCH",
+      wine: null,
+      candidates: scored.filter((row) => row.score >= 40).map((row) => row.wine),
+    };
+  }
+  return { status: "EXACT_MATCH", wine: top.wine, candidates: [top.wine] };
+}
+
+function inferChannelFromName(name?: string | null): string | null {
+  if (!name) return null;
+  const folded = normalizeMatchText(name);
+  if (folded.includes("stonewine")) return "stonewines";
+  if (folded.includes("kolna")) return "kolna";
+  if (folded.includes("reserve")) return "reserve";
+  return null;
+}
+
 export function resolveBallaGezaWineFromCatalog(
   html: string,
   pageUrl: string,
   wineNameHint?: string | null,
 ): BallaGezaWineRecord | null {
-  const wines = parseAllBallaGezaWinesFromCatalog(html);
-  if (wines.length === 0) return null;
-
-  const hint = parseBallaGezaUrlHint(pageUrl);
-  if (!hint && !wineNameHint?.trim()) return null;
-
-  if (!hint && wineNameHint?.trim()) {
-    const normalizedHint = normalizeMatchText(wineNameHint);
-    const vintageFromHint = wineNameHint.match(/\b(20\d{2})\b/)?.[1];
-    const vintage =
-      vintageFromHint != null ? Number.parseInt(vintageFromHint, 10) : null;
-
-    const matches = wines.filter((wine) => {
-      const wineNorm = normalizeMatchText(wine.name);
-      return (
-        normalizedHint.includes(wineNorm) ||
-        wineNorm.includes(normalizedHint.replace(/\b20\d{2}\b/g, "").trim())
-      );
-    });
-
-    if (matches.length === 1) return matches[0] ?? null;
-    if (matches.length > 1 && vintage != null) {
-      return matches.find((wine) => wine.vintage === vintage) ?? matches[0] ?? null;
-    }
-    return matches[0] ?? null;
-  }
-
-  if (!hint) return null;
-
-  let best: BallaGezaWineRecord | null = null;
-  let bestScore = 0;
-
-  for (const wine of wines) {
-    const score = scoreWineMatch(wine, hint, wineNameHint);
-    if (score > bestScore) {
-      bestScore = score;
-      best = wine;
-    }
-  }
-
-  return bestScore >= 40 ? best : null;
+  const result = resolveBallaGezaWineFromCatalogResult(html, pageUrl, wineNameHint);
+  return result.status === "EXACT_MATCH" ? result.wine : null;
 }
 
 export function parseBallaGezaProducerFacts(
@@ -434,7 +495,7 @@ export function buildBallaGezaFocusedPageText(
     wine.tastingNotes ? `Note: ${wine.tastingNotes}` : null,
   ].filter(Boolean);
 
-  return parts.join("\n");
+  return wine.blockText || parts.join("\n");
 }
 
 export function inferBallaGezaProducerPageUrl(

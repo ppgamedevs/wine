@@ -23,11 +23,18 @@ function isRetailish(type: WineSourceType): boolean {
   return type === "retailer" || type === "marketplace" || type === "unknown";
 }
 
-function officialExact(claim: TechFactClaim): boolean {
+export function officialExact(claim: TechFactClaim): boolean {
+  if (claim.extractionMethod === "legacy_producer_fact") return false;
+  if (claim.extractionMethod === "constrained_llm") return false;
+  if (claim.identityMatchClass === "SOURCE_IDENTITY_INCOMPLETE") return false;
+  if (claim.sourceNameClass === "SOURCE_NAME_MISSING") return false;
+  if (claim.sourceNameClass === "SOURCE_NAME_CONFLICT") return false;
+  if (claim.sourceNameClass === "SOURCE_NAME_PARTIAL") return false;
+  if (claim.sourceVintageClass === "SOURCE_VINTAGE_FILENAME_ONLY") return false;
+  if (claim.sourceVintageClass === "SOURCE_VINTAGE_INFERRED_WEAK") return false;
   return (
     isOfficialProducerSource(claim.sourceType) &&
-    claim.identityMatchClass === "EXACT_WINE_EXACT_VINTAGE" &&
-    claim.extractionMethod !== "constrained_llm"
+    claim.identityMatchClass === "EXACT_WINE_EXACT_VINTAGE"
   );
 }
 
@@ -49,7 +56,9 @@ export function isSafeAutomaticClaim(
 ): boolean {
   if (claim.identityMatchClass === "PRODUCT_MISMATCH") return false;
   if (claim.identityMatchClass === "CATALOG_LEVEL") return false;
+  if (claim.identityMatchClass === "SOURCE_IDENTITY_INCOMPLETE") return false;
   if (claim.identityMatchClass === "EXACT_WINE_DIFFERENT_VINTAGE") return false;
+  if (claim.extractionMethod === "legacy_producer_fact") return false;
   if (claimNumericAmbiguous(claim)) return false;
   if (isRetailish(claim.sourceType)) return false;
   if (!isOfficialProducerSource(claim.sourceType)) return false;
