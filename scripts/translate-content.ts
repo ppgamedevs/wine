@@ -18,8 +18,8 @@ import {
 } from "../lib/i18n/content-sources";
 import {
   TRANSLATION_PROMPT_VERSION,
-  assertOpenAITranslationConfig,
-  translateContentWithOpenAI,
+  assertXaiTranslationConfig,
+  translateContentWithXai,
 } from "../lib/i18n/translation-model";
 import { validateTranslation } from "../lib/i18n/translation-qa";
 
@@ -55,14 +55,14 @@ interface TranslationRunReport {
 const MAX_TRANSLATION_ATTEMPTS = 3;
 
 async function translateWithRetry(
-  input: Parameters<typeof translateContentWithOpenAI>[0],
+  input: Parameters<typeof translateContentWithXai>[0],
   onAttempt: () => void,
-): Promise<Awaited<ReturnType<typeof translateContentWithOpenAI>>> {
+): Promise<Awaited<ReturnType<typeof translateContentWithXai>>> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= MAX_TRANSLATION_ATTEMPTS; attempt += 1) {
     try {
       onAttempt();
-      return await translateContentWithOpenAI(input);
+      return await translateContentWithXai(input);
     } catch (error) {
       lastError = error;
       if (attempt < MAX_TRANSLATION_ATTEMPTS) {
@@ -139,7 +139,7 @@ async function writeReport(report: TranslationRunReport): Promise<void> {
 async function main(): Promise<void> {
   const options = parseOptions(process.argv.slice(2));
   const configuredModel = options.apply
-    ? assertOpenAITranslationConfig()
+    ? assertXaiTranslationConfig()
     : process.env.I18N_TRANSLATION_MODEL?.trim() || "NOT_CONFIGURED";
   const allSources = await collectTranslationSources();
   const sources =
@@ -186,6 +186,36 @@ async function main(): Promise<void> {
     if (existing?.sourceHash === sourceHash && existing.status === "READY") {
       report.readyReused += 1;
       continue;
+    }
+    if (
+      options.apply &&
+      options.retry &&
+      existing?.sourceHash === sourceHash &&
+      existing.valueJson !== null
+    ) {
+      const refreshedQa = validateTranslation(
+        source.sourceValueJson,
+        existing.valueJson,
+        { protectedTerms: sourceCandidate.protectedNames },
+      );
+      if (refreshedQa.valid) {
+        await db
+          .update(contentTranslations)
+          .set({
+            status: "READY",
+            qaMetadata: {
+              shapeValid: true,
+              issues: [],
+              checkedAt: new Date().toISOString(),
+              checkerVersion: TRANSLATION_PROMPT_VERSION,
+            },
+            failureReason: null,
+          })
+          .where(eq(contentTranslations.id, existing.id));
+        report.readyReused += 1;
+        report.writes += 1;
+        continue;
+      }
     }
     if (
       existing?.sourceHash === sourceHash &&

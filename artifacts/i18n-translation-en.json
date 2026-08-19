@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-08-19T14:02:43.189Z",
+  "generatedAt": "2026-08-19T23:49:30.810Z",
   "locale": "en",
-  "apply": false,
-  "model": "NOT_CONFIGURED",
-  "sourceCount": 1,
-  "missing": 1,
+  "apply": true,
+  "model": "grok-4.20-non-reasoning",
+  "sourceCount": 1490,
+  "missing": 0,
   "stale": 0,
-  "readyReused": 0,
+  "readyReused": 1470,
   "reviewRequired": 0,
   "failed": 0,
   "apiCalls": 0,
   "writes": 0,
-  "skippedExistingNonReady": 0,
+  "skippedExistingNonReady": 20,
   "failures": []
 }

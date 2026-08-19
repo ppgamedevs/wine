@@ -39,6 +39,15 @@ describe("translation QA", () => {
     );
   });
 
+  it("accepts locale-appropriate decimal separators with equal values", () => {
+    expect(
+      validateTranslation(
+        "Are 13,5% alcool și aciditate 4,4.",
+        "It has 13.5% alcohol and acidity of 4.4.",
+      ),
+    ).toEqual({ valid: true, issues: [] });
+  });
+
   it("rejects structural corruption and empty text", () => {
     const report = validateTranslation(
       ["Primul paragraf", "Al doilea paragraf"],

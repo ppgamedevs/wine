@@ -74,6 +74,12 @@ function sameValues(left: readonly string[], right: readonly string[]): boolean 
   );
 }
 
+function normalizeNumericToken(token: string): string {
+  const percent = token.endsWith("%") ? "%" : "";
+  const numeric = token.replace(/%$/u, "").replace(",", ".");
+  return `${Number(numeric).toString()}${percent}`;
+}
+
 function countMarkdownFences(text: string): number {
   return sortedMatches(text, /```/g).length;
 }
@@ -121,7 +127,12 @@ export function validateTranslation(
       translatedText,
       /(?<![\p{L}\p{N}])\d+(?:[.,]\d+)?%?(?![\p{L}\p{N}])/gu,
     );
-    if (!sameValues(sourceNumbers, translatedNumbers)) {
+    if (
+      !sameValues(
+        sourceNumbers.map(normalizeNumericToken),
+        translatedNumbers.map(normalizeNumericToken),
+      )
+    ) {
       issues.push({
         code: "NUMBER_CHANGED",
         detail: `${sourceLeaf.path}: numeric tokens changed.`,

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-19T13:54:06.957Z",
+  "generatedAt": "2026-08-19T23:49:46.288Z",
   "messageKeys": {
     "romanian": 873,
     "english": 873,
@@ -8,35 +8,35 @@
   },
   "dynamic": {
     "sources": 1490,
-    "ready": 0,
+    "ready": 1470,
     "stale": 0,
-    "reviewRequired": 0,
-    "failed": 0,
-    "missing": 1490,
+    "reviewRequired": 17,
+    "failed": 3,
+    "missing": 0,
     "byEntityType": {
       "wine": {
         "sources": 1355,
-        "ready": 0
+        "ready": 1337
       },
       "winery": {
         "sources": 25,
-        "ready": 0
+        "ready": 25
       },
       "region": {
         "sources": 18,
-        "ready": 0
+        "ready": 18
       },
       "grape_variety": {
         "sources": 18,
-        "ready": 0
+        "ready": 18
       },
       "journal_article": {
         "sources": 24,
-        "ready": 0
+        "ready": 24
       },
       "winery_catalog": {
         "sources": 50,
-        "ready": 0
+        "ready": 48
       }
     }
   },
