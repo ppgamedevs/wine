@@ -14,6 +14,7 @@ import {
   serializeWineForChat,
 } from "@/lib/sommelier-chat";
 import { extractRecommendedSlugs } from "@/lib/sommelier-chat-utils";
+import { isAppLocale } from "@/i18n/locale";
 
 export const maxDuration = 60;
 
@@ -24,16 +25,26 @@ function getLatestUserText(messages: UIMessage[]): string {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as { messages?: UIMessage[] };
+    const body = (await req.json()) as {
+      messages?: UIMessage[];
+      locale?: string;
+    };
     const messages = body.messages ?? [];
+    const locale = isAppLocale(body.locale) ? body.locale : "ro";
 
     if (messages.length === 0) {
-      return Response.json({ error: "Mesaj lipsa." }, { status: 400 });
+      return Response.json(
+        { error: locale === "en" ? "Message is missing." : "Mesaj lipsa." },
+        { status: 400 },
+      );
     }
 
     const latestUserText = getLatestUserText(messages);
     if (!latestUserText.trim()) {
-      return Response.json({ error: "Mesaj gol." }, { status: 400 });
+      return Response.json(
+        { error: locale === "en" ? "Message is empty." : "Mesaj gol." },
+        { status: 400 },
+      );
     }
 
     const conversationTexts = extractUserTexts(messages);
@@ -41,9 +52,10 @@ export async function POST(req: Request) {
       latestUserText,
       conversationTexts,
       6,
+      locale,
     );
 
-    const system = buildChatSommelierSystemPrompt(wines, input);
+    const system = buildChatSommelierSystemPrompt(wines, input, locale);
     const candidateSlugs = wines.map((wine) => wine.slug);
 
     const stream = createUIMessageStream({
@@ -77,7 +89,10 @@ export async function POST(req: Request) {
           });
         }
       },
-      onError: () => "Somelierul nu a putut raspunde. Incearca din nou.",
+      onError: () =>
+        locale === "en"
+          ? "The Sommelier could not answer. Please try again."
+          : "Somelierul nu a putut raspunde. Incearca din nou.",
     });
 
     return createUIMessageStreamResponse({ stream });

@@ -3,9 +3,11 @@ import type { ReactNode } from "react";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { localizedHref } from "@/i18n/paths";
+import { getContentLocale, getContentTranslator } from "@/lib/i18n/content";
 import { buildBreadcrumbJsonLd } from "@/lib/seo";
 
-export function LegalPageShell({
+export async function LegalPageShell({
   path,
   title,
   description,
@@ -16,8 +18,11 @@ export function LegalPageShell({
   description: string;
   children: ReactNode;
 }) {
+  const locale = await getContentLocale();
+  const t = getContentTranslator(locale);
+  const homeHref = localizedHref(locale, "home");
   const breadcrumbs = buildBreadcrumbJsonLd([
-    { name: "Acasa", path: "/" },
+    { name: t("LegalShell.home"), path: homeHref },
     { name: title, path },
   ]);
 
@@ -28,11 +33,14 @@ export function LegalPageShell({
       <main className="flex-1">
         <div className="border-b border-border/60 bg-gradient-to-b from-[#faf7f5] to-background">
           <div className="mx-auto max-w-3xl px-6 py-12 sm:py-16">
-            <nav aria-label="Breadcrumb" className="mb-6 text-sm">
+            <nav aria-label={t("LegalShell.breadcrumb")} className="mb-6 text-sm">
               <ol className="flex flex-wrap items-center gap-2 text-muted-foreground">
                 <li>
-                  <Link href="/" className="transition-colors hover:text-wine">
-                    Acasa
+                  <Link
+                    href={homeHref}
+                    className="transition-colors hover:text-wine"
+                  >
+                    {t("LegalShell.home")}
                   </Link>
                 </li>
                 <li aria-hidden="true">/</li>

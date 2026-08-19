@@ -1,21 +1,164 @@
+"use client";
+
 import { Wine } from "lucide-react";
-import Link from "next/link";
-import { REGION_HUB_LINKS, SEO_PIVOT_LINKS } from "@/lib/top-list-links";
+import { useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { REGION_HUB_LINKS } from "@/lib/top-list-links";
 
-const footerLinks = [
-  { label: "Vinuri", href: "/vinuri" },
-  { label: "Crame", href: "/crame" },
-  { label: "Topuri", href: "/topuri" },
-  { label: "Studii", href: "/studii/cele-mai-bune-vinuri-sub-50-lei-2026" },
-  { label: "Wine Journal", href: "/journal" },
-  { label: "AI Sommelier", href: "/ai-sommelier" },
-  { label: "Cum calculam scorurile", href: "/cum-functioneaza-scorurile" },
-  { label: "Confidentialitate", href: "/politica-confidentialitate" },
-  { label: "Politica cookies", href: "/politica-cookies" },
-  { label: "Revendica crama", href: "/claim-your-winery" },
-];
+export interface FooterCopy {
+  tagline: string;
+  pivotHeading: string;
+  pivotAria: string;
+  regionsHeading: string;
+  regionsAria: string;
+  navigationAria: string;
+  copyright: string;
+  links: {
+    wines: string;
+    wineries: string;
+    top: string;
+    studies: string;
+    journal: string;
+    sommelier: string;
+    scores: string;
+    privacy: string;
+    cookies: string;
+    claim: string;
+    catalog: string;
+    best: string;
+    budget: string;
+    wineryDirectory: string;
+  };
+}
 
-export function SiteFooter() {
+const FOOTER_COPY: Record<"ro" | "en", FooterCopy> = {
+  ro: {
+    tagline:
+      "Ghid de vinuri romanesti: preturi, Value Score si recomandari oneste.",
+    pivotHeading: "Pagini pivot",
+    pivotAria: "Pagini pivot SEO",
+    regionsHeading: "Regiuni viticole",
+    regionsAria: "Regiuni viticole",
+    navigationAria: "Navigatie footer",
+    copyright: `${new Date().getFullYear()} VinIntel. Vinuri romanesti, clar si onest.`,
+    links: {
+      wines: "Vinuri",
+      wineries: "Crame",
+      top: "Topuri",
+      studies: "Studii",
+      journal: "Wine Journal",
+      sommelier: "AI Sommelier",
+      scores: "Cum calculam scorurile",
+      privacy: "Confidentialitate",
+      cookies: "Politica cookies",
+      claim: "Revendica crama",
+      catalog: "Vinuri romanesti",
+      best: "Cele mai bune vinuri romanesti",
+      budget: "Vinuri ieftine si bune",
+      wineryDirectory: "Crame din Romania",
+    },
+  },
+  en: {
+    tagline:
+      "A Romanian wine guide with prices, Value Score and honest recommendations.",
+    pivotHeading: "Explore",
+    pivotAria: "Featured wine pages",
+    regionsHeading: "Wine regions",
+    regionsAria: "Wine regions",
+    navigationAria: "Footer navigation",
+    copyright: `${new Date().getFullYear()} VinIntel. Romanian wine, clearly and honestly.`,
+    links: {
+      wines: "Wines",
+      wineries: "Wineries",
+      top: "Top wines",
+      studies: "Studies",
+      journal: "Wine Journal",
+      sommelier: "AI Sommelier",
+      scores: "How we calculate scores",
+      privacy: "Privacy",
+      cookies: "Cookie policy",
+      claim: "Claim your winery",
+      catalog: "Romanian wines",
+      best: "Best Romanian wines",
+      budget: "Good value wines",
+      wineryDirectory: "Romanian wineries",
+    },
+  },
+};
+
+function dynamicHref(
+  pathname: "/regiuni/[slug]",
+  href: string,
+) {
+  return {
+    pathname,
+    params: { slug: href.slice(href.lastIndexOf("/") + 1) },
+  };
+}
+
+export function SiteFooter({ copy }: { copy?: FooterCopy }) {
+  const requestedLocale = useLocale();
+  const isEnglish = requestedLocale === "en";
+  const content =
+    copy ?? FOOTER_COPY[isEnglish ? "en" : "ro"];
+  const footerLinks = [
+    { label: content.links.wines, href: "/vinuri" as const },
+    { label: content.links.wineries, href: "/crame" as const },
+    { label: content.links.top, href: "/topuri" as const },
+    {
+      label: content.links.studies,
+      href: {
+        pathname: "/studii/[slug]" as const,
+        params: { slug: "cele-mai-bune-vinuri-sub-50-lei-2026" },
+      },
+    },
+    { label: content.links.journal, href: "/journal" as const },
+    { label: content.links.sommelier, href: "/ai-sommelier" as const },
+    {
+      label: content.links.scores,
+      href: "/cum-functioneaza-scorurile" as const,
+    },
+    {
+      label: content.links.privacy,
+      href: "/politica-confidentialitate" as const,
+    },
+    {
+      label: content.links.cookies,
+      href: "/politica-cookies" as const,
+    },
+    {
+      label: content.links.claim,
+      href: "/claim-your-winery" as const,
+    },
+  ] as const;
+  const pivotLinks = [
+    { label: content.links.catalog, href: "/vinuri" as const },
+    {
+      label: content.links.best,
+      href: {
+        pathname: "/topuri/[slug]" as const,
+        params: {
+          slug: isEnglish
+            ? "best-romanian-wines"
+            : "cele-mai-bune-vinuri-romanesti",
+        },
+      },
+    },
+    {
+      label: content.links.budget,
+      href: {
+        pathname: "/topuri/[slug]" as const,
+        params: {
+          slug: isEnglish ? "wines-under-50-ron" : "vinuri-sub-50-lei",
+        },
+      },
+    },
+    {
+      label: content.links.wineryDirectory,
+      href: "/crame" as const,
+    },
+  ] as const;
+
   return (
     <footer className="border-t border-border/60 bg-background">
       <div className="mx-auto max-w-6xl px-6 py-10">
@@ -30,22 +173,25 @@ export function SiteFooter() {
               </span>
             </div>
             <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-              Ghid de vinuri romanesti: preturi, Value Score si recomandari oneste.
+              {content.tagline}
             </p>
           </div>
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Pagini pivot
+              {content.pivotHeading}
             </p>
-            <nav aria-label="Pagini pivot SEO" className="mt-3 flex flex-col gap-2">
-              {SEO_PIVOT_LINKS.map((link) => (
+            <nav
+              aria-label={content.pivotAria}
+              className="mt-3 flex flex-col gap-2"
+            >
+              {pivotLinks.map((link) => (
                 <Link
-                  key={link.href}
+                  key={link.label}
                   href={link.href}
                   className="text-sm text-muted-foreground transition-colors hover:text-wine"
                 >
-                  {link.title}
+                  {link.label}
                 </Link>
               ))}
             </nav>
@@ -53,13 +199,16 @@ export function SiteFooter() {
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Regiuni viticole
+              {content.regionsHeading}
             </p>
-            <nav aria-label="Regiuni viticole" className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2">
+            <nav
+              aria-label={content.regionsAria}
+              className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2"
+            >
               {REGION_HUB_LINKS.map((link) => (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={dynamicHref("/regiuni/[slug]", link.href)}
                   className="text-sm text-muted-foreground transition-colors hover:text-wine"
                 >
                   {link.title}
@@ -70,12 +219,12 @@ export function SiteFooter() {
         </div>
 
         <nav
-          aria-label="Navigatie footer"
+          aria-label={content.navigationAria}
           className="mt-10 flex flex-wrap gap-x-6 gap-y-2 border-t border-border/60 pt-8"
         >
           {footerLinks.map((link) => (
             <Link
-              key={link.href}
+              key={link.label}
               href={link.href}
               className="text-sm text-muted-foreground transition-colors hover:text-wine"
             >
@@ -85,7 +234,7 @@ export function SiteFooter() {
         </nav>
 
         <p className="mt-8 text-center text-sm text-muted-foreground sm:text-left">
-          {new Date().getFullYear()} VinIntel. Vinuri romanesti, clar si onest.
+          {content.copyright}
         </p>
       </div>
     </footer>

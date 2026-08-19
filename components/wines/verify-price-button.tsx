@@ -9,13 +9,13 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-const DISABLED_TOOLTIP = "disponibil doar pentru cramele verificate";
-
 interface VerifyPriceButtonProps {
   url: string;
   enabled: boolean;
   size?: "sm" | "default";
   className?: string;
+  label?: string;
+  disabledTooltip?: string;
 }
 
 export function VerifyPriceButton({
@@ -23,6 +23,8 @@ export function VerifyPriceButton({
   enabled,
   size = "sm",
   className,
+  label = "Verifica pret",
+  disabledTooltip = "disponibil doar pentru cramele verificate",
 }: VerifyPriceButtonProps) {
   if (!enabled) {
     return (
@@ -38,12 +40,12 @@ export function VerifyPriceButton({
               aria-disabled="true"
               className="pointer-events-none border-border/60 text-muted-foreground/70 opacity-60"
             >
-              Verifica pret
+              {label}
               <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
           </span>
         </TooltipTrigger>
-        <TooltipContent side="top">{DISABLED_TOOLTIP}</TooltipContent>
+        <TooltipContent side="top">{disabledTooltip}</TooltipContent>
       </Tooltip>
     );
   }
@@ -59,7 +61,7 @@ export function VerifyPriceButton({
       )}
     >
       <a href={url} target="_blank" rel="noopener noreferrer">
-        Verifica pret
+        {label}
         <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
       </a>
     </Button>

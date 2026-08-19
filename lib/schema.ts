@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   blob,
+  check,
   index,
   integer,
   real,
@@ -189,6 +190,38 @@ export interface ExpertNotes {
   agingPotential: string;
   valueInsight: string;
   thingsYouShouldKnow: string[];
+}
+
+export type ContentTranslationEntityType =
+  | "wine"
+  | "winery"
+  | "winery_event"
+  | "region"
+  | "grape_variety"
+  | "journal_article"
+  | "winery_catalog";
+
+export type ContentTranslationStatus =
+  | "READY"
+  | "STALE"
+  | "REVIEW_REQUIRED"
+  | "FAILED";
+
+export type ContentTranslationMethod = "AI" | "HUMAN" | "IMPORT";
+
+export type ContentTranslationJson =
+  | string
+  | number
+  | boolean
+  | null
+  | ContentTranslationJson[]
+  | { [key: string]: ContentTranslationJson };
+
+export interface ContentTranslationQaMetadata {
+  shapeValid?: boolean;
+  issues?: string[];
+  checkedAt?: string;
+  checkerVersion?: string;
 }
 
 const timestamps = {
@@ -619,6 +652,98 @@ export const wineFactEvidence = sqliteTable(
       table.field,
       table.sourceHash,
     ),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
+/*                         Localized content history                           */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Additive translation history. A source hash identifies an immutable source
+ * version, while the partial current index gives each locale lookup one row.
+ */
+export const contentTranslations = sqliteTable(
+  "content_translations",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    entityType: text("entity_type")
+      .$type<ContentTranslationEntityType>()
+      .notNull(),
+    entityId: text("entity_id").notNull(),
+    field: text("field").notNull(),
+    sourceLocale: text("source_locale").notNull().default("ro"),
+    targetLocale: text("target_locale").notNull(),
+    sourceValueJson: text("source_value_json", { mode: "json" })
+      .$type<ContentTranslationJson>()
+      .notNull(),
+    valueJson: text("value_json", { mode: "json" })
+      .$type<ContentTranslationJson | null>()
+      .default(sql`'null'`),
+    sourceHash: text("source_hash").notNull(),
+    status: text("status")
+      .$type<ContentTranslationStatus>()
+      .notNull()
+      .default("REVIEW_REQUIRED"),
+    method: text("method").$type<ContentTranslationMethod>().notNull(),
+    model: text("model"),
+    promptVersion: text("prompt_version"),
+    qaMetadata: text("qa_metadata", { mode: "json" })
+      .$type<ContentTranslationQaMetadata>()
+      .notNull()
+      .default(sql`'{}'`),
+    failureReason: text("failure_reason"),
+    reviewedBy: text("reviewed_by"),
+    reviewedAt: text("reviewed_at"),
+    isCurrent: integer("is_current", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    ...timestamps,
+  },
+  (table) => [
+    check(
+      "content_translations_entity_type_check",
+      sql`${table.entityType} in ('wine', 'winery', 'winery_event', 'region', 'grape_variety', 'journal_article', 'winery_catalog')`,
+    ),
+    check(
+      "content_translations_status_check",
+      sql`${table.status} in ('READY', 'STALE', 'REVIEW_REQUIRED', 'FAILED')`,
+    ),
+    check(
+      "content_translations_method_check",
+      sql`${table.method} in ('AI', 'HUMAN', 'IMPORT')`,
+    ),
+    check(
+      "content_translations_is_current_check",
+      sql`${table.isCurrent} in (0, 1)`,
+    ),
+    uniqueIndex("content_translations_source_version_uidx").on(
+      table.entityType,
+      table.entityId,
+      table.field,
+      table.sourceLocale,
+      table.targetLocale,
+      table.sourceHash,
+    ),
+    uniqueIndex("content_translations_current_uidx")
+      .on(
+        table.entityType,
+        table.entityId,
+        table.field,
+        table.sourceLocale,
+        table.targetLocale,
+      )
+      .where(sql`${table.isCurrent} = 1`),
+    index("content_translations_lookup_idx").on(
+      table.entityType,
+      table.entityId,
+      table.field,
+      table.sourceLocale,
+      table.targetLocale,
+      table.isCurrent,
+    ),
+    index("content_translations_source_hash_idx").on(table.sourceHash),
+    index("content_translations_status_idx").on(table.status),
   ],
 );
 

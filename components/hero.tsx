@@ -4,25 +4,71 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
-import { SmartSearch } from "@/components/smart-search";
+import {
+  SmartSearchClient,
+  type SmartSearchCopy,
+} from "@/components/smart-search-client";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 import { EASE_OUT, staggerContainer } from "@/lib/motion";
 
-const pivotLinks = [
-  { label: "Catalog vinuri", href: "/vinuri" },
-  { label: "Cele mai bune", href: "/topuri/cele-mai-bune-vinuri-romanesti" },
-  { label: "Vin ieftin si bun", href: "/topuri/vinuri-sub-50-lei" },
-  { label: "Crame", href: "/crame" },
-];
+export interface HeroCopy {
+  badge: string;
+  title: string;
+  titleAccent: string;
+  description: string;
+  frequentSearches: string;
+  links: {
+    catalog: string;
+    best: string;
+    budget: string;
+    wineries: string;
+    sarmale: string;
+    sommelier: string;
+  };
+  search: SmartSearchCopy;
+}
 
-const suggestions = [
-  { label: "Pentru sarmale", href: "/vin-pentru/sarmale" },
-  { label: "Somelier AI", href: "/ai-sommelier" },
-];
-
-export function Hero() {
+export function Hero({
+  copy,
+  locale,
+}: {
+  copy: HeroCopy;
+  locale: AppLocale;
+}) {
   const reduceMotion = useReducedMotion();
 
   const container = staggerContainer;
+  const pivotLinks = [
+    {
+      label: copy.links.catalog,
+      href: localizedHref(locale, "wines"),
+    },
+    {
+      label: copy.links.best,
+      href: localizedHref(locale, "topWine", {
+        slug: "cele-mai-bune-vinuri-romanesti",
+      }),
+    },
+    {
+      label: copy.links.budget,
+      href: localizedHref(locale, "topWine", { slug: "vinuri-sub-50-lei" }),
+    },
+    {
+      label: copy.links.wineries,
+      href: localizedHref(locale, "wineries"),
+    },
+  ];
+  const suggestions = [
+    {
+      label: copy.links.sarmale,
+      href: localizedHref(locale, "wineFor", { dish: "sarmale" }),
+    },
+    {
+      label: copy.links.sommelier,
+      href: localizedHref(locale, "aiSommelier"),
+    },
+  ];
 
   const item: Variants = {
     hidden: reduceMotion ? {} : { opacity: 0, y: 20 },
@@ -53,7 +99,7 @@ export function Hero() {
           <motion.div variants={item}>
             <span className="inline-flex items-center gap-2 rounded-full border border-wine/20 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              Somelier AI hiper-local pentru vinul romanesc
+              {copy.badge}
             </span>
           </motion.div>
 
@@ -61,21 +107,20 @@ export function Hero() {
             variants={item}
             className="mt-6 font-serif text-5xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl"
           >
-            Vinuri romanesti.
+            {copy.title}
             <br />
-            <span className="text-wine">Clar. Onest. Rapid.</span>
+            <span className="text-wine">{copy.titleAccent}</span>
           </motion.h1>
 
           <motion.p
             variants={item}
             className="mt-6 max-w-2xl text-balance text-lg text-muted-foreground sm:text-xl"
           >
-            Gaseste vinul potrivit in cateva secunde. Recomandari transparente,
-            preturi in RON si asocieri gandite pentru mancarea si ocazia ta.
+            {copy.description}
           </motion.p>
 
           <motion.div variants={item} className="mt-9 w-full max-w-2xl">
-            <SmartSearch />
+            <SmartSearchClient copy={copy.search} locale={locale} />
           </motion.div>
 
           <motion.div
@@ -97,7 +142,9 @@ export function Hero() {
             variants={item}
             className="mt-4 flex flex-wrap items-center justify-center gap-2"
           >
-            <span className="text-sm text-muted-foreground">Cauta des:</span>
+            <span className="text-sm text-muted-foreground">
+              {copy.frequentSearches}
+            </span>
             {suggestions.map((suggestion) => (
               <Link
                 key={suggestion.href}

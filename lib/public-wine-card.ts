@@ -1,4 +1,4 @@
-import { wineTypeLabel } from "@/lib/format";
+import { getWineTypeLabel } from "@/lib/format";
 import type {
   PublicWineCardViewModel,
   PublicWineCatalogItem,
@@ -14,17 +14,33 @@ import {
   stripEmbeddedVintageFromName,
 } from "@/lib/wine-vintage";
 import type { WineWithRelations } from "@/types";
+import type { AppLocale } from "@/i18n/locale";
 
 interface PublicWineCardOptions {
   highlightScore?: TopListRankMetric;
   displayedScore?: number | null;
   analytics?: WineCardAnalyticsViewModel;
+  locale?: AppLocale;
 }
 
-function rankLabel(metric: TopListRankMetric): string {
+function rankLabel(metric: TopListRankMetric, locale: AppLocale): string {
   if (metric === "gift") return "Gift Score";
-  if (metric === "relevance") return "Scor potrivire";
+  if (metric === "relevance")
+    return locale === "en" ? "Match Score" : "Scor potrivire";
   return "Value Score";
+}
+
+function localizedCardImageAlt(
+  wine: WineWithRelations,
+  locale: AppLocale,
+  vintage: number | null,
+): string | null {
+  if (locale === "ro") return wine.imageAlt;
+  const parts = [wine.name];
+  if (vintage != null) parts.push(String(vintage));
+  if (wine.winery?.name) parts.push(`by ${wine.winery.name}`);
+  parts.push(`${getWineTypeLabel(wine.type, "en").toLowerCase()} wine`);
+  return parts.join(", ");
 }
 
 export function buildPublicWineCardViewModel(
@@ -32,6 +48,7 @@ export function buildPublicWineCardViewModel(
   options: PublicWineCardOptions = {},
 ): PublicWineCardViewModel {
   const highlightScore = options.highlightScore ?? "value";
+  const locale = options.locale ?? "ro";
   const vintage = resolveWineVintage(wine);
   const pricing = buildWinePriceViewModel(wine);
 
@@ -41,7 +58,7 @@ export function buildPublicWineCardViewModel(
     name: wine.name,
     displayName: stripEmbeddedVintageFromName(wine.name, vintage),
     type: wine.type,
-    typeLabel: wineTypeLabel[wine.type],
+    typeLabel: getWineTypeLabel(wine.type, locale),
     vintage,
     valueScore: wine.valueScore,
     displayedRankScore: topListRankScore(
@@ -49,11 +66,11 @@ export function buildPublicWineCardViewModel(
       highlightScore,
       options.displayedScore,
     ),
-    displayedRankLabel: rankLabel(highlightScore),
+    displayedRankLabel: rankLabel(highlightScore, locale),
     image: {
       url: wine.imageUrl,
       source: wine.imageSource,
-      alt: wine.imageAlt,
+      alt: localizedCardImageAlt(wine, locale, vintage),
       wineryName: wine.winery?.name ?? null,
     },
     wineryName: wine.winery?.name ?? null,
@@ -75,10 +92,11 @@ export function buildPublicWineCardViewModel(
   };
 }
 
-export function buildPublicWineCatalogItem(
+function buildPublicWineCatalogItemForLocale(
   wine: WineWithRelations,
+  locale: AppLocale,
 ): PublicWineCatalogItem {
-  const card = buildPublicWineCardViewModel(wine);
+  const card = buildPublicWineCardViewModel(wine, { locale });
   const filterPrice =
     wine.currentPrice != null && wine.currentPrice > 0
       ? wine.currentPrice
@@ -89,12 +107,16 @@ export function buildPublicWineCatalogItem(
     wine.name,
     wine.winery?.name ?? "",
     wine.region?.name ?? "",
-    wineTypeLabel[wine.type],
+    getWineTypeLabel(wine.type, locale),
+    locale === "en" && wine.sweetness === "sec" ? "dry" : "",
+    locale === "en" && wine.sweetness === "demisec" ? "medium-dry" : "",
+    locale === "en" && wine.sweetness === "demidulce" ? "medium-sweet" : "",
+    locale === "en" && wine.sweetness === "dulce" ? "sweet" : "",
     wine.vintage?.toString() ?? "",
     wine.grapeVarieties.map((grape) => grape.name).join(" "),
   ]
     .join(" ")
-    .toLocaleLowerCase("ro");
+    .toLocaleLowerCase(locale === "en" ? "en" : "ro");
 
   return {
     id: wine.id,
@@ -105,4 +127,17 @@ export function buildPublicWineCatalogItem(
     searchText,
     card,
   };
+}
+
+export function buildPublicWineCatalogItem(
+  wine: WineWithRelations,
+): PublicWineCatalogItem {
+  return buildPublicWineCatalogItemForLocale(wine, "ro");
+}
+
+export function buildLocalizedPublicWineCatalogItem(
+  wine: WineWithRelations,
+  locale: AppLocale,
+): PublicWineCatalogItem {
+  return buildPublicWineCatalogItemForLocale(wine, locale);
 }

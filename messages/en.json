@@ -1,0 +1,58 @@
+{
+  "Navigation": {
+    "home": "VinIntel home",
+    "primaryLabel": "Main navigation",
+    "mobileLabel": "Mobile navigation",
+    "openMenu": "Open menu",
+    "wines": "Wines",
+    "wineries": "Wineries",
+    "journal": "Journal",
+    "topWines": "Top wines",
+    "sommelier": "Ask the sommelier",
+    "languageSwitcher": "Change language",
+    "romanian": "Romanian",
+    "english": "English"
+  },
+  "Route": {
+    "loading": "Preparing the content...",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The address may be incorrect or the page is no longer available.",
+    "backHome": "Back to home"
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Try again or come back later.",
+    "retry": "Try again"
+  },
+  "Search": {
+    "placeholder": "Search for a wine or winery, or paste a product URL",
+    "ariaLabel": "Search wines and wineries or add a product URL",
+    "analyzing": "Analyzing...",
+    "submitLink": "Submit",
+    "submitSearch": "Search",
+    "loading": "Searching...",
+    "sommelierHint": "Wine question? Press Enter to ask the AI Sommelier.",
+    "emptyHint": "No results. Press Enter for a full search or paste a Romanian wine URL.",
+    "wine": "Wine",
+    "winery": "Winery",
+    "linkHelper": "Add a Romanian wine URL from eMAG, a winery website, or another retailer",
+    "analysisFailed": "The analysis failed.",
+    "invalidResult": "The analysis did not return a valid result."
+  },
+  "SearchPage": {
+    "metaTitle": "Search wines and wineries",
+    "metaResults": "Results for \"{query}\"",
+    "metaDescription": "Search the VinIntel catalog for Romanian wines and wineries.",
+    "eyebrow": "Catalog search",
+    "title": "Search VinIntel",
+    "resultsTitle": "Results for “{query}”",
+    "descriptionBefore": "Check whether a wine or winery is already in the catalog. To submit a product URL, use",
+    "addWine": "Add a wine",
+    "instructions": "Enter a wine, winery, or grape variety, then press Search.",
+    "emptyTitle": "We could not find “{query}” in the catalog",
+    "emptyDescription": "This wine may not be on VinIntel yet. Add a product URL and we will review it.",
+    "addByLink": "Add wine by URL",
+    "wineries": "Wineries",
+    "wines": "Wines"
+  }
+}

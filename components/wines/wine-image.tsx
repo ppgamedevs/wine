@@ -7,6 +7,7 @@ import { resolveWineImage } from "@/lib/wine-images";
 import { cn } from "@/lib/utils";
 import type { WineType } from "@/types";
 import { WineImageFallback } from "@/components/wines/wine-image-fallback";
+import { useLocale } from "next-intl";
 
 interface WineImageProps {
   slug: string;
@@ -48,6 +49,7 @@ export function WineImage({
   containPaddingClass = "p-5",
   variant = "default",
 }: WineImageProps) {
+  const locale = useLocale();
   const [failed, setFailed] = useState(false);
   const { src, alt, fromExternalSource, unoptimized } = resolveWineImage({
     slug,
@@ -144,7 +146,7 @@ export function WineImage({
           />
           {fromExternalSource ? (
             <span className="absolute bottom-2 right-2 z-10 rounded-full bg-background/80 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground backdrop-blur">
-              Sursa
+              {locale === "en" ? "Source" : "Sursa"}
             </span>
           ) : null}
           <div

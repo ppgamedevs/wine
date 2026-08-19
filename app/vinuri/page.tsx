@@ -2,11 +2,16 @@ import type { Metadata } from "next";
 import { Wine } from "lucide-react";
 import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
-import { SiteFooter } from "@/components/site-footer";
+import { LocalizedSiteFooter } from "@/components/localized-site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { WineCatalogDirectory } from "@/components/wines/wine-catalog-directory";
+import {
+  WineCatalogDirectory,
+  type WineCatalogDirectoryCopy,
+} from "@/components/wines/wine-catalog-directory";
 import { Button } from "@/components/ui/button";
-import { buildPublicWineCatalogItem } from "@/lib/public-wine-card";
+import { localizedHref } from "@/i18n/paths";
+import { getDiscoveryI18n } from "@/lib/i18n/discovery";
+import { buildLocalizedPublicWineCatalogItem } from "@/lib/public-wine-card";
 import { getCatalogWines } from "@/lib/queries";
 import {
   absoluteUrl,
@@ -17,74 +22,172 @@ import {
 
 export const revalidate = 3600;
 
-const PATH = "/vinuri";
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, t } = await getDiscoveryI18n();
+  const path = localizedHref(locale, "wines");
 
-export const metadata: Metadata = {
-  title: "Vinuri romanesti: catalog, preturi si scoruri",
-  description:
-    "Catalog complet de vinuri romanesti cu Value Score, preturi in RON, crama si regiune. Cauta rapid si compara raportul calitate-pret.",
-  keywords: [
-    "vinuri romanesti",
-    "catalog vinuri",
-    "Value Score",
-    "vin rosu romanesc",
-    "vin alb romanesc",
-  ],
-  alternates: { canonical: absoluteUrl(PATH) },
-  openGraph: {
-    type: "website",
-    locale: SITE.locale,
-    url: absoluteUrl(PATH),
-    siteName: SITE.name,
-    title: "Vinuri romanesti: catalog, preturi si scoruri | VinIntel",
-    description:
-      "Toate vinurile romanesti din catalogul VinIntel, ordonate dupa Value Score.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: SITE.twitter,
-    title: "Vinuri romanesti: catalog, preturi si scoruri | VinIntel",
-    description:
-      "Toate vinurile romanesti din catalogul VinIntel, ordonate dupa Value Score.",
-  },
-};
-
-const faq = [
-  {
-    question: "Ce este Value Score?",
-    answer:
-      "Value Score este scorul VinIntel pentru raportul calitate-pret. Cu cat e mai mare, cu atat vinul ofera mai mult pentru banii tai.",
-  },
-  {
-    question: "Cum caut un vin in catalog?",
-    answer:
-      "Filtreaza dupa culoare sau tip, dulceata, pret si Value Score. Poti cauta si dupa nume, crama, regiune sau soi.",
-  },
-  {
-    question: "Pot adauga un vin care lipseste?",
-    answer:
-      "Da. Trimite linkul paginii vinului prin formularul Adauga vin si il verificam inainte de publicare.",
-  },
-];
+  return {
+    title: t("Catalog.metadata.title"),
+    description: t("Catalog.metadata.description"),
+    keywords:
+      locale === "en"
+        ? [
+            "Romanian wines",
+            "wine catalog",
+            "Value Score",
+            "Romanian red wine",
+            "Romanian white wine",
+          ]
+        : [
+            "vinuri romanesti",
+            "catalog vinuri",
+            "Value Score",
+            "vin rosu romanesc",
+            "vin alb romanesc",
+          ],
+    alternates: {
+      canonical: absoluteUrl(path),
+      languages: {
+        ro: absoluteUrl(localizedHref("ro", "wines")),
+        en: absoluteUrl(localizedHref("en", "wines")),
+        "x-default": absoluteUrl(localizedHref("ro", "wines")),
+      },
+    },
+    openGraph: {
+      type: "website",
+      locale: locale === "en" ? "en_GB" : SITE.locale,
+      url: absoluteUrl(path),
+      siteName: SITE.name,
+      title: t("Catalog.metadata.openGraphTitle"),
+      description: t("Catalog.metadata.openGraphDescription"),
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: SITE.twitter,
+      title: t("Catalog.metadata.openGraphTitle"),
+      description: t("Catalog.metadata.openGraphDescription"),
+    },
+  };
+}
 
 export default async function VinuriCatalogPage() {
-  const catalogWines = await getCatalogWines();
-  const publicCatalog = catalogWines.map(buildPublicWineCatalogItem);
+  const [{ locale, t }, catalogWines] = await Promise.all([
+    getDiscoveryI18n(),
+    getCatalogWines(),
+  ]);
+  const publicCatalog = catalogWines.map((wine) =>
+    buildLocalizedPublicWineCatalogItem(wine, locale),
+  );
+  const path = localizedHref(locale, "wines");
+  const faq = [
+    {
+      question: t("Catalog.faq.value.question"),
+      answer: t("Catalog.faq.value.answer"),
+    },
+    {
+      question: t("Catalog.faq.search.question"),
+      answer: t("Catalog.faq.search.answer"),
+    },
+    {
+      question: t("Catalog.faq.add.question"),
+      answer: t("Catalog.faq.add.answer"),
+    },
+  ];
+  const directoryCopy: WineCatalogDirectoryCopy = {
+    searchPlaceholder: t("Catalog.directory.searchPlaceholder"),
+    searchAria: t("Catalog.directory.searchAria"),
+    typeLabel: t("Catalog.directory.typeLabel"),
+    sweetnessLabel: t("Catalog.directory.sweetnessLabel"),
+    sortAria: t("Catalog.directory.sortAria"),
+    sortPlaceholder: t("Catalog.directory.sortPlaceholder"),
+    priceAria: t("Catalog.directory.priceAria"),
+    pricePlaceholder: t("Catalog.directory.pricePlaceholder"),
+    scoreAria: t("Catalog.directory.scoreAria"),
+    scorePlaceholder: t("Catalog.directory.scorePlaceholder"),
+    reset: t("Catalog.directory.reset"),
+    foundOne: t("Catalog.directory.foundOne"),
+    foundMany: t("Catalog.directory.foundMany"),
+    removeFilter: t("Catalog.directory.removeFilter", { label: "{label}" }),
+    recommendedNote: t("Catalog.directory.recommendedNote", {
+      score: "{score}",
+    }),
+    exceptionalNote: t("Catalog.directory.exceptionalNote", {
+      score: "{score}",
+    }),
+    noResults: t("Catalog.directory.noResults"),
+    noResultsHint: t("Catalog.directory.noResultsHint"),
+    resetFilters: t("Catalog.directory.resetFilters"),
+    viewOnly: t("Catalog.directory.viewOnly", { type: "{type}" }),
+    types: {
+      all: t("Catalog.directory.types.all"),
+      red: t("Catalog.directory.types.red"),
+      white: t("Catalog.directory.types.white"),
+      rose: t("Catalog.directory.types.rose"),
+      sparkling: t("Catalog.directory.types.sparkling"),
+      orange: t("Catalog.directory.types.orange"),
+      dessert: t("Catalog.directory.types.dessert"),
+    },
+    sweetness: {
+      all: t("Catalog.directory.sweetness.all"),
+      sec: t("Catalog.directory.sweetness.sec"),
+      demisec: t("Catalog.directory.sweetness.demisec"),
+      demidulce: t("Catalog.directory.sweetness.demidulce"),
+      dulce: t("Catalog.directory.sweetness.dulce"),
+    },
+    sort: {
+      "value-desc": t("Catalog.directory.sort.value"),
+      "price-asc": t("Catalog.directory.sort.priceAsc"),
+      "price-desc": t("Catalog.directory.sort.priceDesc"),
+      "name-asc": t("Catalog.directory.sort.name"),
+    },
+    prices: {
+      all: t("Catalog.directory.prices.all"),
+      under50: t("Catalog.directory.prices.under50"),
+      "50-100": t("Catalog.directory.prices.from50To100"),
+      over100: t("Catalog.directory.prices.over100"),
+    },
+    scores: {
+      all: t("Catalog.directory.scores.all"),
+      recommended: t("Catalog.directory.scores.recommended", {
+        score: "{score}",
+      }),
+      exceptional: t("Catalog.directory.scores.exceptional", {
+        score: "{score}",
+      }),
+      recommendedChip: t("Catalog.directory.scores.recommendedChip"),
+      exceptionalChip: t("Catalog.directory.scores.exceptionalChip"),
+    },
+    sections: {
+      red: t("Catalog.directory.sections.red"),
+      white: t("Catalog.directory.sections.white"),
+      rose: t("Catalog.directory.sections.rose"),
+      sparkling: t("Catalog.directory.sections.sparkling"),
+      orange: t("Catalog.directory.sections.orange"),
+      dessert: t("Catalog.directory.sections.dessert"),
+    },
+    sectionDescriptions: {
+      sparkling: t("Catalog.directory.sectionDescriptions.sparkling"),
+      orange: t("Catalog.directory.sectionDescriptions.orange"),
+      default: t("Catalog.directory.sectionDescriptions.default", {
+        type: "{type}",
+      }),
+    },
+  };
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
-    { name: "Acasa", path: "/" },
-    { name: "Vinuri", path: PATH },
+    { name: t("Catalog.breadcrumbHome"), path: localizedHref(locale, "home") },
+    { name: t("Catalog.breadcrumbCurrent"), path },
   ]);
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Catalog vinuri romanesti VinIntel",
+    name: t("Catalog.listName"),
     numberOfItems: catalogWines.length,
     itemListElement: catalogWines.slice(0, 50).map((wine, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: absoluteUrl(`/wines/${wine.slug}`),
+      url: absoluteUrl(localizedHref(locale, "wine", { slug: wine.slug })),
       name: wine.name,
     })),
   };
@@ -106,14 +209,13 @@ export default async function VinuriCatalogPage() {
             <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
                 <Wine className="h-4 w-4" aria-hidden="true" />
-                {catalogWines.length} vinuri verificate
+                {t("Catalog.verified", { count: catalogWines.length })}
               </span>
               <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                Vinuri romanesti
+                {t("Catalog.heading")}
               </h1>
               <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-                Exploreaza vinurile romanesti dupa culoare, dulceata si buget,
-                apoi compara-le dupa Value Score.
+                {t("Catalog.description")}
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button
@@ -121,13 +223,17 @@ export default async function VinuriCatalogPage() {
                   variant="outline"
                   className="border-wine/30 text-wine hover:bg-wine/10 hover:text-wine"
                 >
-                  <Link href="/topuri">Topuri populare</Link>
+                  <Link href={localizedHref(locale, "topWines")}>
+                    {t("Catalog.popular")}
+                  </Link>
                 </Button>
                 <Button
                   asChild
                   className="bg-wine text-wine-foreground hover:bg-wine/90"
                 >
-                  <Link href="/adauga-vin">Adauga un vin</Link>
+                  <Link href={localizedHref(locale, "addWine")}>
+                    {t("Catalog.add")}
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -136,12 +242,19 @@ export default async function VinuriCatalogPage() {
 
         <div className="mx-auto max-w-6xl px-6 py-10 lg:py-12">
           {catalogWines.length > 0 ? (
-            <WineCatalogDirectory wines={publicCatalog} />
+            <WineCatalogDirectory
+              wines={publicCatalog}
+              locale={locale}
+              copy={directoryCopy}
+            />
           ) : (
             <p className="rounded-2xl border border-dashed border-border bg-secondary/20 p-12 text-center text-muted-foreground">
-              Inca nu avem vinuri in catalog. Revino in curand sau{" "}
-              <Link href="/adauga-vin" className="font-medium text-wine hover:underline">
-                trimite primul vin
+              {t("Catalog.emptyPrefix")}{" "}
+              <Link
+                href={localizedHref(locale, "addWine")}
+                className="font-medium text-wine hover:underline"
+              >
+                {t("Catalog.emptyLink")}
               </Link>
               .
             </p>
@@ -157,7 +270,7 @@ export default async function VinuriCatalogPage() {
               id="vinuri-faq-heading"
               className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
             >
-              Intrebari frecvente
+              {t("Catalog.faqHeading")}
             </h2>
             <dl className="mt-8 space-y-6">
               {faq.map((item) => (
@@ -170,7 +283,7 @@ export default async function VinuriCatalogPage() {
           </div>
         </section>
       </main>
-      <SiteFooter />
+      <LocalizedSiteFooter />
     </>
   );
 }

@@ -1,4 +1,5 @@
 import type { WineSweetness, WineType } from "@/types";
+import type { AppLocale } from "@/i18n/locale";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_EXCEPTIONAL_MIN,
@@ -14,36 +15,47 @@ const ronFormatter = new Intl.NumberFormat("ro-RO", {
   maximumFractionDigits: 0,
 });
 
-export function formatRon(value: number | null | undefined): string {
-  if (value === null || value === undefined) return "Pret indisponibil";
-  return ronFormatter.format(value);
-}
-
-const longDateFormatter = new Intl.DateTimeFormat("ro-RO", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
+const englishNumberFormatter = new Intl.NumberFormat("en-GB", {
+  maximumFractionDigits: 0,
 });
+
+export function formatRon(
+  value: number | null | undefined,
+  locale: AppLocale = "ro",
+): string {
+  if (value === null || value === undefined) {
+    return locale === "en" ? "Price unavailable" : "Pret indisponibil";
+  }
+  return locale === "en"
+    ? `${englishNumberFormatter.format(value)} RON`
+    : ronFormatter.format(value);
+}
 
 export function formatLongDate(
   value: string | Date | null | undefined,
+  locale: AppLocale = "ro",
 ): string | undefined {
   if (!value) return undefined;
   const date = typeof value === "string" ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) return undefined;
-  return longDateFormatter.format(date);
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "ro-RO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
 }
 
-const shortDateFormatter = new Intl.DateTimeFormat("ro-RO", {
-  month: "short",
-  year: "numeric",
-});
-
-export function formatShortDate(value: string | Date | null | undefined): string | undefined {
+export function formatShortDate(
+  value: string | Date | null | undefined,
+  locale: AppLocale = "ro",
+): string | undefined {
   if (!value) return undefined;
   const date = typeof value === "string" ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) return undefined;
-  return shortDateFormatter.format(date);
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "ro-RO", {
+    month: "short",
+    year: "numeric",
+  }).format(date);
 }
 
 export const wineTypeLabel: Record<WineType, string> = {
@@ -55,12 +67,44 @@ export const wineTypeLabel: Record<WineType, string> = {
   orange: "Orange",
 };
 
+export const wineTypeLabelEn: Record<WineType, string> = {
+  red: "Red",
+  white: "White",
+  rose: "Rosé",
+  sparkling: "Sparkling",
+  dessert: "Dessert",
+  orange: "Orange",
+};
+
+export function getWineTypeLabel(
+  type: WineType,
+  locale: AppLocale = "ro",
+): string {
+  return locale === "en" ? wineTypeLabelEn[type] : wineTypeLabel[type];
+}
+
 export const wineSweetnessLabel: Record<WineSweetness, string> = {
   sec: "Sec",
   demisec: "Demisec",
   demidulce: "Demidulce",
   dulce: "Dulce",
 };
+
+export const wineSweetnessLabelEn: Record<WineSweetness, string> = {
+  sec: "Dry",
+  demisec: "Medium-dry",
+  demidulce: "Medium-sweet",
+  dulce: "Sweet",
+};
+
+export function getWineSweetnessLabel(
+  sweetness: WineSweetness,
+  locale: AppLocale = "ro",
+): string {
+  return locale === "en"
+    ? wineSweetnessLabelEn[sweetness]
+    : wineSweetnessLabel[sweetness];
+}
 
 export const wineTypeGradient: Record<WineType, string> = {
   red: "from-wine/85 via-wine to-[#4a1608]",

@@ -43,10 +43,16 @@ export function WineCardPurchaseAction({
   slug,
   price,
   analytics,
+  offerLabel,
+  verifyLabel,
+  verifyDisabledTooltip,
 }: {
   slug: string;
   price: WineCardPriceViewModel;
   analytics: WineCardAnalyticsViewModel | null;
+  offerLabel: string;
+  verifyLabel: string;
+  verifyDisabledTooltip: string;
 }) {
   const trackPurchase = analytics
     ? () => {
@@ -62,6 +68,7 @@ export function WineCardPurchaseAction({
       <RetailerPurchaseLink
         url={price.purchaseLink.url}
         retailerName={price.purchaseLink.retailer}
+        label={offerLabel}
         size="sm"
         onTrackClick={trackPurchase}
       />
@@ -73,6 +80,8 @@ export function WineCardPurchaseAction({
       <VerifyPriceButton
         url={price.verifyPriceUrl}
         enabled={price.canVerifyPrice}
+        label={verifyLabel}
+        disabledTooltip={verifyDisabledTooltip}
       />
     );
   }

@@ -1,14 +1,27 @@
 import type { Metadata } from "next";
 import { Award } from "lucide-react";
 import Link from "next/link";
+import { getLocale } from "next-intl/server";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { TopListGrid } from "@/components/top-list-grid";
 import { Button } from "@/components/ui/button";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
+import {
+  resolveTopListDefinition,
+  topListSlugForLocale,
+} from "@/lib/i18n/top-list-routes";
+import {
+  buildLocalizedAlternates,
+  getPseoMessages,
+  getTopListIndexCopy,
+  openGraphLocale,
+} from "@/lib/i18n/pseo";
 import {
   TOP_LIST_INDEX_LINKS,
-  topListHref,
+  type TopListLink,
 } from "@/lib/top-list-links";
 import {
   absoluteUrl,
@@ -19,39 +32,15 @@ import {
 
 export const revalidate = 3600;
 
-const PATH = "/topuri";
+const INDEX_GRAPE_SLUGS = TOP_LIST_INDEX_LINKS.flatMap(({ slug }) =>
+  slug.startsWith("cele-mai-bune-") &&
+  slug !== "cele-mai-bune-vinuri-romanesti"
+    ? [slug.slice("cele-mai-bune-".length)]
+    : [],
+);
 
-export const metadata: Metadata = {
-  title: "Topuri vinuri romanesti",
-  description:
-    "Topuri VinIntel: vinuri sub 50 lei, pentru sarmale, Feteasca Neagra, cadou si alte selectii populare dupa Value Score.",
-  keywords: [
-    "top vinuri romanesti",
-    "vinuri sub 50 lei",
-    "vin pentru sarmale",
-    "feteasca neagra",
-    "vin cadou",
-  ],
-  alternates: { canonical: absoluteUrl(PATH) },
-  openGraph: {
-    type: "website",
-    locale: SITE.locale,
-    url: absoluteUrl(PATH),
-    siteName: SITE.name,
-    title: "Topuri vinuri romanesti | VinIntel",
-    description:
-      "Cele mai cautate topuri de vinuri romanesti: buget, ocazie, soi si cadou.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: SITE.twitter,
-    title: "Topuri vinuri romanesti | VinIntel",
-    description:
-      "Cele mai cautate topuri de vinuri romanesti: buget, ocazie, soi si cadou.",
-  },
-};
-
-const faq = [
+const INDEX_FAQ = {
+  ro: [
   {
     question: "Cum sunt construite topurile VinIntel?",
     answer:
@@ -67,23 +56,97 @@ const faq = [
     answer:
       "Da. Trimite-ne un mesaj sau foloseste Adauga vin daca lipseste un vin pe care il cauti in topuri.",
   },
-];
+  ],
+  en: [
+    {
+      question: "How does VinIntel build its wine rankings?",
+      answer:
+        "The rankings combine Value Score, price, wine style, occasion and grape variety using verified catalog data. Lists update as new wines are added.",
+    },
+    {
+      question: "What does wine under 50 RON mean?",
+      answer:
+        "These selections have an average price below 50 Romanian lei and are ordered by value for money.",
+    },
+    {
+      question: "Can I suggest a new ranking?",
+      answer:
+        "Yes. Contact VinIntel or use the Add wine page if a wine is missing from a ranking.",
+    },
+  ],
+} as const;
 
-export default function TopuriIndexPage() {
+function localizedIndexLinks(locale: AppLocale): TopListLink[] {
+  return TOP_LIST_INDEX_LINKS.map(({ slug }) => {
+    const definition = resolveTopListDefinition(
+      slug,
+      "ro",
+      INDEX_GRAPE_SLUGS,
+    );
+    if (!definition) {
+      throw new Error(`Unknown top-list index slug: ${slug}`);
+    }
+    const copy = getTopListIndexCopy(locale, definition.id);
+    return {
+      ...copy,
+      slug: topListSlugForLocale(definition, locale),
+    };
+  });
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = (await getLocale()) as AppLocale;
+  const copy = getPseoMessages(locale).topLists;
+  const path = localizedHref(locale, "topWines");
+  const url = absoluteUrl(path);
+
+  return {
+    title: copy.indexTitle,
+    description: copy.indexDescription,
+    alternates: buildLocalizedAlternates(
+      locale,
+      localizedHref("ro", "topWines"),
+      localizedHref("en", "topWines"),
+    ),
+    openGraph: {
+      type: "website",
+      locale: openGraphLocale(locale),
+      url,
+      siteName: SITE.name,
+      title: `${copy.indexTitle} | VinIntel`,
+      description: copy.indexDescription,
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: SITE.twitter,
+      title: `${copy.indexTitle} | VinIntel`,
+      description: copy.indexDescription,
+    },
+  };
+}
+
+export default async function TopuriIndexPage() {
+  const locale = (await getLocale()) as AppLocale;
+  const messages = getPseoMessages(locale);
+  const copy = messages.topLists;
+  const links = localizedIndexLinks(locale);
+  const path = localizedHref(locale, "topWines");
+  const faq = [...INDEX_FAQ[locale]];
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
-    { name: "Acasa", path: "/" },
-    { name: "Topuri", path: PATH },
+    { name: messages.common.home, path: localizedHref(locale, "home") },
+    { name: messages.common.topLists, path },
   ]);
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Topuri vinuri romanesti VinIntel",
-    numberOfItems: TOP_LIST_INDEX_LINKS.length,
-    itemListElement: TOP_LIST_INDEX_LINKS.map((link, index) => ({
+    inLanguage: locale === "en" ? "en" : "ro",
+    name: copy.indexTitle,
+    numberOfItems: links.length,
+    itemListElement: links.map((link, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: absoluteUrl(topListHref(link.slug)),
+      url: absoluteUrl(localizedHref(locale, "topWine", { slug: link.slug })),
       name: link.title,
     })),
   };
@@ -100,27 +163,28 @@ export default function TopuriIndexPage() {
           <div className="mx-auto max-w-4xl px-6 py-12 text-center lg:py-16">
             <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
               <Award className="h-4 w-4" aria-hidden="true" />
-              {TOP_LIST_INDEX_LINKS.length} topuri
+              {links.length} {copy.countLabel}
             </span>
             <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Topuri vinuri romanesti
+              {copy.indexTitle}
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Selectii populare dupa buget, ocazie si soi. Alege rapid vinul
-              potrivit fara sa parcurgi tot catalogul.
+              {copy.indexIntro}
             </p>
             <Button
               asChild
               variant="outline"
               className="mt-6 border-wine/30 text-wine hover:bg-wine/10 hover:text-wine"
             >
-              <Link href="/vinuri">Vezi tot catalogul</Link>
+              <Link href={localizedHref(locale, "wines")}>
+                {copy.catalogCta}
+              </Link>
             </Button>
           </div>
         </section>
 
         <div className="mx-auto max-w-6xl px-6 py-12">
-          <TopListGrid />
+          <TopListGrid links={links} locale={locale} />
         </div>
 
         <section
@@ -132,7 +196,7 @@ export default function TopuriIndexPage() {
               id="topuri-faq-heading"
               className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
             >
-              Intrebari frecvente
+              {messages.common.faq}
             </h2>
             <dl className="mt-8 space-y-6">
               {faq.map((item) => (

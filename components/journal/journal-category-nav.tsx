@@ -1,26 +1,37 @@
 import Link from "next/link";
-import { JOURNAL_CATEGORIES } from "@/lib/journal-categories";
+import type { JournalCategorySlug } from "@/lib/journal-categories";
 import { cn } from "@/lib/utils";
 
 interface JournalCategoryNavProps {
   activeCategory?: string;
   query?: string;
+  journalHref: string;
+  allLabel: string;
+  ariaLabel: string;
+  categories: Array<{
+    slug: JournalCategorySlug;
+    label: string;
+  }>;
 }
 
 export function JournalCategoryNav({
   activeCategory,
   query,
+  journalHref,
+  allLabel,
+  ariaLabel,
+  categories,
 }: JournalCategoryNavProps) {
   function hrefForCategory(category?: string) {
     const params = new URLSearchParams();
     if (category) params.set("category", category);
     if (query?.trim()) params.set("q", query.trim());
     const suffix = params.toString() ? `?${params.toString()}` : "";
-    return `/journal${suffix}#articole`;
+    return `${journalHref}${suffix}#articole`;
   }
 
   return (
-    <nav aria-label="Categorii Wine Journal" className="space-y-4">
+    <nav aria-label={ariaLabel} className="space-y-4">
       <div className="flex flex-wrap gap-2">
         <Link
           href={hrefForCategory()}
@@ -31,9 +42,9 @@ export function JournalCategoryNav({
               : "border-border/70 bg-card text-muted-foreground hover:border-wine/30 hover:text-wine",
           )}
         >
-          Toate
+          {allLabel}
         </Link>
-        {JOURNAL_CATEGORIES.map((category) => (
+        {categories.map((category) => (
           <Link
             key={category.slug}
             href={hrefForCategory(category.slug)}

@@ -10,6 +10,8 @@ import { buildWinePairingProfile } from "@/lib/pairing/wine-pairing-profile";
 import { isPublicProducerBackedPairing } from "@/lib/pairing-curation";
 import type { FoodPairing, FoodPairingStrength } from "@/lib/schema";
 import type { WineWithRelations } from "@/types";
+import type { AppLocale } from "@/i18n/locale";
+import { getDishPresentation } from "@/lib/i18n/dishes";
 
 export interface PublicWinePairing {
   dish: string;
@@ -20,7 +22,9 @@ export interface PublicWinePairing {
   rationale: string | null;
   attribution:
     | "Recomandare VinIntel"
-    | "Recomandat și de producător";
+    | "Recomandat și de producător"
+    | "VinIntel recommendation"
+    | "Also recommended by the producer";
   strength: FoodPairingStrength;
 }
 
@@ -60,10 +64,14 @@ function supportedStoredScore(pairing: FoodPairing): number | null {
 export function resolvePublicWinePairings(
   wine: WineWithRelations,
   limit = 4,
+  locale: AppLocale = "ro",
 ): PublicWinePairing[] {
   const profile = buildWinePairingProfile(wine);
 
   return (wine.foodPairings ?? [])
+    .filter(
+      (pairing) => locale === "ro" || resolveCanonicalDish(pairing) !== null,
+    )
     .map((pairing, index) => {
       const canonicalDish = resolveCanonicalDish(pairing);
       const compatibility = canonicalDish
@@ -74,10 +82,13 @@ export function resolvePublicWinePairings(
       const rawScore = compatibility?.score ?? storedScore;
       const producerBacked = isPublicProducerBackedPairing(wine, pairing);
 
+      const dishPresentation = canonicalDish
+        ? getDishPresentation(canonicalDish.id, locale)
+        : null;
       return {
         index,
         pairing: {
-          dish: pairing.dish,
+          dish: dishPresentation?.displayName ?? pairing.dish,
           dishSlug: matchDishPairingSlug(pairing.dish),
           score: rawScore == null ? null : publicScore(rawScore),
           rawScore,
@@ -88,17 +99,22 @@ export function resolvePublicWinePairings(
                 ? ("stored_pairing" as const)
                 : ("none" as const),
           rationale:
-            pairing.note?.trim() ||
+            (locale === "ro" ? pairing.note?.trim() : null) ||
             (canonicalDish
               ? pairingRationale(
                   profile,
                   canonicalDish,
                   producerBacked,
+                  locale,
                 )
               : null),
           attribution: producerBacked
-            ? ("Recomandat și de producător" as const)
-            : ("Recomandare VinIntel" as const),
+            ? locale === "en"
+              ? ("Also recommended by the producer" as const)
+              : ("Recomandat și de producător" as const)
+            : locale === "en"
+              ? ("VinIntel recommendation" as const)
+              : ("Recomandare VinIntel" as const),
           strength: pairing.strength ?? "possible",
         },
       };

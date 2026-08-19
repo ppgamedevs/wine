@@ -1,4 +1,5 @@
 import type { WineType } from "@/types";
+import type { AppLocale } from "@/i18n/locale";
 
 /**
  * Orientare generala de pairing pe tip de vin + dulceata, folosita STRICT
@@ -18,14 +19,71 @@ export interface GenericPairingGuidance {
   note: string;
 }
 
+function englishGuidance(
+  type: WineType | string | undefined,
+  isSweetish: boolean,
+  isOffDry: boolean,
+): GenericPairingGuidance {
+  switch (type) {
+    case "red":
+      return {
+        categories: ["red meat and stews", "aged cheese", "rich sauces"],
+        note: "Dry red wines generally suit rich dishes. Sweeter red styles are usually better with dessert or strongly flavored cheese.",
+      };
+    case "white":
+      return isSweetish
+        ? {
+            categories: ["light desserts", "strong cheese", "foie gras"],
+            note: "Sweet or medium-sweet white wines generally work with light desserts or strongly flavored cheese.",
+          }
+        : {
+            categories: ["fish and seafood", "light dishes", "fresh cheese"],
+            note: "Dry and medium-dry white wines generally suit lighter dishes, fish, and seafood.",
+          };
+    case "rose":
+      return {
+        categories: ["summer salads", "grilled chicken or fish", "Mediterranean dishes"],
+        note: "Dry rosé is generally versatile with light to medium dishes.",
+      };
+    case "sparkling":
+      return {
+        categories: [
+          "appetizers",
+          "seafood",
+          isSweetish || isOffDry ? "light desserts" : "light starters",
+        ],
+        note: "Dry sparkling wine generally suits appetizers and seafood, while sweeter styles work better with light desserts.",
+      };
+    case "dessert":
+      return {
+        categories: ["desserts", "blue cheese", "foie gras"],
+        note: "Dessert wines are generally sweet and suit desserts or strongly flavored cheese.",
+      };
+    case "orange":
+      return {
+        categories: ["fermented or pickled dishes", "textured cheese", "oxidative flavors"],
+        note: "Skin-contact orange wines generally suit textured or fermented dishes.",
+      };
+    default:
+      return {
+        categories: ["balanced dishes without very rich or spicy sauces"],
+        note: "We do not yet have enough structured data for more precise pairing guidance.",
+      };
+  }
+}
+
 export function buildGenericPairingGuidance(input: {
   type: WineType | string | null | undefined;
   sweetness?: string | null;
+  locale?: AppLocale;
 }): GenericPairingGuidance {
   const type = input.type ?? undefined;
   const sweetness = input.sweetness ?? null;
   const isSweetish = sweetness === "dulce" || sweetness === "demidulce";
   const isOffDry = sweetness === "demisec";
+  if (input.locale === "en") {
+    return englishGuidance(type, isSweetish, isOffDry);
+  }
 
   switch (type) {
     case "red":

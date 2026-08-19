@@ -1,7 +1,8 @@
 import { Wine as WineIcon } from "lucide-react";
-import { wineTypeGradient, wineTypeLabel } from "@/lib/format";
+import { getWineTypeLabel, wineTypeGradient } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { WineType } from "@/types";
+import { useLocale } from "next-intl";
 
 export function WineImageFallback({
   type,
@@ -14,6 +15,7 @@ export function WineImageFallback({
   iconClassName?: string;
   showLabel?: boolean;
 }) {
+  const locale = useLocale();
   const lightLabel = type !== "red";
 
   return (
@@ -48,7 +50,7 @@ export function WineImageFallback({
             lightLabel ? "text-wine/45" : "text-wine-foreground/60",
           )}
         >
-          {wineTypeLabel[type]}
+          {getWineTypeLabel(type, locale)}
         </p>
       ) : null}
     </div>

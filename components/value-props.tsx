@@ -7,6 +7,7 @@ import {
   MarketingRegionIcon,
   MarketingValueIcon,
 } from "@/components/marketing-icons";
+import { getDiscoveryI18n } from "@/lib/i18n/discovery";
 import { cn } from "@/lib/utils";
 
 interface ValueItem {
@@ -15,44 +16,40 @@ interface ValueItem {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
-const values: ValueItem[] = [
-  {
-    title: "Value Score real",
-    description:
-      "Un scor onest de la 0 la 100 care arata cat de bun e vinul pentru banii ceruti. Fara marketing, doar valoare reala.",
-    icon: MarketingValueIcon,
-  },
-  {
-    title: "Pairing-uri romanesti",
-    description:
-      "Asocieri gandite pentru mancarea de aici: sarmale, mici, ciorba de burta, friptura de porc sau cozonac.",
-    icon: MarketingPairingIcon,
-  },
-  {
-    title: "Preturi actuale",
-    description:
-      "Afisam pretul curent sau estimativ in RON, preluat din sursa principala a vinului.",
-    icon: MarketingPriceIcon,
-  },
-  {
-    title: "Date locale",
-    description:
-      "Informatii despre crame, soiuri autohtone si regiuni romanesti, adunate intr-un singur loc clar si rapid.",
-    icon: MarketingRegionIcon,
-  },
-];
+export async function ValueProps() {
+  const { t } = await getDiscoveryI18n();
+  const values: ValueItem[] = [
+    {
+      title: t("ValueProps.items.value.title"),
+      description: t("ValueProps.items.value.description"),
+      icon: MarketingValueIcon,
+    },
+    {
+      title: t("ValueProps.items.pairing.title"),
+      description: t("ValueProps.items.pairing.description"),
+      icon: MarketingPairingIcon,
+    },
+    {
+      title: t("ValueProps.items.price.title"),
+      description: t("ValueProps.items.price.description"),
+      icon: MarketingPriceIcon,
+    },
+    {
+      title: t("ValueProps.items.local.title"),
+      description: t("ValueProps.items.local.description"),
+      icon: MarketingRegionIcon,
+    },
+  ];
 
-export function ValueProps() {
   return (
     <section className="border-t border-border/60 bg-secondary/30 py-20">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="font-serif text-3xl font-semibold text-foreground sm:text-4xl">
-            De ce merita
+            {t("ValueProps.heading")}
           </h2>
           <p className="mt-4 text-balance text-muted-foreground">
-            Un ghid limpede al vinurilor romanesti, construit pentru viteza,
-            claritate si incredere.
+            {t("ValueProps.description")}
           </p>
         </Reveal>
 

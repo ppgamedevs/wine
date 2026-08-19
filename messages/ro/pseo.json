@@ -1,0 +1,169 @@
+{
+  "common": {
+    "home": "Acasa",
+    "wines": "Vinuri",
+    "wineries": "Crame",
+    "topLists": "Topuri",
+    "studies": "Studii",
+    "faq": "Intrebari frecvente",
+    "recommendations": "Recomandari VinIntel",
+    "detailedRecommendations": "Recomandari detaliate",
+    "relatedGuides": "Ghiduri similare",
+    "wine": "Vin",
+    "winery": "Crama",
+    "price": "Pret",
+    "viewAll": "Vezi tot",
+    "notFound": "Pagina negasita"
+  },
+  "topLists": {
+    "indexTitle": "Topuri vinuri romanesti",
+    "indexDescription": "Topuri VinIntel: vinuri sub 50 lei, pentru sarmale, Feteasca Neagra, cadou si alte selectii populare dupa Value Score.",
+    "indexIntro": "Selectii populare dupa buget, ocazie si soi. Alege rapid vinul potrivit fara sa parcurgi tot catalogul.",
+    "catalogCta": "Vezi tot catalogul",
+    "countLabel": "topuri",
+    "indexLinks": {
+      "curated:best-romanian-wines": {
+        "title": "Cele mai bune vinuri romanesti",
+        "description": "Top general dupa Value Score"
+      },
+      "budget:50": {
+        "title": "Cele mai bune vinuri sub 50 lei",
+        "description": "Valoare maxima la buget mic"
+      },
+      "curated:best-supermarket-wines": {
+        "title": "Vinuri bune din supermarket",
+        "description": "Disponibile la retaileri mari"
+      },
+      "budget-occasion:50:sarmale": {
+        "title": "Vinuri sub 50 lei pentru sarmale",
+        "description": "Asocieri potrivite cu sarmale, la buget mic"
+      },
+      "grape:feteasca-neagra": {
+        "title": "Cea mai buna Feteasca Neagra",
+        "description": "Soiul rosu emblematic al Romaniei"
+      },
+      "curated:best-wines-for-gifts": {
+        "title": "Vinuri cadou",
+        "description": "Alegeri sigure pentru orice ocazie"
+      },
+      "budget-occasion:100:cina-romantica": {
+        "title": "Vinuri sub 100 lei pentru cina romantica",
+        "description": "Eleganta pentru o seara in doi"
+      }
+    },
+    "summary": "Clasament pe scurt",
+    "generalRanking": "Top general",
+    "verdicts": "Verdict pentru fiecare vin",
+    "quickAnswer": "Raspuns rapid: top 5 vinuri romanesti",
+    "quickAnswerDescription": "Cele mai bune optiuni acum, cu pret in RON si motivul alegerii.",
+    "whyInTop": "De ce e in top",
+    "suitableFor": "Potrivit pentru",
+    "minus": "Minus",
+    "verdict": "Verdict",
+    "budgetHeading": "Cele mai bune pe bugete",
+    "colorHeading": "Cele mai bune dupa culoare",
+    "occasionHeading": "Cele mai bune dupa ocazie",
+    "methodologyHeading": "Cum am realizat clasamentul",
+    "methodology": "Ordonam vinurile dupa Value Score, pretul actual in RON, medalii si premii unde sunt disponibile, vintage-ul si disponibilitatea in magazine. Limitam numarul de vinuri de la aceeasi crama in top 5 pentru diversitate.",
+    "scoresLink": "Cum calculam scorurile",
+    "limitationsHeading": "Limitari",
+    "limitations": [
+      "Pretul poate varia in functie de retailer si promotii.",
+      "Nu toate vinurile au fost degustate editorial de echipa VinIntel.",
+      "Value Score nu este acelasi lucru cu un rating din recenziile utilizatorilor."
+    ],
+    "updated": "Actualizat la",
+    "cheapGuide": "Ghid vin ieftin si bun",
+    "avoidHeading": "Ce trebuie evitat la un vin foarte ieftin",
+    "avoidItems": [
+      "Etichete fara crama, regiune sau vintage clar.",
+      "Pret extrem de mic fara Value Score sau date de piata.",
+      "Promotii fara stoc real in magazine verificate."
+    ],
+    "supermarketLink": "Vezi vinuri bune din supermarket"
+  },
+  "dish": {
+    "faqPriceQuestion": "Preturile sunt in RON?",
+    "faqPriceAnswer": "Da. Afisam preturi in RON ca pret actual verificat sau pret aproximativ, in functie de sursa.",
+    "pages": {
+      "sarmale": {
+        "name": "Sarmale",
+        "heading": "Ce vin merge cu sarmale?",
+        "metaTitle": "Vin pentru sarmale: recomandari romanesti sub 50 lei",
+        "metaDescription": "Cele mai bune vinuri romanesti pentru sarmale: rosu sec, Value Score, pret in RON si explicatii clare.",
+        "intro": "Sarmalele cer un vin rosu sec cu aciditate buna si taninuri blande. Am selectat vinuri romanesti care tin pasul cu grasimea si condimentele."
+      },
+      "gratar": {
+        "name": "Gratar",
+        "heading": "Ce vin merge la gratar?",
+        "metaTitle": "Vin pentru gratar: top romanesc la carne la gratar",
+        "metaDescription": "Vinuri romanesti potrivite pentru gratar: rosu sau roze sec, cu preturi in RON si Value Score.",
+        "intro": "La gratar functioneaza vinurile cu corp mediu spre plin, taninuri coapte si fruct rosu. Mai jos gasesti optiuni pentru carne la gratar."
+      },
+      "peste": {
+        "name": "Peste",
+        "heading": "Ce vin merge cu peste?",
+        "metaTitle": "Vin pentru peste: albe si roze sec din Romania",
+        "metaDescription": "Vinuri albe si roze romanesti pentru peste: proaspete, seci, cu preturi in RON.",
+        "intro": "Pestele prefera vinuri albe sau roze seci, cu aciditate ridicata si arome discret fructate. Selectia de mai jos evita vinurile grele."
+      },
+      "friptura-de-porc": {
+        "name": "Friptura de porc",
+        "heading": "Ce vin merge cu friptura de porc?",
+        "metaTitle": "Vin pentru friptura de porc: rosu sec romanesc",
+        "metaDescription": "Vinuri rosii seci din Romania pentru friptura de porc, ordonate dupa Value Score.",
+        "intro": "Friptura de porc merge cu rosu sec echilibrat, cu taninuri moi si note fructate. Am exclus vinurile prea grele sau prea dulci."
+      },
+      "cozonac": {
+        "name": "Cozonac",
+        "heading": "Ce vin merge cu cozonac?",
+        "metaTitle": "Vin pentru cozonac si desert: dulce si demidulce",
+        "metaDescription": "Vinuri romanesti pentru cozonac si desert: dulci, demidulci sau spumante, cu preturi in RON.",
+        "intro": "Cozonacul merge cu vinuri dulci sau demidulci, cu arome de fruct uscat, miere sau vanilie. Mai jos gasesti optiuni potrivite din Romania."
+      }
+    }
+  },
+  "grape": {
+    "headingPrefix": "Soiul",
+    "introPrefix": "Ghid despre",
+    "introSuffix": "in viticultura romaneasca: stiluri, regiuni si cele mai bune vinuri din catalogul VinIntel.",
+    "fullRanking": "Vezi clasamentul complet",
+    "topWines": "Top vinuri"
+  },
+  "region": {
+    "winesFrom": "Vinuri din",
+    "topWinesFrom": "Top vinuri din",
+    "wineriesFrom": "Crame din",
+    "genericDescription": "Regiune viticola din Romania cu {wineries} crame si {wines} vinuri analizate in catalogul VinIntel.",
+    "wineryCard": {
+      "country": "Romania",
+      "verified": "Verificata",
+      "unverified": "Neverificata",
+      "price": "Pret:",
+      "best": "Cel mai bun:",
+      "under50": "Sub 50 lei:",
+      "grapes": "Soiuri:",
+      "checked": "Verificat:",
+      "wineOne": "vin",
+      "wineMany": "vinuri",
+      "value": "Value",
+      "view": "Vezi crama",
+      "viewAria": "Vezi crama {name}"
+    }
+  },
+  "study": {
+    "title": "Cele mai bune vinuri romanesti sub 50 lei in 2026",
+    "description": "Studiu VinIntel: pret mediu, Value Score si top 50 vinuri ieftine si bune din Romania, actualizat din catalog.",
+    "breadcrumb": "Studiu 2026",
+    "intro": "Analiza VinIntel pe {count} vinuri din catalog: pret mediu, Value Score si top 50 optiuni ieftine si bune.",
+    "updated": "Actualizat la",
+    "interactiveTop": "Vezi topul interactiv sub 50 lei",
+    "dataSummary": "Rezumat date",
+    "indicator": "Indicator",
+    "value": "Valoare",
+    "winesUnder50": "Vinuri sub 50 lei",
+    "averagePrice": "Pret mediu sub 50 lei",
+    "averageValue": "Value Score mediu (recomandate)",
+    "top50": "Top 50 vinuri sub 50 lei"
+  }
+}

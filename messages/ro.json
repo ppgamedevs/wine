@@ -1,0 +1,58 @@
+{
+  "Navigation": {
+    "home": "VinIntel, pagina principala",
+    "primaryLabel": "Navigatie principala",
+    "mobileLabel": "Meniu mobil",
+    "openMenu": "Deschide meniul",
+    "wines": "Vinuri",
+    "wineries": "Crame",
+    "journal": "Journal",
+    "topWines": "Topuri",
+    "sommelier": "Intreaba somelierul",
+    "languageSwitcher": "Schimba limba",
+    "romanian": "Romana",
+    "english": "Engleza"
+  },
+  "Route": {
+    "loading": "Se decanteaza continutul...",
+    "notFoundTitle": "Pagina nu a fost gasita",
+    "notFoundDescription": "Adresa poate fi incorecta sau pagina nu mai este disponibila.",
+    "backHome": "Inapoi la pagina principala"
+  },
+  "Error": {
+    "title": "Ceva nu a mers bine",
+    "description": "A aparut o eroare neasteptata. Incearca din nou sau revino mai tarziu.",
+    "retry": "Incearca din nou"
+  },
+  "Search": {
+    "placeholder": "Cauta vin, crama sau lipeste link (https://...)",
+    "ariaLabel": "Cauta vinuri, crame sau adauga link",
+    "analyzing": "Analizez...",
+    "submitLink": "Trimite",
+    "submitSearch": "Cauta",
+    "loading": "Cautam...",
+    "sommelierHint": "Intrebare despre vin? Apasa Enter pentru a intreba somelierul AI.",
+    "emptyHint": "Niciun rezultat. Apasa Enter pentru cautare completa sau lipeste un link de vin romanesc.",
+    "wine": "Vin",
+    "winery": "Crama",
+    "linkHelper": "Adauga un link de vin romanesc (eMag, site crama etc.)",
+    "analysisFailed": "Analiza a esuat.",
+    "invalidResult": "Nu am primit un rezultat valid."
+  },
+  "SearchPage": {
+    "metaTitle": "Cauta vinuri si crame",
+    "metaResults": "Rezultate pentru \"{query}\"",
+    "metaDescription": "Cauta vinuri si crame romanesti in catalogul VinIntel. Verifica daca un vin exista deja pe site.",
+    "eyebrow": "Cautare catalog",
+    "title": "Cauta in VinIntel",
+    "resultsTitle": "Rezultate pentru „{query}”",
+    "descriptionBefore": "Verifica daca un vin sau o crama exista deja in catalog. Pentru link-uri de produs, foloseste",
+    "addWine": "Adauga vin",
+    "instructions": "Scrie numele unui vin, al unei crame sau al unui soi, apoi apasa Cauta.",
+    "emptyTitle": "Nu am gasit „{query}” in catalog",
+    "emptyDescription": "Vinul nu pare sa fie inca pe VinIntel. Poti adauga un link de produs si il verificam.",
+    "addByLink": "Adauga vin prin link",
+    "wineries": "Crame",
+    "wines": "Vinuri"
+  }
+}

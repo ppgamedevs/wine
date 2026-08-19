@@ -1,14 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  ArrowUpDown,
-  Search,
-  Sparkles,
-  X,
-} from "lucide-react";
-import { useMemo, useState } from "react";
-import { WineCardView } from "@/components/wines/wine-card-view";
+import { ArrowUpDown, Search, Sparkles, X } from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,16 +13,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { wineTypeGradient, wineTypeLabel } from "@/lib/format";
+import { WineCardView } from "@/components/wines/wine-card-view";
+import type { AppLocale } from "@/i18n/locale";
+import { wineTypeGradient } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
+import type { PublicWineCatalogItem } from "@/lib/public-wine-card-types";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_EXCEPTIONAL_MIN,
 } from "@/lib/value-score-thresholds";
 import {
-  CATALOG_SORT_OPTIONS,
-  catalogActiveFilterChips,
-  catalogSectionHeading,
   countWinesBySweetness,
   countWinesByType,
   DEFAULT_CATALOG_FILTERS,
@@ -43,8 +37,49 @@ import {
   type CatalogVerdictFilter,
 } from "@/lib/wine-catalog-filters";
 import { cn } from "@/lib/utils";
-import type { PublicWineCatalogItem } from "@/lib/public-wine-card-types";
 import type { WineType } from "@/types";
+
+type FilterKey = "type" | "sweetness" | "priceBand" | "verdict" | "query";
+
+export interface WineCatalogDirectoryCopy {
+  searchPlaceholder: string;
+  searchAria: string;
+  typeLabel: string;
+  sweetnessLabel: string;
+  sortAria: string;
+  sortPlaceholder: string;
+  priceAria: string;
+  pricePlaceholder: string;
+  scoreAria: string;
+  scorePlaceholder: string;
+  reset: string;
+  foundOne: string;
+  foundMany: string;
+  removeFilter: string;
+  recommendedNote: string;
+  exceptionalNote: string;
+  noResults: string;
+  noResultsHint: string;
+  resetFilters: string;
+  viewOnly: string;
+  types: Record<CatalogTypeFilter, string>;
+  sweetness: Record<CatalogSweetnessFilter, string>;
+  sort: Record<CatalogSort, string>;
+  prices: Record<CatalogPriceBand, string>;
+  scores: {
+    all: string;
+    recommended: string;
+    exceptional: string;
+    recommendedChip: string;
+    exceptionalChip: string;
+  };
+  sections: Record<WineType, string>;
+  sectionDescriptions: {
+    sparkling: string;
+    orange: string;
+    default: string;
+  };
+}
 
 function FilterChip({
   active,
@@ -54,7 +89,7 @@ function FilterChip({
 }: {
   active: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
   count?: number;
 }) {
   return (
@@ -84,13 +119,7 @@ function FilterChip({
   );
 }
 
-function ChipRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function ChipRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-2">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -105,9 +134,11 @@ function ChipRow({
 
 function WineGrid({
   wines,
+  locale,
   priorityCount = 4,
 }: {
   wines: PublicWineCatalogItem[];
+  locale: AppLocale;
   priorityCount?: number;
 }) {
   return (
@@ -117,21 +148,36 @@ function WineGrid({
           key={wine.id}
           card={wine.card}
           priority={index < priorityCount}
+          locale={locale}
         />
       ))}
     </div>
   );
 }
 
+function replaceToken(template: string, token: string, value: string | number) {
+  return template.replace(`{${token}}`, String(value));
+}
+
 function TypeSectionHeader({
   type,
   count,
+  copy,
   onViewAll,
 }: {
   type: WineType;
   count: number;
+  copy: WineCatalogDirectoryCopy;
   onViewAll: () => void;
 }) {
+  const typeLabel = copy.types[type].toLocaleLowerCase();
+  const description =
+    type === "sparkling"
+      ? copy.sectionDescriptions.sparkling
+      : type === "orange"
+        ? copy.sectionDescriptions.orange
+        : replaceToken(copy.sectionDescriptions.default, "type", typeLabel);
+
   return (
     <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border/60 pb-4">
       <div className="flex items-center gap-3">
@@ -144,15 +190,9 @@ function TypeSectionHeader({
         />
         <div>
           <h2 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
-            {catalogSectionHeading(type, count)}
+            {copy.sections[type]} · {count}
           </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {type === "sparkling"
-              ? "Metoda traditionala, brut si ocazii festive"
-              : type === "orange"
-                ? "Vinuri macerate, expresie moderna romaneasca"
-                : `Selectie ${wineTypeLabel[type].toLowerCase()} din catalogul VinIntel`}
-          </p>
+          <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
         </div>
       </div>
       <Button
@@ -162,7 +202,7 @@ function TypeSectionHeader({
         className="text-wine hover:bg-wine/10 hover:text-wine"
         onClick={onViewAll}
       >
-        Vezi doar {wineTypeLabel[type].toLowerCase()}
+        {replaceToken(copy.viewOnly, "type", typeLabel)}
       </Button>
     </div>
   );
@@ -170,13 +210,16 @@ function TypeSectionHeader({
 
 export function WineCatalogDirectory({
   wines,
+  locale,
+  copy,
 }: {
   wines: PublicWineCatalogItem[];
+  locale: AppLocale;
+  copy: WineCatalogDirectoryCopy;
 }) {
   const [filters, setFilters] = useState<CatalogFilterState>(
     DEFAULT_CATALOG_FILTERS,
   );
-
   const typeOptions = useMemo(
     () => countWinesByType(wines, filters),
     [wines, filters],
@@ -185,19 +228,47 @@ export function WineCatalogDirectory({
     () => countWinesBySweetness(wines, filters),
     [wines, filters],
   );
-
   const filtered = useMemo(
     () => filterCatalogWines(wines, filters),
     [wines, filters],
   );
-
   const grouped = useMemo(
     () => (filters.type === "all" ? groupCatalogWinesByType(filtered) : []),
     [filtered, filters.type],
   );
-
   const active = hasActiveCatalogFilters(filters);
-  const activeChips = catalogActiveFilterChips(filters);
+  const activeChips: Array<{ key: FilterKey; label: string }> = [];
+
+  if (filters.query.trim()) {
+    activeChips.push({ key: "query", label: `"${filters.query.trim()}"` });
+  }
+  if (filters.type !== "all") {
+    activeChips.push({ key: "type", label: copy.types[filters.type] });
+  }
+  if (filters.sweetness !== "all") {
+    activeChips.push({
+      key: "sweetness",
+      label: copy.sweetness[filters.sweetness],
+    });
+  }
+  if (filters.priceBand !== "all") {
+    activeChips.push({
+      key: "priceBand",
+      label: copy.prices[filters.priceBand],
+    });
+  }
+  if (filters.verdict === "recommended") {
+    activeChips.push({
+      key: "verdict",
+      label: copy.scores.recommendedChip,
+    });
+  }
+  if (filters.verdict === "exceptional") {
+    activeChips.push({
+      key: "verdict",
+      label: copy.scores.exceptionalChip,
+    });
+  }
 
   function patchFilters(patch: Partial<CatalogFilterState>) {
     setFilters((current) => ({ ...current, ...patch }));
@@ -207,13 +278,20 @@ export function WineCatalogDirectory({
     setFilters(DEFAULT_CATALOG_FILTERS);
   }
 
-  function clearChip(key: (typeof activeChips)[number]["key"]) {
+  function clearChip(key: FilterKey) {
     if (key === "type") patchFilters({ type: "all" });
     if (key === "sweetness") patchFilters({ sweetness: "all" });
     if (key === "priceBand") patchFilters({ priceBand: "all" });
     if (key === "verdict") patchFilters({ verdict: "all" });
     if (key === "query") patchFilters({ query: "" });
   }
+
+  const sortOptions: Array<{ id: CatalogSort; label: string }> = [
+    { id: "value-desc", label: copy.sort["value-desc"] },
+    { id: "price-asc", label: copy.sort["price-asc"] },
+    { id: "price-desc", label: copy.sort["price-desc"] },
+    { id: "name-asc", label: copy.sort["name-asc"] },
+  ];
 
   return (
     <div className="space-y-8">
@@ -226,15 +304,15 @@ export function WineCatalogDirectory({
           type="search"
           value={filters.query}
           onChange={(event) => patchFilters({ query: event.target.value })}
-          placeholder="Cauta dupa nume, crama, regiune sau soi..."
-          aria-label="Cauta vinuri"
+          placeholder={copy.searchPlaceholder}
+          aria-label={copy.searchAria}
           className="h-12 rounded-2xl border-border/70 bg-background pl-12 text-base shadow-sm focus-visible:ring-wine/40"
         />
       </div>
 
       <div className="sticky top-[4.25rem] z-40 -mx-6 border-y border-border/60 bg-background/95 px-6 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="mx-auto max-w-6xl space-y-3">
-          <ChipRow label="Culoare / tip">
+          <ChipRow label={copy.typeLabel}>
             {typeOptions.map((option) => (
               <FilterChip
                 key={option.id}
@@ -244,22 +322,24 @@ export function WineCatalogDirectory({
                   patchFilters({ type: option.id as CatalogTypeFilter })
                 }
               >
-                {option.label}
+                {copy.types[option.id]}
               </FilterChip>
             ))}
           </ChipRow>
 
-          <ChipRow label="Dulceata">
+          <ChipRow label={copy.sweetnessLabel}>
             {sweetnessOptions.map((option) => (
               <FilterChip
                 key={option.id}
                 active={filters.sweetness === option.id}
                 count={option.count}
                 onClick={() =>
-                  patchFilters({ sweetness: option.id as CatalogSweetnessFilter })
+                  patchFilters({
+                    sweetness: option.id as CatalogSweetnessFilter,
+                  })
                 }
               >
-                {option.label}
+                {copy.sweetness[option.id]}
               </FilterChip>
             ))}
           </ChipRow>
@@ -271,12 +351,16 @@ export function WineCatalogDirectory({
                 patchFilters({ sort: value as CatalogSort })
               }
             >
-              <SelectTrigger size="sm" className="min-w-[10rem]" aria-label="Sortare">
+              <SelectTrigger
+                size="sm"
+                className="min-w-[10rem]"
+                aria-label={copy.sortAria}
+              >
                 <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-                <SelectValue placeholder="Sortare" />
+                <SelectValue placeholder={copy.sortPlaceholder} />
               </SelectTrigger>
               <SelectContent>
-                {CATALOG_SORT_OPTIONS.map((option) => (
+                {sortOptions.map((option) => (
                   <SelectItem key={option.id} value={option.id}>
                     {option.label}
                   </SelectItem>
@@ -290,14 +374,20 @@ export function WineCatalogDirectory({
                 patchFilters({ priceBand: value as CatalogPriceBand })
               }
             >
-              <SelectTrigger size="sm" className="min-w-[8rem]" aria-label="Pret">
-                <SelectValue placeholder="Pret" />
+              <SelectTrigger
+                size="sm"
+                className="min-w-[8rem]"
+                aria-label={copy.priceAria}
+              >
+                <SelectValue placeholder={copy.pricePlaceholder} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Orice pret</SelectItem>
-                <SelectItem value="under50">Sub 50 RON</SelectItem>
-                <SelectItem value="50-100">50-100 RON</SelectItem>
-                <SelectItem value="over100">Peste 100 RON</SelectItem>
+                <SelectItem value="all">{copy.prices.all}</SelectItem>
+                <SelectItem value="under50">{copy.prices.under50}</SelectItem>
+                <SelectItem value="50-100">
+                  {copy.prices["50-100"]}
+                </SelectItem>
+                <SelectItem value="over100">{copy.prices.over100}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -307,17 +397,29 @@ export function WineCatalogDirectory({
                 patchFilters({ verdict: value as CatalogVerdictFilter })
               }
             >
-              <SelectTrigger size="sm" className="min-w-[9rem]" aria-label="Recomandare">
+              <SelectTrigger
+                size="sm"
+                className="min-w-[9rem]"
+                aria-label={copy.scoreAria}
+              >
                 <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
-                <SelectValue placeholder="Recomandare" />
+                <SelectValue placeholder={copy.scorePlaceholder} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Toate scorurile</SelectItem>
+                <SelectItem value="all">{copy.scores.all}</SelectItem>
                 <SelectItem value="recommended">
-                  Merita pretul ({MIN_RECOMMENDED_VALUE_SCORE}+)
+                  {replaceToken(
+                    copy.scores.recommended,
+                    "score",
+                    MIN_RECOMMENDED_VALUE_SCORE,
+                  )}
                 </SelectItem>
                 <SelectItem value="exceptional">
-                  Exceptionale ({VALUE_SCORE_EXCEPTIONAL_MIN}+)
+                  {replaceToken(
+                    copy.scores.exceptional,
+                    "score",
+                    VALUE_SCORE_EXCEPTIONAL_MIN,
+                  )}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -331,7 +433,7 @@ export function WineCatalogDirectory({
                 className="text-muted-foreground"
               >
                 <X className="h-3.5 w-3.5" />
-                Reseteaza
+                {copy.reset}
               </Button>
             ) : null}
           </div>
@@ -341,7 +443,7 @@ export function WineCatalogDirectory({
       <div aria-live="polite" className="flex flex-wrap items-center gap-2">
         <Badge variant="secondary" className="rounded-full px-3 py-1 text-sm">
           {filtered.length}{" "}
-          {filtered.length === 1 ? "vin gasit" : "vinuri gasite"}
+          {filtered.length === 1 ? copy.foundOne : copy.foundMany}
         </Badge>
         {activeChips.map((chip) => (
           <button
@@ -352,19 +454,27 @@ export function WineCatalogDirectory({
           >
             {chip.label}
             <X className="h-3 w-3" aria-hidden="true" />
-            <span className="sr-only">Sterge filtrul {chip.label}</span>
+            <span className="sr-only">
+              {replaceToken(copy.removeFilter, "label", chip.label)}
+            </span>
           </button>
         ))}
         {filters.verdict === "recommended" ? (
           <span className="text-sm text-muted-foreground">
-            Afisam vinuri cu Value Score {MIN_RECOMMENDED_VALUE_SCORE}+ (merita
-            pretul)
+            {replaceToken(
+              copy.recommendedNote,
+              "score",
+              MIN_RECOMMENDED_VALUE_SCORE,
+            )}
           </span>
         ) : null}
         {filters.verdict === "exceptional" ? (
           <span className="text-sm text-muted-foreground">
-            Afisam vinuri cu Value Score {VALUE_SCORE_EXCEPTIONAL_MIN}+ (valoare
-            exceptionala)
+            {replaceToken(
+              copy.exceptionalNote,
+              "score",
+              VALUE_SCORE_EXCEPTIONAL_MIN,
+            )}
           </span>
         ) : null}
       </div>
@@ -378,29 +488,36 @@ export function WineCatalogDirectory({
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.45, ease: EASE_OUT, delay: sectionIndex * 0.04 }}
+                transition={{
+                  duration: 0.45,
+                  ease: EASE_OUT,
+                  delay: sectionIndex * 0.04,
+                }}
                 aria-labelledby={`catalog-section-${section.type}`}
                 className="space-y-6"
               >
                 <TypeSectionHeader
                   type={section.type}
                   count={section.wines.length}
+                  copy={copy}
                   onViewAll={() => patchFilters({ type: section.type })}
                 />
-                <WineGrid wines={section.wines} priorityCount={sectionIndex === 0 ? 4 : 0} />
+                <WineGrid
+                  wines={section.wines}
+                  locale={locale}
+                  priorityCount={sectionIndex === 0 ? 4 : 0}
+                />
               </motion.section>
             ))}
           </div>
         ) : (
-          <WineGrid wines={filtered} />
+          <WineGrid wines={filtered} locale={locale} />
         )
       ) : (
         <div className="rounded-3xl border border-dashed border-border bg-secondary/20 px-6 py-16 text-center">
-          <p className="font-serif text-xl text-foreground">
-            Niciun vin nu corespunde combinatiei alese
-          </p>
+          <p className="font-serif text-xl text-foreground">{copy.noResults}</p>
           <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-            Incearca alta dulceata, culoare sau un buget mai larg.
+            {copy.noResultsHint}
           </p>
           <Button
             type="button"
@@ -408,7 +525,7 @@ export function WineCatalogDirectory({
             className="mt-6 border-wine/30 text-wine hover:bg-wine/10"
             onClick={resetFilters}
           >
-            Reseteaza filtrele
+            {copy.resetFilters}
           </Button>
         </div>
       )}

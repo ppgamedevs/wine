@@ -1,3 +1,6 @@
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
+
 function normalizeForIntent(text: string): string {
   return text
     .normalize("NFD")
@@ -37,7 +40,7 @@ const SOMMELIER_PHRASES: RegExp[] = [
   /\bsomelier\b/,
   /\bbuget\b/,
   /\bsub \d+\s*(lei|ron)\b/,
-  /\bintre \d+\s*(si|–|-)\s*\d+\s*(lei|ron)\b/,
+  /\bintre \d+\s*(si|\u2013|-)\s*\d+\s*(lei|ron)\b/,
   /\bocazie\b/,
   /\btemperatur(a|i)\b/,
   /\bdecant/,
@@ -48,17 +51,44 @@ const SOMMELIER_PHRASES: RegExp[] = [
   /\bcare (soi|sort|tip|stil)\b/,
 ];
 
+const ENGLISH_QUESTION_START =
+  /^(what|which|how|why|where|when|can|could|should|is|are|do|does|recommend|find|show)\b/;
+
+const ENGLISH_SOMMELIER_PHRASES: RegExp[] = [
+  /\bwhat (wine|should i drink|goes with)\b/,
+  /\bwhich wine\b/,
+  /\brecommend(?:ation)?\b/,
+  /\bbest value\b/,
+  /\bunder \d+\s*(?:ron|lei)\b/,
+  /\b(?:pair|pairing|serve) (?:with|for)\b/,
+  /\b(?:gift|wedding|romantic dinner|party|christmas)\b/,
+  /\b(?:sarmale|mici|stuffed cabbage|grilled meat|bbq)\b/,
+  /\b(?:red|white|rose|sparkling) wine\b/,
+  /\b(?:dry|medium-dry|medium-sweet|sweet) wine\b/,
+  /\b(?:budget|sommelier|decant|tannin|barrel)\b/,
+];
+
 /** True when the user asks a wine question rather than searching the catalog by name. */
-export function isSommelierQuery(raw: string): boolean {
+export function isSommelierQuery(
+  raw: string,
+  locale: AppLocale = "ro",
+): boolean {
   const query = normalizeForIntent(raw);
   if (query.length < 3) return false;
 
   if (query.endsWith("?")) return true;
+  if (locale === "en") {
+    if (ENGLISH_QUESTION_START.test(query)) return true;
+    return ENGLISH_SOMMELIER_PHRASES.some((pattern) => pattern.test(query));
+  }
   if (QUESTION_START.test(query)) return true;
 
   return SOMMELIER_PHRASES.some((pattern) => pattern.test(query));
 }
 
-export function sommelierQueryHref(raw: string): string {
-  return `/ai-sommelier?q=${encodeURIComponent(raw.trim())}`;
+export function sommelierQueryHref(
+  raw: string,
+  locale: AppLocale = "ro",
+): string {
+  return `${localizedHref(locale, "aiSommelier")}?q=${encodeURIComponent(raw.trim())}`;
 }

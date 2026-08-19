@@ -1,20 +1,33 @@
 import Link from "next/link";
 import { Flame, Star } from "lucide-react";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 import { formatJournalDate, type JournalArticle } from "@/lib/journal";
 
 interface JournalSidebarProps {
   topArticles: JournalArticle[];
   popularArticles: JournalArticle[];
+  locale: AppLocale;
+  labels: {
+    ariaLabel: string;
+    top: string;
+    popular: string;
+    reads: string;
+  };
 }
 
 function SidebarList({
   title,
   icon: Icon,
   articles,
+  locale,
+  readsLabel,
 }: {
   title: string;
   icon: typeof Star;
   articles: JournalArticle[];
+  locale: AppLocale;
+  readsLabel: string;
 }) {
   if (articles.length === 0) return null;
 
@@ -37,15 +50,19 @@ function SidebarList({
             </span>
             <div className="min-w-0 flex-1">
               <Link
-                href={`/journal/${article.slug}`}
+                href={localizedHref(locale, "journalArticle", {
+                  slug: article.slug,
+                })}
                 className="block font-medium leading-snug text-foreground transition-colors hover:text-wine"
               >
                 {article.title}
               </Link>
               <p className="mt-1 text-xs text-muted-foreground">
-                {formatJournalDate(article.publishedAt)}
+                {formatJournalDate(article.publishedAt, locale)}
                 {article.readCount > 0
-                  ? ` · ${article.readCount.toLocaleString("ro-RO")} citiri`
+                  ? ` · ${article.readCount.toLocaleString(
+                      locale === "en" ? "en-GB" : "ro-RO",
+                    )} ${readsLabel}`
                   : null}
               </p>
             </div>
@@ -59,14 +76,24 @@ function SidebarList({
 export function JournalSidebar({
   topArticles,
   popularArticles,
+  locale,
+  labels,
 }: JournalSidebarProps) {
   return (
-    <aside className="space-y-6" aria-label="Articole recomandate">
-      <SidebarList title="Top articole" icon={Star} articles={topArticles} />
+    <aside className="space-y-6" aria-label={labels.ariaLabel}>
       <SidebarList
-        title="Cele mai citite"
+        title={labels.top}
+        icon={Star}
+        articles={topArticles}
+        locale={locale}
+        readsLabel={labels.reads}
+      />
+      <SidebarList
+        title={labels.popular}
         icon={Flame}
         articles={popularArticles}
+        locale={locale}
+        readsLabel={labels.reads}
       />
     </aside>
   );

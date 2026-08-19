@@ -3,7 +3,7 @@ import { ArrowRight, ShieldCheck } from "lucide-react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
-import { SiteFooter } from "@/components/site-footer";
+import { LocalizedSiteFooter } from "@/components/localized-site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WineCard } from "@/components/wine-card";
 import { WineryEventsCalendar } from "@/components/wineries/winery-events-calendar";
@@ -11,18 +11,19 @@ import { WineryHero } from "@/components/wineries/winery-hero";
 import { WineryPageViewTracker } from "@/components/wineries/winery-page-view-tracker";
 import { WineryPremiumBanner } from "@/components/wineries/winery-premium-banner";
 import { Button } from "@/components/ui/button";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 import { formatRon } from "@/lib/format";
+import {
+  buildWineryProfileJsonLd,
+  getWineryProfileI18n,
+  isWineryProfileIndexable,
+  localizeWineryProfile,
+} from "@/lib/i18n/winery-profile";
 import { getAllWinerySlugs, getWineryBySlug, getWineryPublishedEvents } from "@/lib/queries";
 import { resolveWineryLogoUrl } from "@/lib/winery-catalog";
 import { isWineryPremium, canTrackWineryAnalytics } from "@/lib/winery-premium";
-import {
-  absoluteUrl,
-  buildBreadcrumbJsonLd,
-  buildFaqJsonLd,
-  SITE,
-  type FaqEntry,
-} from "@/lib/seo";
-import { buildWineryMakesOfferEntry } from "@/lib/wine-json-ld";
+import { absoluteUrl, SITE, type FaqEntry } from "@/lib/seo";
 import {
   CLAIM_WINERY_BUTTON_LABEL,
   wineryLocationQuestion,
@@ -65,7 +66,7 @@ function computeStats(winery: WineryWithWines) {
   return { wineCount, avgValueScore, priceRange };
 }
 
-function buildWineryFaq(winery: WineryWithWines): FaqEntry[] {
+function buildRomanianWineryFaq(winery: WineryWithWines): FaqEntry[] {
   const top = winery.wines[0];
   const regionName = winery.region?.name ?? "Romania";
 
@@ -93,37 +94,117 @@ function buildWineryFaq(winery: WineryWithWines): FaqEntry[] {
   ];
 }
 
+type WineryProfileTranslator = Awaited<
+  ReturnType<typeof getWineryProfileI18n>
+>["t"];
+
+function buildLocalizedWineryFaq(
+  winery: WineryWithWines,
+  locale: AppLocale,
+  t: WineryProfileTranslator,
+): FaqEntry[] {
+  if (locale === "ro") return buildRomanianWineryFaq(winery);
+
+  const top = winery.wines[0];
+  const regionName = winery.region?.name ?? "Romania";
+  const founded = winery.foundedYear
+    ? t("faq.location.founded", { year: winery.foundedYear })
+    : "";
+
+  return [
+    {
+      question: t("faq.count.question", { name: winery.name }),
+      answer: t("faq.count.answer", {
+        count: winery.wines.length,
+        name: winery.name,
+      }),
+    },
+    {
+      question: t("faq.best.question", { name: winery.name }),
+      answer: top
+        ? t("faq.best.answer", {
+            wine: top.name,
+            score: top.valueScore ?? "N/A",
+            price: formatRon(top.priceAvg, locale),
+          })
+        : t("faq.best.empty", { name: winery.name }),
+    },
+    {
+      question: t("faq.location.question", { name: winery.name }),
+      answer: t("faq.location.answer", {
+        name: winery.name,
+        region: regionName,
+        founded,
+      }),
+    },
+    {
+      question: t("faq.verified.question", { name: winery.name }),
+      answer: winery.verified
+        ? t("faq.verified.yes", { name: winery.name })
+        : t("faq.verified.no", { name: winery.name }),
+    },
+  ];
+}
+
 export async function generateMetadata({
   params,
 }: WineryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const winery = await getWineryBySlug(slug);
+  const [{ locale, t }, sourceWinery] = await Promise.all([
+    getWineryProfileI18n(),
+    getWineryBySlug(slug),
+  ]);
 
-  if (!winery) return { title: "Crama negasita" };
+  if (!sourceWinery) return { title: t("metadata.notFound") };
 
+  const sourceEvents = locale === "en" && isWineryPremium(sourceWinery)
+    ? await getWineryPublishedEvents(sourceWinery.id)
+    : [];
+  const localized = await localizeWineryProfile(
+    sourceWinery,
+    sourceEvents,
+    locale,
+  );
+  const winery = localized.winery;
   const wineCount = winery.wines.length;
-  const url = absoluteUrl(`/wineries/${winery.slug}`);
+  const path = localizedHref(locale, "winery", { slug: winery.slug });
+  const url = absoluteUrl(path);
+  const romanianUrl = absoluteUrl(
+    localizedHref("ro", "winery", { slug: winery.slug }),
+  );
+  const englishUrl = absoluteUrl(
+    localizedHref("en", "winery", { slug: winery.slug }),
+  );
   const logoUrl = resolveWineryLogoUrl(winery.slug, winery.logoUrl);
   const description =
     winery.description ??
-    `${winery.name} din ${winery.region?.name ?? "Romania"}: ${wineCount} vinuri, scoruri, preturi in RON si pairing-uri.`;
+    t("metadata.descriptionFallback", {
+      name: winery.name,
+      region: winery.region?.name ?? "Romania",
+      count: wineCount,
+    });
+  const shouldIndex = isWineryProfileIndexable(
+    wineCount,
+    locale,
+    localized.limitedData,
+  );
 
   return {
     title: winery.name,
     description,
-    robots:
-      wineCount === 0
-        ? { index: false, follow: true }
-        : { index: true, follow: true },
+    robots: shouldIndex
+      ? { index: true, follow: true }
+      : { index: false, follow: true },
     keywords: [
       winery.name,
-      "crama",
+      t("metadata.wineryKeyword"),
       winery.region?.name ?? "",
-      "vinuri romanesti",
+      t("metadata.romanianWineKeyword"),
     ].filter(Boolean),
     openGraph: {
       type: "website",
-      locale: SITE.locale,
+      locale: locale === "en" ? "en_GB" : SITE.locale,
+      alternateLocale: locale === "en" ? SITE.locale : "en_GB",
       url,
       siteName: SITE.name,
       title: `${winery.name} | VinIntel`,
@@ -136,88 +217,139 @@ export async function generateMetadata({
       title: `${winery.name} | VinIntel`,
       description,
     },
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      languages: {
+        ro: romanianUrl,
+        en: englishUrl,
+        "x-default": romanianUrl,
+      },
+    },
   };
 }
 
 export default async function WineryPage({ params }: WineryPageProps) {
   const { slug } = await params;
-  const winery = await getWineryBySlug(slug);
+  const [{ locale, t }, sourceWinery] = await Promise.all([
+    getWineryProfileI18n(),
+    getWineryBySlug(slug),
+  ]);
 
-  if (!winery) notFound();
+  if (!sourceWinery) notFound();
 
-  const premium = isWineryPremium(winery);
-  const trackAnalytics = canTrackWineryAnalytics(winery);
-  const events = premium
-    ? await getWineryPublishedEvents(winery.id)
+  const premium = isWineryPremium(sourceWinery);
+  const trackAnalytics = canTrackWineryAnalytics(sourceWinery);
+  const sourceEvents = premium
+    ? await getWineryPublishedEvents(sourceWinery.id)
     : [];
+  const localized = await localizeWineryProfile(
+    sourceWinery,
+    sourceEvents,
+    locale,
+  );
+  const winery = localized.winery;
+  const events = localized.events;
 
   const stats = computeStats(winery);
-  const faq = buildWineryFaq(winery);
-  const url = absoluteUrl(`/wineries/${winery.slug}`);
+  const faq = buildLocalizedWineryFaq(winery, locale, t);
   const logoUrl = resolveWineryLogoUrl(winery.slug, winery.logoUrl);
-
-  const wineryJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Winery",
-    name: winery.name,
-    description: winery.description ?? undefined,
-    url,
-    logo: logoUrl ?? undefined,
-    foundingDate: winery.foundedYear ? String(winery.foundedYear) : undefined,
-    sameAs:
-      winery.verified && winery.website ? [winery.website] : undefined,
-    address: winery.region
-      ? {
-          "@type": "PostalAddress",
-          addressRegion: winery.region.name,
-          addressCountry: "RO",
-        }
-      : undefined,
-    makesOffer: winery.wines
-      .slice(0, 10)
-      .map((wine) => buildWineryMakesOfferEntry(wine)),
+  const jsonLd = buildWineryProfileJsonLd(
+    winery,
+    faq,
+    locale,
+    logoUrl,
+    {
+      home: t("structuredData.home"),
+      wineries: t("structuredData.wineries"),
+      wineList: t("structuredData.wineList", { name: winery.name }),
+    },
+  );
+  const heroCopy = {
+    breadcrumb: t("hero.breadcrumb"),
+    home: t("hero.home"),
+    wineries: t("hero.wineries"),
+    verified: t("hero.verified"),
+    unverified: t("hero.unverified"),
+    founded: winery.foundedYear
+      ? t("hero.founded", { year: winery.foundedYear })
+      : "",
+    officialWebsite: t("hero.officialWebsite"),
+    listedWines: t("hero.listedWines"),
+    averageValueScore: t("hero.averageValueScore"),
+    priceRange: t("hero.priceRange"),
+    dashboard: t("hero.dashboard"),
+    visit: {
+      visit: t("hero.visit"),
+      unavailable: t("hero.visitUnavailable"),
+    },
   };
-
-  const itemListJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: `Vinuri de la ${winery.name}`,
-    numberOfItems: winery.wines.length,
-    itemListElement: winery.wines.map((wine, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      url: absoluteUrl(`/wines/${wine.slug}`),
-      name: wine.name,
-    })),
+  const eventCopy = {
+    heading: t("events.heading"),
+    intro: t("events.intro", { name: winery.name }),
+    fallbackTitle: t("events.fallbackTitle"),
+    details: t("events.details"),
+    eventTypeLabels: {
+      tasting: t("events.types.tasting"),
+      tour: t("events.types.tour"),
+      harvest: t("events.types.harvest"),
+      festival: t("events.types.festival"),
+      workshop: t("events.types.workshop"),
+      other: t("events.types.other"),
+    },
   };
-
-  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
-    { name: "Acasa", path: "/" },
-    { name: "Crame", path: "/crame" },
-    { name: winery.name, path: `/wineries/${winery.slug}` },
-  ]);
 
   return (
     <>
-      <JsonLd
-        data={[
-          wineryJsonLd,
-          itemListJsonLd,
-          breadcrumbJsonLd,
-          buildFaqJsonLd(faq),
-        ]}
-        id="winery"
-      />
+      <JsonLd data={jsonLd} id="winery" />
       <SiteHeader />
       {trackAnalytics ? <WineryPageViewTracker wineryId={winery.id} /> : null}
       <main className="flex-1">
-        {premium ? <WineryPremiumBanner winery={winery} /> : null}
-        <WineryHero winery={winery} stats={stats} trackAnalytics={trackAnalytics} />
+        {premium ? (
+          <WineryPremiumBanner
+            winery={winery}
+            alt={t("banner.alt", { name: winery.name })}
+          />
+        ) : null}
+        <WineryHero
+          winery={winery}
+          stats={stats}
+          locale={locale}
+          copy={heroCopy}
+          links={{
+            home: localizedHref(locale, "home"),
+            wineries: localizedHref(locale, "wineries"),
+            region: winery.region
+              ? localizedHref(locale, "region", { slug: winery.region.slug })
+              : null,
+            dashboard: `/wineries/${winery.slug}/dashboard`,
+          }}
+          trackAnalytics={trackAnalytics}
+        />
 
         <div className="mx-auto max-w-6xl space-y-16 px-6 py-14">
+          {locale === "en" && localized.limitedData ? (
+            <section
+              aria-labelledby="limited-winery-data-heading"
+              className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6"
+            >
+              <h2
+                id="limited-winery-data-heading"
+                className="font-serif text-xl font-semibold text-foreground"
+              >
+                {t("limited.heading")}
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {t("limited.notice")}
+              </p>
+            </section>
+          ) : null}
+
           {premium && events.length > 0 ? (
-            <WineryEventsCalendar events={events} wineryName={winery.name} />
+            <WineryEventsCalendar
+              events={events}
+              locale={locale}
+              copy={eventCopy}
+            />
           ) : null}
 
           <section aria-labelledby="wines-heading">
@@ -225,16 +357,17 @@ export default async function WineryPage({ params }: WineryPageProps) {
               id="wines-heading"
               className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
             >
-              {wineryWinesHeading(winery.name)}
+              {locale === "ro"
+                ? wineryWinesHeading(winery.name)
+                : t("wines.heading", { name: winery.name })}
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Ordonate dupa Value Score, indicatorul nostru pentru raportul
-              calitate-pret.{" "}
+              {t("wines.intro")}{" "}
               <Link
-                href="/cum-functioneaza-scorurile"
+                href={localizedHref(locale, "howScoresWork")}
                 className="font-medium text-wine hover:underline"
               >
-                Cum calculam scorurile
+                {t("wines.scoresLink")}
               </Link>
               .
             </p>
@@ -256,7 +389,7 @@ export default async function WineryPage({ params }: WineryPageProps) {
               </div>
             ) : (
               <p className="mt-8 rounded-2xl border border-dashed border-border bg-secondary/20 p-8 text-center text-muted-foreground">
-                Inca nu avem vinuri listate pentru aceasta crama.
+                {t("wines.empty")}
               </p>
             )}
           </section>
@@ -271,12 +404,13 @@ export default async function WineryPage({ params }: WineryPageProps) {
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="h-5 w-5" aria-hidden="true" />
                     <h2 id="claim-heading" className="font-serif text-2xl font-bold">
-                      {wineryRepresentativeQuestion(winery.name)}
+                      {locale === "ro"
+                        ? wineryRepresentativeQuestion(winery.name)
+                        : t("claim.heading", { name: winery.name })}
                     </h2>
                   </div>
                   <p className="mt-3 text-wine-foreground/85">
-                    Revendica profilul, verifica datele si actualizeaza informatiile
-                    despre vinurile tale. Gratuit si rapid.
+                    {t("claim.description")}
                   </p>
                 </div>
                 <Button
@@ -284,8 +418,12 @@ export default async function WineryPage({ params }: WineryPageProps) {
                   size="lg"
                   className="shrink-0 bg-cream text-wine hover:bg-cream/90"
                 >
-                  <Link href={`/claim-your-winery?crama=${winery.slug}`}>
-                    {CLAIM_WINERY_BUTTON_LABEL}
+                  <Link
+                    href={`${localizedHref(locale, "claimWinery")}?crama=${encodeURIComponent(winery.slug)}`}
+                  >
+                    {locale === "ro"
+                      ? CLAIM_WINERY_BUTTON_LABEL
+                      : t("claim.button")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -298,7 +436,7 @@ export default async function WineryPage({ params }: WineryPageProps) {
               id="faq-heading"
               className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
             >
-              Intrebari frecvente
+              {t("faq.heading")}
             </h2>
             <div className="mt-6 space-y-3">
               {faq.map((item) => (
@@ -316,7 +454,7 @@ export default async function WineryPage({ params }: WineryPageProps) {
           </section>
         </div>
       </main>
-      <SiteFooter />
+      <LocalizedSiteFooter />
     </>
   );
 }

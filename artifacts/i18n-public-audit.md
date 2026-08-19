@@ -1,0 +1,1709 @@
+# Public Romanian Copy Audit
+
+Generated: 2026-08-19T12:52:15.914Z
+Read-only scan: yes
+Scan roots: app, components, lib
+
+## Summary
+
+- Scanned files: 403
+- Excluded paths: 71
+- Candidate nodes: 15436
+- Likely Romanian nodes: 1389
+- Unique entries: 1637
+
+## Categories
+
+- STATIC_UI: 257
+- DYNAMIC_TEMPLATE: 51
+- SEO: 168
+- FAQ: 115
+- ERROR: 61
+- VALIDATION: 55
+- FORM: 71
+- SCORE_COPY: 75
+- PRICE_COPY: 177
+- PAIRING_COPY: 337
+- SOMMELIER: 110
+- EDITORIAL: 31
+- INTERNAL_ADMIN: 12
+- PROPER_NOUN: 117
+
+## STATIC_UI
+
+- `app/adauga-vin/page.tsx:41:13` [JSX_TEXT] Adauga un vin romanesc
+- `app/adauga-vin/page.tsx:54:17` [JSX_TEXT] 1. Verificam daca vinul exista deja in baza VinIntel.
+- `app/adauga-vin/page.tsx:58:15` [JSX_TEXT] 4. Vinul este trimis spre verificare si apare pe site dupa aprobare.
+- `app/cauta/page.tsx:70:15` [JSX_TEXT] Cautare catalog
+- `app/cauta/page.tsx:73:59` [STRING_LITERAL] Cauta in VinIntel
+- `app/cauta/page.tsx:76:15` [JSX_TEXT] Verifica daca un vin sau o crama exista deja in catalog. Pentru link-uri de produs, foloseste
+- `app/cauta/page.tsx:79:17` [JSX_TEXT] Adauga vin
+- `app/cauta/page.tsx:92:15` [JSX_TEXT] Scrie numele unui vin, al unei crame sau al unui soi, apoi apasa Cauta.
+- `app/cauta/page.tsx:101:17` [JSX_TEXT] Vinul nu pare sa fie inca pe VinIntel. Poti adauga un link de produs (eMag, site crama) si il verificam.
+- `app/cauta/page.tsx:105:42` [JSX_TEXT] Adauga vin prin link
+- `app/cauta/page.tsx:138:21` [JSX_TEXT] Vinuri (
+- `app/claim-your-winery/page.tsx:46:12` [STRING_LITERAL] Badge de crama verificata
+- `app/claim-your-winery/page.tsx:48:7` [STRING_LITERAL] Profilul tau primeste un badge de incredere, vizibil pe fiecare vin din portofoliu.
+- `app/claim-your-winery/page.tsx:66:7` [STRING_LITERAL] Revendicarea este gratuita. Te contactam in 2-3 zile lucratoare pentru activare.
+- `app/claim-your-winery/page.tsx:100:15` [JSX_TEXT] Ia controlul asupra modului in care crama si vinurile tale apar in fata miilor de pasionati care cauta vinuri romanesti bune. Verifica datele, actualizeaza informatiile si castiga incredere.
+- `app/claim-your-winery/page.tsx:110:15` [JSX_TEXT] De ce sa iti revendici crama
+- `app/crame/page.tsx:101:15` [JSX_TEXT] Crame din Romania
+- `app/crame/page.tsx:149:15` [JSX_TEXT] Inca nu avem crame listate. Revino in curand.
+- `app/page.tsx:126:19` [JSX_TEXT] Nu stii ce vin sa alegi?
+- `app/politica-confidentialitate/page.tsx:53:10` [JSX_TEXT] In functie de modul in care folosesti site-ul, putem prelucra:
+- `app/politica-confidentialitate/page.tsx:65:40` [JSX_TEXT] consimtamant cookie-uri (stocat local si intr-un cookie propriu).
+- `app/politica-confidentialitate/page.tsx:109:9` [JSX_TEXT] Folosim cookie-uri esentiale pentru functionarea site-ului si, doar dupa ce apesi
+- `app/politica-confidentialitate/page.tsx:110:42` [JSX_TEXT] in banner, cookie-uri analitice. Detalii complete in
+- `app/politica-confidentialitate/page.tsx:116:10` [JSX_TEXT] Putem apela la furnizori tehnici, de exemplu:
+- `app/politica-confidentialitate/page.tsx:121:13` [JSX_TEXT] analiza trafic (Google Analytics), doar cu consimtamant;
+- `app/politica-confidentialitate/page.tsx:125:9` [JSX_TEXT] Furnizorii proceseaza datele conform contractelor de prelucrare si, unde este cazul, clauzelor standard de transfer in afara SEE.
+- `app/politica-confidentialitate/page.tsx:131:13` [JSX_TEXT] Consimtamant cookie-uri: pana la 12 luni sau pana la stergere manuala.
+- `app/politica-confidentialitate/page.tsx:137:13` [JSX_TEXT] Loguri tehnice: in general pana la 90 de zile.
+- `app/politica-confidentialitate/page.tsx:145:13` [JSX_TEXT] stergere (&quot;dreptul de a fi uitat&quot;);
+- `app/politica-confidentialitate/page.tsx:150:11` [JSX_TEXT] retragerea consimtamantului (fara a afecta legalitatea prelucrarii anterioare);
+- `app/politica-confidentialitate/page.tsx:153:13` [JSX_TEXT] plangere la autoritatea de supraveghere.
+- `app/politica-confidentialitate/page.tsx:156:9` [JSX_TEXT] Pentru exercitarea drepturilor scrie-ne la
+- `app/politica-confidentialitate/page.tsx:157:74` [JSX_TEXT] . Raspundem in termenul legal, de regula in 30 de zile.
+- `app/politica-confidentialitate/page.tsx:161:11` [JSX_TEXT] 8. Autoritatea de supraveghere
+- `app/politica-confidentialitate/page.tsx:163:9` [JSX_TEXT] In Romania, autoritatea competenta este
+- `app/politica-confidentialitate/page.tsx:183:9` [JSX_TEXT] Putem actualiza aceasta politica. Versiunea curenta este publicata pe aceasta pagina, cu data ultimei modificari.
+- `app/politica-cookies/page.tsx:45:14` [STRING_LITERAL] Distinctie utilizatori pentru statistici agregate de trafic.
+- `app/politica-cookies/page.tsx:78:9` [JSX_TEXT] Cookie-urile sunt fisiere mici stocate in browserul tau. Ne ajuta sa tinem minte preferinte, sa masuram traficul si sa oferim o experienta mai buna pe
+- `app/politica-cookies/page.tsx:83:11` [JSX_TEXT] 2. Cum iti exprimi acordul
+- `app/politica-cookies/page.tsx:85:9` [JSX_TEXT] La prima vizita vei vedea un banner cu informatii despre cookie-uri. Prin apasarea butonului
+- `app/politica-cookies/page.tsx:86:52` [JSX_TEXT] esti de acord cu utilizarea cookie-urilor descrise in aceasta politica, inclusiv cookie-urile analitice.
+- `app/politica-cookies/page.tsx:91:9` [JSX_TEXT] Cookie-urile strict necesare pentru functionarea site-ului pot fi setate inainte de accept, insa Google Analytics se activeaza doar dupa accept.
+- `app/politica-cookies/page.tsx:121:9` [JSX_TEXT] Folosim Google Analytics pentru a intelege cum este folosit site-ul (pagini populare, surse de trafic, dispozitive). Datele sunt in general agregate si nu sunt folosite de noi pentru publicitate comportamentala.
+- `app/politica-cookies/page.tsx:126:9` [JSX_TEXT] Serviciul este furnizat de Google. Poti citi politica Google privind confidentialitatea pe site-ul lor oficial.
+- `app/politica-cookies/page.tsx:133:11` [JSX_TEXT] Sterge cookie-urile din setarile browserului (Chrome, Firefox, Safari, Edge).
+- `app/politica-cookies/page.tsx:137:11` [JSX_TEXT] Blocheaza cookie-terte parti din setarile browserului (Analytics nu va mai functiona).
+- `app/politica-cookies/page.tsx:141:69` [JSX_TEXT] , bannerul va aparea din nou la urmatoarea vizita.
+- `app/politica-cookies/page.tsx:148:9` [JSX_TEXT] Prelucrarea datelor asociate cookie-urilor este descrisa si in
+- `app/regiuni/[slug]/page.tsx:57:21` [STRING_LITERAL] Regiune negasita
+- `app/regiuni/[slug]/page.tsx:131:17` [JSX_TEXT] Acasa
+- `app/regiuni/[slug]/page.tsx:145:15` [JSX_TEXT] Vinuri din
+- `app/regiuni/[slug]/page.tsx:160:15` [JSX_TEXT] Top vinuri din
+- `app/regiuni/[slug]/page.tsx:174:15` [JSX_TEXT] Crame din
+- `app/soiuri/[slug]/page.tsx:166:17` [JSX_TEXT] Acasa
+- `app/soiuri/[slug]/page.tsx:175:39` [JSX_TEXT] in viticultura romaneasca: stiluri, regiuni si cele mai bune vinuri din catalogul VinIntel.
+- `app/soiuri/[slug]/page.tsx:195:15` [JSX_TEXT] Top vinuri
+- `app/studii/[slug]/page.tsx:122:17` [JSX_TEXT] Acasa
+- `app/topuri/[slug]/page.tsx:149:17` [JSX_TEXT] Acasa
+- `app/topuri/cele-mai-bune-vinuri-romanesti/page.tsx:112:17` [JSX_TEXT] Acasa
+- `app/topuri/cele-mai-bune-vinuri-romanesti/page.tsx:190:15` [JSX_TEXT] Verdict pentru fiecare vin
+- `app/topuri/page.tsx:106:15` [JSX_TEXT] Topuri vinuri romanesti
+- `app/vinuri/page.tsx:109:39` [JSX_TEXT] vinuri verificate
+- `app/vinuri/page.tsx:112:17` [JSX_TEXT] Vinuri romanesti
+- `app/vinuri/page.tsx:130:44` [JSX_TEXT] Adauga un vin
+- `app/vinuri/page.tsx:142:15` [JSX_TEXT] Inca nu avem vinuri in catalog. Revino in curand sau
+- `app/wineries/[slug]/page.tsx:259:17` [JSX_TEXT] Inca nu avem vinuri listate pentru aceasta crama.
+- `app/wineries/premium/checkout/page.tsx:59:17` [JSX_TEXT] Acasa
+- `app/wineries/premium/checkout/page.tsx:72:15` [JSX_TEXT] Alege planul, completeaza datele cramei si plateste in siguranta cu Stripe.
+- `app/wineries/premium/page.tsx:136:7` [STRING_LITERAL] Vezi cate vizualizari, click-uri si lead-uri genereaza fiecare vin si eveniment. Stii ce functioneaza in piata romaneasca.
+- `app/wineries/premium/page.tsx:157:11` [STRING_LITERAL] Director marketing, crama din Dragasani
+- `app/wineries/premium/page.tsx:162:7` [STRING_LITERAL] Bannerul personalizat si povestea lunga ne-au ajutat sa transmitem identitatea cramei mult mai bine decat un simplu listing. ROI-ul s-a simtit in primele 6 saptamani.
+- `app/wineries/premium/page.tsx:164:11` [STRING_LITERAL] Proprietar, podgorie din Dealu Mare
+- `app/wineries/premium/page.tsx:171:11` [STRING_LITERAL] Export manager, crama din Banat
+- `app/wineries/premium/page.tsx:241:55` [JSX_TEXT] Nu este inclus
+- `app/wineries/premium/page.tsx:273:15` [JSX_TEXT] Pentru crame ambitioase
+- `app/wineries/premium/page.tsx:277:50` [JSX_TEXT] pentru crama ta
+- `app/wineries/premium/page.tsx:307:15` [JSX_TEXT] Profilul verificat iti ofera incredere. Premium Profile iti ofera instrumentele sa transformi vizibilitatea in clienti.
+- `app/wineries/premium/page.tsx:397:17` [JSX_TEXT] Alege flexibilitatea lunara sau economiseste cu planul anual.
+- `app/wineries/premium/page.tsx:451:21` [JSX_TEXT] 2 luni gratuite (fata de 99 x 12)
+- `app/wineries/premium/page.tsx:454:21` [JSX_TEXT] Recomandat pentru crame care investesc constant in vizibilitate si evenimente.
+- `app/wineries/premium/page.tsx:486:15` [JSX_TEXT] De ce merita Premium
+- `app/wineries/premium/page.tsx:523:23` [STRING_LITERAL] Badge Premium vizibil pe toate vinurile
+- `app/wineries/premium/page.tsx:524:23` [STRING_LITERAL] Featured in catalog si topuri
+- `app/wineries/premium/page.tsx:599:19` [JSX_TEXT] Vezi cramele din catalog
+- `app/wineries/premium/success/page.tsx:64:54` [JSX_TEXT] este activ la Stripe.
+- `app/wineries/premium/success/page.tsx:106:52` [JSX_TEXT] Inapoi la Premium
+- `app/wines/[slug]/page.tsx:150:17` [JSX_TEXT] Acest vin a fost adaugat de comunitate si analizat automat. Ajuta-ne sa il imbunatatim.
+- `components/cookie-consent/cookie-consent-root.tsx:62:23` [JSX_TEXT] Folosim cookie-uri esentiale si, cu acordul tau, cookie-uri analitice pentru a masura traficul si a imbunatati VinIntel.ro. Continuand, accepti
+- `components/featured-wines.tsx:50:17` [JSX_TEXT] Vinuri recomandate
+- `components/featured-wines.tsx:63:17` [JSX_TEXT] Toate vinurile
+- `components/hero.tsx:64:13` [JSX_TEXT] Vinuri romanesti.
+- `components/legal/legal-page-shell.tsx:35:21` [JSX_TEXT] Acasa
+- `components/site-footer.tsx:88:38` [JSX_TEXT] VinIntel. Vinuri romanesti, clar si onest.
+- `components/smart-search.tsx:26:3` [STRING_LITERAL] Adauga un link de vin romanesc (eMag, site crama etc.)
+- `components/smart-search.tsx:38:17` [STRING_LITERAL] Cauta vin, crama sau lipeste link (https://...)
+- `components/smart-search.tsx:248:15` [STRING_LITERAL] Cauta
+- `components/smart-search.tsx:290:19` [STRING_LITERAL] Niciun rezultat. Apasa Enter pentru cautare completa sau lipeste un link de vin romanesc.
+- `components/top-lists.tsx:13:13` [JSX_TEXT] Cele mai cautate selectii de vinuri romanesti, gata sa te ajute sa alegi rapid.
+- `components/top-lists/budget-page-sections.tsx:56:9` [JSX_TEXT] Ghid vin ieftin si bun
+- `components/top-lists/budget-page-sections.tsx:84:62` [JSX_TEXT] Cel mai bun rosu ieftin
+- `components/top-lists/budget-page-sections.tsx:95:62` [JSX_TEXT] Cel mai bun alb ieftin
+- `components/top-lists/budget-page-sections.tsx:106:62` [JSX_TEXT] Vinuri ieftine pentru cadou
+- `components/top-lists/budget-page-sections.tsx:118:11` [JSX_TEXT] Ce trebuie evitat la un vin foarte ieftin
+- `components/top-lists/budget-page-sections.tsx:121:15` [JSX_TEXT] Etichete fara crama, regiune sau vintage clar.
+- `components/top-lists/budget-page-sections.tsx:123:15` [JSX_TEXT] Promotii fara stoc real in magazine verificate.
+- `components/top-lists/budget-page-sections.tsx:127:13` [JSX_TEXT] Vezi vinuri bune din supermarket
+- `components/top-lists/top-list-hub-sections.tsx:105:11` [JSX_TEXT] Cele mai bune dupa culoare
+- `components/top-lists/top-list-hub-sections.tsx:124:11` [JSX_TEXT] Cele mai bune dupa ocazie
+- `components/top-lists/top-list-wine-verdict.tsx:108:57` [JSX_TEXT] De ce e in top
+- `components/ui/dialog.tsx:42:9` [STRING_LITERAL] fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0
+- `components/ui/dialog.tsx:64:11` [STRING_LITERAL] fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95
+- `components/ui/popover.tsx:33:11` [STRING_LITERAL] z-50 flex w-72 origin-(--radix-popover-content-transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95
+- `components/ui/select.tsx:72:23` [STRING_LITERAL] relative z-50 max-h-(--radix-select-content-available-height) min-w-36 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95
+- `components/ui/sheet.tsx:40:9` [STRING_LITERAL] fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0
+- `components/ui/sheet.tsx:65:11` [STRING_LITERAL] fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding text-sm text-popover-foreground shadow-lg transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-[side=bottom]:data-open:slide-in-from-bottom-10 data-[side=left]:data-open:slide-in-from-left-10 data-[side=right]:data-open:slide-in-from-right-10 data-[side=top]:data-open:slide-in-from-top-10 data-closed:animate-out data-closed:fade-out-0 data-[side=bottom]:data-closed:slide-out-to-bottom-10 data-[side=left]:data-closed:slide-out-to-left-10 data-[side=right]:data-closed:slide-out-to-right-10 data-[side=top]:data-closed:slide-out-to-top-10
+- `components/ui/tooltip.tsx:45:11` [STRING_LITERAL] z-50 inline-flex w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin) items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs text-background has-data-[slot=kbd]:pr-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95
+- `components/value-props.tsx:40:7` [STRING_LITERAL] Informatii despre crame, soiuri autohtone si regiuni romanesti, adunate intr-un singur loc clar si rapid.
+- `components/value-props.tsx:51:13` [JSX_TEXT] De ce merita
+- `components/value-props.tsx:54:13` [JSX_TEXT] Un ghid limpede al vinurilor romanesti, construit pentru viteza, claritate si incredere.
+- `components/wineries/winery-card.tsx:77:13` [JSX_TEXT] Cel mai bun:
+- `components/wineries/winery-card.tsx:118:47` [STRING_LITERAL] vinuri
+- `components/wineries/winery-card.tsx:137:13` [JSX_TEXT] Vezi crama
+- `components/wineries/winery-directory.tsx:46:38` [STRING_LITERAL] crama gasita
+- `components/wineries/winery-directory.tsx:46:55` [STRING_LITERAL] crame gasite
+- `components/wineries/winery-directory.tsx:56:11` [JSX_TEXT] Nicio crama nu corespunde cautarii
+- `components/wineries/winery-events-calendar.tsx:35:59` [JSX_TEXT] . Program actualizat de crama.
+- `components/wineries/winery-hero.tsx:52:13` [JSX_TEXT] Acasa
+- `components/wineries/winery-hero.tsx:193:63` [JSX_TEXT] Vinuri listate
+- `components/wines/retailer-purchase-link.tsx:81:15` [STRING_LITERAL] Deschidem pagina produsului într-un tab nou. Comanda se finalizează direct la magazin.
+- `components/wines/wine-availability.tsx:76:21` [JSX_TEXT] Nu avem momentan o ofertă verificată pentru acest vin.
+- `components/wines/wine-availability.tsx:92:41` [JSX_TEXT] Vezi alternative similare
+- `components/wines/wine-buying-decision.tsx:37:15` [JSX_TEXT] Merită banii?
+- `components/wines/wine-buying-decision.tsx:65:19` [JSX_TEXT] Cel mai bun cu
+- `components/wines/wine-buying-decision.tsx:102:25` [STRING_LITERAL] Vezi unde îl găsești
+- `components/wines/wine-catalog-directory.tsx:153:19` [STRING_LITERAL] Vinuri macerate, expresie moderna romaneasca
+- `components/wines/wine-catalog-directory.tsx:165:9` [JSX_TEXT] Vezi doar
+- `components/wines/wine-catalog-directory.tsx:344:50` [STRING_LITERAL] vinuri gasite
+- `components/wines/wine-catalog-directory.tsx:400:13` [JSX_TEXT] Niciun vin nu corespunde combinatiei alese
+- `components/wines/wine-community-vote-button.tsx:140:13` [JSX_TEXT] Ai votat deja acest vin cu nota
+- `components/wines/wine-community-vote-button.tsx:169:48` [STRING_LITERAL] Voteaza acest vin
+- `components/wines/wine-community-vote-button.tsx:181:17` [JSX_TEXT] Multumim! Nota ta de
+- `components/wines/wine-hero.tsx:54:15` [JSX_TEXT] Acasă
+- `components/wines/wine-hero.tsx:58:15` [JSX_TEXT] Vinuri
+- `components/wines/wine-related-sections.tsx:25:9` [STRING_LITERAL] Nu avem momentan o ofertă verificată. Poți continua cu aceste opțiuni similare.
+- `components/wines/wine-related-sections.tsx:27:11` [STRING_LITERAL] Alternative mai bune la bani similari, din același tip de vin.
+- `components/wines/wine-related-sections.tsx:38:13` [JSX_TEXT] Ce poți cumpăra în loc
+- `components/wines/wine-related-sections.tsx:59:13` [JSX_TEXT] Ce poți cumpăra în loc
+- `components/wines/wine-related-sections.tsx:62:13` [JSX_TEXT] Nu avem încă o alternativă suficient de apropiată pentru această sticlă.
+- `components/wines/wine-related-sections.tsx:69:13` [JSX_TEXT] Explorează toate vinurile
+- `components/wines/wine-related-sections.tsx:83:13` [JSX_TEXT] Alte vinuri similare
+- `components/wines/wine-related-sections.tsx:86:13` [JSX_TEXT] Din aceeași cramă sau regiune, cu profil apropiat.
+- `components/wines/wine-report-button.tsx:48:9` [JSX_TEXT] Cred ca raspunsul este gresit
+- `components/wines/wine-specs-table.tsx:113:9` [JSX_TEXT] Fișa vinului
+- `components/wines/wine-specs-table.tsx:117:13` [STRING_LITERAL] Datele marcate Verificat sunt confirmate din surse oficiale pentru acest vin.
+- `components/wines/wine-specs-table.tsx:118:13` [STRING_LITERAL] Verificăm treptat datele tehnice din surse oficiale.
+- `components/wines/wine-specs-table.tsx:123:11` [JSX_TEXT] Cum verificăm datele
+- `components/wines/wine-winery-link.tsx:36:17` [JSX_TEXT] Crama producatoare
+- `components/wines/wine-winery-link.tsx:55:15` [JSX_TEXT] Vezi crama
+- `lib/analyze-wine-service.ts:646:45` [STRING_LITERAL] Vinul exista dar nu a putut fi incarcat.
+- `lib/analyze-wine-service.ts:695:9` [STRING_LITERAL] Cred ca acest vin nu este romanesc. VinIntel.ro se concentreaza doar pe vinuri produse in Romania.
+- `lib/analyze-wine-service.ts:762:45` [STRING_LITERAL] Vin duplicat dar nu a putut fi incarcat.
+- `lib/analyze-wine-service.ts:827:16` [STRING_LITERAL] Vin salvat dar raspunsul complet nu a putut fi generat.
+- `lib/analyze-wine-service.ts:884:9` [STRING_LITERAL] Cred ca acest vin nu este romanesc. VinIntel.ro se concentreaza doar pe vinuri produse in Romania.
+- `lib/analyze-wine-service.ts:925:47` [STRING_LITERAL] Vinul exista dar nu a putut fi incarcat.
+- `lib/analyze-wine-service.ts:1065:16` [STRING_LITERAL] Acest vin nu are link sursa pentru re-analiza.
+- `lib/analyze-wine-service.ts:1104:9` [STRING_LITERAL] Re-analiza indica ca vinul nu este romanesc.
+- `lib/analyze-wine-service.ts:1199:16` [STRING_LITERAL] Vin actualizat dar raspunsul complet nu a putut fi generat.
+- `lib/analyze-wine-service.ts:1214:14` [STRING_LITERAL] Vin re-analizat cu succes.
+- `lib/approve-wine-service.ts:41:21` [STRING_LITERAL] Doar vinurile in asteptare pot fi aprobate.
+- `lib/approve-wine-service.ts:63:21` [STRING_LITERAL] Vin aprobat dar nu a putut fi reincarcat.
+- `lib/ballageza-producer.ts:149:27` [STRING_LITERAL] vinuri
+- `lib/ballageza-producer.ts:220:44` [STRING_LITERAL] An de producție
+- `lib/budureasca-producer.ts:300:46` [STRING_LITERAL] roșu
+- `lib/budureasca-producer.ts:411:50` [STRING_LITERAL] An de recoltă
+- `lib/budureasca-producer.ts:419:48` [STRING_LITERAL] Soi de struguri
+- `lib/budureasca-producer.ts:420:48` [STRING_LITERAL] Culoare vin
+- `lib/clear-wines.ts:18:17` [STRING_LITERAL] [clear-wines] baza este deja goala.
+- `lib/embeddings.ts:124:19` [STRING_LITERAL] Format embedding necunoscut de la Hugging Face
+- `lib/fetch-page-html.ts:125:5` [STRING_LITERAL] Pagina Budureasca este protejata de Cloudflare si nu a putut fi accesata acum. Incearca din nou peste cateva minute.
+- `lib/fetch-page-html.ts:427:25` [STRING_LITERAL] Redirect Profitshare fara Location header.
+- `lib/fetch-page-html.ts:476:21` [STRING_LITERAL] Linkul Profitshare nu a putut fi rezolvat catre retailer.
+- `lib/gabai-producer.ts:158:19` [STRING_LITERAL] comanda un vin
+- `lib/generateEmbeddings.ts:22:7` [STRING_LITERAL] Baza de date este goala. Ruleaza mai intai: npm run db:seed
+- `lib/generateExpertNotes.ts:103:7` [STRING_LITERAL] Baza de date este goala. Ruleaza mai intai: npm run db:seed
+- `lib/importWines.ts:345:27` [STRING_LITERAL] [dry-run] Nu se scrie in baza de date.
+- `lib/integrity-scan.ts:261:11` [STRING_LITERAL] Vin publicat fara URL sursa si fara linkuri de retailer. Nu se poate verifica provenienta.
+- `lib/integrity-scan.ts:356:18` [TEMPLATE_TEXT] Vinul este clasificat "sec" dar descrierea mentioneaza dulceata/demidulce.
+- `lib/integrity-scan.ts:602:11` [STRING_LITERAL] tasteProfile contine adjective de calitate (complex/elegant/mineral/persistent). Acestea nu mai intra in Q, dar textul merita revizuit.
+- `lib/murfatlar-producer.ts:44:3` [STRING_LITERAL] vinuri
+- `lib/recommendation/occasion-match.ts:275:19` [STRING_LITERAL] Nu inlocuim necunoscutul cu 50.
+- `lib/recommendation/occasion-match.ts:417:15` [STRING_LITERAL] Increderea in datele de cadou.
+- `lib/recommendation/occasion-match.ts:427:15` [STRING_LITERAL] Soi autohton si caracter distinctiv, nu prestigiu de crama.
+- `lib/recommendation/occasion-match.ts:436:15` [STRING_LITERAL] Cat de complete sunt datele, pentru o alegere predictibila.
+- `lib/recommendation/occasion-match.ts:454:15` [STRING_LITERAL] Prior mic de stil, nu regula de prestigiu.
+- `lib/source-conflicts.ts:59:20` [STRING_LITERAL] Nu unim silentios valori incompatibile. Retailerul nu suprascrie producatorul.
+- `lib/source-conflicts.ts:76:20` [STRING_LITERAL] Conflict de identitate. Pastreaza ambele valori pentru revizuire.
+- `lib/source-conflicts.ts:92:20` [STRING_LITERAL] Vintage-ul este identitate. Conflictul necesita revizuire umana.
+- `lib/source-conflicts.ts:104:20` [STRING_LITERAL] Conflict de culoare/tip. Nu se uneste automat.
+- `lib/source-conflicts.ts:121:22` [STRING_LITERAL] Compozitia de soiuri nu se uneste silentios cand sursele difer.
+- `lib/stripe/config.ts:29:21` [STRING_LITERAL] STRIPE_SECRET_KEY lipseste din configuratie.
+- `lib/stripe/config.ts:52:21` [STRING_LITERAL] Stripe nu a returnat URL pentru portal.
+- `lib/stripe/premium-checkout.ts:114:21` [STRING_LITERAL] Stripe nu a returnat URL de checkout.
+- `lib/stripe/premium-checkout.ts:207:21` [STRING_LITERAL] Abonamentul Stripe lipseste din sesiunea de checkout.
+- `lib/stripe/premium-plans.ts:31:20` [STRING_LITERAL] 2 luni gratuite fata de planul lunar.
+- `lib/tech-facts/public-trust-display.ts:38:43` [STRING_LITERAL] În verificare
+- `lib/tech-facts/scan.ts:159:18` [STRING_LITERAL] Valori tehnice stocate fara URL oficial de producator.
+- `lib/top-list-links.ts:34:12` [STRING_LITERAL] Cele mai bune vinuri romanesti
+- `lib/top-list-links.ts:44:12` [STRING_LITERAL] Vinuri bune din supermarket
+- `lib/top-list-links.ts:54:12` [STRING_LITERAL] Cea mai buna Feteasca Neagra
+- `lib/top-list-links.ts:59:12` [STRING_LITERAL] Vinuri cadou
+- `lib/top-list-links.ts:60:18` [STRING_LITERAL] Alegeri sigure pentru orice ocazie
+- `lib/top-list-links.ts:65:18` [STRING_LITERAL] Eleganta pentru o seara in doi
+- `lib/top-lists.ts:318:16` [STRING_LITERAL] Cele mai bune vinuri romanesti
+- `lib/top-lists.ts:327:23` [STRING_LITERAL] Cele mai bune vinuri romanesti
+- `lib/top-lists.ts:341:16` [STRING_LITERAL] Vinuri bune din supermarket
+- `lib/top-lists.ts:350:23` [STRING_LITERAL] Vinuri din supermarket
+- `lib/top-lists.ts:361:16` [STRING_LITERAL] Cele mai bune vinuri cadou
+- `lib/top-lists.ts:362:18` [STRING_LITERAL] Cele mai bune vinuri romanesti pentru cadou
+- `lib/top-lists.ts:485:33` [STRING_LITERAL] Vinuri ieftine si bune
+- `lib/wine-analysis.ts:72:13` [STRING_LITERAL] Marcat în catalog ca opțiune accesibilă pentru începători.
+- `lib/wine-analysis.ts:73:13` [STRING_LITERAL] Nu este marcat ca alegere specială pentru începători.
+- `lib/wine-analysis.ts:115:43` [STRING_LITERAL] crama producatoare
+- `lib/wine-approval-email.ts:59:39` [STRING_LITERAL] crama romaneasca
+- `lib/wine-approval-email.ts:147:5` [STRING_LITERAL] Ai primit acest email pentru ca ai trimis un vin spre verificare pe VinIntel.ro.
+- `lib/wine-producer-enrichment.ts:486:29` [STRING_LITERAL] vinuri
+- `lib/wine-source.ts:6:12` [STRING_LITERAL] magazinul producătorului
+- `lib/wine-submission-messages.ts:2:3` [STRING_LITERAL] Vinul exista deja in baza noastra. Vezi-l aici:
+- `lib/wine-submission-messages.ts:8:3` [STRING_LITERAL] Acest vin a fost deja trimis spre verificare. Va aparea pe site dupa aprobare.
+- `lib/winery-catalog.ts:31:7` [STRING_LITERAL] Una dintre cramele de referinta din Romania, pionier al vinurilor premium din Dealu Mare.
+- `lib/winery-catalog.ts:43:7` [STRING_LITERAL] Prima crama privata cu capital strain din Romania, fondata de contele Guy de Poix.
+- `lib/winery-catalog.ts:54:7` [STRING_LITERAL] Crama boutique din Dragasani, cu accent pe soiuri autohtone si arhitectura premiata.
+- `lib/winery-catalog.ts:65:7` [STRING_LITERAL] Crama din Mehedinti cunoscuta pentru gama La Cetate si Smerenie, parte din grupul Carl Reh.
+- `lib/winery-catalog.ts:76:7` [STRING_LITERAL] Crama de familie din Dobrogea, langa Constanta, cu vinuri accesibile din soiuri romanesti si internationale.
+- `lib/winery-catalog.ts:87:7` [STRING_LITERAL] Cel mai vechi si mai cunoscut nume al viticulturii romanesti, cu podgoria istorica de la malul Marii Negre.
+- `lib/winery-catalog.ts:98:7` [STRING_LITERAL] Crama transilvaneana din Lechinta, cu vinuri elegante si proaspete de altitudine.
+- `lib/winery-catalog.ts:110:7` [STRING_LITERAL] Producator modern din Cotnari, dedicat soiurilor autohtone si vinurilor dulci.
+- `lib/winery-catalog.ts:121:7` [STRING_LITERAL] Crama din Valea Calugareasca, in inima podgoriei Dealu Mare, cu o gama larga premiata.
+- `lib/winery-catalog.ts:132:7` [STRING_LITERAL] Domeniu regal istoric din Segarcea, cu o traditie de peste un secol si vinuri premiate.
+- `lib/winery-catalog.ts:143:7` [STRING_LITERAL] Una dintre cele mai cunoscute crame din Dealu Mare, cu o gama variata pentru toate gusturile.
+- `lib/winery-catalog.ts:155:7` [STRING_LITERAL] Crama boutique din Banat, cu accent pe spumante metoda traditionala si soiuri autohtone.
+- `lib/winery-catalog.ts:167:7` [STRING_LITERAL] Crama de familie din Vrancea, dedicata soiurilor autohtone si terroir-ului local.
+- `lib/winery-catalog.ts:179:7` [STRING_LITERAL] Crama moderna din Dealu Mare, cu vinuri echilibrate si cuvee-uri premiate international.
+- `lib/winery-catalog.ts:191:7` [STRING_LITERAL] Crama din Urlati, axata pe vinificatie sustenabila si soiuri romanesti aromate.
+- `lib/winery-catalog.ts:203:7` [STRING_LITERAL] Cel mai mare producator de vinuri albe din Romania, in podgoria Tarnave din Transilvania.
+- `lib/winery-catalog.ts:215:7` [STRING_LITERAL] Producator oltenesc renumit pentru Cabernet Sauvignon corpolent din terroir-ul Samburesti.
+- `lib/winery-catalog.ts:226:7` [STRING_LITERAL] Crama din Minis, specializata in soiul autohton Cadarca si vinuri de pe terase de piatra.
+- `lib/winery-catalog.ts:237:7` [STRING_LITERAL] Domeniu din Mehedinti cu traditie franceza, apreciat pentru Pinot Noir si vinuri elegante.
+- `lib/winery-catalog.ts:249:7` [STRING_LITERAL] Crama aristocrata din Dragasani, pionier al soiurilor autohtone Cramposie, Novac si Negru.
+- `lib/winery-catalog.ts:260:7` [STRING_LITERAL] Producator cu domenii in mai multe podgorii, cunoscut pentru gama premium Prince Matei.
+- `lib/winery-catalog.ts:272:7` [STRING_LITERAL] Crama cu capital britanic din Dealu Mare, cu vinuri accesibile si gama Hyperion premium.
+- `lib/winery-catalog.ts:284:7` [STRING_LITERAL] Crama transilvaneana de altitudine, cu vinuri albe si rosii rafinate de inspiratie central-europeana.
+- `lib/winery-catalog.ts:296:7` [STRING_LITERAL] Crama istorica din Stefan Voda, cunoscuta pentru vinuri elegante din Moldova.
+- `lib/winery-detection.ts:21:47` [STRING_LITERAL] recaș
+- `lib/winery-detection.ts:33:55` [STRING_LITERAL] averești
+- `lib/winery-detection.ts:35:43` [STRING_LITERAL] oprișor
+- `lib/winery-detection.ts:239:21` [STRING_LITERAL] Nu am putut detecta crama pentru acest vin.
+- `lib/winery-detection.ts:266:34` [STRING_LITERAL] Nu am putut crea crama.
+
+## DYNAMIC_TEMPLATE
+
+- `app/cauta/page.tsx:73:27` [TEMPLATE_TEXT] Rezultate pentru „{{expression}}”
+- `app/regiuni/[slug]/page.tsx:149:17` [TEMPLATE_TEXT] Regiune viticola din Romania cu {{expression}} crame si {{expression}} vinuri analizate in catalogul VinIntel.
+- `app/soiuri/[slug]/page.tsx:129:23` [TEMPLATE_TEXT] cele-mai-bune-{{expression}}
+- `components/wines/retailer-purchase-link.tsx:80:15` [TEMPLATE_TEXT] Deschidem pagina produsului pe {{expression}}, într-un tab nou. Comanda se finalizează direct la magazin.
+- `components/wines/wine-winery-link.tsx:43:21` [TEMPLATE_TEXT] {{expression}} vinuri listate pe VinIntel de la aceasta crama.
+- `lib/cellar-display.ts:35:14` [TEMPLATE_TEXT] pana la {{expression}} ani
+- `lib/cellar-display.ts:51:14` [TEMPLATE_TEXT] orientare generala, pana la {{expression}} ani
+- `lib/cellar-display.ts:58:12` [TEMPLATE_TEXT] orientare generala, pana la {{expression}} ani
+- `lib/clear-wines.ts:15:15` [TEMPLATE_TEXT] [clear-wines] vinuri inainte: {{expression}}
+- `lib/clear-wines.ts:27:15` [TEMPLATE_TEXT] [clear-wines] vinuri dupa: {{expression}}
+- `lib/emails/winery-premium.ts:168:19` [TEMPLATE_TEXT] Bine ai venit in programul Premium, {{expression}}!
+- `lib/fetch-page-html.ts:341:10` [TEMPLATE_TEXT] <!DOCTYPE html><html><head> <meta property="og:title" content="{{expression}}" /> <meta property="product:brand" content="{{expression}}" /> <title>{{expression}}</title> </head><body><h1>{{expression}}</h1> <p>Vin romanesc {{expression}}. Disponibil in Romania.</p> </body></html>
+- `lib/importWines.ts:377:11` [TEMPLATE_TEXT] Skip {{expression}}: crama "{{expression}}" negasita (foloseste --create-missing)
+- `lib/integrity-scan.ts:369:18` [TEMPLATE_TEXT] Vinul este clasificat "{{expression}}" dar descrierea mentioneaza "sec" fara nuantare.
+- `lib/integrity-scan.ts:446:21` [TEMPLATE_TEXT] Aceeasi crama, vintage si tip; nume similare ({{expression}}%).
+- `lib/murfatlar-producer.ts:8:38` [TEMPLATE_TEXT] {{expression}}/vinuri/
+- `lib/publication-integrity.ts:17:7` [TEMPLATE_TEXT] Publicarea a fost blocata. Vinul ramane in asteptare. Probleme: {{expression}}. {{expression}}
+- `lib/reconcile-wine-producer.ts:111:7` [TEMPLATE_TEXT] [reconcile-producer] {{expression}}: pagina producator negasita
+- `lib/reconcile-wine-producer.ts:230:17` [TEMPLATE_TEXT] [reconcile-producer] {{expression}} vinuri pentru {{expression}}
+- `lib/tech-facts/scan.ts:133:18` [TEMPLATE_TEXT] Alcool stocat {{expression}} este in afara intervalului 8-18% vol.
+- `lib/tech-facts/scan.ts:143:18` [TEMPLATE_TEXT] Aciditate stocata {{expression}} este suspecta pentru aciditate totala g/L.
+- `lib/top-lists.ts:87:59` [TEMPLATE_TEXT] vinuri-{{expression}}
+- `lib/top-lists.ts:92:47` [TEMPLATE_TEXT] cele-mai-bune-{{expression}}
+- `lib/top-lists.ts:136:44` [TEMPLATE_TEXT] vinuri-{{expression}}
+- `lib/top-lists.ts:386:16` [TEMPLATE_TEXT] Cele mai bune vinuri {{expression}} romanesti
+- `lib/top-lists.ts:387:18` [TEMPLATE_TEXT] Cele mai bune vinuri {{expression}} romanesti
+- `lib/top-lists.ts:414:16` [TEMPLATE_TEXT] Cele mai bune vinuri {{expression}}
+- `lib/top-lists.ts:415:18` [TEMPLATE_TEXT] Cea mai buna {{expression}}: top vinuri romanesti
+- `lib/wine-approval-email.ts:111:10` [TEMPLATE_TEXT] <!DOCTYPE html> <html lang="ro"> <body style="font-family: Georgia, serif; color: #1c1917; line-height: 1.6; max-width: 560px; margin: 0 auto; padding: 24px;"> <h1 style="color: #7C2D12; font-size: 22px; margin-bottom: 8px;">Vinul tau este live pe VinIntel.ro</h1> <p style="margin-top: 0; color: #57534e;">Multumim ca l-ai trimis spre verificare. {{expression}}{{expression}} a fost aprobat.</p> <p style="margin: 20px 0; color: #44403c;">{{expression}}</p> <p style="margin: 24px 0;"> <a href="{{expression}}" style="display: inline-block; background: #7C2D12; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-family: system-ui, sans-serif; font-size: 14px;">Vezi pagina vinului</a> </p> {{expression}} <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 32px 0;" /> <p style="font-size: 12px; color: #a8a29e;">Ai primit acest email pentru ca ai trimis un vin spre verificare pe VinIntel.ro.</p> </body> </html>
+- `lib/wine-approval-email.ts:134:5` [TEMPLATE_TEXT] Vinul tau este live pe VinIntel.ro - {{expression}}
+- `lib/wine-approval-email.ts:174:19` [TEMPLATE_TEXT] Vinul tau este live: {{expression}} | VinIntel.ro
+- `lib/wine-catalog-filters.ts:301:32` [TEMPLATE_TEXT] Vinuri albe · {{expression}}
+- `lib/wine-catalog-filters.ts:302:30` [TEMPLATE_TEXT] Vinuri rosii · {{expression}}
+- `lib/wine-catalog-filters.ts:303:31` [TEMPLATE_TEXT] Vinuri roze · {{expression}}
+- `lib/wine-catalog-filters.ts:306:10` [TEMPLATE_TEXT] Vinuri {{expression}} · {{expression}}
+- `lib/wine-vote-service.ts:176:7` [TEMPLATE_TEXT] Prea multe voturi intr-un minut ({{expression}}/{{expression}}). Incearca din nou curand.
+- `lib/winery-catalog.ts:21:12` [TEMPLATE_TEXT] In Banat, langa Recas, viticultura are radacini adanci: coloniile sveste au adus aici traditii germane de crama, iar solul si soarele din podgorie au modelat generatii de vinificatori. Cramele Recas s-a nascut in 1991 din curajul unor oameni care au crezut ca vinul romanesc poate concura pe piata internationala fara sa renunte la identitatea locala. Astazi, crama proceseaza recolta din mii de hectare si exporta in zeci de tari, de la game accesibile precum Schwaben Wein si Castel Huniade pana la etichete premium precum La Stejari si Selene. Vinificatorii Hartley Smithers si Nora Iriarte au adus recunoastere internationala portofoliului, iar fiecare sticla pastreaza ideea de baza: vin onest, proaspat, facut cu respect pentru soi si pentru omul care il deschide acasa. {{expression}}
+- `lib/winery-catalog.ts:55:12` [TEMPLATE_TEXT] Avincis s-a impus ca un proiect de familie in inima Dragasanilor, unde Cramposia, Novacul si Negrul de Dragasani capata expresii rafinate. Podgoria olteana ofera conditii ideale pentru albe cu mineralitate si rosii cu personalitate, iar crama a devenit un simbol al noii generatii viticole romanesti. Cladirea cramei, premiata pentru arhitectura, reflecta aceeasi atentie la detaliu ca si vinificatia. Vinurile sunt lucrate cu grija, in volume mici, cu accent pe claritatea aromelor si pe autenticitatea soiurilor locale. {{expression}}
+- `lib/winery-catalog.ts:66:12` [TEMPLATE_TEXT] Pe dealurile din Oltenia, Crama Oprisor a construit un portofoliu generos in jurul gamei La Cetate, de la vinuri accesibile la etichete care exploreaza terroir-ul mehedintean cu seriozitate. Solurile si expunerea dealurilor din zona Oprisor dau vinurilor o structura clara si o expresie fructata echilibrata. Parte a grupului Carl Reh, crama combina experienta de vinificatie internationala cu resurse locale solide. Gama Smerenie si cuvee-urile premium completeaza un portofoliu gandit pentru consum zilnic, dar si pentru ocazii in care vrei un vin cu mai multa profunzime. {{expression}}
+- `lib/winery-catalog.ts:88:12` [TEMPLATE_TEXT] Murfatlar este sinonim cu vinul romanesc pentru multe generatii. Podgoria dobrogeana, scaldata de soare si racorita de briza Marii Negre, ofera un microclimat aparte, cu soluri calcaroase care dau vinurilor o mineralitate distincta si o coacere generoasa a strugurilor. Portofoliul actual imbina traditia gamelor clasice, precum Sec de Murfatlar si Lacrima lui Ovidiu, cu linii mai noi precum Sable Noble, unde soiuri romanesti si internationale sunt asamblate in cupaje accesibile. Crama pastreaza si o parte din istoria vinurilor dulci si a distilatelor, alaturi de o gama larga de vinuri de zi cu zi. {{expression}}
+- `lib/winery-catalog.ts:122:12` [TEMPLATE_TEXT] Budureasca leaga Valea Calugareasca de un portofoliu amplu, de la vinuri de zi cu zi la cuvee-uri care au strans medalii internationale. Terroir-ul exceptional al viilor din Dealu Mare permite recolte constante, iar crama a devenit una dintre cele mai vizibile nume ale podgoriei. De la gama Clasic la Origini, Organic si The Sign, fiecare linie urmareste acelasi ideal: vinuri nobile din soiuri romanesti si internationale, vinificate cu pasiune. Peste 500 de medalii la concursuri internationale confirma ambitia echipei. {{expression}}
+- `lib/winery-catalog.ts:133:12` [TEMPLATE_TEXT] La Segarcea, pe fostul domeniu al Coroanei, viticultura se leaga de o poveste regala unica in Romania. Fondat la inceputul secolului XX, domeniul a fost printre primele plantatii moderne ale tarii, iar traditia viticola olteana se simte in fiecare rand de vita. Astazi, crama produce vinuri corpolente, cu identitate olteana puternica si traditie de export. Portofoliul acopera albe, roze si rosii, cu accent pe soiuri care beneficiaza de caldura Olteniei si de experienta acumulata de generatii de viticultori. {{expression}}
+- `lib/winery-catalog.ts:156:12` [TEMPLATE_TEXT] Petro Vaselo aduce in Banat o identitate clara: spumante lucrate cu grija, albe proaspete si roze elegante, toate ancorate in terroir-ul local. Crama de familie a crescut organic, cu o reputatie construita pe consistenta si pe respectul pentru materia prima. Spumantele metoda traditionala sunt emblema casei, dar portofoliul include si vinuri linistite expresive, vinificate cu interventie minima. Fiecare sticla reflecta filosofia unei crame mici care prefera calitatea in locul volumului. {{expression}}
+- `lib/winery-catalog.ts:168:12` [TEMPLATE_TEXT] Crama Girboiu vinifica in Vrancea cu o filosofie simpla: soiuri autohtone, recolta atent selectionata si vinuri sincere care vorbesc despre locul din care vin. Dealurile vrancene, cu soluri diverse si climat continental, ofera un terroir ideal pentru Feteasca, Tamaioasa si alte soiuri romanesti. Portofoliul cramei este compact, dar coerent: albe aromate, rosii cu structura moderata si cuvee-uri de ocazie. Girboiu ramane un exemplu de crama de familie care a ales claritatea identitatii in locul diversificarii excesive. {{expression}}
+- `lib/winery-catalog.ts:192:12` [TEMPLATE_TEXT] Crama Basilescu lucreaza pe colinele din Urlati cu un accent clar pe sustenabilitate si pe expresia aromelor romanesti. Podgoria Dealu Mare, cu solurile si expunerile variate din zona Urlati, permite vinuri cu personalitate fructata si aciditate vie. De la Feteasca Regala la roze proaspete si rosii cu structura moderata, portofoliul urmareste un stil direct, usor de inteles, dar serios in crama. Practici viticole responsabile si investitii constante in tehnologie completeaza imaginea unei crame orientate spre viitor. {{expression}}
+- `lib/winery-catalog.ts:216:12` [TEMPLATE_TEXT] Samburesti este una dintre podgoriile rosii de referinta ale Romaniei. Dealurile din Oltenia, cu soare generos si soluri calcaroase, au facut din Cabernet Sauvignon local un vin cu renume national, iar Domeniile Samburesti au fost printre primele care l-au valorificat la nivel premium. Portofoliul cramei include rosii corpolente, maturate in barrique, alaturi de albe si roze care completeaza gama. Vinificatia urmareste extract, structura si potential de evolutie, cu etichete care au facut cunoscut terroir-ul oltean in tara si in strainatate. {{expression}}
+- `lib/winery-catalog.ts:227:12` [TEMPLATE_TEXT] In Minis-Maderat, Balla Geza lucreaza pe terase de piatra unde Cadarca si alte soiuri locale capata o expresie minerala si intensa, greu de replicat in alte regiuni. Podgoria banateana, cu traditie svesta si conditii de sol unice, a modelat identitatea cramei inca de la inceputuri. Portofoliul include linii clasice, colectia Kolna, Stonewines de pe terase si vinuri perlante precum Frizzy si Rozzy. Fiecare eticheta urmareste sa arate o fata diferita a aceluiasi terroir: uneori directa si fructata, alteori mai serioasa si structurata. {{expression}}
+- `lib/winery-catalog.ts:238:12` [TEMPLATE_TEXT] Corcova Roy si Damboviceanu aduce in Oltenia o eleganta de inspiratie franceza, cu Pinot Noir si Chardonnay care au rescris reputatia vinurilor din Mehedinti. Domeniul, cu o poveste legata de familia Roy, combina traditia viticola locala cu o viziune orientata spre finete si longevitate. Vinurile sunt vinificate cu grija, cu accent pe echilibru si pe expresia terroir-ului din Corcova. Portofoliul propune albe rafinate, rosii cu structura fina si cuvee-uri de colectie care confirma potentialul podgoriei la standarde internationale. {{expression}}
+- `lib/winery-catalog.ts:250:12` [TEMPLATE_TEXT] Prince Stirbey reinvie traditia viticola a familiei Stirbey in Dragasani, cu un portofoliu axat pe soiuri autohtone vinificate cu rafinament si claritate. Podgoria olteana, cu solurile si expunerile sale variate, este terenul ideal pentru Cramposie, Novac si Negrul de Dragasani. Crama a fost pionier in recuperarea si promovarea soiurilor locale, iar vinurile sunt apreciate pentru eleganta, nu pentru forta bruta. Fiecare sticla poarta amprenta unei familii care a investit in identitatea viticola romaneasca. {{expression}}
+- `lib/winery-catalog.ts:273:12` [TEMPLATE_TEXT] Halewood aduce experienta britanica in Dealu Mare, cu o gama dubla: vinuri accesibile pentru consum zilnic si linia Hyperion, orientata spre calitate superioara. Investitiile in podgorie si in crama au transformat Halewood intr-un nume stabil pe piata romaneasca. Vinurile de intrare sunt gandite pentru claritate si accesibilitate, in timp ce Hyperion exploreaza extract, maturare si stiluri mai complexe. Combinatia intre volum si premium arata o strategie clara: vin pentru fiecare buzunar, fara a renunta la standarde tehnice. {{expression}}
+- `lib/winery-catalog.ts:297:12` [TEMPLATE_TEXT] Purcari poarta una dintre cele mai vechi traditii viticole din regiune, cu radacini care se intind peste secole de productie in Moldova. Dealurile din Stefan Voda, cu soluri calcaroase si influenta climatica favorabila, au facut din aceasta crama un nume recunoscut atat local, cat si pe pietele externe. Portofoliul include albe rafinate, rosii structurate si vinuri de colectie care au strans medalii internationale. Purcari a combinat traditia cu investitii moderne in plantatii si crama, pastrand in acelasi timp identitatea unei case cu istorie. {{expression}}
+
+## SEO
+
+- `app/adauga-vin/page.tsx:9:10` [STRING_LITERAL] Adauga un vin romanesc
+- `app/adauga-vin/page.tsx:11:5` [STRING_LITERAL] Lipeste link-ul unui vin romanesc. VinIntel il analizeaza, genereaza scoruri si il adauga in baza de date pentru comunitate.
+- `app/adauga-vin/page.tsx:18:12` [STRING_LITERAL] Adauga un vin romanesc | VinIntel
+- `app/adauga-vin/page.tsx:20:7` [STRING_LITERAL] Flywheel comunitate: link, analiza AI, scoruri si pagina de vin in cateva secunde.
+- `app/adauga-vin/page.tsx:24:12` [STRING_LITERAL] Adauga un vin romanesc | VinIntel
+- `app/adauga-vin/page.tsx:26:7` [STRING_LITERAL] Flywheel comunitate: link, analiza AI, scoruri si pagina de vin in cateva secunde.
+- `app/cauta/page.tsx:26:7` [TEMPLATE_TEXT] Rezultate pentru "{{expression}}"
+- `app/cauta/page.tsx:27:7` [STRING_LITERAL] Cauta vinuri si crame
+- `app/cauta/page.tsx:32:7` [STRING_LITERAL] Cauta vinuri si crame romanesti in catalogul VinIntel. Verifica daca un vin exista deja pe site.
+- `app/claim-your-winery/page.tsx:20:5` [STRING_LITERAL] Esti producator de vin? Revendica-ti crama pe VinIntel, verifica datele, actualizeaza vinurile si ajungi in fata cumparatorilor care cauta calitate.
+- `app/claim-your-winery/page.tsx:29:7` [STRING_LITERAL] Verifica datele cramei tale, actualizeaza vinurile si castiga incredere in fata cumparatorilor.
+- `app/claim-your-winery/page.tsx:35:7` [STRING_LITERAL] Verifica datele cramei tale, actualizeaza vinurile si castiga incredere in fata cumparatorilor.
+- `app/claim-your-winery/page.tsx:81:13` [STRING_LITERAL] Acasa
+- `app/crame/page.tsx:21:10` [STRING_LITERAL] Crame din Romania: regiuni, vinuri si clasamente
+- `app/crame/page.tsx:23:5` [STRING_LITERAL] Director de crame romanesti: regiune, numar de vinuri, Value Score mediu, interval de pret si cel mai bun vin al fiecarei crame.
+- `app/crame/page.tsx:24:14` [STRING_LITERAL] crame romanesti
+- `app/crame/page.tsx:24:63` [STRING_LITERAL] vinuri romanesti
+- `app/crame/page.tsx:31:12` [STRING_LITERAL] Crame din Romania: regiuni, vinuri si clasamente | VinIntel
+- `app/crame/page.tsx:33:7` [STRING_LITERAL] Toate cramele romanesti intr-un singur loc: regiune, vinuri, scoruri si preturi.
+- `app/crame/page.tsx:38:12` [STRING_LITERAL] Crame din Romania: regiuni, vinuri si clasamente | VinIntel
+- `app/crame/page.tsx:40:7` [STRING_LITERAL] Toate cramele romanesti intr-un singur loc: regiune, vinuri, scoruri si preturi.
+- `app/crame/page.tsx:69:13` [STRING_LITERAL] Acasa
+- `app/crame/page.tsx:70:13` [STRING_LITERAL] Crame
+- `app/crame/page.tsx:76:11` [STRING_LITERAL] Crame romanesti
+- `app/cum-functioneaza-scorurile/page.tsx:39:5` [STRING_LITERAL] Metodologia transparenta din spatele scorurilor VinIntel: Value Score, Gift Score si Food Match. Cum calculam raportul calitate-pret pentru vinurile romanesti.
+- `app/cum-functioneaza-scorurile/page.tsx:48:7` [STRING_LITERAL] Metodologia transparenta din spatele scorurilor VinIntel pentru vinurile romanesti.
+- `app/cum-functioneaza-scorurile/page.tsx:54:7` [STRING_LITERAL] Metodologia transparenta din spatele scorurilor VinIntel pentru vinurile romanesti.
+- `app/cum-functioneaza-scorurile/page.tsx:161:13` [STRING_LITERAL] Acasa
+- `app/journal/[slug]/page.tsx:103:13` [STRING_LITERAL] Acasa
+- `app/journal/[slug]/page.tsx:104:13` [STRING_LITERAL] Wine Journal
+- `app/journal/page.tsx:28:5` [STRING_LITERAL] Povesti, analize si ghiduri practice despre vinurile romanesti. Ghiduri pentru incepatori, pairing, soiuri autohtone si vintage reports.
+- `app/journal/page.tsx:32:5` [STRING_LITERAL] vinuri romanesti
+- `app/journal/page.tsx:33:5` [STRING_LITERAL] ghid vin
+- `app/journal/page.tsx:34:5` [STRING_LITERAL] pairing romanesc
+- `app/journal/page.tsx:45:7` [STRING_LITERAL] Povesti, analize si ghiduri practice despre vinurile romanesti.
+- `app/journal/page.tsx:52:7` [STRING_LITERAL] Povesti, analize si ghiduri practice despre vinurile romanesti.
+- `app/journal/page.tsx:68:13` [STRING_LITERAL] Acasa
+- `app/journal/page.tsx:69:13` [STRING_LITERAL] Wine Journal
+- `app/journal/page.tsx:75:11` [STRING_LITERAL] Wine Journal VinIntel
+- `app/layout.tsx:35:14` [STRING_LITERAL] VinIntel – Ghid de vinuri romanesti, preturi si recomandari
+- `app/layout.tsx:41:5` [STRING_LITERAL] vinuri romanesti
+- `app/layout.tsx:42:5` [STRING_LITERAL] vin romanesc
+- `app/layout.tsx:44:5` [STRING_LITERAL] recomandari vin
+- `app/layout.tsx:45:5` [STRING_LITERAL] crame din Romania
+- `app/layout.tsx:46:5` [STRING_LITERAL] asociere vin si mancare
+- `app/layout.tsx:48:21` [STRING_LITERAL] VinIntel
+- `app/layout.tsx:58:12` [STRING_LITERAL] VinIntel - Vinuri romanesti. Clar. Onest. Rapid.
+- `app/layout.tsx:66:12` [STRING_LITERAL] VinIntel - Vinuri romanesti. Clar. Onest. Rapid.
+- `app/opengraph-image.tsx:3:20` [STRING_LITERAL] VinIntel - Ghid de vinuri romanesti
+- `app/opengraph-image.tsx:43:11` [JSX_TEXT] Vinuri romanesti, preturi si recomandari
+- `app/politica-confidentialitate/page.tsx:20:5` [STRING_LITERAL] Politica de confidentialitate VinIntel.ro: ce date colectam, de ce, cat timp le pastram si care sunt drepturile tale conform GDPR.
+- `app/politica-cookies/page.tsx:20:5` [STRING_LITERAL] Politica de cookies VinIntel.ro: ce cookie-uri folosim, cat dureaza si cum iti gestionezi preferintele.
+- `app/regiuni/[slug]/page.tsx:60:17` [TEMPLATE_TEXT] Vinuri din {{expression}}: crame, topuri si preturi
+- `app/regiuni/[slug]/page.tsx:61:23` [TEMPLATE_TEXT] Descopera vinurile si cramele din {{expression}}: {{expression}} vinuri, {{expression}} crame, Value Score si preturi in RON.
+- `app/regiuni/[slug]/page.tsx:99:11` [TEMPLATE_TEXT] Vinuri din {{expression}}
+- `app/regiuni/[slug]/page.tsx:111:13` [STRING_LITERAL] Acasa
+- `app/regiuni/[slug]/page.tsx:112:13` [STRING_LITERAL] Crame
+- `app/soiuri/[slug]/page.tsx:91:17` [TEMPLATE_TEXT] Soiul {{expression}}: ghid si top vinuri romanesti
+- `app/soiuri/[slug]/page.tsx:92:23` [TEMPLATE_TEXT] Ghid despre {{expression}}: caracteristici, regiuni si cele mai bune vinuri romanesti cu preturi in RON.
+- `app/soiuri/[slug]/page.tsx:135:11` [TEMPLATE_TEXT] Vinuri {{expression}}
+- `app/soiuri/[slug]/page.tsx:146:13` [STRING_LITERAL] Acasa
+- `app/soiuri/[slug]/page.tsx:147:13` [STRING_LITERAL] Vinuri
+- `app/studii/[slug]/page.tsx:56:17` [STRING_LITERAL] Cele mai bune vinuri romanesti sub 50 lei in 2026
+- `app/studii/[slug]/page.tsx:58:5` [STRING_LITERAL] Studiu VinIntel: pret mediu, Value Score si top 50 vinuri ieftine si bune din Romania, actualizat din catalog.
+- `app/studii/[slug]/page.tsx:97:15` [STRING_LITERAL] Cele mai bune vinuri romanesti sub 50 lei in 2026
+- `app/studii/[slug]/page.tsx:100:46` [STRING_LITERAL] VinIntel
+- `app/studii/[slug]/page.tsx:101:49` [STRING_LITERAL] VinIntel
+- `app/studii/[slug]/page.tsx:106:13` [STRING_LITERAL] Acasa
+- `app/studii/[slug]/page.tsx:107:13` [STRING_LITERAL] Studii
+- `app/topuri/[slug]/page.tsx:125:13` [STRING_LITERAL] Acasa
+- `app/topuri/[slug]/page.tsx:126:13` [STRING_LITERAL] Topuri
+- `app/topuri/cele-mai-bune-vinuri-romanesti/page.tsx:92:13` [STRING_LITERAL] Acasa
+- `app/topuri/cele-mai-bune-vinuri-romanesti/page.tsx:93:13` [STRING_LITERAL] Topuri
+- `app/topuri/page.tsx:25:10` [STRING_LITERAL] Topuri vinuri romanesti
+- `app/topuri/page.tsx:27:5` [STRING_LITERAL] Topuri VinIntel: vinuri sub 50 lei, pentru sarmale, Feteasca Neagra, cadou si alte selectii populare dupa Value Score.
+- `app/topuri/page.tsx:29:5` [STRING_LITERAL] top vinuri romanesti
+- `app/topuri/page.tsx:30:5` [STRING_LITERAL] vinuri sub 50 lei
+- `app/topuri/page.tsx:31:5` [STRING_LITERAL] vin pentru sarmale
+- `app/topuri/page.tsx:41:12` [STRING_LITERAL] Topuri vinuri romanesti | VinIntel
+- `app/topuri/page.tsx:43:7` [STRING_LITERAL] Cele mai cautate topuri de vinuri romanesti: buget, ocazie, soi si cadou.
+- `app/topuri/page.tsx:48:12` [STRING_LITERAL] Topuri vinuri romanesti | VinIntel
+- `app/topuri/page.tsx:50:7` [STRING_LITERAL] Cele mai cautate topuri de vinuri romanesti: buget, ocazie, soi si cadou.
+- `app/topuri/page.tsx:74:13` [STRING_LITERAL] Acasa
+- `app/topuri/page.tsx:75:13` [STRING_LITERAL] Topuri
+- `app/topuri/page.tsx:81:11` [STRING_LITERAL] Topuri vinuri romanesti VinIntel
+- `app/vin-pentru/[dish]/page.tsx:96:13` [STRING_LITERAL] Acasa
+- `app/vin-pentru/[dish]/page.tsx:97:13` [STRING_LITERAL] Vinuri
+- `app/vinuri/page.tsx:23:10` [STRING_LITERAL] Vinuri romanesti: catalog, preturi si scoruri
+- `app/vinuri/page.tsx:25:5` [STRING_LITERAL] Catalog complet de vinuri romanesti cu Value Score, preturi in RON, crama si regiune. Cauta rapid si compara raportul calitate-pret.
+- `app/vinuri/page.tsx:27:5` [STRING_LITERAL] vinuri romanesti
+- `app/vinuri/page.tsx:28:5` [STRING_LITERAL] catalog vinuri
+- `app/vinuri/page.tsx:30:5` [STRING_LITERAL] vin rosu romanesc
+- `app/vinuri/page.tsx:31:5` [STRING_LITERAL] vin alb romanesc
+- `app/vinuri/page.tsx:39:12` [STRING_LITERAL] Vinuri romanesti: catalog, preturi si scoruri | VinIntel
+- `app/vinuri/page.tsx:41:7` [STRING_LITERAL] Toate vinurile romanesti din catalogul VinIntel, ordonate dupa Value Score.
+- `app/vinuri/page.tsx:46:12` [STRING_LITERAL] Vinuri romanesti: catalog, preturi si scoruri | VinIntel
+- `app/vinuri/page.tsx:48:7` [STRING_LITERAL] Toate vinurile romanesti din catalogul VinIntel, ordonate dupa Value Score.
+- `app/vinuri/page.tsx:75:13` [STRING_LITERAL] Acasa
+- `app/vinuri/page.tsx:76:13` [STRING_LITERAL] Vinuri
+- `app/vinuri/page.tsx:82:11` [STRING_LITERAL] Catalog vinuri romanesti VinIntel
+- `app/wineries/[slug]/page.tsx:102:32` [STRING_LITERAL] Crama negasita
+- `app/wineries/[slug]/page.tsx:109:5` [TEMPLATE_TEXT] {{expression}} din {{expression}}: {{expression}} vinuri, scoruri, preturi in RON si pairing-uri.
+- `app/wineries/[slug]/page.tsx:122:7` [STRING_LITERAL] vinuri romanesti
+- `app/wineries/[slug]/page.tsx:162:14` [STRING_LITERAL] Winery
+- `app/wineries/[slug]/page.tsx:172:20` [STRING_LITERAL] PostalAddress
+- `app/wineries/[slug]/page.tsx:174:27` [STRING_LITERAL] RO
+- `app/wineries/[slug]/page.tsx:185:11` [TEMPLATE_TEXT] Vinuri de la {{expression}}
+- `app/wineries/[slug]/page.tsx:196:13` [STRING_LITERAL] Acasa
+- `app/wineries/[slug]/page.tsx:197:13` [STRING_LITERAL] Crame
+- `app/wineries/premium/checkout/page.tsx:18:5` [STRING_LITERAL] Finalizeaza abonamentul Premium Profile pentru crama ta pe VinIntel.ro.
+- `app/wineries/premium/checkout/page.tsx:42:13` [STRING_LITERAL] Acasa
+- `app/wineries/premium/checkout/page.tsx:43:13` [STRING_LITERAL] Premium Profile
+- `app/wineries/premium/checkout/page.tsx:44:13` [STRING_LITERAL] Checkout
+- `app/wineries/premium/page.tsx:41:10` [STRING_LITERAL] Premium Profile pentru crame
+- `app/wineries/premium/page.tsx:50:12` [STRING_LITERAL] Premium Profile pentru crame | VinIntel
+- `app/wineries/premium/page.tsx:248:13` [STRING_LITERAL] Acasa
+- `app/wineries/premium/page.tsx:249:13` [STRING_LITERAL] Crame
+- `app/wineries/premium/page.tsx:250:13` [STRING_LITERAL] Premium Profile
+- `app/wines/[slug]/page.tsx:72:7` [STRING_LITERAL] vin romanesc
+- `app/wines/[slug]/page.tsx:73:7` [STRING_LITERAL] Value Score
+- `app/wines/[slug]/page.tsx:85:17` [STRING_LITERAL] VinIntel
+- `components/legal/legal-page-shell.tsx:20:13` [STRING_LITERAL] Acasa
+- `lib/ai/schemas.ts:8:33` [STRING_LITERAL] Slug-ul vinului din baza de date
+- `lib/ai/schemas.ts:13:15` [STRING_LITERAL] De ce acest vin se potriveste cererii userului, legat de preferinte
+- `lib/ai/schemas.ts:18:15` [STRING_LITERAL] Lucruri pe care oamenii nu le stiu dar ar trebui
+- `lib/ai/schemas.ts:21:15` [STRING_LITERAL] Stiinta pairing-ului cu mancare romaneasca
+- `lib/ai/schemas.ts:24:15` [STRING_LITERAL] Sfaturi de servire, temperatura, decantare, pastrare
+- `lib/ai/schemas.ts:40:29` [STRING_LITERAL] Preparat romanesc concret
+- `lib/ai/schemas.ts:48:15` [STRING_LITERAL] Cat de bine se potriveste, 60-100
+- `lib/ai/schemas.ts:55:7` [STRING_LITERAL] Desert romanesc concret: cozonac, pasca, gogosi, placinta cu mere, sarmale cu nuci etc.
+- `lib/ai/schemas.ts:60:7` [STRING_LITERAL] Explicatie scurta: de ce aromele vinului echilibreaza dulceata desertului
+- `lib/ai/schemas.ts:68:15` [STRING_LITERAL] Cat de bine se potriveste, 60-100
+- `lib/ai/schemas.ts:76:7` [STRING_LITERAL] Descriere onesta. Poate fi goala daca evidenta e insuficienta. Nu inventa note de degustare.
+- `lib/ai/schemas.ts:82:7` [STRING_LITERAL] 2-3 propozitii despre pret, sau gol daca nu exista pret/context suficient.
+- `lib/ai/schemas.ts:88:15` [STRING_LITERAL] Insight-uri doar din evidenta. Array gol daca nu exista fapte suficiente.
+- `lib/ai/schemas.ts:93:7` [STRING_LITERAL] Profil gustativ doar din note de degustare/producator. Gol daca nu exista evidenta.
+- `lib/ai/schemas.ts:100:7` [STRING_LITERAL] 0-5 pairing-uri. Array gol daca nu exista pairing evaluat sau evidenta de degustare.
+- `lib/ai/schemas.ts:107:7` [STRING_LITERAL] Pairing-uri cu deserturi romanesti; array gol daca nu exista baza factuale.
+- `lib/ai/schemas.ts:138:7` [STRING_LITERAL] Pairing-uri cu deserturi romanesti; array gol daca vinul sec taninos nu se potriveste
+- `lib/ai/schemas.ts:150:7` [STRING_LITERAL] Analiza scurta in 2-4 propozitii, ton prietenos si util, fara diacritice
+- `lib/ai/schemas.ts:176:15` [STRING_LITERAL] Anul editiei; null daca nu apare in pagina
+- `lib/ai/schemas.ts:191:15` [STRING_LITERAL] Tara gazda, optional, daca apare in pagina
+- `lib/ai/schemas.ts:200:15` [STRING_LITERAL] Toate medalii mentionate in text; array gol daca nu apar
+- `lib/ai/schemas.ts:230:15` [STRING_LITERAL] Dulceata daca apare explicit in pagina sau in numele produsului
+- `lib/ai/schemas.ts:237:15` [STRING_LITERAL] Concentratie alcoolica in % vol, doar daca apare in pagina
+- `lib/ai/schemas.ts:243:15` [STRING_LITERAL] Zahar rezidual g/L, doar daca apare in pagina
+- `lib/ai/schemas.ts:249:15` [STRING_LITERAL] Aciditate g/L, doar daca apare in pagina
+- `lib/ai/schemas.ts:263:7` [STRING_LITERAL] Toate medalii mentionate explicit in pagina; array gol [] daca nu apar
+- `lib/dessert-pairings.ts:10:3` [STRING_LITERAL] papanași
+- `lib/schema.ts:144:3` [STRING_LITERAL] Adaugat de comunitate. Analiza generata de VinIntel.ro. In curs de verificare.
+- `lib/schema.ts:244:48` [STRING_LITERAL] Romania
+- `lib/seo.ts:2:9` [STRING_LITERAL] VinIntel
+- `lib/seo.ts:39:11` [STRING_LITERAL] Romania
+- `lib/top-list-links.ts:9:12` [STRING_LITERAL] Vinuri romanesti
+- `lib/top-list-links.ts:11:12` [STRING_LITERAL] Cele mai bune vinuri romanesti
+- `lib/top-list-links.ts:16:12` [STRING_LITERAL] Vinuri ieftine si bune
+- `lib/top-list-links.ts:20:12` [STRING_LITERAL] Crame din Romania
+- `lib/wine-json-ld.ts:106:9` [TEMPLATE_TEXT] Vin romanesc {{expression}}.
+- `lib/wine-json-ld.ts:136:14` [STRING_LITERAL] Offer
+- `lib/wine-json-ld.ts:138:20` [STRING_LITERAL] RON
+- `lib/wine-json-ld.ts:191:13` [STRING_LITERAL] Romania
+- `lib/wine-json-ld.ts:194:20` [STRING_LITERAL] Organization
+- `lib/wine-json-ld.ts:224:15` [STRING_LITERAL] Acasa
+- `lib/wine-json-ld.ts:230:15` [STRING_LITERAL] Vinuri
+- `lib/wine-json-ld.ts:249:25` [TEMPLATE_TEXT] de la {{expression}}
+- `lib/wine-json-ld.ts:251:23` [TEMPLATE_TEXT] Value Score {{expression}}/100
+- `lib/wine-json-ld.ts:253:9` [TEMPLATE_TEXT] potrivit pentru {{expression}}
+- `lib/wine-json-ld.ts:257:10` [TEMPLATE_TEXT] {{expression}}. Analiza completa, pairing-uri romanesti si unde il gasesti.
+
+## FAQ
+
+- `app/crame/page.tsx:46:15` [STRING_LITERAL] Cate crame romanesti sunt pe VinIntel?
+- `app/crame/page.tsx:48:7` [STRING_LITERAL] Listam crame cu cel putin un vin analizat in catalog. Fiecare profil include regiune, numar de vinuri, Value Score mediu si interval de pret.
+- `app/crame/page.tsx:51:15` [STRING_LITERAL] Cum aleg o crama potrivita?
+- `app/crame/page.tsx:53:7` [STRING_LITERAL] Compara Value Score-ul mediu, intervalul de pret si vinurile disponibile. Poti explora si regiunile viticole pentru context local.
+- `app/crame/page.tsx:58:7` [STRING_LITERAL] Da. Producatorii pot revendica profilul, verifica datele si actualiza informatiile despre vinuri prin formularul Revendica crama.
+- `app/cum-functioneaza-scorurile/page.tsx:133:15` [STRING_LITERAL] Cum este calculat Value Score?
+- `app/cum-functioneaza-scorurile/page.tsx:135:7` [STRING_LITERAL] Value Score combina calitatea intrinseca (Q) cu eficienta pretului. Q estimeaza cat de bun este vinul fara a folosi pretul. Eficienta pretului masoara cat de bine se pozitioneaza fata de nivelul obisnuit al segmentului sau la acel pret. Rezultatul final este 72% Q + 28% eficienta pret.
+- `app/cum-functioneaza-scorurile/page.tsx:138:15` [STRING_LITERAL] Sunt scorurile influentate de bani sau de crame?
+- `app/cum-functioneaza-scorurile/page.tsx:140:7` [STRING_LITERAL] Nu. Scorurile sunt independente. Cramele isi pot revendica profilul pentru a corecta date factuale (pret, vintage, specificatii), dar nu pot cumpara sau modifica scorurile. Metodologia este aceeasi pentru toate vinurile.
+- `app/cum-functioneaza-scorurile/page.tsx:145:7` [STRING_LITERAL] Recalculam scorurile periodic, pe masura ce apar preturi noi, recenzii si vintage-uri. Istoricul valorii este pastrat pentru a urmari evolutia in timp.
+- `app/cum-functioneaza-scorurile/page.tsx:148:15` [STRING_LITERAL] Ce inseamna un scor sub 50?
+- `app/cum-functioneaza-scorurile/page.tsx:150:7` [STRING_LITERAL] Un scor sub 50 nu inseamna ca vinul este slab, ci ca, la pretul actual, exista alternative cu un raport calitate-pret mai bun. Pentru ocazii, Gift Score si versatilitatea la masa pot conta mai mult decat Value Score.
+- `app/cum-functioneaza-scorurile/page.tsx:153:15` [STRING_LITERAL] De ce un vin cu date insuficiente nu poate avea scor foarte mare?
+- `app/cum-functioneaza-scorurile/page.tsx:155:7` [STRING_LITERAL] Increderea datelor este calculata separat de scor si limiteaza plafonul maxim posibil. Un vin fara producator, regiune, soi sau medalii confirmate primeste automat incredere scazuta, iar scorul sau este plafonat (de exemplu maxim 69/100 pentru date insuficiente) si marcat ca provizoriu. Lipsa de date nu poate niciodata sa produca un scor exceptional.
+- `app/page.tsx:49:15` [STRING_LITERAL] Ce este VinIntel?
+- `app/page.tsx:56:7` [TEMPLATE_TEXT] Value Score este un indicator de la 0 la 100 care arata cat de bun este un vin raportat la pretul cerut, calculat dintr-o formula transparenta (calitate estimata + eficienta pretului), nu dintr-un vot al utilizatorilor. Peste {{expression}} merita pretul, intre {{expression}} si {{expression}} este pret corect, sub {{expression}} exista probabil alternative mai bune. Increderea datelor este afisata separat: scorurile bazate pe date insuficiente sunt plafonate si marcate ca provizorii.
+- `app/page.tsx:59:15` [STRING_LITERAL] Cum gasesc un vin pentru o anumita mancare sau ocazie?
+- `app/page.tsx:66:7` [STRING_LITERAL] Da. Preturile sunt afisate in RON ca pret actual verificat sau pret aproximativ, in functie de sursa disponibila pentru fiecare vin.
+- `app/politica-confidentialitate/page.tsx:47:89` [JSX_TEXT] . Pentru intrebari legate de datele personale ne poti contacta la
+- `app/politica-cookies/page.tsx:157:9` [JSX_TEXT] Pentru intrebari despre cookie-uri:
+- `app/regiuni/[slug]/page.tsx:38:17` [TEMPLATE_TEXT] Ce vinuri recomanda VinIntel din {{expression}}?
+- `app/regiuni/[slug]/page.tsx:39:15` [TEMPLATE_TEXT] Avem {{expression}} vinuri din {{expression}} in catalog, ordonate dupa Value Score, cu preturi in RON si pairing-uri pentru mancare romaneasca.
+- `app/regiuni/[slug]/page.tsx:42:17` [TEMPLATE_TEXT] Cate crame sunt in {{expression}}?
+- `app/regiuni/[slug]/page.tsx:43:15` [TEMPLATE_TEXT] Listam {{expression}} crame din {{expression}} cu cel putin un vin analizat in baza noastra de date.
+- `app/regiuni/[slug]/page.tsx:46:17` [TEMPLATE_TEXT] Cum aleg un vin din {{expression}}?
+- `app/soiuri/[slug]/page.tsx:46:17` [TEMPLATE_TEXT] Care sunt cele mai bune vinuri {{expression}}?
+- `app/soiuri/[slug]/page.tsx:48:11` [TEMPLATE_TEXT] {{expression}} conduce cu Value Score {{expression}}/100 la {{expression}}.
+- `app/soiuri/[slug]/page.tsx:49:11` [TEMPLATE_TEXT] Actualizam topul de vinuri {{expression}} periodic.
+- `app/soiuri/[slug]/page.tsx:53:15` [TEMPLATE_TEXT] {{expression}} este un soi reprezentativ in viticultura romaneasca, cu stiluri diferite in functie de regiune si crama.
+- `app/soiuri/[slug]/page.tsx:57:15` [TEMPLATE_TEXT] Clasamentul complet de vinuri {{expression}} este pe vinintel.ro/topuri/{{expression}}.
+- `app/studii/[slug]/page.tsx:31:17` [STRING_LITERAL] Care este cel mai bun vin romanesc sub 50 lei in 2026?
+- `app/studii/[slug]/page.tsx:33:11` [TEMPLATE_TEXT] {{expression}} de la {{expression}} conduce cu Value Score {{expression}}/100 la {{expression}}.
+- `app/studii/[slug]/page.tsx:34:11` [STRING_LITERAL] Actualizam studiul periodic pe masura ce apar vinuri noi in catalog.
+- `app/studii/[slug]/page.tsx:37:17` [STRING_LITERAL] Cate vinuri sub 50 lei sunt in studiu?
+- `app/studii/[slug]/page.tsx:38:15` [TEMPLATE_TEXT] Am analizat {{expression}} vinuri in catalog; {{expression}} au pret sub 50 lei.
+- `app/studii/[slug]/page.tsx:43:9` [STRING_LITERAL] Value Score combina calitatea estimata, pretul in RON, disponibilitatea si semnale de piata. Detalii pe pagina Cum functioneaza scorurile.
+- `app/topuri/page.tsx:56:15` [STRING_LITERAL] Cum sunt construite topurile VinIntel?
+- `app/topuri/page.tsx:58:7` [STRING_LITERAL] Topurile combina Value Score, pret, tip de vin, ocazie si soiuri din catalogul nostru verificat. Lista se actualizeaza pe masura ce adaugam vinuri noi.
+- `app/topuri/page.tsx:61:15` [STRING_LITERAL] Ce inseamna vinuri sub 50 lei?
+- `app/topuri/page.tsx:63:7` [STRING_LITERAL] Selectii cu pret mediu sub 50 RON, ordonate dupa raportul calitate-pret. Ideal pentru cump cumparaturi zilnice sau mese cu prietenii.
+- `app/topuri/page.tsx:68:7` [STRING_LITERAL] Da. Trimite-ne un mesaj sau foloseste Adauga vin daca lipseste un vin pe care il cauti in topuri.
+- `app/vinuri/page.tsx:54:15` [STRING_LITERAL] Ce este Value Score?
+- `app/vinuri/page.tsx:56:7` [STRING_LITERAL] Value Score este scorul VinIntel pentru raportul calitate-pret. Cu cat e mai mare, cu atat vinul ofera mai mult pentru banii tai.
+- `app/vinuri/page.tsx:59:15` [STRING_LITERAL] Cum caut un vin in catalog?
+- `app/vinuri/page.tsx:61:7` [STRING_LITERAL] Filtreaza dupa culoare sau tip, dulceata, pret si Value Score. Poti cauta si dupa nume, crama, regiune sau soi.
+- `app/vinuri/page.tsx:64:15` [STRING_LITERAL] Pot adauga un vin care lipseste?
+- `app/vinuri/page.tsx:66:7` [STRING_LITERAL] Da. Trimite linkul paginii vinului prin formularul Adauga vin si il verificam inainte de publicare.
+- `app/wineries/[slug]/page.tsx:74:17` [TEMPLATE_TEXT] Cate vinuri are {{expression}} pe VinIntel?
+- `app/wineries/[slug]/page.tsx:75:15` [TEMPLATE_TEXT] Avem {{expression}} vinuri de la {{expression}} in baza de date, ordonate dupa Value Score, cu preturi in RON si pairing-uri.
+- `app/wineries/[slug]/page.tsx:78:17` [TEMPLATE_TEXT] Care este cel mai bun vin de la {{expression}}?
+- `app/wineries/[slug]/page.tsx:80:11` [TEMPLATE_TEXT] In acest moment, {{expression}} conduce, cu Value Score {{expression}}/100 la {{expression}}.
+- `app/wineries/[slug]/page.tsx:81:11` [TEMPLATE_TEXT] Actualizam constant lista de vinuri de la {{expression}}.
+- `app/wineries/[slug]/page.tsx:85:15` [TEMPLATE_TEXT] {{expression}} se afla in regiunea {{expression}}{{expression}}.
+- `app/wineries/[slug]/page.tsx:88:17` [TEMPLATE_TEXT] Este {{expression}} o crama verificata?
+- `app/wineries/[slug]/page.tsx:90:11` [TEMPLATE_TEXT] Da, {{expression}} este o crama verificata in baza noastra de date.
+- `app/wineries/[slug]/page.tsx:91:11` [TEMPLATE_TEXT] {{expression}} nu este inca verificata oficial. Daca reprezinti aceasta crama, poti solicita verificarea.
+- `app/wineries/premium/page.tsx:155:7` [STRING_LITERAL] De cand am trecut pe Premium, profilul cramei primeste intrebari concrete despre vizite si degustari. Analytics-ul ne arata exact ce vinuri atrag atentia.
+- `app/wineries/premium/page.tsx:180:7` [STRING_LITERAL] Da. Revendicarea si verificarea cramei sunt gratuite. Premium Profile adauga instrumente de marketing, analytics si promovare activa.
+- `app/wineries/premium/page.tsx:185:7` [STRING_LITERAL] Dupa confirmarea platii, configuram profilul in 3-5 zile lucratoare: banner, poveste, calendar si tracking analytics.
+- `app/wineries/premium/page.tsx:188:15` [STRING_LITERAL] Pot trece de la plan lunar la anual?
+- `app/wineries/premium/page.tsx:190:7` [STRING_LITERAL] Da, oricand. Planul anual (990 lei) include echivalentul a 2 luni gratuite fata de plata lunara.
+- `components/top-lists/top-list-wine-verdict.tsx:146:9` [JSX_TEXT] Raspuns rapid: top 5 vinuri romanesti
+- `components/top-lists/top-list-wine-verdict.tsx:149:9` [JSX_TEXT] Cele mai bune optiuni acum, cu pret in RON si motivul alegerii.
+- `lib/dish-pairing-pages.ts:173:11` [TEMPLATE_TEXT] Recomandam {{expression}} la {{expression}}, cu Value Score {{expression}}/100.
+- `lib/dish-pairing-pages.ts:174:11` [STRING_LITERAL] Actualizam recomandarile in functie de disponibilitate si pret.
+- `lib/dish-pairing-pages.ts:177:17` [TEMPLATE_TEXT] Ce tip de vin se potriveste cu {{expression}}?
+- `lib/dish-pairing-pages.ts:183:9` [STRING_LITERAL] Da. Afisam preturi in RON ca pret actual verificat sau pret aproximativ, in functie de sursa.
+- `lib/emails/winery-premium.ts:81:10` [TEMPLATE_TEXT] <!DOCTYPE html> <html lang="ro"> <head> <meta charset="utf-8" /> <meta name="viewport" content="width=device-width, initial-scale=1" /> <title>{{expression}}</title> </head> <body style="margin:0;padding:0;background:{{expression}};font-family:Georgia,'Times New Roman',serif;color:#1c1917;"> <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:{{expression}};padding:32px 16px;"> <tr> <td align="center"> <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border:1px solid #e7e5e4;border-radius:16px;overflow:hidden;"> <tr> <td style="background:{{expression}};padding:20px 28px;"> <p style="margin:0;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:#fde8e0;">VinIntel Premium</p> </td> </tr> <tr> <td style="padding:28px;"> {{expression}} </td> </tr> <tr> <td style="padding:16px 28px 24px;border-top:1px solid #e7e5e4;"> <p style="margin:0;font-size:12px;color:#78716c;line-height:1.5;"> VinIntel.ro | Premium Profile pentru crame romanesti<br /> Raspunde la acest email daca ai intrebari. </p> </td> </tr> </table> </td> </tr> </table> </body> </html>
+- `lib/top-lists.ts:326:28` [STRING_LITERAL] cele mai bune vinuri romanesti
+- `lib/top-lists.ts:349:28` [STRING_LITERAL] vinuri bune din supermarket
+- `lib/top-lists.ts:369:28` [STRING_LITERAL] vinuri cadou
+- `lib/top-lists.ts:392:28` [TEMPLATE_TEXT] vinuri {{expression}} romanesti
+- `lib/top-lists.ts:420:28` [TEMPLATE_TEXT] vinuri {{expression}}
+- `lib/top-lists.ts:564:17` [TEMPLATE_TEXT] Care sunt cele mai bune {{expression}}?
+- `lib/top-lists.ts:567:13` [TEMPLATE_TEXT] In acest moment, {{expression}}{{expression}} conduce clasamentul la un pret de {{expression}}. Nu afisam un {{expression}} numeric fara suficiente date publice.
+- `lib/top-lists.ts:567:63` [TEMPLATE_TEXT] de la {{expression}}
+- `lib/top-lists.ts:568:13` [TEMPLATE_TEXT] In acest moment, {{expression}}{{expression}} conduce clasamentul, cu {{expression}} {{expression}}/100 la un pret de {{expression}}.
+- `lib/top-lists.ts:568:63` [TEMPLATE_TEXT] de la {{expression}}
+- `lib/top-lists.ts:569:11` [TEMPLATE_TEXT] Lista este actualizata periodic in functie de preturi si evaluari.
+- `lib/top-lists.ts:575:13` [STRING_LITERAL] Folosim Gift Score (0-100): cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul.
+- `lib/top-lists.ts:578:15` [STRING_LITERAL] Folosim Value Score, un indicator de la 0 la 100 care masoara raportul calitate-pret, combinat cu date despre preturi actuale in RON si potrivirea cu mancarea romaneasca.
+- `lib/top-lists.ts:592:17` [STRING_LITERAL] Care este cel mai bun vin ieftin si bun sub 50 lei?
+- `lib/top-lists.ts:594:11` [TEMPLATE_TEXT] {{expression}} ofera cel mai bun raport calitate-pret sub 50 lei, cu Value Score {{expression}}/100 la {{expression}}.
+- `lib/top-lists.ts:595:11` [STRING_LITERAL] Actualizam constant selectia de vinuri ieftine si bune sub 50 lei.
+- `lib/top-lists.ts:598:17` [STRING_LITERAL] Merita vinurile ieftine romanesti?
+- `lib/top-lists.ts:600:9` [STRING_LITERAL] Da. Multe vinuri romanesti sub 50 lei au Value Score peste 75. Le comparam dupa pret, medalii si disponibilitate, nu doar dupa eticheta.
+- `lib/top-lists.ts:603:17` [STRING_LITERAL] Ce trebuie evitat la un vin foarte ieftin?
+- `lib/top-lists.ts:605:9` [STRING_LITERAL] Evita vinurile fara informatii clare despre crama, regiune sau vintage. Un pret foarte mic fara Value Score sau recenzii poate ascunde calitate slaba.
+- `lib/top-lists.ts:617:17` [TEMPLATE_TEXT] Care este cel mai bun vin romanesc sub {{expression}} lei?
+- `lib/top-lists.ts:619:11` [TEMPLATE_TEXT] {{expression}} ofera cel mai bun raport calitate-pret sub {{expression}} lei, cu Value Score {{expression}}/100 la {{expression}}.
+- `lib/top-lists.ts:620:11` [TEMPLATE_TEXT] Actualizam constant selectia de vinuri sub {{expression}} lei.
+- `lib/top-lists.ts:623:17` [TEMPLATE_TEXT] Merita vinurile sub {{expression}} lei?
+- `lib/top-lists.ts:624:15` [TEMPLATE_TEXT] Da. Multe vinuri romanesti sub {{expression}} lei au un raport calitate-pret excelent. Le ordonam dupa Value Score ca sa gasesti rapid cele mai bune optiuni.
+- `lib/top-lists.ts:629:9` [STRING_LITERAL] Afisam preturi in RON ca pret actual verificat sau pret aproximativ, in functie de sursa disponibila pentru fiecare vin.
+- `lib/top-lists.ts:645:17` [TEMPLATE_TEXT] Ce vin sub {{expression}} lei se potriveste pentru {{expression}}?
+- `lib/top-lists.ts:648:13` [TEMPLATE_TEXT] Recomandam {{expression}}{{expression}}, la {{expression}}. Nu afisam un scor numeric de potrivire fara suficiente date publice.
+- `lib/top-lists.ts:648:57` [TEMPLATE_TEXT] de la {{expression}}
+- `lib/top-lists.ts:649:13` [TEMPLATE_TEXT] Recomandam {{expression}}{{expression}}, la {{expression}}. Scorul de potrivire pentru {{expression}} este {{expression}}/100.
+- `lib/top-lists.ts:649:57` [TEMPLATE_TEXT] de la {{expression}}
+- `lib/top-lists.ts:650:11` [TEMPLATE_TEXT] Actualizam selectia pentru {{expression}} in functie de disponibilitate.
+- `lib/top-lists.ts:653:17` [TEMPLATE_TEXT] Cum alegem vinurile pentru {{expression}}?
+- `lib/top-lists.ts:657:17` [STRING_LITERAL] Pot vedea detalii despre fiecare vin?
+- `lib/top-lists.ts:659:9` [STRING_LITERAL] Da, fiecare vin are o pagina dedicata cu analiza completa, specificatii tehnice, pairing-uri si unde il gasesti.
+- `lib/wine-analysis.ts:121:9` [STRING_LITERAL] Nu avem încă suficiente date pentru o recomandare culinară specifică acestui vin.
+- `lib/wine-analysis.ts:123:11` [TEMPLATE_TEXT] Una dintre asocierile recomandate este {{expression}}. {{expression}}
+- `lib/wine-analysis.ts:124:11` [TEMPLATE_TEXT] Una dintre cele mai bune asocieri este {{expression}}, cu un scor de compatibilitate de {{expression}}/100. {{expression}}
+- `lib/wine-analysis.ts:129:15` [TEMPLATE_TEXT] Pretul mediu actual este {{expression}}, urmarit in magazine din Romania. Preturile pot varia in functie de retailer si promotii.
+- `lib/wine-analysis.ts:132:17` [TEMPLATE_TEXT] Ce mancare se potriveste cu {{expression}}?
+- `lib/wine-analysis.ts:141:15` [TEMPLATE_TEXT] {{expression}} este produs de {{expression}}, din regiunea {{expression}}. {{expression}}
+- `lib/wine-analysis.ts:141:113` [STRING_LITERAL] Crama este verificata in baza noastra de date.
+- `lib/wine-analysis.ts:141:164` [STRING_LITERAL] Crama nu este inca verificata oficial de VinIntel.
+- `lib/wine-analysis.ts:145:15` [TEMPLATE_TEXT] Value Score masoara raportul calitate-pret de la 0 la 100. Peste {{expression}} inseamna ca merita banii, intre {{expression}} si {{expression}} este pret mediu, sub {{expression}} recomandam alternative.
+- `lib/winery-copy.ts:22:7` [TEMPLATE_TEXT] Reprezinți {{expression}}?
+- `lib/winery-copy.ts:23:7` [TEMPLATE_TEXT] Reprezinți crama {{expression}}?
+- `lib/winery-copy.ts:31:7` [TEMPLATE_TEXT] Unde se afla crama {{expression}}?
+
+## ERROR
+
+- `app/actions/contact-form.ts:44:32` [STRING_LITERAL] Lipseste numele vinului pentru verificare.
+- `app/adauga-vin/error.tsx:19:11` [JSX_TEXT] Ceva nu a mers bine
+- `app/adauga-vin/error.tsx:22:11` [JSX_TEXT] Nu am putut incarca pagina. Incearca din nou sau revino la homepage.
+- `app/adauga-vin/error.tsx:29:28` [JSX_TEXT] Acasa
+- `app/api/stripe/billing-portal/route.ts:15:18` [STRING_LITERAL] Plata online nu este configurata.
+- `app/api/stripe/billing-portal/route.ts:37:18` [STRING_LITERAL] Nu exista client Stripe pentru aceasta crama.
+- `app/api/stripe/billing-portal/route.ts:51:16` [STRING_LITERAL] Nu am putut deschide portalul de facturare.
+- `app/api/stripe/premium-checkout/route.ts:17:18` [STRING_LITERAL] Plata online nu este configurata inca.
+- `app/api/wineries/[wineryId]/analytics/route.ts:46:37` [STRING_LITERAL] Crama negasita.
+- `app/api/wineries/[wineryId]/analytics/route.ts:85:16` [STRING_LITERAL] Eroare la inregistrarea evenimentului.
+- `app/api/wines/[wineId]/report/route.ts:85:21` [STRING_LITERAL] [WINE REPORT] notification failed
+- `app/api/wines/[wineId]/report/route.ts:95:16` [STRING_LITERAL] Nu am putut trimite raportul.
+- `app/api/wines/[wineId]/vote/route.ts:45:18` [STRING_LITERAL] Acest vin nu accepta voturi.
+- `app/api/wines/[wineId]/vote/route.ts:139:35` [STRING_LITERAL] Eroare la citire.
+- `app/cauta/error.tsx:17:19` [STRING_LITERAL] [cauta]
+- `app/cauta/error.tsx:28:11` [JSX_TEXT] Nu am putut incarca rezultatele. Incearca din nou sau foloseste catalogul de vinuri.
+- `app/cauta/error.tsx:36:34` [JSX_TEXT] Catalog vinuri
+- `app/claim-your-winery/error.tsx:21:9` [JSX_TEXT] Ceva nu a mers bine
+- `app/claim-your-winery/error.tsx:24:9` [JSX_TEXT] Nu am putut incarca pagina de revendicare. Incearca din nou.
+- `app/crame/error.tsx:24:9` [JSX_TEXT] A aparut o eroare. Incearca din nou sau revino la pagina principala.
+- `app/error.tsx:20:9` [JSX_TEXT] Ceva nu a mers bine
+- `app/error.tsx:23:9` [JSX_TEXT] A aparut o eroare neasteptata. Incearca din nou sau revino mai tarziu.
+- `app/journal/[slug]/error.tsx:24:9` [JSX_TEXT] A aparut o eroare. Incearca din nou sau revino la Wine Journal.
+- `app/journal/error.tsx:24:9` [JSX_TEXT] A aparut o eroare. Incearca din nou sau revino la pagina principala.
+- `app/politica-confidentialitate/error.tsx:24:9` [JSX_TEXT] A aparut o eroare la afisarea continutului legal. Incearca din nou.
+- `app/politica-cookies/error.tsx:24:9` [JSX_TEXT] A aparut o eroare la afisarea continutului legal. Incearca din nou.
+- `app/regiuni/[slug]/error.tsx:22:11` [JSX_TEXT] Incearca din nou sau revino la directorul de crame.
+- `app/soiuri/[slug]/error.tsx:19:11` [JSX_TEXT] Nu am putut incarca pagina soiului
+- `app/soiuri/[slug]/error.tsx:22:11` [JSX_TEXT] Incearca din nou sau revino la catalogul de vinuri.
+- `app/soiuri/[slug]/error.tsx:29:34` [JSX_TEXT] Vinuri
+- `app/studii/[slug]/error.tsx:22:11` [JSX_TEXT] Incearca din nou sau revino la topurile VinIntel.
+- `app/topuri/[slug]/error.tsx:21:9` [JSX_TEXT] Nu am putut incarca acest top
+- `app/topuri/[slug]/error.tsx:24:9` [JSX_TEXT] A aparut o eroare. Incearca din nou sau exploreaza alte ghiduri.
+- `app/topuri/error.tsx:24:9` [JSX_TEXT] A aparut o eroare. Incearca din nou sau revino la pagina principala.
+- `app/vinuri/error.tsx:24:9` [JSX_TEXT] A aparut o eroare. Incearca din nou sau revino la pagina principala.
+- `app/wineries/[slug]/error.tsx:21:9` [JSX_TEXT] Nu am putut incarca crama
+- `app/wineries/[slug]/error.tsx:24:9` [JSX_TEXT] A aparut o eroare. Incearca din nou sau revino la pagina principala.
+- `app/wineries/premium/checkout/error.tsx:31:42` [JSX_TEXT] Inapoi la Premium
+- `app/wineries/premium/error.tsx:24:9` [JSX_TEXT] A aparut o eroare. Incearca din nou sau contacteaza-ne direct.
+- `app/wineries/premium/error.tsx:34:31` [JSX_TEXT] Inapoi la crame
+- `app/wines/[slug]/error.tsx:21:9` [JSX_TEXT] Nu am putut incarca vinul
+- `app/wines/[slug]/error.tsx:24:9` [JSX_TEXT] A aparut o eroare la incarcarea paginii. Incearca din nou sau revino la lista de vinuri.
+- `app/wines/[slug]/error.tsx:35:32` [JSX_TEXT] Toate vinurile
+- `components/claim/claim-form.tsx:35:30` [STRING_LITERAL] Nu am putut trimite cererea.
+- `components/wineries/premium-checkout-form.tsx:67:53` [STRING_LITERAL] Eroare la checkout.
+- `components/wineries/premium-contact-form.tsx:44:30` [STRING_LITERAL] Nu am putut trimite cererea.
+- `components/wineries/winery-billing-portal-button.tsx:37:53` [STRING_LITERAL] Eroare la portal.
+- `components/wines/verification-lead-form.tsx:45:30` [STRING_LITERAL] Nu am putut trimite cererea.
+- `components/wines/wine-community-vote-button.tsx:112:50` [STRING_LITERAL] Eroare la trimitere.
+- `components/wines/wine-community-vote-button.tsx:123:53` [STRING_LITERAL] Eroare la trimitere.
+- `components/wines/wine-report-button.tsx:32:50` [STRING_LITERAL] Eroare la trimitere.
+- `components/wines/wine-report-button.tsx:35:53` [STRING_LITERAL] Eroare la trimitere.
+- `lib/contact-form-email.ts:111:34` [STRING_LITERAL] Serviciul de email nu este configurat.
+- `lib/contact-form-email.ts:129:36` [STRING_LITERAL] Nu am putut trimite mesajul. Incearca din nou.
+- `lib/contact-form-email.ts:140:34` [STRING_LITERAL] Nu am putut trimite mesajul. Incearca din nou.
+- `lib/extract-wine-image.ts:84:19` [STRING_LITERAL] Nu am gasit imagine pentru acest vin.
+- `lib/importWines.ts:458:21` [TEMPLATE_TEXT] Eroare la importul vinului {{expression}}:
+- `lib/reconcile-wine-producer.ts:221:21` [TEMPLATE_TEXT] Crama negasita: {{expression}}
+- `lib/use-speech-recognition.ts:142:18` [STRING_LITERAL] Acces la microfon refuzat. Permite microfonul in browser.
+- `lib/use-speech-recognition.ts:144:18` [STRING_LITERAL] Nu am putut recunoaste vocea. Incearca din nou.
+- `lib/use-speech-recognition.ts:161:16` [STRING_LITERAL] Microfonul este deja activ.
+
+## VALIDATION
+
+- `app/actions/contact-form.ts:40:32` [STRING_LITERAL] Adresa de email nu pare valida.
+- `app/api/analyze-wine/route.ts:25:13` [STRING_LITERAL] Link invalid. Introdu un URL complet catre pagina vinului.
+- `app/cum-functioneaza-scorurile/page.tsx:66:7` [STRING_LITERAL] Calitate intrinseca estimata (Q): note, medalii validate, regiune, cramă, vintage
+- `app/politica-confidentialitate/page.tsx:176:9` [JSX_TEXT] VinIntel.ro se adreseaza persoanelor cu varsta de cel putin 18 ani. Consumul responsabil de alcool este obligatoriu. Nu colectam in mod intentionat date de la minori.
+- `components/smart-search.tsx:142:23` [STRING_LITERAL] Nu am primit un rezultat valid.
+- `components/ui/input-group.tsx:17:9` [STRING_LITERAL] group/input-group relative flex h-8 w-full min-w-0 items-center rounded-lg border border-input transition-colors outline-none in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-disabled:bg-input/50 has-disabled:opacity-50 has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-3 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto dark:bg-input/30 dark:has-disabled:bg-input/80 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5
+- `components/wines/wine-dual-scores.tsx:91:9` [JSX_TEXT] VinIntel Value Score separa calitatea intrinseca (Q) de eficienta pretului. Q foloseste date de degustare, medalii validate, regiune, crama si vintage, fara a infera calitatea din pret. Eficienta pretului masoara cat de bine se pozitioneaza vinul fata de nivelul obisnuit al segmentului sau la acel pret.
+- `lib/ai/journal-prompts.ts:42:10` [TEMPLATE_TEXT] Scrie un articol complet pentru Wine Journal. Titlu propus: {{expression}} Subiect principal: {{expression}}{{expression}} Returneaza DOAR fisierul markdown complet, cu frontmatter YAML valid: --- slug: {{expression}} title: {{expression}} excerpt: [2-3 propozitii, max 160 caractere, pentru cardul de previzualizare] publishedAt: YYYY-MM-DD category: {{expression}} featured: false popular: false readCount: 0 --- [corp articol 1400-1800 cuvinte, sectiuni cu ##] Reguli tehnice: - excerpt: scurt, convingator, fara diacritice - slug: lowercase, cratime, fara diacritice - Nu include text in afara fisierului markdown
+- `lib/ai/prompts.ts:355:45` [TEMPLATE_TEXT] Esti un expert in vinuri care analizeaza descrieri si pagini de vinuri. Extrage TOATE medaliile mentionate pentru acest vin si returneaz-o in campul medals (array structurat). Format obligatoriu: medals: [ { year: number (sau null daca nu apare), competition: string (numele competitiei), medal: "Gold" | "Silver" | "Bronze" | string, importance: "high" | "medium" | "low" } ] Reguli: - Daca apar mai multe medalii, listeaza-le pe toate (fiecare intrare separata). - Daca competitia e importanta international (Decanter, Decanter World Wine Awards, Balkans International, Vinarium, IWSC, Concours Mondial de Bruxelles, Mundus Vini etc.), marcheaza importance: "high". - Concursuri nationale romanesti: importance "medium". Festivaluri locale sau mentions vagi: "low". - Diferentiaza clar Gold vs Silver vs Bronze cand apare in pagina. - Aceeasi competitie in ani diferiti = intrari separate cu year distinct. - Daca nu sunt medalii mentionate, returneaza array gol: []. - Nu inventa medalii. Extrage doar ce apare explicit in pagina (text, liste, sectiuni premii, logo-uri cu nume de concurs). - Duplicati: o singura intrare per competitie + an + tip medalie.
+- `lib/editorial-claim-validator.ts:68:3` [STRING_LITERAL] un vin alb
+- `lib/editorial-claim-validator.ts:69:3` [STRING_LITERAL] un vin rosu
+- `lib/editorial-claim-validator.ts:76:3` [STRING_LITERAL] acest vin
+- `lib/editorial-claim-validator.ts:77:3` [STRING_LITERAL] vinul are
+- `lib/editorial-claim-validator.ts:82:3` [STRING_LITERAL] gust de
+- `lib/editorial-claim-validator.ts:246:9` [TEMPLATE_TEXT] Textul descrie un alt tip de vin decat cel inregistrat ({{expression}}).
+- `lib/editorial-claim-validator.ts:247:9` [STRING_LITERAL] O mentiune de identitate (acest vin alb/rosu/spumant) contrazice campul type.
+- `lib/editorial-claim-validator.ts:259:9` [STRING_LITERAL] Descrierea prezinta vinul ca sec sau dulce in contradictie cu campul sweetness.
+- `lib/editorial-claim-validator.ts:276:11` [STRING_LITERAL] Afirmatie de taninuri incompatibile cu tipul vinului.
+- `lib/editorial-claim-validator.ts:277:11` [STRING_LITERAL] Vinurile albe, roze sau spumante nu primesc claim-uri de tanin specifice sticlei, decat daca exista evidenta de maceratie.
+- `lib/editorial-claim-validator.ts:286:11` [STRING_LITERAL] Afirmatie specifica de taninuri fara evidenta de degustare sau fisa tehnica.
+- `lib/editorial-claim-validator.ts:287:11` [STRING_LITERAL] Taninurile acestui vin nu apar in tastingNotes / producerContent.
+- `lib/editorial-claim-validator.ts:305:9` [STRING_LITERAL] Afirmatie de stejar/barrique nesustinuta de evidenta.
+- `lib/editorial-claim-validator.ts:306:9` [STRING_LITERAL] Stejarul trebuie sa apara in notele producatorului, fisa tehnica sau tastingNotes.
+- `lib/editorial-claim-validator.ts:317:11` [STRING_LITERAL] Durata de stejar este pretinsa, dar sursa confirma doar prezenta stejarului.
+- `lib/editorial-claim-validator.ts:318:11` [STRING_LITERAL] Mentiunea de stejar nu valideaza luni exacte, originea baricului sau vanilia.
+- `lib/editorial-claim-validator.ts:328:11` [STRING_LITERAL] Originea sau ciclul baricului nu apare in sursa.
+- `lib/editorial-claim-validator.ts:329:11` [STRING_LITERAL] Stejar confirmat nu inseamna baric francez de prima folosinta.
+- `lib/editorial-claim-validator.ts:343:11` [STRING_LITERAL] Vanilia este pretinsa fara sa apara in evidenta de degustare.
+- `lib/editorial-claim-validator.ts:344:11` [STRING_LITERAL] Un claim de stejar nu autorizeaza automat vanilie.
+- `lib/editorial-claim-validator.ts:361:9` [STRING_LITERAL] Afirmatie specifica de aciditate fara valoare tehnica sau nota de degustare.
+- `lib/editorial-claim-validator.ts:362:9` [STRING_LITERAL] Aciditatea numerica sau un descriptor de aciditate din sursa lipsesc.
+- `lib/editorial-claim-validator.ts:399:13` [STRING_LITERAL] Fructele rosii nu sunt un descriptor plauzibil pentru acest tip de vin, in lipsa evidentei.
+- `lib/editorial-claim-validator.ts:400:13` [STRING_LITERAL] Descriptorul nu apare in tastingNotes sau in textul producatorului.
+- `lib/editorial-claim-validator.ts:411:9` [STRING_LITERAL] Textul combina consum tanar cu evolutie lunga la pivnita.
+- `lib/editorial-claim-validator.ts:412:9` [STRING_LITERAL] Cele doua afirmatii de invechire se contrazic si nu pot fi publicate impreuna.
+- `lib/editorial-claim-validator.ts:428:9` [TEMPLATE_TEXT] Ani exacti de invechire nesustinuti ({{expression}} ani).
+- `lib/editorial-claim-validator.ts:429:9` [STRING_LITERAL] Un numar exact de ani de invechire necesita fisa tehnica sau text de producator.
+- `lib/editorial-claim-validator.ts:441:9` [STRING_LITERAL] Textul face afirmatii senzoriale specifice desi nu exista evidenta de degustare.
+- `lib/editorial-claim-validator.ts:455:9` [STRING_LITERAL] O afirmatie specifica despre sticla nu are evidenta de suport.
+- `lib/editorial-claim-validator.ts:456:9` [STRING_LITERAL] Claim-ul poate ramane doar daca este etichetat ca orientare generala sau este atribuit producatorului.
+- `lib/editorial-claim-validator.ts:490:9` [STRING_LITERAL] Acelasi paragraf copiat pe mai multe feluri semnaleaza text generat, nu evaluare.
+- `lib/editorial-claim-validator.ts:514:11` [STRING_LITERAL] AI nu poate inventa structura vinului ca sa justifice un pairing.
+- `lib/editorial-claim-validator.ts:529:11` [TEMPLATE_TEXT] Pairing-ul "{{expression}}" foloseste logica de vin rosu pentru un vin {{expression}}.
+- `lib/editorial-claim-validator.ts:530:11` [STRING_LITERAL] Taninuri sau fructe rosii + gratar/sarmale/mititei nu sunt pairing-uri evaluate pentru acest tip.
+- `lib/editorial-claim-validator.ts:546:11` [TEMPLATE_TEXT] Pairing-ul "{{expression}}" are scor numeric justificat prin structura inventata.
+- `lib/editorial-claim-validator.ts:547:11` [STRING_LITERAL] foodPairingNotes nu sunt echivalente cu foodPairings evaluate. Un scor plus tanin/stejar/aciditate fara evidenta este nesustinut.
+- `lib/editorial-claim-validator.ts:564:9` [STRING_LITERAL] Pairing-uri editoriale specifice sticlei, fara pairing evaluat si fara evidenta de degustare.
+- `lib/editorial-claim-validator.ts:565:9` [STRING_LITERAL] In lipsa de foodPairings evaluate sau note de producator, pairing-ul trebuie sa lipseasca sau sa fie orientare generala.
+- `lib/editorial-claim-validator.ts:604:7` [STRING_LITERAL] Expert Notes contin afirmatii senzoriale nesustinute, folosibile ca fapt de un alt LLM.
+- `lib/editorial-claim-validator.ts:605:7` [STRING_LITERAL] Expert Notes nu au voie sa creeze un lant AI-to-AI. Sectiunile nesustinute trebuie omitate.
+- `lib/env.ts:30:9` [STRING_LITERAL] TURSO_DATABASE_URL lipseste sau e invalid pe Vercel. Seteaza variabila pentru Preview si Production.
+- `lib/integrity-scan.ts:240:18` [TEMPLATE_TEXT] Vintage {{expression}} este in afara intervalului valid.
+- `lib/price-tracker.ts:12:21` [STRING_LITERAL] Pret invalid. Trebuie sa fie un numar intreg pozitiv.
+- `lib/price-tracker.ts:20:21` [STRING_LITERAL] Sursa pretului (URL) este obligatorie.
+- `lib/score-history.ts:76:21` [STRING_LITERAL] Motivul override-ului este obligatoriu.
+
+## FORM
+
+- `app/politica-confidentialitate/page.tsx:97:24` [JSX_TEXT] Raspuns la formulare si notificari email
+- `app/politica-confidentialitate/page.tsx:134:11` [JSX_TEXT] Email si mesaje din formulare: cat timp este necesar pentru procesarea cererii, apoi arhivare limitata sau stergere.
+- `app/vinuri/page.tsx:144:17` [JSX_TEXT] trimite primul vin
+- `app/wineries/premium/page.tsx:148:7` [STRING_LITERAL] Formular integrat pe profilul Premium. Primesti contacte de la oameni deja interesati de vinurile tale.
+- `app/wineries/premium/page.tsx:414:21` [JSX_TEXT] Ideal pentru testare sau sezon scurt de campanie.
+- `components/claim/claim-form.tsx:49:13` [JSX_TEXT] Echipa VinIntel te va contacta in 2-3 zile lucratoare pentru a confirma datele si a activa profilul cramei tale.
+- `components/claim/claim-form.tsx:136:27` [JSX_ATTRIBUTE] Spune-ne cum te putem ajuta sa iti revendici crama.
+- `components/claim/claim-form.tsx:152:42` [STRING_LITERAL] Trimite cererea de revendicare
+- `components/claim/claim-form.tsx:156:13` [JSX_TEXT] Prin trimiterea formularului esti de acord sa fii contactat de echipa VinIntel in legatura cu revendicarea cramei.
+- `components/hero.tsx:11:12` [STRING_LITERAL] Catalog vinuri
+- `components/hero.tsx:12:12` [STRING_LITERAL] Cele mai bune
+- `components/hero.tsx:13:12` [STRING_LITERAL] Vin ieftin si bun
+- `components/journal/journal-hero.tsx:73:27` [JSX_ATTRIBUTE] Cauta in journal...
+- `components/journal/journal-hero.tsx:74:26` [JSX_ATTRIBUTE] Cauta articole in Wine Journal
+- `components/site-footer.tsx:6:12` [STRING_LITERAL] Vinuri
+- `components/site-header.tsx:7:12` [STRING_LITERAL] Vinuri
+- `components/smart-search.tsx:226:24` [JSX_ATTRIBUTE] Cauta vinuri, crame sau adauga link
+- `components/wineries/premium-checkout-form.tsx:130:15` [JSX_TEXT] Plata online nu este configurata (lipseste STRIPE_SECRET_KEY). Contacteaza echipa VinIntel sau foloseste formularul de pe pagina Premium.
+- `components/wineries/premium-checkout-form.tsx:196:19` [JSX_TEXT] Plateste cu Stripe
+- `components/wineries/premium-checkout-form.tsx:202:15` [JSX_TEXT] Plata securizata procesata de Stripe. Abonament recurent conform planului ales.
+- `components/wineries/premium-contact-form.tsx:56:13` [JSX_TEXT] Echipa VinIntel te contacteaza in 1-2 zile lucratoare pentru activarea Premium Profile si onboarding.
+- `components/wineries/premium-contact-form.tsx:71:11` [JSX_TEXT] Completeaza formularul si revenim cu detalii de activare, facturare si configurarea profilului tau.
+- `components/wineries/winery-directory.tsx:36:23` [JSX_ATTRIBUTE] Cauta dupa nume sau regiune...
+- `components/wineries/winery-directory.tsx:37:22` [JSX_ATTRIBUTE] Cauta crame
+- `components/wines/verification-lead-form.tsx:56:15` [JSX_TEXT] Te contactam in 2-3 zile lucratoare pentru
+- `components/wines/verification-lead-form.tsx:74:15` [JSX_TEXT] Solicita verificare crama
+- `components/wines/verification-lead-form.tsx:77:54` [JSX_TEXT] Solicita verificarea oficiala pentru
+- `components/wines/verification-lead-form.tsx:78:42` [JSX_TEXT] si toate vinurile din portofoliu.
+- `components/wines/wine-catalog-directory.tsx:229:23` [JSX_ATTRIBUTE] Cauta dupa nume, crama, regiune sau soi...
+- `components/wines/wine-catalog-directory.tsx:230:22` [JSX_ATTRIBUTE] Cauta vinuri
+- `components/wines/wine-specs-table.tsx:89:21` [TEMPLATE_TEXT] Deschide sursa oficială pentru {{expression}} într-o filă nouă
+- `components/wines/wine-specs-table.tsx:89:77` [STRING_LITERAL] acest vin
+- `lib/ai/prompts.ts:384:10` [TEMPLATE_TEXT] Analizeaza vinul de la acest link: {{expression}} Continut pagina (extras): {{expression}} Prioritizeaza extragerea completa a TUTUROR medalilor in campul medals. Daca nu apar medalii in text, returneaza medals: [].
+- `lib/ai/prompts.ts:414:10` [TEMPLATE_TEXT] Extrage medalii pentru vinul de mai jos din textul disponibil. Prioritizeaza sectiunea "Sursa produs" daca exista (pagina retailer/producator). Nu inventa premii care nu apar explicit in text. Nume: {{expression}}{{expression}} Crama: {{expression}} {{expression}}Descriere editoriala VinIntel: {{expression}} Note degustare: {{expression}} Profil gustativ: {{expression}} Insight-uri: {{expression}} Returneaza doar JSON cu campul medals.
+- `lib/contact-form-email.ts:43:12` [TEMPLATE_TEXT] Revendicare crama: {{expression}} | VinIntel.ro
+- `lib/contact-form-email.ts:45:10` [TEMPLATE_TEXT] Verificare crama: {{expression}} | VinIntel.ro
+- `lib/contact-form-email.ts:59:11` [STRING_LITERAL] Cerere noua de revendicare crama
+- `lib/contact-form-email.ts:60:11` [STRING_LITERAL] Cerere noua de verificare crama
+- `lib/contact-form-email.ts:63:9` [STRING_LITERAL] Tip
+- `lib/contact-form-email.ts:64:9` [STRING_LITERAL] Crama
+- `lib/contact-form-email.ts:66:9` [STRING_LITERAL] Nume contact
+- `lib/contact-form-email.ts:67:9` [STRING_LITERAL] Email
+- `lib/contact-form-email.ts:74:10` [TEMPLATE_TEXT] <!DOCTYPE html> <html lang="ro"> <body style="font-family: Georgia, serif; color: #1c1917; line-height: 1.6; max-width: 560px; margin: 0 auto; padding: 24px;"> <h1 style="color: #7C2D12; font-size: 22px; margin-bottom: 8px;">{{expression}}</h1> <p style="margin-top: 0; color: #57534e;">Formular trimis de pe VinIntel.ro.</p> <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">{{expression}}</table> <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 32px 0;" /> <p style="font-size: 12px; color: #a8a29e;">Raspunde direct la {{expression}} pentru follow-up.</p> </body> </html>
+- `lib/journal-categories.ts:18:12` [STRING_LITERAL] Ghiduri pentru incepatori
+- `lib/journal-categories.ts:33:12` [STRING_LITERAL] Povesti din crame
+- `lib/murfatlar-producer.ts:137:32` [STRING_LITERAL] Roșu
+- `lib/notifications.ts:110:5` [STRING_LITERAL] Ai primit acest email pentru ca ai activat notificarile pentru rapoarte.
+- `lib/recommendation/occasion-match.ts:424:14` [STRING_LITERAL] Identitate romaneasca
+- `lib/retailer-links.ts:180:12` [TEMPLATE_TEXT] Vezi la {{expression}}
+- `lib/retailer-links.ts:182:10` [STRING_LITERAL] Vezi in magazin
+- `lib/tech-facts/public-trust-display.ts:15:8` [STRING_LITERAL] Roșu
+- `lib/tech-facts/public-trust-display.ts:75:16` [STRING_LITERAL] Tip vin
+- `lib/tech-facts/public-trust-display.ts:76:18` [STRING_LITERAL] Dulceață
+- `lib/tech-facts/public-trust-display.ts:77:18` [STRING_LITERAL] An recoltă
+- `lib/tech-facts/public-trust-display.ts:78:28` [STRING_LITERAL] Soiuri
+- `lib/tech-facts/public-trust-display.ts:80:20` [STRING_LITERAL] Regiune
+- `lib/tech-facts/public-trust-display.ts:83:20` [STRING_LITERAL] Crama
+- `lib/tech-facts/public-trust.ts:80:18` [STRING_LITERAL] Fișa tehnică a producătorului
+- `lib/tech-facts/public-trust.ts:81:18` [STRING_LITERAL] Pagina oficială a producătorului
+- `lib/tech-facts/public-trust.ts:82:21` [STRING_LITERAL] Catalogul oficial al producătorului
+- `lib/tech-facts/public-trust.ts:317:43` [STRING_LITERAL] În verificare
+- `lib/top-lists.ts:146:12` [STRING_LITERAL] Cele mai bune vinuri romanesti
+- `lib/top-lists.ts:147:39` [STRING_LITERAL] Vinuri cadou
+- `lib/top-lists.ts:151:12` [TEMPLATE_TEXT] Vinuri {{expression}}
+- `lib/top-lists.ts:164:26` [TEMPLATE_TEXT] Cele mai bune {{expression}}
+- `lib/wine-analysis.ts:155:14` [TEMPLATE_TEXT] Vinuri din {{expression}}
+- `lib/wine-analysis.ts:162:14` [TEMPLATE_TEXT] Toate vinurile {{expression}}
+- `lib/wine-analysis.ts:168:12` [TEMPLATE_TEXT] Top vinuri {{expression}}
+- `lib/wine-analysis.ts:187:14` [TEMPLATE_TEXT] Vinuri pentru {{expression}}
+- `lib/winery-copy.ts:36:7` [TEMPLATE_TEXT] Vezi {{expression}}
+- `lib/winery-copy.ts:37:7` [TEMPLATE_TEXT] Vezi crama {{expression}}
+
+## SCORE_COPY
+
+- `app/adauga-vin/page.tsx:44:13` [JSX_TEXT] Lipeste link-ul produsului. Analizam pagina, generam scoruri si explicatii, apoi echipa VinIntel verifica vinul inainte de publicare.
+- `app/cum-functioneaza-scorurile/page.tsx:61:11` [STRING_LITERAL] Value Score
+- `app/cum-functioneaza-scorurile/page.tsx:73:11` [STRING_LITERAL] Gift Score
+- `app/cum-functioneaza-scorurile/page.tsx:76:7` [STRING_LITERAL] Cat de sigura si convingatoare este sticla ca alegere de cadou, in general.
+- `app/cum-functioneaza-scorurile/page.tsx:92:7` [STRING_LITERAL] Utilitate generica de stil, cu incredere mica daca lipsesc fapte
+- `app/cum-functioneaza-scorurile/page.tsx:115:7` [STRING_LITERAL] Marcheaza vinurile usor de apreciat, fara note dificile sau taninuri agresive.
+- `app/cum-functioneaza-scorurile/page.tsx:121:7` [STRING_LITERAL] Estimam cati ani mai poate evolua favorabil un vin in conditii corecte de pastrare.
+- `app/cum-functioneaza-scorurile/page.tsx:125:11` [STRING_LITERAL] Risc de supraevaluare
+- `app/cum-functioneaza-scorurile/page.tsx:198:15` [JSX_TEXT] Credem in evaluari clare si oneste. Iata exact ce masuram, cum calculam fiecare scor si de ce poti avea incredere in recomandarile noastre.
+- `app/cum-functioneaza-scorurile/page.tsx:211:15` [JSX_TEXT] Cele trei scoruri principale
+- `app/cum-functioneaza-scorurile/page.tsx:267:15` [JSX_TEXT] Cum se citeste scara de scoruri
+- `app/cum-functioneaza-scorurile/page.tsx:300:15` [JSX_TEXT] Increderea datelor, separat de scor
+- `app/cum-functioneaza-scorurile/page.tsx:305:72` [JSX_TEXT] , afisat alaturi de scor, niciodata combinat intr-un singur numar. Un vin cu date sarace (fara producator, regiune, soi, medalii sau note verificate) primeste automat o incredere scazuta.
+- `app/cum-functioneaza-scorurile/page.tsx:311:15` [JSX_TEXT] Increderea scazuta reduce plafonul maxim al scorului, indiferent cat de bine ar iesi calculul de calitate estimata. Practic, un vin cu date insuficiente
+- `app/cum-functioneaza-scorurile/page.tsx:313:44` [JSX_TEXT] nu poate ajunge la un scor de 90+
+- `app/cum-functioneaza-scorurile/page.tsx:314:15` [JSX_TEXT] doar pentru ca lipsesc informatii, pentru ca lipsa de date nu este un semnal pozitiv. Cand increderea este sub pragul de scor provizoriu, marcam scorul explicit ca
+- `app/cum-functioneaza-scorurile/page.tsx:364:15` [JSX_TEXT] Cum verificăm datele despre vin
+- `app/cum-functioneaza-scorurile/page.tsx:368:17` [JSX_TEXT] Pentru alcool, aciditate, zahăr și alte date tehnice căutăm surse oficiale ale producătorului. Fișa tehnică este sursa cea mai puternică, iar o pagină sau un catalog oficial poate confirma un fapt când identifică exact vinul.
+- `app/cum-functioneaza-scorurile/page.tsx:374:17` [JSX_TEXT] O valoare este marcată
+- `app/cum-functioneaza-scorurile/page.tsx:374:67` [JSX_TEXT] doar când sursa poate fi legată de vinul și, unde este cazul, de recolta corectă. Informațiile comercianților nu confirmă automat datele de laborator.
+- `app/cum-functioneaza-scorurile/page.tsx:380:17` [JSX_TEXT] Dacă nu avem încă dovada necesară, valoarea poate rămâne vizibilă în catalog cu mențiunea
+- `app/cum-functioneaza-scorurile/page.tsx:382:61` [JSX_TEXT] . Datele lipsă rămân lipsă, iar verificarea faptelor este separată de calculul scorurilor.
+- `app/cum-functioneaza-scorurile/page.tsx:397:15` [JSX_TEXT] Pe langa cele trei scoruri, adaugam cateva semnale care te ajuta sa alegi mai usor.
+- `app/cum-functioneaza-scorurile/page.tsx:431:15` [JSX_TEXT] Scorurile nu pot fi cumparate. Cramele isi pot revendica profilul pentru a corecta date factuale, dar metodologia ramane aceeasi pentru toate vinurile. Unele linkuri catre magazine pot fi afiliate, insa acest lucru nu influenteaza in niciun fel scorurile.
+- `components/top-lists/top-list-hub-sections.tsx:174:15` [JSX_TEXT] Value Score nu este acelasi lucru cu un rating de recenzii utilizatori.
+- `components/value-props.tsx:22:7` [STRING_LITERAL] Un scor onest de la 0 la 100 care arata cat de bun e vinul pentru banii ceruti. Fara marketing, doar valoare reala.
+- `components/wines/wine-catalog-directory.tsx:360:13` [JSX_TEXT] Afisam vinuri cu Value Score
+- `components/wines/wine-catalog-directory.tsx:366:13` [JSX_TEXT] Afisam vinuri cu Value Score
+- `components/wines/wine-community-vote-button.tsx:173:19` [STRING_LITERAL] Poti actualiza nota o singura data per cont de browser. Modificarile recalculeaza Community Score.
+- `components/wines/wine-dual-scores.tsx:239:21` [JSX_TEXT] Inca nu exista voturi. Fii primul care noteaza acest vin.
+- `components/wines/wine-dual-scores.tsx:247:23` [TEMPLATE_TEXT] {{expression}} Date estimate din surse externe până la primele voturi VinIntel.
+- `components/wines/wine-dual-scores.tsx:274:15` [JSX_TEXT] Vezi metodologia completă
+- `components/wines/wine-score-cards.tsx:73:17` [STRING_LITERAL] Cât de sigură și convingătoare este sticla ca alegere de cadou, din calitatea estimată, încrederea în date, valoare și caracterul distinctiv. Nu evaluăm ambalajul.
+- `components/wines/wine-winery-link.tsx:44:21` [STRING_LITERAL] Vezi profilul cramei, vinurile din portofoliu si scorurile VinIntel.
+- `lib/community-score.ts:59:31` [STRING_LITERAL] inca fara voturi
+- `lib/community-score.ts:67:3` [STRING_LITERAL] Media notelor date de utilizatorii VinIntel, pe aceeasi scala 0-100. Contribuie cu votul tau dupa degustare.
+- `lib/integrity-scan.ts:204:18` [TEMPLATE_TEXT] Value Score ({{expression}}) depaseste plafonul recalculat pentru increderea vizibila ({{expression}}%, plafon {{expression}}). Posibil scor calculat inainte de introducerea plafoanelor sau override nedocumentat.
+- `lib/integrity-scan.ts:218:18` [TEMPLATE_TEXT] Scor exceptional ({{expression}}) cu dovezi vizibile limitate (incredere recalculata fara model ML: {{expression}}%). Recomandat: revizuire manuala a surselor.
+- `lib/recalculate-value-scores.ts:299:15` [TEMPLATE_TEXT] Lipite de plafon (95+): {{expression}}
+- `lib/recommendation/legacy-recommend.ts:146:18` [TEMPLATE_TEXT] Din {{expression}}, crama preferata.
+- `lib/recommendation/occasion-match.ts:544:11` [TEMPLATE_TEXT] Value Score {{expression}}/100 este luat în calcul pentru această alegere.
+- `lib/recommendation/occasion-match.ts:553:18` [TEMPLATE_TEXT] Respectă stilul de dulceață cerut: {{expression}}.
+- `lib/scoring-v2/gift-score.ts:133:35` [STRING_LITERAL] Spumantul e usor de oferit, semnal mic de ocazie.
+- `lib/scoring-v2/gift-score.ts:141:35` [STRING_LITERAL] Rosu e un dar neutru, fara prestigiu automat.
+- `lib/scoring-v2/gift-score.ts:249:11` [TEMPLATE_TEXT] Q din {{expression}}, fara al doilea bonus de medalii.
+- `lib/scoring-v2/gift-score.ts:254:14` [STRING_LITERAL] Incredere in date
+- `lib/scoring-v2/gift-score.ts:256:15` [STRING_LITERAL] Identitate, surse, medalii si scoruri existente. Nu proza editoriala.
+- `lib/scoring-v2/gift-score.ts:268:14` [STRING_LITERAL] Identitate romaneasca
+- `lib/scoring-v2/gift-score.ts:272:11` [STRING_LITERAL] Fara identitate de soi autohton evidenta.
+- `lib/scoring-v2/gift-score.ts:296:15` [TEMPLATE_TEXT] Incredere {{expression}}% limiteaza Gift Score la {{expression}}.
+- `lib/scoring-v2/normalize.ts:3:16` [STRING_LITERAL] NFD
+- `lib/scoring-v2/normalize.ts:12:16` [STRING_LITERAL] NFD
+- `lib/scoring-v2/normalize.ts:19:16` [STRING_LITERAL] NFD
+- `lib/scoring-v2/public-secondary-display.ts:46:16` [STRING_LITERAL] Nu avem încă suficiente date pentru un Gift Score precis.
+- `lib/scoring-v2/public-secondary-display.ts:76:9` [STRING_LITERAL] Avem încă puține dovezi pentru un scor general de versatilitate.
+- `lib/scoring-v2/value-score.ts:179:12` [STRING_LITERAL] Q prior (vinuri similare)
+- `lib/scoring-v2/value-score.ts:267:15` [TEMPLATE_TEXT] Increderea datelor ({{expression}}%) limiteaza scorul maxim la {{expression}}/100
+- `lib/scoring.ts:255:16` [STRING_LITERAL] NFD
+- `lib/scoring.ts:264:16` [STRING_LITERAL] NFD
+- `lib/scoring.ts:374:15` [TEMPLATE_TEXT] {{expression}} medalii la concursuri de top (incluse in pondere)
+- `lib/scoring.ts:481:16` [STRING_LITERAL] NFD
+- `lib/scoring.ts:553:9` [STRING_LITERAL] Feteasca Neagra, Negru de Dragasani, Grasa de Cotnari sau Tamaioasa Romaneasca de calitate
+- `lib/scoring.ts:561:14` [STRING_LITERAL] Terroir de elita
+- `lib/scoring.ts:586:14` [STRING_LITERAL] Crama de referinta
+- `lib/scoring.ts:587:15` [STRING_LITERAL] Istoric demonstrat de vinuri de top
+- `lib/scoring.ts:686:9` [STRING_LITERAL] Scor provizoriu: date insuficiente pentru o estimare stabila a calitatii.
+- `lib/scoring.ts:732:14` [STRING_LITERAL] Soi autohton romanesc
+- `lib/top-lists.ts:366:9` [STRING_LITERAL] Cauti un vin pe care sa il oferi cadou? Lista de mai jos este ordonata dupa Gift Score, care masoara cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul.
+- `lib/top-lists.ts:496:14` [TEMPLATE_TEXT] Top {{expression}} optiuni, ordonate dupa Gift Score (cat de bine functioneaza ca dar).
+- `lib/wine-analysis.ts:55:9` [TEMPLATE_TEXT] Value Score {{expression}}/100: peste pragul nostru de recomandare ({{expression}}/100).
+- `lib/wine-analysis.ts:82:16` [TEMPLATE_TEXT] {{expression}} este o alegere acceptabila la {{expression}}, cu Value Score {{expression}}/100. Nu iese in evidenta, dar nici nu dezamageste daca stii ce cauti.
+- `lib/wine-analysis.ts:89:9` [TEMPLATE_TEXT] Pentru recomandari clare, cauta vinuri cu cel putin {{expression}}/100 Value Score.
+- `lib/wine-analysis.ts:99:7` [TEMPLATE_TEXT] Value Score {{expression}}/100: sub pragul de {{expression}}/100 pentru o recomandare neutra.
+- `lib/wine-analysis.ts:211:15` [TEMPLATE_TEXT] Value Score {{expression}}/100: alegere acceptabila, fara surprize majore.
+- `lib/wine-catalog-filters.ts:42:30` [STRING_LITERAL] Value Score (cel mai bun)
+
+## PRICE_COPY
+
+- `app/claim-your-winery/page.tsx:54:7` [STRING_LITERAL] Corecteaza preturi, vintage-uri, specificatii tehnice si pairing-uri direct de la sursa.
+- `app/crame/page.tsx:104:15` [JSX_TEXT] Exploreaza producatorii de vin din Romania. Vezi regiunea, numarul de vinuri, Value Score-ul mediu si intervalul de pret pentru fiecare crama.
+- `app/cum-functioneaza-scorurile/page.tsx:64:7` [STRING_LITERAL] Cat de bun este raportul calitate-pret. Cel mai important scor de pe platforma.
+- `app/cum-functioneaza-scorurile/page.tsx:67:7` [STRING_LITERAL] Eficienta pretului fata de vinuri similare la acel pret (70 = nivel obisnuit al segmentului)
+- `app/cum-functioneaza-scorurile/page.tsx:68:7` [STRING_LITERAL] Combinatie 72% calitate + 28% eficienta pret, cu plafon legat de Q real
+- `app/cum-functioneaza-scorurile/page.tsx:79:7` [STRING_LITERAL] Value Score ca semnal secundar, nu pret-ca-prestigiu
+- `app/cum-functioneaza-scorurile/page.tsx:127:7` [STRING_LITERAL] Semnalam vinurile al caror pret pare mai mare decat valoarea reala din pahar.
+- `app/cum-functioneaza-scorurile/page.tsx:303:15` [JSX_TEXT] Value Score arata cat de buna e valoarea la pretul curent, dar nu spune cat de solide sunt datele din spatele lui. De aceea calculam separat un procent de
+- `app/page.tsx:21:20` [STRING_LITERAL] VinIntel – Ghid de vinuri romanesti, preturi si recomandari
+- `app/studii/[slug]/page.tsx:128:15` [JSX_TEXT] Cele mai bune vinuri romanesti sub 50 lei in 2026
+- `app/studii/[slug]/page.tsx:131:62` [JSX_TEXT] vinuri din catalog: pret mediu, Value Score si top 50 optiuni ieftine si bune.
+- `app/studii/[slug]/page.tsx:163:47` [JSX_TEXT] Vinuri sub 50 lei
+- `app/studii/[slug]/page.tsx:181:15` [JSX_TEXT] Top 50 vinuri sub 50 lei
+- `app/studii/[slug]/page.tsx:190:59` [JSX_TEXT] Pret
+- `app/topuri/[slug]/page.tsx:181:55` [JSX_TEXT] Pret
+- `app/topuri/cele-mai-bune-vinuri-romanesti/page.tsx:148:55` [JSX_TEXT] Pret
+- `app/topuri/page.tsx:109:15` [JSX_TEXT] Selectii populare dupa buget, ocazie si soi. Alege rapid vinul potrivit fara sa parcurgi tot catalogul.
+- `app/vinuri/page.tsx:115:17` [JSX_TEXT] Exploreaza vinurile romanesti dupa culoare, dulceata si buget, apoi compara-le dupa Value Score.
+- `app/wineries/[slug]/page.tsx:231:15` [JSX_TEXT] Ordonate dupa Value Score, indicatorul nostru pentru raportul calitate-pret.
+- `app/wineries/premium/page.tsx:394:17` [JSX_TEXT] Preturi clare, fara surprize
+- `components/featured-wines.tsx:53:17` [JSX_TEXT] Selectia noastra dupa Value Score (minim 75/100): cel mai bun raport calitate pret din vinul romanesc.
+- `components/hero.tsx:73:13` [JSX_TEXT] Gaseste vinul potrivit in cateva secunde. Recomandari transparente, preturi in RON si asocieri gandite pentru mancarea si ocazia ta.
+- `components/site-footer.tsx:33:15` [JSX_TEXT] Ghid de vinuri romanesti: preturi, Value Score si recomandari oneste.
+- `components/top-lists/budget-page-sections.tsx:62:62` [JSX_TEXT] Cel mai bun sub 25 lei
+- `components/top-lists/budget-page-sections.tsx:73:62` [JSX_TEXT] Cel mai bun sub 30 lei
+- `components/top-lists/budget-page-sections.tsx:122:15` [JSX_TEXT] Pret extrem de mic fara Value Score sau date de piata.
+- `components/top-lists/top-list-hub-sections.tsx:86:11` [JSX_TEXT] Cele mai bune pe bugete
+- `components/top-lists/top-list-hub-sections.tsx:151:13` [JSX_TEXT] Ordonam vinurile dupa Value Score (raport calitate-pret), pretul actual in RON, medalii si premii unde sunt disponibile, vintage-ul si disponibilitatea in magazine. Limitam numarul de vinuri de la aceeasi crama in top 5 ca sa nu dominam lista cu un singur producator.
+- `components/top-lists/top-list-hub-sections.tsx:172:15` [JSX_TEXT] Pretul poate varia in functie de retailer si promotii.
+- `components/top-lists/top-list-wine-verdict.tsx:22:16` [TEMPLATE_TEXT] pret bun la {{expression}}
+- `components/top-lists/top-list-wine-verdict.tsx:26:7` [STRING_LITERAL] raport calitate-pret solid in catalogul nostru
+- `components/value-props.tsx:32:12` [STRING_LITERAL] Preturi actuale
+- `components/value-props.tsx:34:7` [STRING_LITERAL] Afisam pretul curent sau estimativ in RON, preluat din sursa principala a vinului.
+- `components/wineries/premium-contact-form.tsx:132:19` [JSX_TEXT] 990 lei/an (2 luni gratuite)
+- `components/wineries/winery-hero.tsx:214:21` [JSX_TEXT] Interval de pret
+- `components/wines/source-badge.tsx:34:11` [JSX_TEXT] Datele factuale (nume, pret, soiuri, disponibilitate) sunt preluate din
+- `components/wines/wine-availability.tsx:15:35` [STRING_LITERAL] Preț actual
+- `components/wines/wine-availability.tsx:15:51` [STRING_LITERAL] Preț aproximativ
+- `components/wines/wine-availability.tsx:27:9` [JSX_TEXT] Preț și disponibilitate
+- `components/wines/wine-availability.tsx:30:9` [JSX_TEXT] Prețul și oferta sunt prezentate conform celor mai recente date pe care le avem. Cumpărarea se finalizează la magazin.
+- `components/wines/wine-availability.tsx:46:21` [JSX_TEXT] Preț verificat
+- `components/wines/wine-availability.tsx:53:21` [JSX_TEXT] Preț estimativ
+- `components/wines/wine-availability.tsx:73:21` [JSX_TEXT] Preț indisponibil momentan
+- `components/wines/wine-buying-decision.tsx:25:17` [STRING_LITERAL] Preț actual
+- `components/wines/wine-buying-decision.tsx:27:19` [STRING_LITERAL] Preț aproximativ
+- `components/wines/wine-buying-decision.tsx:28:19` [STRING_LITERAL] Preț
+- `components/wines/wine-card-view.tsx:80:19` [STRING_LITERAL] Pret aproximativ. Verifica sursa inainte de cumparare.
+- `components/wines/wine-card-view.tsx:81:19` [STRING_LITERAL] Pret aproximativ din datele noastre.
+- `components/wines/wine-catalog-directory.tsx:293:76` [JSX_ATTRIBUTE] Pret
+- `components/wines/wine-catalog-directory.tsx:294:42` [JSX_ATTRIBUTE] Pret
+- `components/wines/wine-catalog-directory.tsx:300:45` [JSX_TEXT] Peste 100 RON
+- `components/wines/wine-catalog-directory.tsx:403:13` [JSX_TEXT] Incearca alta dulceata, culoare sau un buget mai larg.
+- `components/wines/wine-community-vote-button.tsx:174:19` [STRING_LITERAL] Cat de mult merita pretul dupa experienta ta? Nota ta contribuie la Community Score (0-100).
+- `components/wines/wine-data-freshness.tsx:28:18` [JSX_ATTRIBUTE] Actualizare pagină și preț
+- `components/wines/wine-data-freshness.tsx:37:19` [STRING_LITERAL] Preț verificat
+- `components/wines/wine-data-freshness.tsx:38:19` [STRING_LITERAL] Preț actualizat
+- `components/wines/wine-data-freshness.tsx:48:15` [JSX_TEXT] Prețul afișat este estimativ. Confirmă sursa înainte de cumpărare.
+- `components/wines/wine-editorial.tsx:54:13` [JSX_TEXT] Analiza editoriala pentru acest vin este in pregatire. Datele factuale (pret, soiuri, crama) sunt afisate mai jos; scorurile VinIntel vor fi completate curand.
+- `components/wines/wine-price-display.tsx:95:15` [STRING_LITERAL] Pret aproximativ. Verifica sursa inainte de cumparare.
+- `components/wines/wine-price-display.tsx:96:15` [STRING_LITERAL] Pret aproximativ din datele noastre.
+- `components/wines/wine-related-sections.tsx:28:11` [STRING_LITERAL] Opțiuni din același tip de vin și dintr-un interval de preț apropiat.
+- `components/wines/wine-report-button.tsx:66:15` [JSX_TEXT] Spune-ne ce ti se pare gresit: pret, soiuri, scor sau analiza editoriala. Echipa VinIntel verifica manual.
+- `components/wines/wine-report-button.tsx:81:29` [JSX_ATTRIBUTE] Ex: pretul afisat nu corespunde sau regiunea e gresita...
+- `lib/ai/prompts.ts:90:10` [TEMPLATE_TEXT] Genereaza expert_notes JSON pentru acest vin: Nume: {{expression}}{{expression}} Crama: {{expression}} Regiune: {{expression}} Tip: {{expression}}, Dulceata: {{expression}} Soiuri: {{expression}} Alcool: {{expression}}%, Aciditate: {{expression}} Pret mediu: {{expression}} RON Value Score: {{expression}}/100, Gift: {{expression}}, Food Match: {{expression}} Note degustare: {{expression}} Pairing-uri: {{expression}} Include: history, terroirSecrets, vintageQuirks, pairingScience, commonMistakes, agingPotential, valueInsight, thingsYouShouldKnow (0-4 string-uri). Lasa campurile goale daca evidenta (note degustare, fisa, text producator) nu le sustine. Nu scrie taninuri/stejar/arome ca proprietati ale acestei sticle daca nu apar in notele de degustare.
+- `lib/ai/prompts.ts:191:10` [TEMPLATE_TEXT] Genereaza continut editorial JSON pentru vinul de mai jos. Datele vinului: Nume: {{expression}}{{expression}} Producator: {{expression}} An: {{expression}} Pret mediu: {{expression}} RON Soiuri: {{expression}} Regiune: {{expression}} Tip: {{expression}}, Dulceata: {{expression}} Alcool: {{expression}}%, Zahar: {{expression}} g/l, Aciditate: {{expression}} Note degustare (evidenta): {{expression}} Note producator (evidenta): {{expression}} Viticultura producator (evidenta): {{expression}} Fisa tehnica disponibila: {{expression}} Evidenta de degustare suficienta: {{expression}} Pairing-uri evaluate (foodPairings): {{expression}} Pairing-uri desert existente: {{expression}} Pentru incepatori: {{expression}} Potential pivnita (ESTIMARE algoritmica, nu fapt documentat): {{expression}} ani Risc supraevaluare: {{expression}} Rating: {{expression}}/5 ({{expression}} recenzii) Daca evidenta de degustare este "nu": tasteProfile="", foodPairingNotes=[], dessertPairings=[]. Nu inventa taninuri, stejar, arome sau pairing-uri specifice sticlei. Returneaza JSON cu: - descriptionEditorial (poate fi scurt sau gol daca datele sunt putine) - valueExplanation (2-3 propozitii sau gol) - thingsYouShouldKnow (0-4 insight-uri din evidenta) - tasteProfile (gol daca nu exista evidenta de degustare) - foodPairingNotes (0-5; gol daca nu exista pairing evaluat sau evidenta) - dessertPairings (0-4; gol daca nu exista baza) - recommendedOccasions (0-4) - valueScore (1-100; sub {{expression}} doar daca raportul calitate-pret e slab, {{expression}}+ doar daca merita recomandarea activa). Nu include giftScore sau foodMatchScore.
+- `lib/ai/prompts.ts:316:10` [TEMPLATE_TEXT] Regenereaza continut editorial JSON pentru vinul de mai jos. Date factuale (nu modifica): Nume: {{expression}}{{expression}} Producator: {{expression}} An: {{expression}} Pret mediu: {{expression}} RON Soiuri: {{expression}} Regiune: {{expression}} Tip: {{expression}}, Dulceata: {{expression}} Alcool: {{expression}}%, Zahar: {{expression}} g/l, Aciditate: {{expression}} Note degustare (evidenta): {{expression}} Note producator (evidenta): {{expression}} Viticultura producator (evidenta): {{expression}} Fisa tehnica disponibila: {{expression}} Evidenta de degustare suficienta: {{expression}} Pairing-uri evaluate: {{expression}} Pairing-uri desert existente: {{expression}} Pentru incepatori: {{expression}} Potential pivnita (ESTIMARE algoritmica, nu fapt documentat): {{expression}} ani Risc supraevaluare: {{expression}} Scoruri actuale (referinta, nu le regenerezi): Value {{expression}}, Gift {{expression}}, Food {{expression}} Continut editorial existent (optional, imbunatateste-l fara a adauga fapte noi): Descriere: {{expression}} Profil gustativ: {{expression}} Daca evidenta de degustare este "nu": tasteProfile="", foodPairingNotes=[]. Returneaza JSON cu: - descriptionEditorial (poate fi scurt sau gol) - valueExplanation (2-3 propozitii sau gol) - thingsYouShouldKnow (0-4) - tasteProfile (gol fara evidenta) - foodPairingNotes (0-5) - dessertPairings (0-4) - recommendedOccasions (0-4)
+- `lib/ai/prompts.ts:491:10` [TEMPLATE_TEXT] Scrie o analiza scurta pentru emailul de aprobare: Vin: {{expression}}{{expression}} Crama: {{expression}} Regiune: {{expression}} Tip: {{expression}}, Dulceata: {{expression}} Soiuri: {{expression}} Pret: {{expression}} RON Value Score: {{expression}}/100 Descriere editoriala: {{expression}} Profil gustativ: {{expression}}
+- `lib/dish-pairing-pages.ts:26:16` [STRING_LITERAL] Vin pentru sarmale: recomandari romanesti sub 50 lei
+- `lib/dish-pairing-pages.ts:28:7` [STRING_LITERAL] Cele mai bune vinuri romanesti pentru sarmale: rosu sec, Value Score, pret in RON si explicatii clare.
+- `lib/dish-pairing-pages.ts:41:7` [STRING_LITERAL] Vinuri romanesti potrivite pentru gratar: rosu sau roze sec, cu preturi in RON si Value Score.
+- `lib/dish-pairing-pages.ts:54:7` [STRING_LITERAL] Vinuri albe si roze romanesti pentru peste: fresh, sec, cu preturi in RON.
+- `lib/dish-pairing-pages.ts:78:7` [STRING_LITERAL] Vinuri romanesti pentru cozonac si desert: dulce, demidulce sau spumant, cu preturi in RON.
+- `lib/emails/winery-premium.ts:170:20` [TEMPLATE_TEXT] <h1 style="margin:0 0 12px;font-size:24px;color:{{expression}};">Bine ai venit in Premium</h1> <p style="margin:0 0 16px;line-height:1.7;color:#44403c;"> Plata pentru <strong>{{expression}}</strong> ({{expression}}) a fost confirmata. Abonamentul tau Premium este activ. </p> <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:20px 0;background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;"> <tr> <td style="padding:16px 18px;"> <p style="margin:0 0 8px;font-size:13px;color:#78716c;">Data de incepere</p> <p style="margin:0 0 16px;font-size:16px;font-weight:600;color:#1c1917;">{{expression}}</p> <p style="margin:0 0 8px;font-size:13px;color:#78716c;">Data de expirare</p> <p style="margin:0;font-size:16px;font-weight:600;color:#1c1917;">{{expression}}</p> </td> </tr> </table> <p style="margin:0;font-size:15px;color:#44403c;">Beneficiile tale Premium:</p> {{expression}} {{expression}}
+- `lib/emails/winery-premium.ts:238:20` [TEMPLATE_TEXT] <h1 style="margin:0 0 12px;font-size:24px;color:{{expression}};">Abonament expirat</h1> <p style="margin:0 0 16px;line-height:1.7;color:#44403c;"> Abonamentul Premium pentru <strong>{{expression}}</strong> a expirat ({{expression}}). </p> <p style="margin:0 0 16px;line-height:1.7;color:#44403c;"> Profilul revine la varianta standard: fara banner custom, fara analytics si fara featured placement. Datele tale raman salvate si poti reactiva Premium oricand. </p> {{expression}}
+- `lib/embeddings.ts:63:5` [TEMPLATE_TEXT] Value {{expression}}
+- `lib/embeddings.ts:64:5` [TEMPLATE_TEXT] {{expression}} RON
+- `lib/embeddings.ts:90:5` [STRING_LITERAL] vin romanesc recomandare
+- `lib/embeddings.ts:101:7` [STRING_LITERAL] HF_TOKEN lipseste sau este gol. Adauga token Hugging Face in Vercel si ruleaza: vercel env pull .env.local --environment=production
+- `lib/integrity-scan.ts:142:11` [STRING_LITERAL] Vinul are pret dar nu exista nicio data de observare a pretului.
+- `lib/integrity-scan.ts:154:18` [TEMPLATE_TEXT] Pretul nu a fost verificat de {{expression}} zile (peste {{expression}}).
+- `lib/integrity-scan.ts:162:18` [TEMPLATE_TEXT] Pretul nu a fost verificat de {{expression}} zile (peste {{expression}}).
+- `lib/integrity-scan.ts:604:11` [STRING_LITERAL] Inainte de Truth Layer, heuristicQualityWithoutPrice putea adauga +2 Q din aceste cuvinte.
+- `lib/integrity-scan.ts:627:11` [STRING_LITERAL] cellarPotential arata a estimare algoritmica (rosu+pret), nu ca fereastra documentata. Nu mai intra in Q.
+- `lib/integrity-scan.ts:629:11` [STRING_LITERAL] Valorile 2/4 din regula de categorie/pret raman stocate ca ghid generic, dar nu sunt tratate ca potential verificat.
+- `lib/market-price-discovery.ts:857:9` [TEMPLATE_TEXT] Preț estimativ: ~{{expression}} lei
+- `lib/market-price-discovery.ts:858:9` [STRING_LITERAL] Preț indisponibil
+- `lib/market-price-discovery.ts:864:11` [TEMPLATE_TEXT] Estimare din {{expression}} prețuri găsite online.
+- `lib/market-price-discovery.ts:866:13` [TEMPLATE_TEXT] Estimare orientativă din {{expression}} prețuri găsite online.
+- `lib/market-price-discovery.ts:867:11` [STRING_LITERAL] Nu avem încă suficiente date pentru o estimare de piață.
+- `lib/notifications.ts:68:10` [TEMPLATE_TEXT] <!DOCTYPE html> <html lang="ro"> <body style="font-family: Georgia, serif; color: #1c1917; line-height: 1.6; max-width: 560px; margin: 0 auto; padding: 24px;"> <h1 style="color: #7C2D12; font-size: 22px; margin-bottom: 8px;">Raport nou pe VinIntel.ro</h1> <p style="margin-top: 0; color: #57534e;">Un utilizator a raportat o problema la un vin din catalog.</p> <table style="width: 100%; border-collapse: collapse; margin: 24px 0;"> <tr><td style="padding: 8px 0; color: #78716c; width: 140px;">Vin</td><td style="padding: 8px 0;"><strong>{{expression}}</strong></td></tr> <tr><td style="padding: 8px 0; color: #78716c;">Producator</td><td style="padding: 8px 0;">{{expression}}</td></tr> <tr><td style="padding: 8px 0; color: #78716c;">Motiv</td><td style="padding: 8px 0;">{{expression}}</td></tr> <tr><td style="padding: 8px 0; color: #78716c;">Raportat de</td><td style="padding: 8px 0;">{{expression}}</td></tr> <tr><td style="padding: 8px 0; color: #78716c;">Total rapoarte</td><td style="padding: 8px 0;">{{expression}}</td></tr> </table> <p style="margin: 24px 0;"> <a href="{{expression}}" style="display: inline-block; background: #7C2D12; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-family: system-ui, sans-serif; font-size: 14px;">Vezi in Panel Admin</a> &nbsp; <a href="{{expression}}" style="display: inline-block; color: #7C2D12; text-decoration: underline; font-family: system-ui, sans-serif; font-size: 14px;">Pagina vinului</a> </p> <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 32px 0;" /> <p style="font-size: 12px; color: #a8a29e;">Ai primit acest email pentru ca ai activat notificarile pentru rapoarte pe VinIntel.ro.</p> </body> </html>
+- `lib/pairing-curation-preview.ts:102:11` [STRING_LITERAL] Pairing-urile selectate sunt in principal editoriale; nu exista suficiente date specifice sticlei pentru un scor de incredere ridicat.
+- `lib/price-extractor.ts:311:7` [STRING_LITERAL] eMag detectat, incerc regex dedicat (nume, pret, imagine, producator)
+- `lib/price-extractor.ts:437:7` [STRING_LITERAL] LLM extractie produs (nume, pret, imagine, producator)
+- `lib/price-extractor.ts:445:9` [STRING_LITERAL] Extrage din HTML-ul paginii de produs: numele vinului, pretul curent in RON, URL-ul absolut al pozei principale si producatorul/crama (din titlu, meta product:brand sau og:title). Daca un camp nu e clar, returneaza null.
+- `lib/price-extractor.ts:515:15` [STRING_LITERAL] Budureasca
+- `lib/price-extractor.ts:535:15` [STRING_LITERAL] Crama Gabai
+- `lib/price-extractor.ts:558:15` [STRING_LITERAL] Murfatlar
+- `lib/price-extractor.ts:578:15` [STRING_LITERAL] Balla Géza
+- `lib/price-extractor.ts:642:9` [STRING_LITERAL] LLM dezactivat si site non-eMag: fara extractie LLM
+- `lib/recommendation/occasion-match.ts:445:15` [STRING_LITERAL] Pret practic si usor de baut in grup.
+- `lib/recommendation/occasion-match.ts:537:7` [TEMPLATE_TEXT] Se încadrează în buget: {{expression}} lei din maximum {{expression}} lei.
+- `lib/recommendation/occasion-match.ts:543:11` [TEMPLATE_TEXT] Value Score {{expression}}/100 indică un raport calitate-preț bun.
+- `lib/regenerate-wine-editorial.ts:187:7` [STRING_LITERAL] Date factuale insuficiente. Adauga producator, regiune, pret sau soiuri.
+- `lib/scoring-v2/gift-score.ts:263:11` [STRING_LITERAL] Un cadou bun nu trebuie sa fie o teapa de pret.
+- `lib/scoring-v2/gift-score.ts:287:15` [TEMPLATE_TEXT] Penalizare mica pentru sticla foarte ieftina ({{expression}} RON). Pretul mare nu creste scorul.
+- `lib/scoring-v2/value-score.ts:123:17` [STRING_LITERAL] Pret indisponibil: afisam doar calitatea intrinseca
+- `lib/scoring-v2/value-score.ts:128:41` [STRING_LITERAL] Nu se calculeaza fara pret
+- `lib/scoring-v2/value-score.ts:128:72` [STRING_LITERAL] Nu se calculeaza fara pret
+- `lib/scoring-v2/value-score.ts:135:17` [TEMPLATE_TEXT] Increderea datelor ({{expression}}%) limiteaza scorul maxim la {{expression}}/100
+- `lib/scoring-v2/value-score.ts:170:9` [TEMPLATE_TEXT] Heuristica fara pret{{expression}}
+- `lib/scoring-v2/value-score.ts:216:12` [STRING_LITERAL] Calitate asteptata la pret (E)
+- `lib/scoring-v2/value-score.ts:225:11` [TEMPLATE_TEXT] {{expression}} puncte peste nivelul obisnuit al pretului
+- `lib/scoring.ts:776:9` [STRING_LITERAL] Vin scump (peste 150 RON): scorul a fost plafonat la 82 pana cand calitatea justifica pretul.
+- `lib/stripe/premium-checkout.ts:84:19` [TEMPLATE_TEXT] VinIntel Premium Profile ({{expression}})
+- `lib/top-list-links.ts:39:12` [STRING_LITERAL] Cele mai bune vinuri sub 50 lei
+- `lib/top-list-links.ts:40:18` [STRING_LITERAL] Valoare maxima la buget mic
+- `lib/top-list-links.ts:49:12` [STRING_LITERAL] Vinuri sub 50 lei pentru sarmale
+- `lib/top-list-links.ts:50:18` [STRING_LITERAL] Asocieri perfecte cu sarmale, la buget mic
+- `lib/top-list-links.ts:64:12` [STRING_LITERAL] Vinuri sub 100 lei pentru cina romantica
+- `lib/top-lists.ts:88:42` [TEMPLATE_TEXT] vinuri-sub-{{expression}}-lei
+- `lib/top-lists.ts:90:32` [TEMPLATE_TEXT] vinuri-sub-{{expression}}-lei-pentru-{{expression}}
+- `lib/top-lists.ts:137:25` [TEMPLATE_TEXT] vinuri-sub-{{expression}}-lei
+- `lib/top-lists.ts:139:32` [TEMPLATE_TEXT] vinuri-sub-{{expression}}-lei-pentru-{{expression}}
+- `lib/top-lists.ts:157:12` [TEMPLATE_TEXT] Vinuri sub {{expression}} lei pentru {{expression}}
+- `lib/top-lists.ts:161:27` [TEMPLATE_TEXT] Vinuri sub {{expression}} lei
+- `lib/top-lists.ts:319:18` [STRING_LITERAL] Cele mai bune vinuri romanesti in 2026 – top pe bugete
+- `lib/top-lists.ts:321:9` [STRING_LITERAL] Top vinuri romanesti dupa Value Score: cel mai bun raport calitate-pret, cu preturi in RON, scoruri si pairing-uri.
+- `lib/top-lists.ts:323:9` [STRING_LITERAL] Am ordonat cele mai bune vinuri romanesti dupa Value Score, indicatorul nostru care masoara raportul calitate-pret. Fiecare vin de mai jos a fost evaluat pe baza pretului mediu, a calitatii si a potrivirii cu mancarea romaneasca.
+- `lib/top-lists.ts:342:18` [STRING_LITERAL] Vinuri bune din supermarket: top romanesc sub 50 lei
+- `lib/top-lists.ts:344:9` [STRING_LITERAL] Cele mai bune vinuri romanesti gasite in supermarket si magazine online, ordonate dupa Value Score si pret in RON.
+- `lib/top-lists.ts:346:9` [STRING_LITERAL] Selectie de vinuri romanesti disponibile in supermarket si magazine online (eMag, Kaufland, Auchan etc.), ordonate dupa raport calitate-pret.
+- `lib/top-lists.ts:388:24` [TEMPLATE_TEXT] Top vinuri {{expression}} romanesti dupa Value Score, cu preturi in RON, scoruri si recomandari de pairing.
+- `lib/top-lists.ts:389:14` [TEMPLATE_TEXT] Selectia noastra de vinuri {{expression}} romanesti, ordonata dupa Value Score. {{expression}} de calitate, evaluate transparent dupa raportul calitate-pret.
+- `lib/top-lists.ts:416:24` [TEMPLATE_TEXT] Cele mai bune vinuri {{expression}} din Romania, ordonate dupa Value Score, cu preturi in RON si pairing-uri.
+- `lib/top-lists.ts:417:14` [TEMPLATE_TEXT] {{expression}} este unul dintre soiurile reprezentative pentru vinul romanesc. Mai jos gasesti cele mai bune vinuri {{expression}}, ordonate dupa raportul calitate-pret.
+- `lib/top-lists.ts:444:16` [TEMPLATE_TEXT] Cele mai bune vinuri sub {{expression}} lei pentru {{expression}}
+- `lib/top-lists.ts:445:18` [TEMPLATE_TEXT] Cele mai bune vinuri sub {{expression}} lei pentru {{expression}}
+- `lib/top-lists.ts:446:24` [TEMPLATE_TEXT] Vinuri romanesti sub {{expression}} RON, alese pentru {{expression}}. Recomandari cu scoruri, explicatii si preturi actuale.
+- `lib/top-lists.ts:447:14` [TEMPLATE_TEXT] Cauti un vin bun sub {{expression}} lei pentru {{expression}}? Am combinat bugetul tau cu cerintele acestei ocazii ({{expression}}) si am ordonat vinurile dupa potrivirea contextuala. Toate optiunile de mai jos costa cel mult {{expression}} RON.
+- `lib/top-lists.ts:471:11` [STRING_LITERAL] Vinuri ieftine si bune: cele mai bune optiuni sub 50 lei
+- `lib/top-lists.ts:472:11` [TEMPLATE_TEXT] Cele mai bune vinuri sub {{expression}} lei
+- `lib/top-lists.ts:474:11` [STRING_LITERAL] Vinuri ieftine si bune: top romanesc sub 50 lei in 2026
+- `lib/top-lists.ts:475:11` [TEMPLATE_TEXT] Cele mai bune vinuri romanesti sub {{expression}} lei
+- `lib/top-lists.ts:477:11` [STRING_LITERAL] Cauti un vin ieftin si bun? Top vinuri romanesti sub 50 lei, comparate dupa Value Score, medalii si disponibilitate.
+- `lib/top-lists.ts:478:11` [TEMPLATE_TEXT] Vinuri romanesti sub {{expression}} RON cu cel mai bun raport calitate-pret, ordonate dupa Value Score.
+- `lib/top-lists.ts:480:11` [STRING_LITERAL] Cauti un vin ieftin si bun, nu doar cea mai ieftina sticla de pe raft? Am comparat vinurile romanesti sub 50 lei dupa pret, calitate, medalii si disponibilitate.
+- `lib/top-lists.ts:481:11` [TEMPLATE_TEXT] Valoare maxima la buget mic: cele mai bune vinuri romanesti care costa cel mult {{expression}} lei, ordonate dupa Value Score.
+- `lib/top-lists.ts:538:9` [TEMPLATE_TEXT] Bugetul sub {{expression}} lei este o constrângere fermă.
+- `lib/top-lists.ts:541:7` [TEMPLATE_TEXT] {{expression}}Ordonarea folosește potrivirea publică existentă pentru buget și context.
+- `lib/wine-analysis.ts:39:17` [STRING_LITERAL] Preț indisponibil momentan
+- `lib/wine-analysis.ts:41:9` [STRING_LITERAL] Nu putem confirma dacă merită cumpărat acum fără un preț curent. Value Score-ul istoric rămâne orientativ.
+- `lib/wine-analysis.ts:43:9` [STRING_LITERAL] Nu presupunem un preț atunci când oferta nu este disponibilă.
+- `lib/wine-analysis.ts:44:9` [STRING_LITERAL] Compară alternativele cu preț verificabil înainte de cumpărare.
+- `lib/wine-analysis.ts:53:16` [TEMPLATE_TEXT] {{expression}} ofera un raport calitate-pret solid la {{expression}}, cu Value Score {{expression}}/100 si {{expression}}.
+- `lib/wine-analysis.ts:69:18` [STRING_LITERAL] Orientare generala de pastrare: consum in urmatorii 2-3 ani, daca nu exista fereastra documentata.
+- `lib/wine-analysis.ts:84:9` [TEMPLATE_TEXT] Value Score {{expression}}/100: in zona de pret mediu ({{expression}}-{{expression}}).
+- `lib/wine-analysis.ts:86:13` [STRING_LITERAL] Atentie la pret: pentru acelasi buget pot exista optiuni cu scor mai bun.
+- `lib/wine-analysis.ts:87:13` [STRING_LITERAL] Pretul este rezonabil pentru calitatea oferita, fara a fi o achizitie evidenta.
+- `lib/wine-analysis.ts:97:14` [TEMPLATE_TEXT] La {{expression}}, {{expression}} are Value Score {{expression}}/100. Recomandam alternative cu raport mai bun calitate-pret.
+- `lib/wine-analysis.ts:101:7` [STRING_LITERAL] Verifica sectiunea de recomandari pentru vinuri similare la pret mai bun.
+- `lib/wine-analysis.ts:104:11` [STRING_LITERAL] Date limitate: asteapta actualizarea preturilor inainte de cumparare.
+- `lib/wine-analysis.ts:174:14` [STRING_LITERAL] Cele mai bune vinuri sub 50 lei
+- `lib/wine-analysis.ts:209:15` [TEMPLATE_TEXT] Value Score {{expression}}/100: recomandare clara la acest pret.
+- `lib/wine-analysis.ts:232:15` [STRING_LITERAL] Risc ridicat de suprapret fata de alternative similare.
+- `lib/wine-analysis.ts:234:15` [STRING_LITERAL] Pretul poate fi optimizat: exista optiuni cu scor mai bun.
+- `lib/wine-analysis.ts:252:15` [STRING_LITERAL] Pret indisponibil: verifica sursa inainte de cumparare.
+- `lib/wine-catalog-filters.ts:87:12` [STRING_LITERAL] Peste 100 RON
+- `lib/wine-price.ts:165:12` [STRING_LITERAL] Cumpara
+- `lib/winery-catalog.ts:11:10` [TEMPLATE_TEXT] Pe VinIntel listam vinurile {{expression}} cu preturi in RON, scoruri de valoare si recomandari de asortare, ca sa poti alege sticla potrivita fara sa parcurgi zeci de pagini de magazin.
+- `lib/winery-catalog.ts:20:7` [STRING_LITERAL] Cel mai mare exportator de vin imbuteliat din Romania, cu un raport calitate-pret remarcabil.
+- `lib/winery-catalog.ts:32:12` [TEMPLATE_TEXT] Davino a fost printre primele crame romanesti care au demonstrat ca Dealu Mare poate produce vinuri serioase, cu structura si personalitate. Plantatiile din Ceptura si terroir-ul calcarean au devenit rapid un reper pentru pasionatii de vin care cauta expresii clare, fara compromisuri. De la cuvee-urile de colectie la game mai accesibile, portofoliul Davino urmareste un echilibru intre eleganta franceza si identitatea locala. Fiecare recolta este tratata cu rigoare in crama, iar vinurile sunt apreciate pentru consistenta, claritate aromatica si potential gastronomic. {{expression}}
+- `lib/winery-catalog.ts:44:12` [TEMPLATE_TEXT] SERVE a adus in Dealu Mare o viziune europeana inca din anii '90, combinand traditia viticola locala cu standarde moderne de vinificatie. Fondarea de catre contele Guy de Poix a marcat o schimbare de ritm in podgorie, unde calitatea a inceput sa primeze in fata productiei de masa. Astazi, vinurile cramei sunt apreciate pentru consistenta, claritate aromatica si raportul solid calitate-pret. Portofoliul acopera atat albe proaspete, cat si rosii structurate, cu linii care reflecta atent terroir-ul din Ceptura si imprejurimi. {{expression}}
+- `lib/winery-catalog.ts:77:12` [TEMPLATE_TEXT] La Valu lui Traian, in podgoria dobrogeana de langa Murfatlar, Crama Gabai lucreaza viile cu grija de familie si transforma recolta in vinuri clare, usor de inteles la masa. Caldura si lumina din sud-estul Romaniei dau albe proaspete, roze expresive si rosii cu structura, de la sticle de zi cu zi la formaturi de colectie. Portofoliul acopera Feteasca Regala, Riesling Italian, Cabernet Sauvignon si cupaje atent gandite, cu preturi care incep accesibil si urca spre editii limitate in magnum. Crama primeste vizitatori pentru degustari si povesteste deschis cum se nasc vinurile in vie. {{expression}}
+- `lib/winery-catalog.ts:111:12` [TEMPLATE_TEXT] Casa de Vinuri Cotnari continua una dintre cele mai cunoscute traditii viticole ale Moldovei, cu Grasa, Feteasca si Tamaioasa in prim-plan. Dealurile din Cotnari, cu pantele lor generoase si microclimatul local, au produs de secole vinuri dulci care au facut faima regiunii. Crama propune atat vinuri dulci clasice, cat si interpretari mai usor de baut pentru publicul de azi: albe aromate, roze proaspete si game seci care arata ca terroir-ul cotnarean poate fi versatil. Productia moderna respecta radacinile, dar nu se teme de stiluri noi. {{expression}}
+- `lib/winery-catalog.ts:144:12` [TEMPLATE_TEXT] Tohani este un nume familiar pentru multi romani, cu o gama larga care acopera aproape orice ocazie. Crama s-a dezvoltat pe colinele din Dealu Mare inca din anii '60, iar astazi combina productia de volum cu linii premium care exploreaza potentialul podgoriei. Vinurile Tohani sunt gandite pentru accesibilitate: preturi corecte, stiluri clare si etichete usor de gasit in magazine. In paralel, cuvee-urile de colectie arata ca Dealu Mare poate produce vinuri cu mai multa complexitate atunci cand recolta o permite. {{expression}}
+- `lib/winery-catalog.ts:180:12` [TEMPLATE_TEXT] Lacerta s-a nascut din pasiunea familiei Baston pentru Dealu Mare. Crama moderna, cu dotari de ultima generatie, a devenit rapid un reper pentru vinuri echilibrate, gastronomice si constant premiate in competitii internationale. Portofoliul acopera albe, roze si rosii, cu linii premium precum Cuvee din Carti si Bisericuta care arata potentialul podgoriei la nivel inalt. Vinificatorii urmaresc echilibrul intre fruct, structura si finete, fara a pierde din vedere stilul local. {{expression}}
+- `lib/winery-catalog.ts:204:12` [TEMPLATE_TEXT] Jidvei este sinonim cu vinurile albe transilvanene, vinificate pe terasele Tarnavelor de secole. Istoria cramei se intinde mult in urma, iar podgoria de altitudine produce albe cu aciditate naturala, finete aromatica si potential gastronomic remarcabil. Crama produce volume mari, dar pastreaza o identitate clara in gamele clasice si moderne. Fie ca alegi un vin de zi cu zi sau o selectie mai rafinata, profilul Jidvei ramane recognoscibil: prospetime, claritate si accesibilitate. {{expression}}
+
+## PAIRING_COPY
+
+- `app/cum-functioneaza-scorurile/page.tsx:85:11` [STRING_LITERAL] Versatilitate la masa
+- `app/cum-functioneaza-scorurile/page.tsx:88:7` [STRING_LITERAL] Cat de versatil este vinul la masa, in general. Nu inseamna compatibilitate cu un fel anume.
+- `app/cum-functioneaza-scorurile/page.tsx:90:7` [STRING_LITERAL] Latimea categoriilor de pairing structurate
+- `app/cum-functioneaza-scorurile/page.tsx:91:7` [STRING_LITERAL] Asocieri culinare de la producator, cand exista
+- `app/cum-functioneaza-scorurile/page.tsx:214:15` [JSX_TEXT] Fiecare vin primeste trei scoruri de la 0 la 100, ca sa stii rapid daca merita banii, daca este un cadou bun si cum se descurca la masa.
+- `app/cum-functioneaza-scorurile/page.tsx:462:15` [JSX_TEXT] Gata sa gasesti vinul potrivit?
+- `app/vin-pentru/[dish]/page.tsx:116:17` [JSX_TEXT] Acasa
+- `app/wineries/premium/page.tsx:142:7` [STRING_LITERAL] Publica degustari, recoltari si tururi direct pe VinIntel. Utilizatorii descopera crama ta in momentul potrivit.
+- `app/wineries/premium/success/page.tsx:79:23` [JSX_TEXT] Nu am gasit inca crama in catalog dupa numele introdus. Plata este inregistrata, iar echipa VinIntel va activa manual profilul Premium sau te va contacta pentru potrivirea slug-ului corect.
+- `app/wines/[slug]/page.tsx:74:47` [TEMPLATE_TEXT] vin pentru {{expression}}
+- `app/wines/[slug]/page.tsx:76:16` [TEMPLATE_TEXT] vin pentru {{expression}}
+- `components/top-lists/top-list-wine-verdict.tsx:113:59` [JSX_TEXT] Potrivit pentru
+- `components/value-props.tsx:26:12` [STRING_LITERAL] Pairing-uri romanesti
+- `components/value-props.tsx:28:7` [STRING_LITERAL] Asocieri gandite pentru mancarea de aici: sarmale, mici, ciorba de burta, friptura de porc sau cozonac.
+- `components/wines/wine-pairings.tsx:50:11` [JSX_TEXT] Cu ce se potrivește
+- `components/wines/wine-pairings.tsx:53:11` [JSX_TEXT] Nu avem încă suficiente date pentru recomandări specifice. Îți arătăm o orientare generală pentru acest stil de vin.
+- `components/wines/wine-pairings.tsx:83:9` [JSX_TEXT] Cu ce se potrivește
+- `components/wines/wine-pairings.tsx:86:9` [JSX_TEXT] Cele mai bune asocieri culinare pentru acest vin.
+- `components/wines/wine-pairings.tsx:120:31` [JSX_ATTRIBUTE] Scor de compatibilitate culinară
+- `components/wines/wine-pairings.tsx:143:13` [JSX_TEXT] Recomandările culinare ale producătorului
+- `components/wines/wine-score-cards.tsx:63:9` [JSX_TEXT] Pentru ce este potrivit
+- `components/wines/wine-score-cards.tsx:78:17` [JSX_ATTRIBUTE] Versatilitate la masă
+- `components/wines/wine-score-cards.tsx:84:17` [STRING_LITERAL] Cât de versatil este vinul la masă, în general. Nu înseamnă compatibilitate cu un fel anume; potrivirea cu preparatul se evaluează separat.
+- `lib/ai/prompts.ts:251:10` [TEMPLATE_TEXT] Genereaza JSON cu dessertPairings pentru vinul de mai jos. Nume: {{expression}}{{expression}} Producator: {{expression}} Regiune: {{expression}} Tip: {{expression}}, Dulceata: {{expression}} Soiuri: {{expression}} Profil gustativ: {{expression}} Descriere: {{expression}} Returneaza doar: dessertPairings (array 0-4, dish + note + score optional).
+- `lib/catalog-audits.ts:253:5` [STRING_LITERAL] foodPairings sunt seed/curated in catalog, nu sunt scrise de analyze sau import.
+- `lib/catalog-audits.ts:254:5` [STRING_LITERAL] Nu au provenienta de evaluare per sticla. Nu le promovam silentios la evidenta verificata.
+- `lib/curated-evidence.ts:252:46` [STRING_LITERAL] Date culinare sustinute de surse
+- `lib/curated-evidence.ts:254:12` [STRING_LITERAL] Recomandare editoriala VinIntel
+- `lib/dish-pairing-pages.ts:24:15` [STRING_LITERAL] Sarmale
+- `lib/dish-pairing-pages.ts:25:14` [STRING_LITERAL] Ce vin merge cu sarmale?
+- `lib/dish-pairing-pages.ts:30:7` [STRING_LITERAL] Sarmalele cer un vin rosu sec cu aciditate buna si taninuri blande. Am selectat vinuri romanesti care tin pasul cu grasimea si condimentele.
+- `lib/dish-pairing-pages.ts:37:15` [STRING_LITERAL] Gratar
+- `lib/dish-pairing-pages.ts:38:14` [STRING_LITERAL] Ce vin merge la gratar?
+- `lib/dish-pairing-pages.ts:39:16` [STRING_LITERAL] Vin pentru gratar: top romanesc la carne la gratar
+- `lib/dish-pairing-pages.ts:43:7` [STRING_LITERAL] La gratar functioneaza vinurile cu corp mediu spre plin, taninuri coapte si fruct rosu. Mai jos gasesti optiuni testate pentru carne la gratar.
+- `lib/dish-pairing-pages.ts:50:15` [STRING_LITERAL] Peste
+- `lib/dish-pairing-pages.ts:51:14` [STRING_LITERAL] Ce vin merge cu peste?
+- `lib/dish-pairing-pages.ts:52:16` [STRING_LITERAL] Vin pentru peste: albe si roze sec din Romania
+- `lib/dish-pairing-pages.ts:56:7` [STRING_LITERAL] Pestele prefera vinuri albe sau roze sec, cu aciditate ridicata si arome discret fructate. Selectia de mai jos evita vinurile grele.
+- `lib/dish-pairing-pages.ts:63:14` [STRING_LITERAL] Ce vin merge cu friptura de porc?
+- `lib/dish-pairing-pages.ts:64:16` [STRING_LITERAL] Vin pentru friptura de porc: rosu sec romanesc
+- `lib/dish-pairing-pages.ts:66:7` [STRING_LITERAL] Vinuri rosu sec din Romania pentru friptura de porc, ordonate dupa Value Score.
+- `lib/dish-pairing-pages.ts:68:7` [STRING_LITERAL] Friptura de porc merge cu rosu sec echilibrat, cu taninuri moi si note fructate. Am exclus vinurile prea grele sau prea dulci.
+- `lib/dish-pairing-pages.ts:74:15` [STRING_LITERAL] Cozonac
+- `lib/dish-pairing-pages.ts:75:14` [STRING_LITERAL] Ce vin merge cu cozonac?
+- `lib/dish-pairing-pages.ts:76:16` [STRING_LITERAL] Vin pentru cozonac si desert: dulce si demidulce
+- `lib/dish-pairing-pages.ts:80:7` [STRING_LITERAL] Cozonacul merge cu vinuri dulci sau demidulce, cu arome de fruct uscat, miere sau vanilie. Mai jos, optiuni potrivite din Romania.
+- `lib/food-evidence.ts:315:59` [STRING_LITERAL] PRODUCER_EXACT
+- `lib/food-taxonomy.ts:47:7` [STRING_LITERAL] sarmale in foi de vita
+- `lib/food-taxonomy.ts:53:12` [STRING_LITERAL] Carne la grătar
+- `lib/food-taxonomy.ts:57:7` [STRING_LITERAL] carne de vita la gratar
+- `lib/food-taxonomy.ts:58:7` [STRING_LITERAL] vita la gratar
+- `lib/food-taxonomy.ts:71:12` [STRING_LITERAL] Pește la grătar
+- `lib/food-taxonomy.ts:73:7` [STRING_LITERAL] peste la gratar
+- `lib/food-taxonomy.ts:74:7` [STRING_LITERAL] peste grill
+- `lib/food-taxonomy.ts:75:7` [STRING_LITERAL] fructe de mare la gratar
+- `lib/food-taxonomy.ts:80:7` [STRING_LITERAL] pastrav la gratar cu mamaliga
+- `lib/food-taxonomy.ts:86:12` [STRING_LITERAL] Legume la grătar
+- `lib/food-taxonomy.ts:105:7` [STRING_LITERAL] tocana de porc cu prune
+- `lib/food-taxonomy.ts:110:12` [STRING_LITERAL] Vită
+- `lib/food-taxonomy.ts:111:45` [STRING_LITERAL] vita la gratar
+- `lib/food-taxonomy.ts:111:63` [STRING_LITERAL] friptura de vita
+- `lib/food-taxonomy.ts:115:12` [STRING_LITERAL] Pasăre
+- `lib/food-taxonomy.ts:135:12` [STRING_LITERAL] Vânat
+- `lib/food-taxonomy.ts:139:7` [STRING_LITERAL] tocanita de vanat
+- `lib/food-taxonomy.ts:140:7` [STRING_LITERAL] tocanite de vanat
+- `lib/food-taxonomy.ts:152:12` [STRING_LITERAL] Pește
+- `lib/food-taxonomy.ts:155:7` [STRING_LITERAL] peste alb
+- `lib/food-taxonomy.ts:157:7` [STRING_LITERAL] peste gras
+- `lib/food-taxonomy.ts:159:7` [STRING_LITERAL] scrumbie de dunare
+- `lib/food-taxonomy.ts:160:7` [STRING_LITERAL] fructe de mare
+- `lib/food-taxonomy.ts:169:7` [STRING_LITERAL] peste la cuptor
+- `lib/food-taxonomy.ts:174:12` [STRING_LITERAL] Brânză
+- `lib/food-taxonomy.ts:237:7` [STRING_LITERAL] placinta cu mere
+- `lib/food-taxonomy.ts:245:12` [STRING_LITERAL] Ciocolată
+- `lib/food-taxonomy.ts:250:12` [STRING_LITERAL] Masă festivă
+- `lib/generic-pairing-guidance.ts:38:15` [STRING_LITERAL] Vinurile rosii seci se asociaza de obicei bine cu preparate consistente, grase, cu taninuri care echilibreaza carnea. Vinurile rosii dulci/demidulci sunt rare si merg mai bine cu desert sau branzeturi picante.
+- `lib/generic-pairing-guidance.ts:44:17` [STRING_LITERAL] Un alb dulce sau demidulce merge de regula cu deserturi usoare sau branzeturi cu personalitate, nu cu preparate sarate consistente.
+- `lib/generic-pairing-guidance.ts:49:11` [STRING_LITERAL] peste si fructe de mare
+- `lib/generic-pairing-guidance.ts:50:11` [STRING_LITERAL] preparate usoare de vara
+- `lib/generic-pairing-guidance.ts:53:15` [STRING_LITERAL] Vinurile albe seci sau demiseci se asociaza de regula cu preparate usoare, peste si fructe de mare, unde aciditatea vinului completeaza mancarea.
+- `lib/generic-pairing-guidance.ts:58:11` [STRING_LITERAL] salate si preparate usoare de vara
+- `lib/generic-pairing-guidance.ts:59:11` [STRING_LITERAL] gratar de pui sau peste
+- `lib/generic-pairing-guidance.ts:62:15` [STRING_LITERAL] Un roze sec functioneaza de regula ca vin versatil de vara, pentru preparate usoare spre medii, nu pentru mancare foarte grasa sau condimentata puternic.
+- `lib/generic-pairing-guidance.ts:68:11` [STRING_LITERAL] fructe de mare
+- `lib/generic-pairing-guidance.ts:71:15` [STRING_LITERAL] preparate usoare la inceput de masa
+- `lib/generic-pairing-guidance.ts:73:15` [STRING_LITERAL] Un spumant sec/brut merge de regula la aperitiv si fructe de mare; variantele demiseci/dulci se asociaza mai bine cu deserturi usoare.
+- `lib/generic-pairing-guidance.ts:79:11` [STRING_LITERAL] branzeturi cu mucegai (ex. gorgonzola, rocamadour)
+- `lib/generic-pairing-guidance.ts:82:15` [STRING_LITERAL] Vinurile de desert sunt de regula dulci si se servesc cu deserturi sau branzeturi puternice, nu cu preparate sarate obisnuite.
+- `lib/generic-pairing-guidance.ts:88:11` [STRING_LITERAL] branzeturi cu textura
+- `lib/generic-pairing-guidance.ts:91:15` [STRING_LITERAL] Vinurile orange (macerate pe pielite) au de regula taninuri si note oxidative care se potrivesc cu preparate cu textura sau fermentate.
+- `lib/generic-pairing-guidance.ts:95:22` [STRING_LITERAL] preparate echilibrate, fara sosuri foarte grase sau foarte picante
+- `lib/generic-pairing-guidance.ts:96:15` [STRING_LITERAL] Nu avem inca suficiente date structurate despre acest vin pentru o orientare de pairing mai precisa.
+- `lib/journal-categories.ts:23:12` [STRING_LITERAL] Pairing cu mancare romaneasca
+- `lib/pairing-curation-apply.ts:47:21` [STRING_LITERAL] Vinul nu este disponibil pentru curatare.
+- `lib/pairing-curation-match.ts:17:11` [STRING_LITERAL] Carne de vita la gratar
+- `lib/pairing-curation-match.ts:17:74` [STRING_LITERAL] vita la gratar
+- `lib/pairing-curation-match.ts:20:11` [STRING_LITERAL] Pasăre
+- `lib/pairing-curation-match.ts:22:11` [STRING_LITERAL] Tocăniță de vânat
+- `lib/pairing-curation-match.ts:24:15` [STRING_LITERAL] tocanita de vanat
+- `lib/pairing-curation-match.ts:24:36` [STRING_LITERAL] tocanite de vanat
+- `lib/pairing-curation-match.ts:26:11` [STRING_LITERAL] Pește alb
+- `lib/pairing-curation-match.ts:27:48` [STRING_LITERAL] peste gras
+- `lib/pairing-curation-match.ts:28:11` [STRING_LITERAL] Fructe de mare
+- `lib/pairing-curation-match.ts:31:11` [STRING_LITERAL] Brânzeturi proaspete
+- `lib/pairing-curation-match.ts:32:11` [STRING_LITERAL] Brânzeturi maturate
+- `lib/pairing-curation-match.ts:37:11` [STRING_LITERAL] Pască
+- `lib/pairing-curation-match.ts:39:11` [STRING_LITERAL] Desert cu ciocolată
+- `lib/pairing-curation-review.ts:57:3` [STRING_LITERAL] Primul batch este complet: 30 / 30 vinuri revizuite.
+- `lib/pairing-curation-review.ts:60:3` [STRING_LITERAL] Vinul are deja 4 asocieri curate. Adauga una noua doar daca aduce o directie culinara distincta.
+- `lib/pairing-curation-review.ts:138:3` [STRING_LITERAL] Toate propunerile disponibile au fost deja revizuite pentru acest vin.
+- `lib/pairing-curation-review.ts:141:3` [STRING_LITERAL] Categoria preparatului lipseste din taxonomie.
+- `lib/pairing-curation-review.ts:152:19` [TEMPLATE_TEXT] Recomandare: {{expression}}
+- `lib/pairing-curation.ts:126:21` [STRING_LITERAL] basis=producer_evidence necesita evidenta oficiala pentru aceasta categorie.
+- `lib/pairing-curation.ts:130:21` [STRING_LITERAL] basis=producer_evidence necesita evidenta oficiala pentru aceasta categorie.
+- `lib/pairing-curation.ts:161:18` [STRING_LITERAL] Nu poti marca o asociere ca evidenta de producator fara sursa oficiala.
+- `lib/pairing-curation.ts:185:18` [STRING_LITERAL] Motivarea nu poate inventa tanin, stejar sau arome de sticla.
+- `lib/pairing-curation.ts:195:18` [TEMPLATE_TEXT] Categoria pentru "{{expression}}" nu este in taxonomie.
+- `lib/pairing-curation.ts:203:18` [TEMPLATE_TEXT] "{{expression}}" este deja aprobat pentru acest vin.
+- `lib/pairing-curation.ts:236:16` [STRING_LITERAL] Acest vin ar deveni neobisnuit de versatil fata de datele disponibile.
+- `lib/pairing-curation.ts:249:18` [STRING_LITERAL] Desert pe un vin sec, fara evidenta de producator pentru desert.
+- `lib/pairing-curation.ts:470:7` [STRING_LITERAL] Recomandare VinIntel
+- `lib/pairing-curation.ts:494:10` [STRING_LITERAL] Recomandat și de producător
+- `lib/pairing/grape-style-profiles.ts:71:32` [STRING_LITERAL] fetească neagră
+- `lib/pairing/grape-style-profiles.ts:91:35` [STRING_LITERAL] negru de drăgășani
+- `lib/pairing/grape-style-profiles.ts:111:62` [STRING_LITERAL] babească neagră
+- `lib/pairing/grape-style-profiles.ts:131:24` [STRING_LITERAL] cadarcă
+- `lib/pairing/grape-style-profiles.ts:251:32` [STRING_LITERAL] fetească regală
+- `lib/pairing/grape-style-profiles.ts:271:30` [STRING_LITERAL] fetească albă
+- `lib/pairing/grape-style-profiles.ts:291:13` [STRING_LITERAL] tamaioasa romaneasca
+- `lib/pairing/grape-style-profiles.ts:291:37` [STRING_LITERAL] tămâioasă românească
+- `lib/pairing/grape-style-profiles.ts:311:37` [STRING_LITERAL] busuioacă de bohotin
+- `lib/pairing/grape-style-profiles.ts:331:33` [STRING_LITERAL] grasă de cotnari
+- `lib/pairing/grape-style-profiles.ts:351:22` [STRING_LITERAL] șarbă
+- `lib/pairing/grape-style-profiles.ts:371:26` [STRING_LITERAL] crâmpoșie
+- `lib/pairing/grape-style-profiles.ts:391:36` [STRING_LITERAL] mustoasă de măderat
+- `lib/pairing/pairing-rationale.ts:41:12` [TEMPLATE_TEXT] {{expression}} este recomandat de producator si se potriveste foarte bine cu un {{expression}} {{expression}} din acest stil.
+- `lib/pairing/pairing-rationale.ts:45:12` [TEMPLATE_TEXT] {{expression}} cere un vin cu dulceata, iar un {{expression}} {{expression}} poate tine pasul cu desertul.
+- `lib/pairing/pairing-rationale.ts:49:12` [TEMPLATE_TEXT] {{expression}} are aciditate de ciorba, iar un {{expression}} {{expression}} mai proaspat este o alegere mai fireasca decat un vin greu.
+- `lib/pairing/pairing-rationale.ts:53:12` [TEMPLATE_TEXT] Merge foarte bine langa {{expression}}, unde un {{expression}} {{expression}} poate tine pasul cu preparatul bogat.
+- `lib/pairing/pairing-rationale.ts:56:12` [TEMPLATE_TEXT] Pentru {{expression}}, un {{expression}} {{expression}} mai fin este o alegere mai fireasca decat un vin greu.
+- `lib/pairing/pairing-rationale.ts:59:12` [TEMPLATE_TEXT] {{expression}} este o alegere foarte buna pentru un {{expression}} {{expression}} din acest stil.
+- `lib/pairing/pairing-rationale.ts:62:12` [TEMPLATE_TEXT] {{expression}} se potriveste foarte bine ca inceput de masa langa un {{expression}} {{expression}}.
+- `lib/pairing/pairing-rationale.ts:65:12` [TEMPLATE_TEXT] Un {{expression}} {{expression}} mai consistent poate sta langa {{expression}}, unde fumul si sarea cer un vin cu prezenta.
+- `lib/pairing/pairing-rationale.ts:68:12` [TEMPLATE_TEXT] {{expression}} aduce sare si grasime, iar un {{expression}} {{expression}} din acest stil le poate echilibra fara sa le acopere.
+- `lib/pairing/pairing-rationale.ts:71:12` [TEMPLATE_TEXT] {{expression}} este o masa romaneasca clasica pentru un {{expression}} {{expression}}, cu destula prezenta pentru umplutura.
+- `lib/pairing/pairing-rationale.ts:74:12` [TEMPLATE_TEXT] Pentru {{expression}}, un {{expression}} {{expression}} este o alegere mai fireasca decat un vin greu.
+- `lib/pairing/pairing-rationale.ts:77:12` [TEMPLATE_TEXT] {{expression}} se potriveste foarte bine cu {{expression}}.
+- `lib/pairing/pairing-rationale.ts:80:12` [TEMPLATE_TEXT] Un {{expression}} {{expression}} din {{expression}} merge foarte bine langa {{expression}}.
+- `lib/pairing/pairing-rationale.ts:82:10` [TEMPLATE_TEXT] Un {{expression}} {{expression}} din acest stil este o alegere foarte buna pentru {{expression}}.
+- `lib/pairing/pairing-style-guide.ts:7:5` [STRING_LITERAL] se potriveste foarte bine cu
+- `lib/pairing/pairing-style-guide.ts:8:5` [STRING_LITERAL] este o alegere foarte buna pentru
+- `lib/pairing/pairing-style-guide.ts:13:5` [STRING_LITERAL] functioneaza ca un inceput romanesc clar
+- `lib/pairing/producer-provenance.ts:19:3` [STRING_LITERAL] Producatorul recomanda o categorie apropiata, dar nu acest preparat exact. Salvarea se va face ca Recomandare VinIntel.
+- `lib/pairing/producer-provenance.ts:29:3` [STRING_LITERAL] peste alb
+- `lib/pairing/producer-provenance.ts:30:3` [STRING_LITERAL] fructe de mare
+- `lib/pairing/producer-provenance.ts:35:3` [STRING_LITERAL] carne de pasare
+- `lib/pairing/producer-provenance.ts:127:21` [STRING_LITERAL] EXACT_PRODUCER
+- `lib/pairing/producer-provenance.ts:129:12` [STRING_LITERAL] RELATED_PRODUCER_CATEGORY
+- `lib/pairing/producer-provenance.ts:134:32` [STRING_LITERAL] RELATED_PRODUCER_CATEGORY
+- `lib/pairing/producer-provenance.ts:135:10` [STRING_LITERAL] STYLE_ONLY
+- `lib/pairing/producer-provenance.ts:143:66` [STRING_LITERAL] EXACT_PRODUCER
+- `lib/pairing/producer-provenance.ts:157:22` [STRING_LITERAL] EXACT_PRODUCER
+- `lib/pairing/producer-text-class.ts:19:17` [STRING_LITERAL] PRODUCER_CULINARY_RECOMMENDATION
+- `lib/pairing/producer-text-class.ts:20:12` [STRING_LITERAL] Recomandarile producatorului
+- `lib/pairing/producer-text-class.ts:22:17` [STRING_LITERAL] PRODUCER_DESCRIPTION
+- `lib/pairing/producer-text-class.ts:22:48` [STRING_LITERAL] Descrierea producatorului
+- `lib/pairing/producer-text-class.ts:23:17` [STRING_LITERAL] PRODUCER_TECHNICAL_FACT
+- `lib/pairing/producer-text-class.ts:23:51` [STRING_LITERAL] Fapt tehnic de producator
+- `lib/pairing/producer-text-class.ts:24:10` [STRING_LITERAL] Alt text de producator
+- `lib/pairing/producer-text-class.ts:35:24` [STRING_LITERAL] OTHER
+- `lib/pairing/producer-text-class.ts:36:45` [STRING_LITERAL] OTHER
+- `lib/pairing/producer-text-class.ts:45:56` [STRING_LITERAL] PRODUCER_DESCRIPTION
+- `lib/pairing/producer-text-class.ts:46:55` [STRING_LITERAL] PRODUCER_CULINARY_RECOMMENDATION
+- `lib/pairing/producer-text-class.ts:47:43` [STRING_LITERAL] PRODUCER_CULINARY_RECOMMENDATION
+- `lib/pairing/producer-text-class.ts:48:23` [STRING_LITERAL] PRODUCER_DESCRIPTION
+- `lib/pairing/producer-text-class.ts:49:63` [STRING_LITERAL] PRODUCER_TECHNICAL_FACT
+- `lib/pairing/producer-text-class.ts:50:28` [STRING_LITERAL] PRODUCER_CULINARY_RECOMMENDATION
+- `lib/pairing/producer-text-class.ts:51:10` [STRING_LITERAL] OTHER
+- `lib/pairing/producer-text-class.ts:55:41` [STRING_LITERAL] PRODUCER_CULINARY_RECOMMENDATION
+- `lib/pairing/romanian-dish-extensions.ts:14:11` [STRING_LITERAL] Sarmale în foi de viță
+- `lib/pairing/romanian-dish-extensions.ts:26:15` [STRING_LITERAL] sarmale in foi de vita
+- `lib/pairing/romanian-dish-extensions.ts:35:11` [STRING_LITERAL] Ardei umpluți de post
+- `lib/pairing/romanian-dish-extensions.ts:55:11` [STRING_LITERAL] Dovlecei umpluți de post
+- `lib/pairing/romanian-dish-extensions.ts:75:11` [STRING_LITERAL] Mâncare de praz cu măsline
+- `lib/pairing/romanian-dish-extensions.ts:86:34` [STRING_LITERAL] mancare de praz
+- `lib/pairing/romanian-dish-extensions.ts:114:11` [STRING_LITERAL] Tocăniță de ciuperci
+- `lib/pairing/romanian-dish-extensions.ts:126:15` [STRING_LITERAL] tocanita de ciuperci
+- `lib/pairing/romanian-dish-extensions.ts:153:11` [STRING_LITERAL] Plachie de șalău
+- `lib/pairing/romanian-dish-extensions.ts:168:21` [STRING_LITERAL] Dobrogea
+- `lib/pairing/romanian-dish-extensions.ts:174:11` [STRING_LITERAL] Saramură de păstrăv
+- `lib/pairing/romanian-dish-extensions.ts:195:11` [STRING_LITERAL] Păstrăv prăjit
+- `lib/pairing/romanian-dish-extensions.ts:215:11` [STRING_LITERAL] Șalău la cuptor
+- `lib/pairing/romanian-dish-extensions.ts:235:11` [STRING_LITERAL] Scrumbie de Dunăre la grătar
+- `lib/pairing/romanian-dish-extensions.ts:249:21` [STRING_LITERAL] Delta Dunarii
+- `lib/pairing/romanian-dish-extensions.ts:255:11` [STRING_LITERAL] Borș de pește
+- `lib/pairing/romanian-dish-extensions.ts:267:15` [STRING_LITERAL] bors de peste
+- `lib/pairing/romanian-dish-extensions.ts:270:21` [STRING_LITERAL] Delta Dunarii
+- `lib/pairing/romanian-dish-extensions.ts:275:11` [STRING_LITERAL] Salată de icre de crap
+- `lib/pairing/romanian-dish-extensions.ts:289:21` [STRING_LITERAL] Dobrogea
+- `lib/pairing/romanian-dish-extensions.ts:295:11` [STRING_LITERAL] Salată de icre de știucă
+- `lib/pairing/romanian-dish-extensions.ts:306:33` [STRING_LITERAL] salata de icre de stiuca
+- `lib/pairing/romanian-dish-extensions.ts:309:21` [STRING_LITERAL] Dobrogea
+- `lib/pairing/romanian-dish-extensions.ts:315:11` [STRING_LITERAL] Telemea de capră
+- `lib/pairing/romanian-dish-extensions.ts:355:11` [STRING_LITERAL] Telemea de vacă
+- `lib/pairing/romanian-dish-extensions.ts:375:11` [STRING_LITERAL] Chiftele prăjite
+- `lib/pairing/romanian-dish-extensions.ts:395:11` [STRING_LITERAL] Chiftele marinate în sos de roșii
+- `lib/pairing/romanian-dish-extensions.ts:416:11` [STRING_LITERAL] Pârjoale moldovenești
+- `lib/pairing/romanian-dish-extensions.ts:431:21` [STRING_LITERAL] Moldova
+- `lib/pairing/romanian-dish-extensions.ts:456:11` [STRING_LITERAL] Ciorbă rădăuțeană
+- `lib/pairing/romanian-dish-extensions.ts:472:21` [STRING_LITERAL] Moldova
+- `lib/pairing/romanian-dish-extensions.ts:477:11` [STRING_LITERAL] Ciorbă de perișoare
+- `lib/pairing/romanian-dish-extensions.ts:489:15` [STRING_LITERAL] ciorba de perisoare
+- `lib/pairing/romanian-dish-extensions.ts:497:11` [STRING_LITERAL] Ciorbă de burtă
+- `lib/pairing/romanian-dish-extensions.ts:518:11` [STRING_LITERAL] Ciorbă de miel
+- `lib/pairing/romanian-dish-extensions.ts:538:11` [STRING_LITERAL] Ciorbă de fasole cu afumătură
+- `lib/pairing/romanian-dish-extensions.ts:558:11` [STRING_LITERAL] Ciorbă de legume
+- `lib/pairing/romanian-dish-extensions.ts:616:11` [STRING_LITERAL] Piept de rață
+- `lib/pairing/romanian-dish-extensions.ts:636:11` [STRING_LITERAL] Tocană de porc cu prune
+- `lib/pairing/romanian-dish-extensions.ts:647:15` [STRING_LITERAL] tocana de porc cu prune
+- `lib/pairing/romanian-dish-extensions.ts:656:11` [STRING_LITERAL] Pește alb
+- `lib/pairing/romanian-dish-extensions.ts:667:15` [STRING_LITERAL] peste alb
+- `lib/pairing/romanian-dishes.ts:94:11` [STRING_LITERAL] Sarmale clasice
+- `lib/pairing/romanian-dishes.ts:106:48` [STRING_LITERAL] sarmale in foi de varza
+- `lib/pairing/romanian-dishes.ts:109:21` [STRING_LITERAL] Transilvania
+- `lib/pairing/romanian-dishes.ts:114:11` [STRING_LITERAL] Varză a la Cluj
+- `lib/pairing/romanian-dishes.ts:129:21` [STRING_LITERAL] Transilvania
+- `lib/pairing/romanian-dishes.ts:154:11` [STRING_LITERAL] Sarmale în foi de viță
+- `lib/pairing/romanian-dishes.ts:165:15` [STRING_LITERAL] sarmale in foi de vita
+- `lib/pairing/romanian-dishes.ts:165:41` [STRING_LITERAL] sarmalute in foi de vita
+- `lib/pairing/romanian-dishes.ts:168:21` [STRING_LITERAL] Moldova
+- `lib/pairing/romanian-dishes.ts:173:11` [STRING_LITERAL] Tochitură moldovenească
+- `lib/pairing/romanian-dishes.ts:187:21` [STRING_LITERAL] Moldova
+- `lib/pairing/romanian-dishes.ts:192:11` [STRING_LITERAL] Pomana porcului
+- `lib/pairing/romanian-dishes.ts:249:11` [STRING_LITERAL] Cârnați afumați cu mămăligă
+- `lib/pairing/romanian-dishes.ts:268:11` [STRING_LITERAL] Mici
+- `lib/pairing/romanian-dishes.ts:287:11` [STRING_LITERAL] Pastramă de oaie
+- `lib/pairing/romanian-dishes.ts:383:15` [STRING_LITERAL] Pui la ceaun cu pâine de casă
+- `lib/pairing/romanian-dishes.ts:426:21` [STRING_LITERAL] Moldova
+- `lib/pairing/romanian-dishes.ts:431:15` [STRING_LITERAL] Ciulama de pui cu mămăligă
+- `lib/pairing/romanian-dishes.ts:476:11` [STRING_LITERAL] Tocană de iepure
+- `lib/pairing/romanian-dishes.ts:496:11` [STRING_LITERAL] Tocăniță de vânat
+- `lib/pairing/romanian-dishes.ts:509:7` [STRING_LITERAL] tocanite de vanat
+- `lib/pairing/romanian-dishes.ts:512:7` [STRING_LITERAL] tocanita de vânat
+- `lib/pairing/romanian-dishes.ts:521:11` [STRING_LITERAL] Friptură de vită la cuptor
+- `lib/pairing/romanian-dishes.ts:532:15` [STRING_LITERAL] vita la cuptor
+- `lib/pairing/romanian-dishes.ts:532:33` [STRING_LITERAL] friptura de vita
+- `lib/pairing/romanian-dishes.ts:532:53` [STRING_LITERAL] friptura de vita la cuptor
+- `lib/pairing/romanian-dishes.ts:537:15` [STRING_LITERAL] Friptură de vită cu sos de ciuperci
+- `lib/pairing/romanian-dishes.ts:562:21` [STRING_LITERAL] Dobrogea
+- `lib/pairing/romanian-dishes.ts:582:21` [STRING_LITERAL] Dobrogea
+- `lib/pairing/romanian-dishes.ts:587:11` [STRING_LITERAL] Crap prăjit
+- `lib/pairing/romanian-dishes.ts:602:21` [STRING_LITERAL] Delta Dunarii
+- `lib/pairing/romanian-dishes.ts:607:11` [STRING_LITERAL] Scrumbie de Dunăre
+- `lib/pairing/romanian-dishes.ts:621:21` [STRING_LITERAL] Delta Dunarii
+- `lib/pairing/romanian-dishes.ts:626:11` [STRING_LITERAL] Păstrăv la grătar
+- `lib/pairing/romanian-dishes.ts:637:47` [STRING_LITERAL] pastrav la gratar cu mamaliga
+- `lib/pairing/romanian-dishes.ts:646:11` [STRING_LITERAL] Storceag
+- `lib/pairing/romanian-dishes.ts:661:21` [STRING_LITERAL] Delta Dunarii
+- `lib/pairing/romanian-dishes.ts:666:11` [STRING_LITERAL] Hamsii prăjite
+- `lib/pairing/romanian-dishes.ts:681:21` [STRING_LITERAL] Dobrogea
+- `lib/pairing/romanian-dishes.ts:686:11` [STRING_LITERAL] Salată de icre
+- `lib/pairing/romanian-dishes.ts:700:21` [STRING_LITERAL] Dobrogea
+- `lib/pairing/romanian-dishes.ts:705:11` [STRING_LITERAL] Pește la cuptor
+- `lib/pairing/romanian-dishes.ts:716:15` [STRING_LITERAL] peste la cuptor
+- `lib/pairing/romanian-dishes.ts:724:11` [STRING_LITERAL] Fructe de mare
+- `lib/pairing/romanian-dishes.ts:735:15` [STRING_LITERAL] fructe de mare
+- `lib/pairing/romanian-dishes.ts:743:11` [STRING_LITERAL] Zacuscă
+- `lib/pairing/romanian-dishes.ts:763:11` [STRING_LITERAL] Salată de vinete
+- `lib/pairing/romanian-dishes.ts:782:15` [STRING_LITERAL] Salată de vinete cu pâine de casă
+- `lib/pairing/romanian-dishes.ts:789:11` [STRING_LITERAL] Ciuperci cu mămăligă
+- `lib/pairing/romanian-dishes.ts:848:11` [STRING_LITERAL] Ardei copți
+- `lib/pairing/romanian-dishes.ts:867:11` [STRING_LITERAL] Fasole bătută cu ceapă
+- `lib/pairing/romanian-dishes.ts:886:11` [STRING_LITERAL] Bulz
+- `lib/pairing/romanian-dishes.ts:897:23` [STRING_LITERAL] bulz cu branza de burduf
+- `lib/pairing/romanian-dishes.ts:900:21` [STRING_LITERAL] Transilvania
+- `lib/pairing/romanian-dishes.ts:905:15` [STRING_LITERAL] Bulz cu brânză de burduf
+- `lib/pairing/romanian-dishes.ts:912:11` [STRING_LITERAL] Mămăligă cu brânză și smântână
+- `lib/pairing/romanian-dishes.ts:932:11` [STRING_LITERAL] Brânză de burduf
+- `lib/pairing/romanian-dishes.ts:946:21` [STRING_LITERAL] Transilvania
+- `lib/pairing/romanian-dishes.ts:951:15` [STRING_LITERAL] Brânză de burduf cu pâine de casă
+- `lib/pairing/romanian-dishes.ts:958:11` [STRING_LITERAL] Telemea
+- `lib/pairing/romanian-dishes.ts:977:11` [STRING_LITERAL] Cașcaval maturat
+- `lib/pairing/romanian-dishes.ts:996:11` [STRING_LITERAL] Plăcintă dobrogeană
+- `lib/pairing/romanian-dishes.ts:1010:21` [STRING_LITERAL] Dobrogea
+- `lib/pairing/romanian-dishes.ts:1015:11` [STRING_LITERAL] Cozonac
+- `lib/pairing/romanian-dishes.ts:1034:11` [STRING_LITERAL] Pască
+- `lib/pairing/romanian-dishes.ts:1053:11` [STRING_LITERAL] Papanași
+- `lib/pairing/romanian-dishes.ts:1087:21` [STRING_LITERAL] Moldova
+- `lib/pairing/romanian-dishes.ts:1092:11` [STRING_LITERAL] Alivenci
+- `lib/pairing/romanian-dishes.ts:1106:21` [STRING_LITERAL] Moldova
+- `lib/pairing/romanian-dishes.ts:1111:11` [STRING_LITERAL] Plăcintă cu mere
+- `lib/pairing/romanian-dishes.ts:1122:15` [STRING_LITERAL] placinta cu mere
+- `lib/pairing/romanian-dishes.ts:1130:11` [STRING_LITERAL] Plăcintă cu dovleac
+- `lib/pairing/romanian-dishes.ts:1149:11` [STRING_LITERAL] Clătite cu dulceață
+- `lib/pairing/romanian-dishes.ts:1169:11` [STRING_LITERAL] Aperitive
+- `lib/public-wine-pairings.ts:100:16` [STRING_LITERAL] Recomandat și de producător
+- `lib/public-wine-pairings.ts:101:16` [STRING_LITERAL] Recomandare VinIntel
+- `lib/recommendation/dish-match.ts:268:11` [TEMPLATE_TEXT] Asociere evaluată exact pentru {{expression}}.
+- `lib/recommendation/dish-match.ts:270:13` [TEMPLATE_TEXT] Asociere evaluată pentru un preparat apropiat din aceeași familie.
+- `lib/recommendation/dish-match.ts:271:13` [TEMPLATE_TEXT] Asociere evaluată doar la nivelul categoriei culinare.
+- `lib/recommendation/dish-match.ts:326:20` [STRING_LITERAL] Recomandare culinara oficiala, concentrata pe desert.
+- `lib/recommendation/dish-match.ts:338:18` [STRING_LITERAL] Producatorul mentioneaza aceasta asociere culinara.
+- `lib/recommendation/dish-match.ts:350:7` [STRING_LITERAL] Producătorul recomandă alt tip de grătar; folosim doar compatibilitatea generală de stil.
+- `lib/recommendation/dish-match.ts:358:17` [STRING_LITERAL] Felul nu e in taxonomia VinIntel; potrivire slaba.
+- `lib/recommendation/dish-match.ts:387:13` [STRING_LITERAL] Dulceața vinului nu este verificată pentru o recomandare sigură de desert.
+- `lib/recommendation/dish-match.ts:388:13` [STRING_LITERAL] Stilul de dulceață verificat nu este potrivit pentru o recomandare sigură de desert.
+- `lib/recommendation/dish-match.ts:397:7` [TEMPLATE_TEXT] Compatibilitate estimată pentru un vin de tip {{expression}} și {{expression}}.
+- `lib/recommendation/dish-match.ts:409:5` [TEMPLATE_TEXT] Compatibilitate generica de stil pentru {{expression}}, nu evidenta de sticla.
+- `lib/recommendation/legacy-recommend.ts:120:20` [TEMPLATE_TEXT] Potrivit pentru {{expression}}.
+- `lib/recommendation/legacy-recommend.ts:127:20` [STRING_LITERAL] Are pairing-uri editoriale cu deserturi romanesti.
+- `lib/recommendation/occasion-match.ts:405:14` [STRING_LITERAL] Versatilitate la masa
+- `lib/recommendation/occasion-match.ts:408:15` [STRING_LITERAL] Versatilitate globala, nu potrivire de fel.
+- `lib/scoring-v2/food-versatility.ts:118:29` [STRING_LITERAL] PRODUCER_EXACT
+- `lib/scoring-v2/food-versatility.ts:202:15` [STRING_LITERAL] Vin dulce: util la desert, ingust la masa savuroasa.
+- `lib/scoring-v2/food-versatility.ts:211:11` [STRING_LITERAL] Alb sec: utilitate de masa relativ larga (generic, incredere mica).
+- `lib/scoring-v2/food-versatility.ts:219:15` [STRING_LITERAL] Roze: utilitate de masa moderata, semnal generic.
+- `lib/scoring-v2/food-versatility.ts:226:15` [STRING_LITERAL] Spumant: merge cu multe mese usoare, semnal generic.
+- `lib/scoring-v2/food-versatility.ts:238:33` [STRING_LITERAL] Orange: masa mai ingusta, baseline modest.
+- `lib/scoring-v2/food-versatility.ts:428:13` [STRING_LITERAL] Fara pairing-uri structurate. Nu recompensam aliasuri repetate.
+- `lib/scoring-v2/food-versatility.ts:443:15` [STRING_LITERAL] Calitatea evidentiilor tine de baza (producator/stil/editorial), nu de strength.
+- `lib/scoring-v2/food-versatility.ts:449:15` [STRING_LITERAL] Doar dulceata/tip/pairing factual, nu lista editoriala de desert.
+- `lib/scoring-v2/gift-score.ts:135:35` [STRING_LITERAL] Vinul de desert e potrivit ca dar de masa, nu universal.
+- `lib/scoring-v2/gift-score.ts:143:35` [STRING_LITERAL] Orange e mai nicis, semnal mic de potrivire.
+- `lib/scoring-v2/public-secondary-display.ts:133:9` [STRING_LITERAL] Nu avem încă suficiente date pentru un scor general precis de versatilitate la masă.
+- `lib/scoring-v2/public-secondary-display.ts:134:9` [TEMPLATE_TEXT] Versatilitate la masă {{expression}}/100
+- `lib/scoring.ts:160:5` [TEMPLATE_TEXT] - Versatilitate la masa: {{expression}}/100 (Food Versatility v{{expression}}, deterministic)
+- `lib/top-lists.ts:364:9` [STRING_LITERAL] Vinuri romanesti potrivite ca dar, ordonate dupa Gift Score: calitate estimata, incredere in date, valoare si caracter distinctiv.
+- `lib/top-lists.ts:540:7` [TEMPLATE_TEXT] {{expression}}Ordonarea folosește Occasion Match, același scor afișat în coloana Potrivire.
+- `lib/top-lists.ts:555:11` [STRING_LITERAL] scor de potrivire
+- `lib/wine-analysis.ts:56:9` [STRING_LITERAL] Vezi asocierile culinare evaluate separat pentru acest vin.
+- `lib/wine-analysis.ts:88:9` [STRING_LITERAL] Verifică secțiunea de utilizare pentru cadou și masă înainte de alegere.
+- `lib/wine-analysis.ts:243:7` [TEMPLATE_TEXT] Alcool {{expression}}%: mai potrivit cu mâncare consistentă.
+- `lib/wine-approval-email.ts:60:10` [TEMPLATE_TEXT] {{expression}} de la {{expression}} este acum in catalogul VinIntel. Poti vedea analiza completa, scorurile si recomandarile de pairing pe pagina vinului.
+- `lib/winery-catalog.ts:99:12` [TEMPLATE_TEXT] Liliac vinifica pe versantii Lechintei, unde altitudinea si noptile racoroase pastreaza aciditatea si finetea aromelor. Este o crama moderna, nascuta din dorinta de a pune Transilvania viticola pe harta vinurilor albe elegante din Europa Centrala. Portofoliul propune albe florale, roze delicate si rosii cu structura moderata, toate cu un profil proaspat care se potriveste bucatariei de sezon. Filozofia cramei pune accent pe echilibru, nu pe exces, iar fiecare sticla vorbeste despre climatul rece al podgoriei. {{expression}}
+- `lib/winery-catalog.ts:261:12` [TEMPLATE_TEXT] Vinarte reuneste terroir-uri din mai multe regiuni romanesti sub umbrela unor branduri premium, printre care Prince Matei, un nume asociat cu vinuri de colectie. Modelul multi-regional permite cramei sa selecteze cele mai potrivite parcele pentru fiecare stil si soi. Portofoliul acopera albe, roze si rosii, de la vinuri accesibile la cuvee-uri de varf care au strans recunoastere la concursuri. Vinarte valorifica terroir-uri din mai multe regiuni romanesti, cu o gama coerenta si usor de parcurs. {{expression}}
+- `lib/winery-catalog.ts:285:12` [TEMPLATE_TEXT] Villa Vinea vinifica pe versantii Tarnavelor, unde altitudinea si clima rece produc albe elegante si rosii cu aciditate vie, in stil central-european. Crama s-a impus rapid printre producatorii transilvaneni care pun accent pe finete, nu pe extract brut. Portofoliul include albe florale, roze delicate si rosii cu structura moderata, toate cu un profil proaspat care se potriveste bucatariei de sezon. Filozofia cramei urmareste echilibrul intre terroir, tehnologie moderna si interventie minima in pivnita. {{expression}}
+
+## SOMMELIER
+
+- `app/actions/sommelier.ts:81:11` [STRING_LITERAL] Nu am gasit potriviri in bugetul ales. Incearca sa cresti bugetul sau sa alegi oricare tip de vin.
+- `app/actions/sommelier.ts:91:16` [STRING_LITERAL] A aparut o eroare. Te rugam sa incerci din nou.
+- `app/ai-sommelier/error.tsx:23:9` [JSX_TEXT] Nu am putut incarca recomandarile. Incearca din nou.
+- `app/ai-sommelier/page.tsx:13:3` [STRING_LITERAL] Chat cu somelierul AI VinIntel: recomandari oneste de vinuri romanesti pentru orice ocazie, mancare, desert sau buget in RON.
+- `app/ai-sommelier/page.tsx:21:5` [STRING_LITERAL] recomandare vin
+- `app/ai-sommelier/page.tsx:22:5` [STRING_LITERAL] vin pentru cozonac
+- `app/ai-sommelier/page.tsx:23:5` [STRING_LITERAL] vin pentru sarmale
+- `app/ai-sommelier/page.tsx:24:5` [STRING_LITERAL] vin pentru desert
+- `app/ai-sommelier/page.tsx:25:5` [STRING_LITERAL] vin romanesc
+- `app/ai-sommelier/page.tsx:26:5` [STRING_LITERAL] asociere vin mancare
+- `app/ai-sommelier/page.tsx:34:15` [STRING_LITERAL] VinIntel
+- `app/ai-sommelier/page.tsx:47:9` [STRING_LITERAL] VinIntel AI Sommelier
+- `app/api/sommelier/chat/route.ts:80:22` [STRING_LITERAL] Somelierul nu a putut raspunde. Incearca din nou.
+- `app/api/sommelier/chat/route.ts:87:48` [STRING_LITERAL] Eroare interna somelier chat.
+- `app/api/sommelier/route.ts:66:13` [STRING_LITERAL] Nu am gasit vinuri in bugetul ales. Incearca sa cresti bugetul sau relaxeaza filtrele.
+- `app/api/sommelier/route.ts:110:48` [STRING_LITERAL] Eroare interna somelier AI.
+- `app/claim-your-winery/page.tsx:60:7` [STRING_LITERAL] Vinurile verificate apar mai sus in topuri si in recomandarile AI Sommelier.
+- `app/layout.tsx:60:7` [STRING_LITERAL] Ghidul inteligent al vinurilor romanesti, cu un somelier AI hiper-local.
+- `app/layout.tsx:68:7` [STRING_LITERAL] Ghidul inteligent al vinurilor romanesti, cu un somelier AI hiper-local.
+- `app/page.tsx:23:3` [STRING_LITERAL] Ghidul inteligent al vinurilor romanesti: catalog cu preturi in RON, Value Score, topuri pe bugete si somelier AI pentru orice ocazie.
+- `app/page.tsx:38:7` [STRING_LITERAL] Ghidul inteligent al vinurilor romanesti: catalog, topuri si somelier AI.
+- `app/page.tsx:51:7` [STRING_LITERAL] VinIntel este un ghid inteligent al vinurilor romanesti. Oferim recomandari clare si oneste, cu un Value Score care masoara raportul calitate-pret, pairing-uri pentru mancarea romaneasca si un somelier AI care tine cont de buget, ocazie si preferinte.
+- `app/page.tsx:61:7` [STRING_LITERAL] Foloseste somelierul AI: alegi bugetul in RON, ocazia (de exemplu sarmale, gratar, cadou sau cina romantica) si preferintele, iar tu primesti instant 3 pana la 5 recomandari potrivite, cu explicatii.
+- `app/page.tsx:129:19` [JSX_TEXT] Spune-i somelierului AI ce gatesti, ce buget ai si pentru ce ocazie. Primesti o recomandare clara in cateva secunde.
+- `app/politica-confidentialitate/page.tsx:60:53` [JSX_TEXT] adresa de email (formulare, notificari, trimitere vin spre verificare), mesaje catre somelierul AI, informatii din formularele de revendicare crama.
+- `app/politica-confidentialitate/page.tsx:70:9` [JSX_TEXT] Nu solicitam in mod obisnuit date sensibile. Te rugam sa nu incluzi in chat-ul somelierului informatii medicale, financiare sau alte date inutile pentru recomandari de vin.
+- `app/politica-confidentialitate/page.tsx:89:24` [JSX_TEXT] Recomandari AI Sommelier si cautare vinuri
+- `app/politica-confidentialitate/page.tsx:122:13` [JSX_TEXT] servicii AI pentru somelier si continut editorial.
+- `app/regiuni/[slug]/page.tsx:48:9` [STRING_LITERAL] Compara Value Score-ul, pretul si pairing-urile. Pentru ocazii specifice, foloseste topurile noastre pe buget sau somelierul AI.
+- `app/wineries/premium/page.tsx:43:5` [STRING_LITERAL] Profil Premium VinIntel pentru crame romanesti: banner personalizat, calendar evenimente, analytics, lead capture si prioritate in AI Sommelier. De la 99 lei/luna.
+- `app/wineries/premium/page.tsx:130:7` [STRING_LITERAL] Profilul tau apare in sectiuni featured si primeste boost in recomandarile AI Sommelier pentru ocazii si bugete relevante.
+- `app/wineries/premium/page.tsx:169:7` [STRING_LITERAL] Prioritatea in AI Sommelier ne-a adus recomandari in fata unor clienti care cautau vin romanesc sub un anumit buget. Exact publicul nostru tinta.
+- `components/hero.tsx:56:15` [JSX_TEXT] Somelier AI hiper-local pentru vinul romanesc
+- `components/smart-search.tsx:289:19` [STRING_LITERAL] Intrebare despre vin? Apasa Enter pentru a intreba somelierul AI.
+- `components/sommelier/chat-wine-card.tsx:100:17` [JSX_TEXT] Cumpara
+- `components/sommelier/expert-recommendation-card.tsx:31:9` [STRING_LITERAL] Peste buget
+- `components/sommelier/expert-recommendation-card.tsx:192:42` [JSX_ATTRIBUTE] Insight de valoare
+- `components/sommelier/expert-recommendation-card.tsx:214:19` [JSX_ATTRIBUTE] Cumpara
+- `components/sommelier/recommendation-card.tsx:16:9` [STRING_LITERAL] Putin peste buget
+- `components/sommelier/recommendation-card.tsx:75:19` [JSX_ATTRIBUTE] Potrivire cu cererea ta
+- `components/sommelier/sommelier-chat.tsx:18:3` [STRING_LITERAL] Vin bun pentru cozonac
+- `components/sommelier/sommelier-chat.tsx:19:3` [STRING_LITERAL] Ce vin rosu merge la sarmale?
+- `components/sommelier/sommelier-chat.tsx:20:3` [STRING_LITERAL] Recomandare sub 60 lei
+- `components/sommelier/sommelier-chat.tsx:77:13` [JSX_TEXT] Selectie din catalogul VinIntel, potrivita cererii tale
+- `components/sommelier/sommelier-chat.tsx:220:25` [JSX_ATTRIBUTE] Scrie ce ocazie ai sau ce fel de vin cauti...
+- `components/sommelier/sommelier-chat.tsx:223:24` [JSX_ATTRIBUTE] Mesaj pentru somelier
+- `components/sommelier/sommelier-chat.tsx:442:17` [JSX_TEXT] Somelierul tau romanesc
+- `components/sommelier/sommelier-chat.tsx:445:17` [JSX_TEXT] Intreaba orice despre vinuri autohtone: ocazii, mancare, deserturi, buget in lei.
+- `components/sommelier/sommelier-form.tsx:149:28` [JSX_ATTRIBUTE] Interval de buget in RON
+- `components/sommelier/sommelier-form.tsx:152:17` [JSX_TEXT] Tragem ambele capete pentru a seta intervalul de pret.
+- `components/sommelier/sommelier-form.tsx:268:21` [JSX_TEXT] Recomanda-mi vinul potrivit
+- `components/sommelier/sommelier-form.tsx:299:17` [JSX_TEXT] Completeaza preferintele si primesti recomandari de nivel expert, cu insight-uri stiintifice despre fiecare vin.
+- `components/sommelier/sommelier-form.tsx:316:19` [JSX_TEXT] Caut in baza de date si formulez recomandari...
+- `components/sommelier/sommelier-form.tsx:333:17` [STRING_LITERAL] A aparut o eroare. Verifica XAI_API_KEY si incearca din nou.
+- `lib/ai/journal-prompts.ts:7:46` [TEMPLATE_TEXT] Esti unul dintre cei mai buni somelieri si scriitori de vin din Romania, autor de carti best-seller, cu zeci de mii de cititori si o voce clara, onesta si extrem de autoritara. Scrisul tau este elegant, dar accesibil, fara jargon inutil, dar plin de informatii valoroase pe care cititorul le simte ca „lucruri pe care trebuie sa le stie”. Scrii articole lungi (1400-1800 cuvinte) pentru VinIntel.ro in stilul tau inconfundabil. Cerinte de stil si continut: - Vorbeste direct cu cititorul („tu”, „alegerea ta”, „ce trebuie sa stii”). - Fii onest: nu idealiza vinurile romanesti, dar nici nu le subestima. - Include insight-uri profunde pe care majoritatea oamenilor nu le stiu (lucruri „de insider”). - Foloseste exemple concrete (soiuri, regiuni, crame, preturi reale in RON). - Structura clara: introducere puternica + sectiuni bine delimitate + concluzie utila. - Ton: autoritar, prietenos, profesionist, ca un somelier cu carti best-seller care vorbeste cu un prieten pasionat. - Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct. - Articolul publicat trebuie scris in romana fara diacritice (conventie VinIntel Journal). Structura recomandata: 1. Introducere captivanta (de ce conteaza subiectul) 2. 3-5 sectiuni principale cu titluri clare (foloseste ## in markdown) 3. Exemple concrete si sfaturi practice 4. Concluzie cu „ce sa faci acum” sau „ce sa cauti data viitoare”
+- `lib/ai/model.ts:11:7` [STRING_LITERAL] XAI_API_KEY lipseste sau este gol. Adauga cheia in Vercel (Production + Development) si ruleaza: vercel env pull .env.local --environment=production
+- `lib/ai/prompts.ts:6:43` [TEMPLATE_TEXT] Esti un somelier roman de top, expert in vinuri autohtone si in terroir-ul Romaniei. Genereaza expert_notes doar din evidenta furnizata. Raspunde in romana. Nu deduce taninuri, stejar, aciditate, arome sau potential de invechire din soi, regiune, stil sau pret. Cunostintele generale despre un soi pot aparea doar daca sunt etichetate explicit ca orientare generala. Daca o sectiune nu are evidenta, lasa string gol. Nu umple campurile ca sa arate complete. Nu inventa fapte istorice, terroir secret sau quirks de vintage.
+- `lib/ai/prompts.ts:13:43` [TEMPLATE_TEXT] Esti Somelierul VinIntel, un somelier roman cu experienta de 20+ ani, care a vazut de toate. Ai un umor uscat, sarcastic si usor ironic, in stilul lui Michael Caine din Miss Congeniality. Esti direct, inteligent si putin cinic, dar niciodata rau intentionat. Vorbesti cu autoritate, dar si cu umor. Nu esti pretentios sau plictisitor. Esti genul de somelier care, cand userul incearca sa fie smooth, il iei usor peste picior, dar totusi ii dai cea mai buna recomandare posibila. Nivelul tau culinar e de restaurant premium (Noma, Asador Etxebarri): stii pairing-ul, nu doar nota din catalog. Reguli de ton: - Poti fi sarcastic si funny, mai ales cand userul incearca sa fie smecher, romantic fortat sau sa te pacaleasca cu cereri absurde. - Nu da sfaturi de dating. Poti face glume subtile legate de ocazie, dar ramai in zona vinului. - Poti fi sarcastic, dar nu vulgar. Nu folosi limbaj obscen si nu da sfaturi sexuale directe. Daca userul e vulgar, redirectioneaza cu umor uscat spre vin si mancare. - Fii onest, dar amuzant. Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct. Cereri ilegale, imorale sau absurde (carne de delfin, balena, animale protejate, mancare dubioasa): - Refuza clar. Spune de ce (legal, etic) si nu te prefaci ca pairing-ul e valid. - Fii ferm si sarcastic, nu cooperativ. Exemplu de ton: "Nu pot sa-ti dau recomandari pentru carne de delfin: in primul rand e ilegala, in al doilea rand pari genul care mananca parizer la cina. Vrei o recomandare pentru parizer, domnule distins?" - Abia dupa refuz poti sugera o alternativa reala din catalog, daca are sens. Exemple de ton (adaptate, nu le copia word-for-word): - "Daca vrei sa impresionezi cu adevarat, nu cred ca o sticla de vin o sa-ti rezolve toate problemele... dar daca totusi vrei sa incerci, iata ce merge bine cu miel." - "Ah, date night cu miel la cuptor. Clasic. Hai sa vedem ce vin merita cu adevarat efortul." Reguli stricte de raspuns: - Raspunde intotdeauna in romana corecta, cu diacritice (ă, â, î, ș, ț), natural, cu umor uscat cand se potriveste. - Gramatica trebuie sa fie impecabila. Respecta genul si numarul la pronume, adjective si substantive. - Substantive neutre la plural (ex. cupaj/cupaje, vin/vinuri, soi/soiuri, sort/sorturi): foloseste "unele... altele", NU "unii... altii". Corect: "unele cupaje sunt geniale, iar altele par facute de comitet". Gresit: "unii cupaje sunt geniale, iar altii par facute de comitet". - "Unii/altii" = masculin plural. "Unele/altele" = feminin/neutru plural. Nu amesteca genul. - Propozitiile trebuie sa sune natural in romana, nu ca traducere din engleza. - Recomandarile trebuie sa fie excelente din punct de vedere culinar, nu doar vinul cu cea mai mare nota. - Poti recomanda un vin cu Value Score mai mic (ex. 68-72) daca se potriveste perfect cu mancarea si ocazia. Explica de ce pairing-ul bate nota. - Bazeaza-te pe catalog: pret, Value Score, Food Match, pairing-uri, deserturi, medalii. - Structureaza raspunsul clar, dar nu rigid: 1. Recomandare principala (1 vin din catalog by default), cu pairing si ocazie 2. De ce se potriveste exact cu cererea (stinta pairing-ului, nu marketing) 3. Insight util sau observatie amuzanta (ceva ce majoritatea nu stie) 4. Pret aproximativ in RON doar pentru vinul recomandat (fara linkuri de cumparare) 5. Optional: intrebare scurta de follow-up - Daca utilizatorul NU mentioneaza buget, nu presupune unul si nu spune "la bugetul asta". - Daca utilizatorul cere desert (cozonac, pasca, gogosi etc.), prioritizeaza vinuri dulci / semi-dulci din catalog. - Nu inventa vinuri care nu exista in catalog. Foloseste slug-ul exact din catalog. - Nu include niciodata URL-uri in raspuns. Linkurile de cumparare apar doar pe pagina fiecarui vin. - La final, pe o linie separata, scrie: RECOMMENDED_SLUGS: slug1[, slug2[, slug3]] (1 vin by default, maxim 3). Medalii si recunoasteri (date reale din catalog): - Cand recomanzi un vin, foloseste medalii pentru incredere, natural, fara a forta. - Diferentiaza medalii internationale (Decanter, Balkans International, Vinarum, IWSC etc.) de medalii locale. - Daca are medalii in mai multi ani, subliniaza consistenta cand e relevant. - Daca are medalie recenta (2024 sau mai nou), mentioneaz-o ca punct forte cand adauga valoare. - Nu inventa medalii. Daca un vin nu are medalii in catalog, nu mentiona premii.
+- `lib/ai/prompts.ts:62:40` [TEMPLATE_TEXT] {{expression}} Pentru recomandarile structurate JSON (formular legacy): - Foloseste DOAR vinurile din context (wineSlug trebuie sa existe in lista). - Rank 1 = cea mai buna potrivire culinara, nu neaparat cea mai mare nota. - matchScore reflecta cat de bine se potriveste (40-99). - Include pairingScience cu stiinta pairing-ului romanesc (taninuri, aciditate, grasime). - Sfaturi de servire si pastrare (temperatura, decantare, potential). - Nu afirma alcoolul, aciditatea, zaharul, dulceata sau anul recoltei unei sticle; aceste date tehnice nu sunt incluse aici cu provenienta publica. - In whyThisWine si thingsYouShouldKnow, poti folosi umor uscat si medalii reale din context, dar pastreaza JSON-ul curat si profesional.
+- `lib/ai/prompts.ts:124:10` [TEMPLATE_TEXT] Cererea userului: - Buget: {{expression}} - {{expression}} RON - Ocazie: {{expression}} - Tip vin preferat: {{expression}} - Dulceata: {{expression}} - Crame preferate: {{expression}} Vinuri candidate (cu expert_notes si date complete): {{expression}} Alege 3-5 vinuri din lista de mai sus si genereaza recomandari ranked. Fiecare wineSlug TREBUIE sa fie exact un slug din context.
+- `lib/ai/prompts.ts:138:40` [TEMPLATE_TEXT] Esti un somelier roman de top, expert in vinuri autohtone, cu un stil clar, onest, util si usor de inteles. Scrierea ta este eleganta, dar accesibila: eviti jargonul pretentios si vorbesti direct cu cititorul. Generezi continut editorial original in romana, in stilul VinIntel.ro. Regula de evidenta (obligatorie): - Cunostintele generale despre soi, regiune sau stil pot fi folosite DOAR ca context general, etichetat explicit (ex. "Feteasca Neagra este in general un soi capabil sa produca vinuri structurate."). - Nu prezenta o proprietate observata a ACESTEI sticle (taninuri, stejar, arome, aciditate, corp, invechire) decat daca evidenta din context o sustine. - Daca producatorul sau fisa tehnica descriu o nota, pastreaza atribuirea: "Producatorul descrie note de prune." - Daca evidenta de degustare lipseste: tasteProfile gol, foodPairingNotes = []. Un camp gol e corect. Un paragraf frumos inventat nu e. - Potentialul de pivnita din context este o estimare algoritmica, nu un fapt documentat. Nu-l prezenta ca invechire verificata. Reguli importante: - Fii onest. Daca vinul e mediu sau datele sunt putine, spune-o. - Foloseste context romanesc: mancare traditionala, preturi in lei, ocazii locale. - Nu copia text de pe site-ul producatorului. - Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct. - thingsYouShouldKnow: doar insight-uri din evidenta, altfel array gol. - foodPairingNotes: 0-5. Scrie pairing specific doar daca exista pairing evaluat sau evidenta de degustare. Nu inventa scor, taninuri, aciditate, arome, corp sau stejar ca sa justifici pairing-ul. - Ton: prietenos, dar profesionist. - Scorul valueScore este intreg de la 1 la 100 (standard VinIntel). Nu genera giftScore sau foodMatchScore. - Prag minim recomandare = 75/100 pentru valueScore. Sub {{expression}} = raport slab; {{expression}}-{{expression}} = pret mediu; {{expression}}+ = merita banii. Fii conservator cu scoruri peste {{expression}} daca pretul pare mare.
+- `lib/ai/prompts.ts:228:47` [TEMPLATE_TEXT] Esti un somelier roman de top, expert in pairing vinuri autohtone cu deserturi traditionale. Generezi doar pairing-uri cu deserturi romanesti: cozonac, pasca, gogosi, placinta cu mere, sarmale cu nuci, papanași, prajituri, coliva etc. Reguli: - Fiecare pairing: dish concret + note scurta (de ce aromele echilibreaza dulceata). - score optional 60-100. - Vin dulce/demidulce/dessert: 2-4 pairing-uri. - Vin aromatic (Tamaioasa, Muscat, Busuioaca): 1-3 pairing-uri. - Rosu sec taninos structurat: array gol sau maxim 1 pairing (ex. ciocolata neagra) daca chiar merge. - Nu folosi liniute lungi (em dash, en dash).
+- `lib/ai/prompts.ts:264:44` [TEMPLATE_TEXT] Esti un somelier roman de top, expert in vinuri autohtone. Regenerezi continut editorial pentru VinIntel.ro. Primesti date factuale deja validate despre un vin. Nu extragi date din link-uri si nu inventezi fapte noi despre producator, regiune, soiuri, taninuri, stejar sau arome. Sarcina ta: rescrie continut editorial original, clar, onest si util, in romana. Reguli: - Foloseste doar datele factuale din context. - Cunostintele generale despre soi/regiune sunt permise doar ca context etichetat explicit, nu ca proprietate observata a acestei sticle. - Daca notele de degustare lipsesc: tasteProfile gol si foodPairingNotes = []. - Nu copia text existent word-for-word; imbunatateste calitatea, claritatea si utilitatea. - Fii onest daca vinul pare mediu sau supraevaluat. - Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct. - thingsYouShouldKnow: insight-uri din evidenta, altfel array gol. - foodPairingNotes: 0-5, doar cu baza determinista. Nu inventa scor sau structura. - dessertPairings: 0-4, doar daca exista baza. - recommendedOccasions: 0-4. - Nu genera scoruri numerice; doar continut editorial.
+- `lib/ai/prompts.ts:436:48` [TEMPLATE_TEXT] Esti un expert somelier roman specializat in vinuri autohtone. Analizezi pagini de vinuri de pe site-uri romanesti. Primesti un link si continut extras din pagina. Sarcina ta: 1. Determina daca este un vin romanesc (produs in Romania). Daca nu este, seteaza isRomanianWine=false si explica clar in reasonIfNotRomanian. 2. Daca este romanesc, extrage cu precizie date factuale: nume, producator/crama, vintage, pret RON (daca apare), soiuri, regiune, dulceata (sec/demisec/demidulce/dulce), alcool % vol, zahar rezidual g/L, aciditate g/L (doar daca apar in pagina), sourceUrl. 3. Genereaza analiza editoriala VinIntel: clara, onesta, utila, cu focus pe piata romaneasca si mancare locala. Instructiuni importante: - Concentreaza-te doar pe vinuri produse in Romania. - Daca vinul nu pare romanesc, returneaza isRomanianWine: false. - Nu inventa soiuri sau regiuni: foloseste doar ce gasesti in pagina sau deduceri sigure din context romanesc (ex. Dealu Mare, Murfatlar, Feteasca Neagra). - Daca nu esti sigur de regiune, alege cea mai probabila si mentioneaza incertitudinea in tasteProfile, nu inventa detalii. - Nu copia text de pe site. Rescrie original in stil VinIntel. - Fii onest daca vinul pare mediu sau supraevaluat. - Nu folosi liniute lungi (em dash, en dash). Foloseste virgula sau punct. - Fii conservator cu scorurile inalte daca nu ai suficiente informatii. Scoruri: - Prag minim recomandare = 75/100 (pe scala finala 1-100). - valueScore: raport calitate-pret. Sub 7 (~sub {{expression}}) daca pretul pare mare fata de calitate; 7 (~{{expression}}-{{expression}}) pentru pret mediu; 8+ (~{{expression}}+) doar daca raportul este clar bun. - Nu genera giftScore sau foodMatchScore. Acestea sunt calculate deterministic de VinIntel. Alte reguli: - Daca nu gasesti pret, pune null. - Pentru dulceata, alcool, zahar rezidual si aciditate: extrage doar ce apare explicit in pagina. Nu inventa valori tehnice. - category: rosu, alb, rose, spumant sau orange cand poti deduce din pagina. - foodPairingNotes: string sau array cu dish + note pentru mancare romaneasca concreta (sarmale, mici, peste, branza, etc.). - thingsYouShouldKnow: 2-4 insight-uri utile, nu clisee generice. {{expression}}
+- `lib/ai/prompts.ts:467:50` [TEMPLATE_TEXT] Esti somelierul VinIntel.ro. Scrii un email scurt catre un utilizator care a trimis un vin spre verificare. Vinul a fost aprobat si apare acum in catalog. Reguli: - Raspunde DOAR in romana, fara diacritice. - 2-4 propozitii clare, ton cald si util. - Mentioneaza ce face vinul special sau pentru ce ocazie merge. - Nu folosi liniute lungi (em dash, en dash). - Nu inventa fapte care nu apar in context.
+- `lib/emails/winery-premium.ts:124:10` [TEMPLATE_TEXT] <ul style="margin:16px 0 0;padding-left:20px;color:#44403c;line-height:1.7;"> <li>Banner si poveste editoriala personalizata</li> <li>Calendar evenimente si analytics</li> <li>Lead capture si prioritate in AI Sommelier</li> <li>Featured placement in catalogul VinIntel</li> </ul>
+- `lib/emails/winery-premium.ts:209:20` [TEMPLATE_TEXT] <h1 style="margin:0 0 12px;font-size:24px;color:{{expression}};">Reminder Premium</h1> <p style="margin:0 0 16px;line-height:1.7;color:#44403c;"> Abonamentul Premium pentru <strong>{{expression}}</strong> expira pe <strong>{{expression}}</strong> (peste 7 zile). </p> <p style="margin:0;line-height:1.7;color:#44403c;"> Reinnoieste acum ca sa pastrezi bannerul personalizat, analytics, calendarul de evenimente si prioritatea in AI Sommelier. </p> {{expression}}
+- `lib/producer-page-extract.ts:492:16` [TEMPLATE_TEXT] Note degustare producator: {{expression}}
+- `lib/producer-page-extract.ts:495:16` [TEMPLATE_TEXT] Asocieri culinare producator: {{expression}}
+- `lib/seo.ts:7:5` [STRING_LITERAL] Ghidul inteligent al vinurilor romanesti. Recomandari clare, oneste si rapide, cu un somelier AI care intelege mancarea, bugetul si ocazia ta.
+- `lib/sommelier-chat-utils.ts:9:27` [STRING_LITERAL] unele vinuri
+- `lib/sommelier-chat.ts:218:9` [TEMPLATE_TEXT] Nume: {{expression}}
+- `lib/sommelier-chat.ts:219:9` [TEMPLATE_TEXT] Crama: {{expression}} | Regiune: {{expression}}
+- `lib/sommelier-chat.ts:219:43` [STRING_LITERAL] N/A
+- `lib/sommelier-chat.ts:219:84` [STRING_LITERAL] N/A
+- `lib/sommelier-chat.ts:220:9` [TEMPLATE_TEXT] Tip: {{expression}}
+- `lib/sommelier-chat.ts:221:9` [TEMPLATE_TEXT] Pret: {{expression}}
+- `lib/sommelier-chat.ts:221:37` [TEMPLATE_TEXT] {{expression}} RON
+- `lib/sommelier-chat.ts:222:9` [TEMPLATE_TEXT] Soiuri: {{expression}}
+- `lib/sommelier-chat.ts:222:33` [STRING_LITERAL] N/A
+- `lib/sommelier-chat.ts:224:25` [TEMPLATE_TEXT] Medalii: {{expression}}
+- `lib/sommelier-chat.ts:225:27` [TEMPLATE_TEXT] Producator (site): {{expression}}
+- `lib/sommelier-chat.ts:226:21` [TEMPLATE_TEXT] Pairing mancare: {{expression}}
+- `lib/sommelier-chat.ts:235:7` [TEMPLATE_TEXT] - Buget explicit de la utilizator: {{expression}}-{{expression}} RON
+- `lib/sommelier-chat.ts:236:7` [TEMPLATE_TEXT] - Buget: nespecificat. NU presupune un buget si NU spune "la bugetul asta". Prioritizeaza Value Score si potrivirea culinara, nu pretul mic.
+- `lib/sommelier-chat.ts:239:7` [TEMPLATE_TEXT] - CERERE ABSURDA/ILEGALA detectata. Refuza pairing-ul cerut (ex. carne de delfin e ilegala). Fii ferm si sarcastic, nu cooperativ. Poti lua usor peste picior stilul userului (parizer, mancare dubioasa), apoi redirectioneaza spre ceva real din Romania. Nu recomanda vin ca si cum cererea ar fi normala.
+- `lib/sommelier-chat.ts:242:10` [TEMPLATE_TEXT] {{expression}} Context cerere: {{expression}} - Ocazie detectata: {{expression}} - Tip vin preferat: {{expression}} - Dulceata preferata: {{expression}} {{expression}} Catalog vinuri candidate (sursa unica de adevar): {{expression}} Format final obligatoriu (ultima linie, separata): RECOMMENDED_SLUGS: <slug1>[, <slug2>[, <slug3>]] Reguli finale: - Umor uscat da, vulgaritate nu. Nu te lasa pacalit de cereri absurde sau ilegale. - {{expression}} - Recomanda 1 vin by default. Maxim 3 doar daca userul cere explicit alternative sau comparatie. - Nu afirma alcoolul, aciditatea, zaharul, dulceata sau anul recoltei unui vin; aceste date nu sunt incluse in contextul public verificat. - Nu include URL-uri in raspuns (nici Profitshare, nici eMAG). - Mentioneaza pretul aproximativ in RON in text doar pentru vinurile recomandate. - RECOMMENDED_SLUGS trebuie sa contina slug-uri EXACTE din catalog, in ordinea recomandarilor (1-3).
+- `lib/sommelier-chat.ts:251:14` [STRING_LITERAL] (niciun vin in buget; explica onest si sugereaza sa relaxeze bugetul sau cerinta)
+- `lib/sommelier-chat.ts:258:75` [STRING_LITERAL] Fara buget explicit: recomanda cea mai buna potrivire (Value Score + pairing), nu ce e mai ieftin.
+- `lib/sommelier-occasions.ts:46:12` [STRING_LITERAL] Oricare ocazie
+- `lib/sommelier-occasions.ts:47:18` [STRING_LITERAL] Recomandari echilibrate, raport calitate-pret
+- `lib/sommelier-occasions.ts:51:16` [STRING_LITERAL] echilibru bun intre calitate si pret
+- `lib/sommelier-occasions.ts:56:18` [STRING_LITERAL] Impresie buna, potrivit pentru multi invitati
+- `lib/sommelier-occasions.ts:65:18` [STRING_LITERAL] Vin care arata si se simte premium
+- `lib/sommelier-occasions.ts:78:16` [STRING_LITERAL] transmite prestigiu intr-un context profesional
+- `lib/sommelier-occasions.ts:87:16` [STRING_LITERAL] creeaza o atmosfera rafinata la cina in doi
+- `lib/sommelier-occasions.ts:92:18` [STRING_LITERAL] Pentru masa traditionala romaneasca
+- `lib/sommelier-occasions.ts:101:18` [STRING_LITERAL] Pentru carne la gratar si mici
+- `lib/sommelier-occasions.ts:110:18` [STRING_LITERAL] Usor de baut, placut pentru toata lumea
+- `lib/sommelier-occasions.ts:114:16` [STRING_LITERAL] este accesibil si placut pentru un grup
+- `lib/sommelier-occasions.ts:119:18` [STRING_LITERAL] Pentru mesele festive de sarbatori
+- `lib/sommelier-occasions.ts:128:18` [STRING_LITERAL] Cozonac, pasca, prajituri si dulciuri romanesti
+- `lib/sommelier-occasions.ts:132:16` [STRING_LITERAL] se potriveste cu deserturile romanesti traditionale
+- `lib/sommelier.ts:70:23` [TEMPLATE_TEXT] Din {{expression}}, crama preferata.
+- `lib/sommelier.ts:144:7` [TEMPLATE_TEXT] EXPERT_NOTES (doar sectiuni sustinute de evidenta; nu trata restul ca fapt): - Istorie: {{expression}} - Terroir: {{expression}} - Pairing science: {{expression}} - Greseli comune: {{expression}} - Aging: {{expression}} - Value insight: {{expression}} - Things you should know: {{expression}}
+- `lib/sommelier.ts:153:7` [STRING_LITERAL] (expert_notes absente sau nesustinute; nu inventa taninuri/stejar/arome)
+- `lib/sommelier.ts:155:38` [TEMPLATE_TEXT] --- slug: {{expression}} Nume: {{expression}} Crama: {{expression}} | Regiune: {{expression}} Tip: {{expression}} | {{expression}} RON Soiuri: {{expression}} Scoruri publice: {{expression}} {{expression}} {{expression}} Note: {{expression}} Pairing-uri mancare: {{expression}} Pairing-uri desert: {{expression}} {{expression}} ---
+- `lib/sommelier.ts:162:49` [STRING_LITERAL] Medalii: niciuna in baza de date
+- `lib/sommelier.ts:163:21` [TEMPLATE_TEXT] Producator (site): {{expression}}
+- `lib/wine-medals.ts:68:23` [TEMPLATE_TEXT] premiat in {{expression}} ani diferiti
+
+## EDITORIAL
+
+- `app/journal/[slug]/page.tsx:122:17` [JSX_TEXT] Inapoi la Wine Journal
+- `app/journal/[slug]/page.tsx:145:17` [JSX_TEXT] Articole similare
+- `app/journal/page.tsx:108:25` [STRING_LITERAL] Analize, ghiduri si povesti din lumea vinului romanesc.
+- `app/journal/page.tsx:116:25` [STRING_LITERAL] rezultate pentru
+- `app/journal/page.tsx:132:19` [JSX_TEXT] Niciun articol nu corespunde cautarii. Incearca alta categorie sau un alt termen.
+- `app/wineries/premium/page.tsx:280:15` [JSX_TEXT] Mergi dincolo de listing-ul standard. Banner personalizat, poveste editoriala, calendar de evenimente, analytics si lead-uri direct pe VinIntel.ro, platforma unde romanii cauta vinuri cu adevarat bune.
+- `components/journal/article-card.tsx:46:11` [JSX_TEXT] Citeste articolul
+- `components/journal/journal-hero.tsx:45:11` [JSX_TEXT] Povesti, analize si ghiduri practice despre vinurile romanesti
+- `components/journal/journal-hero.tsx:55:15` [JSX_TEXT] Citeste articolele
+- `components/journal/journal-sidebar.tsx:67:15` [JSX_ATTRIBUTE] Cele mai citite
+- `components/top-lists/top-list-hub-sections.tsx:173:15` [JSX_TEXT] Nu toate vinurile au fost degustate editorial de echipa VinIntel.
+- `components/wineries/winery-events-calendar.tsx:35:9` [JSX_TEXT] Degustari, tururi si evenimente de la
+- `components/wineries/winery-hero.tsx:183:23` [JSX_TEXT] Linkul catre pachetele de degustare se activeaza dupa ce crama isi revendica si verifica profilul.
+- `components/wines/wine-editorial.tsx:64:17` [JSX_ATTRIBUTE] Despre acest vin
+- `components/wines/wine-winery-link.tsx:82:15` [JSX_TEXT] Fisa de degustare PDF
+- `lib/editorial-fact-guard.ts:89:3` [STRING_LITERAL] concurs international de vinuri
+- `lib/editorial-fact-guard.ts:166:9` [TEMPLATE_TEXT] Mentioneaza soiul "{{expression}}", care nu apare in soiurile declarate ale vinului.
+- `lib/editorial-fact-guard.ts:185:9` [TEMPLATE_TEXT] Mentioneaza regiunea "{{expression}}", diferita de regiunea vinului ({{expression}}).
+- `lib/editorial-fact-guard.ts:197:9` [TEMPLATE_TEXT] Mentioneaza un premiu/medalie ("{{expression}}") desi vinul nu are medalii inregistrate.
+- `lib/env.ts:35:9` [STRING_LITERAL] TURSO_AUTH_TOKEN lipseste pe Vercel. Seteaza tokenul pentru Preview si Production.
+- `lib/generateEditorial.ts:67:17` [STRING_LITERAL] Baza de date este goala. Ruleaza mai intai: npm run db:seed
+- `lib/integrity-scan.ts:307:18` [STRING_LITERAL] Vin publicat fara descriere editoriala.
+- `lib/integrity-scan.ts:315:18` [TEMPLATE_TEXT] Descrierea editoriala are doar {{expression}} caractere.
+- `lib/integrity-scan.ts:509:48` [STRING_LITERAL] fara evidenta de degustare
+- `lib/journal-categories.ts:19:18` [STRING_LITERAL] Primii pasi in lumea vinului romanesc, fara jargon inutil.
+- `lib/journal-categories.ts:24:18` [STRING_LITERAL] Ce vin alegi langa sarmale, mici, peste sau branza de burduf.
+- `lib/journal-categories.ts:39:18` [STRING_LITERAL] Unde merita banii tai si ce vin pentru fiecare moment.
+- `lib/journal.ts:180:34` [STRING_LITERAL] ro-RO
+- `lib/wine-editorial-evidence.ts:140:5` [STRING_LITERAL] potential de pivnita
+- `lib/wine-producer-enrichment.ts:1363:49` [TEMPLATE_TEXT] Fisa degustare PDF: {{expression}}
+- `lib/wine-submission-messages.ts:5:3` [STRING_LITERAL] Vinul nu este in baza noastra de date. Vinul a fost trimis spre verificare. Va aparea pe site dupa aprobare.
+
+## INTERNAL_ADMIN
+
+- `app/cum-functioneaza-scorurile/page.tsx:347:15` [JSX_TEXT] Increderea creste odata cu numarul de campuri fiabile disponibile: soi, regiune, crama, medalii verificate, scoruri de critic, note de degustare confirmate si prospetimea pretului observat. Un override manual de scor din admin este intotdeauna vizibil, motivat si auditat separat, niciodata silentios.
+- `app/wineries/[slug]/dashboard/error.tsx:24:9` [JSX_TEXT] A aparut o eroare la incarcarea statisticilor. Incearca din nou sau revino la profilul cramei.
+- `app/wineries/[slug]/dashboard/page.tsx:30:18` [TEMPLATE_TEXT] Statistici Premium pentru {{expression}}: vizualizari, click-uri si vinuri populare.
+- `components/wineries/winery-dashboard-panel.tsx:77:13` [JSX_TEXT] Vizualizari, interactiuni si interes pentru vinurile tale pe VinIntel. Datele se actualizeaza in timp real pe masura ce vizitatorii interactioneaza cu pagina cramei.
+- `components/wineries/winery-dashboard-panel.tsx:86:15` [JSX_TEXT] Inapoi la profil
+- `components/wineries/winery-dashboard-panel.tsx:138:17` [JSX_TEXT] Inca nu avem vizualizari in ultimele 30 zile. Datele apar dupa ce vizitatorii deschid pagina publica a cramei.
+- `components/wineries/winery-dashboard-panel.tsx:147:13` [JSX_TEXT] Vinuri populare
+- `components/wineries/winery-dashboard-panel.tsx:150:13` [JSX_TEXT] Cele mai multe click-uri pe vinuri din profilul tau.
+- `components/wineries/winery-dashboard-panel.tsx:179:15` [JSX_TEXT] Niciun click pe vinuri inca. Promoveaza profilul Premium si vinurile tale pentru a vedea topul aici.
+- `components/wineries/winery-dashboard-panel.tsx:188:11` [JSX_TEXT] Badge embed pentru site-ul cramei
+- `components/wineries/winery-dashboard-panel.tsx:191:11` [JSX_TEXT] Adauga badge-ul VinIntel pe site-ul cramei pentru a arata vizitatorilor ca profilul este listat si verificat.
+- `lib/winery-analytics-dashboard.ts:37:34` [STRING_LITERAL] ro-RO
+
+## PROPER_NOUN
+
+- `app/crame/page.tsx:129:23` [JSX_TEXT] Regiune viticola
+- `app/wineries/[slug]/page.tsx:70:45` [STRING_LITERAL] Romania
+- `app/wineries/[slug]/page.tsx:188:16` [STRING_LITERAL] ListItem
+- `app/wineries/premium/page.tsx:156:11` [STRING_LITERAL] Elena M.
+- `app/wineries/premium/page.tsx:163:11` [STRING_LITERAL] Andrei P.
+- `app/wineries/premium/page.tsx:170:11` [STRING_LITERAL] Ioana R.
+- `components/wineries/winery-billing-portal-button.tsx:15:11` [STRING_LITERAL] Gestioneaza abonamentul
+- `components/wineries/winery-events-calendar.tsx:32:9` [JSX_TEXT] Calendar evenimente
+- `components/wines/wine-winery-link.tsx:19:9` [JSX_TEXT] Crama producatoare
+- `lib/analyze-wine-service.ts:153:16` [STRING_LITERAL] NFD
+- `lib/ballageza-producer.ts:223:42` [STRING_LITERAL] Soi
+- `lib/ballageza-producer.ts:437:13` [STRING_LITERAL] EXACT_PRODUCT_NAME
+- `lib/ballageza-producer.ts:439:67` [STRING_LITERAL] EXACT_VINTAGE
+- `lib/ballageza-producer.ts:440:62` [STRING_LITERAL] EXACT_LINE
+- `lib/ballageza-producer.ts:441:59` [STRING_LITERAL] EXACT_DEEP_LINK
+- `lib/ballageza-producer.ts:664:5` [TEMPLATE_TEXT] Producator: Balla Geza
+- `lib/ballageza-producer.ts:665:5` [TEMPLATE_TEXT] Vin: {{expression}}
+- `lib/ballageza-producer.ts:666:28` [TEMPLATE_TEXT] An: {{expression}}
+- `lib/ballageza-producer.ts:667:21` [TEMPLATE_TEXT] Categorie: {{expression}}
+- `lib/ballageza-producer.ts:668:18` [TEMPLATE_TEXT] Culoare: {{expression}}
+- `lib/ballageza-producer.ts:669:22` [TEMPLATE_TEXT] Tip: {{expression}}
+- `lib/ballageza-producer.ts:670:28` [TEMPLATE_TEXT] Alcool: {{expression}}%
+- `lib/ballageza-producer.ts:672:9` [TEMPLATE_TEXT] Soi: {{expression}}
+- `lib/ballageza-producer.ts:674:25` [TEMPLATE_TEXT] Note: {{expression}}
+- `lib/budureasca-producer.ts:280:39` [STRING_LITERAL] Magnum
+- `lib/budureasca-producer.ts:281:47` [STRING_LITERAL] Vine in Flames
+- `lib/budureasca-producer.ts:282:40` [STRING_LITERAL] Origini
+- `lib/budureasca-producer.ts:283:40` [STRING_LITERAL] Premium
+- `lib/budureasca-producer.ts:284:39` [STRING_LITERAL] Clasic
+- `lib/budureasca-producer.ts:285:38` [STRING_LITERAL] Noble
+- `lib/budureasca-producer.ts:286:40` [STRING_LITERAL] Organic
+- `lib/budureasca-producer.ts:287:41` [STRING_LITERAL] The Sign
+- `lib/budureasca-producer.ts:288:40` [STRING_LITERAL] Sabrize
+- `lib/budureasca-producer.ts:289:38` [STRING_LITERAL] Polar
+- `lib/budureasca-producer.ts:290:41` [STRING_LITERAL] Legamant
+- `lib/budureasca-producer.ts:291:63` [STRING_LITERAL] Cuvee
+- `lib/budureasca-producer.ts:292:41` [STRING_LITERAL] Vinoteca
+- `lib/cookie-consent.ts:39:5` [STRING_LITERAL] SameSite=Lax
+- `lib/emails/winery-premium.ts:44:34` [STRING_LITERAL] ro-RO
+- `lib/fetch-page-html.ts:284:26` [STRING_LITERAL] Explicit
+- `lib/fetch-page-html.ts:295:22` [TEMPLATE_TEXT] Explicit {{expression}}
+- `lib/fetch-page-html.ts:299:33` [STRING_LITERAL] Recas
+- `lib/gabai-producer.ts:209:7` [STRING_LITERAL] Cabernet Sauvignon
+- `lib/gabai-producer.ts:210:6` [STRING_LITERAL] Merlot
+- `lib/gabai-producer.ts:211:7` [STRING_LITERAL] Fetească Neagră
+- `lib/integrity-scan.ts:378:16` [STRING_LITERAL] NFD
+- `lib/murfatlar-producer.ts:62:15` [STRING_LITERAL] 3 Hectare
+- `lib/murfatlar-producer.ts:63:17` [STRING_LITERAL] Corăbioara
+- `lib/murfatlar-producer.ts:64:25` [STRING_LITERAL] Lacrima lui Ovidiu
+- `lib/murfatlar-producer.ts:65:28` [STRING_LITERAL] Lacrima lui Ovidiu 12
+- `lib/murfatlar-producer.ts:66:23` [STRING_LITERAL] Sec de Murfatlar
+- `lib/murfatlar-producer.ts:67:20` [STRING_LITERAL] Paznicii Viei
+- `lib/murfatlar-producer.ts:68:22` [STRING_LITERAL] Aperitiv Mamaia
+- `lib/murfatlar-producer.ts:69:20` [STRING_LITERAL] Vermut Mamaia
+- `lib/murfatlar-producer.ts:70:16` [STRING_LITERAL] Zaraza VS
+- `lib/murfatlar-producer.ts:71:18` [STRING_LITERAL] Zaraza VSOP
+- `lib/murfatlar-producer.ts:72:18` [STRING_LITERAL] Sable Noble
+- `lib/murfatlar-producer.ts:73:14` [STRING_LITERAL] Statornic
+- `lib/murfatlar-producer.ts:74:12` [STRING_LITERAL] Zestrea
+- `lib/murfatlar-producer.ts:75:13` [STRING_LITERAL] Aerosoli
+- `lib/murfatlar-producer.ts:76:12` [STRING_LITERAL] Premiat
+- `lib/murfatlar-producer.ts:77:11` [STRING_LITERAL] Babanu
+- `lib/notifications.ts:65:45` [STRING_LITERAL] Necunoscut
+- `lib/notifications.ts:97:45` [STRING_LITERAL] Necunoscut
+- `lib/quality-model/features.ts:44:16` [STRING_LITERAL] NFD
+- `lib/quality-model/features.ts:53:16` [STRING_LITERAL] NFD
+- `lib/recommendation/eligibility.ts:58:16` [STRING_LITERAL] NFD
+- `lib/source-conflicts.ts:7:27` [STRING_LITERAL] SOURCE_CONFLICT_GRAPES
+- `lib/tech-facts/prompt16-report.ts:68:9` [STRING_LITERAL] SOURCE_NAME_EXACT
+- `lib/tech-facts/prompt18-manifests.ts:131:13` [STRING_LITERAL] CLEAR_PRODUCER_PAGE
+- `lib/tech-facts/resolve.ts:73:47` [STRING_LITERAL] g/L
+- `lib/tech-facts/resolve.ts:164:13` [STRING_LITERAL] g/L
+- `lib/tech-facts/resolve.ts:176:13` [STRING_LITERAL] g/L
+- `lib/tech-facts/source-identity.ts:99:23` [STRING_LITERAL] SOURCE_NAME_EXACT
+- `lib/tech-facts/source-identity.ts:99:45` [STRING_LITERAL] SOURCE_NAME_MISSING
+- `lib/tech-facts/source-identity.ts:147:23` [STRING_LITERAL] SOURCE_NAME_EXACT
+- `lib/tech-facts/source-identity.ts:147:45` [STRING_LITERAL] SOURCE_NAME_MISSING
+- `lib/tech-facts/source-identity.ts:157:35` [STRING_LITERAL] SOURCE_NAME_MISSING
+- `lib/tech-facts/source-identity.ts:160:31` [STRING_LITERAL] SOURCE_NAME_MISSING
+- `lib/tech-facts/source-identity.ts:161:30` [STRING_LITERAL] SOURCE_NAME_EXACT
+- `lib/tech-facts/source-identity.ts:162:60` [STRING_LITERAL] SOURCE_NAME_PARTIAL
+- `lib/tech-facts/source-identity.ts:163:10` [STRING_LITERAL] SOURCE_NAME_CONFLICT
+- `lib/top-list-links.ts:24:12` [STRING_LITERAL] Dealu Mare
+- `lib/top-list-links.ts:25:12` [STRING_LITERAL] Dragasani
+- `lib/top-list-links.ts:26:12` [STRING_LITERAL] Dobrogea
+- `lib/top-list-links.ts:27:12` [STRING_LITERAL] Transilvania
+- `lib/top-list-links.ts:28:12` [STRING_LITERAL] Moldova
+- `lib/top-list-links.ts:29:12` [STRING_LITERAL] Banat
+- `lib/top-lists.ts:370:23` [STRING_LITERAL] Vinuri cadou
+- `lib/top-lists.ts:393:23` [TEMPLATE_TEXT] Vinuri {{expression}}
+- `lib/wine-analysis.ts:116:43` [STRING_LITERAL] Romania
+- `lib/wine-vote-service.ts:40:13` [STRING_LITERAL] Guest
+- `lib/winery-catalog.ts:70:19` [STRING_LITERAL] Oprisor
+- `lib/winery-catalog.ts:81:19` [STRING_LITERAL] Crama Gabai
+- `lib/winery-catalog.ts:172:19` [STRING_LITERAL] Girboiu
+- `lib/winery-catalog.ts:196:19` [STRING_LITERAL] Basilescu
+- `lib/winery-copy.ts:3:16` [STRING_LITERAL] NFD
+- `lib/winery-copy.ts:16:7` [TEMPLATE_TEXT] Vinurile {{expression}}
+- `lib/winery-detection.ts:21:11` [STRING_LITERAL] Cramele Recas
+- `lib/winery-detection.ts:22:11` [STRING_LITERAL] Purcari
+- `lib/winery-detection.ts:23:11` [STRING_LITERAL] Avincis
+- `lib/winery-detection.ts:24:11` [STRING_LITERAL] Balla Geza
+- `lib/winery-detection.ts:25:11` [STRING_LITERAL] Davino
+- `lib/winery-detection.ts:26:11` [STRING_LITERAL] Cotnari
+- `lib/winery-detection.ts:27:11` [STRING_LITERAL] Jidvei
+- `lib/winery-detection.ts:28:11` [STRING_LITERAL] Budureasca
+- `lib/winery-detection.ts:29:11` [STRING_LITERAL] Crama Gabai
+- `lib/winery-detection.ts:30:11` [STRING_LITERAL] Murfatlar
+- `lib/winery-detection.ts:31:11` [STRING_LITERAL] Liliac
+- `lib/winery-detection.ts:32:11` [STRING_LITERAL] Lacerta
+- `lib/winery-detection.ts:33:11` [STRING_LITERAL] Domeniile Averesti
+- `lib/winery-detection.ts:34:11` [STRING_LITERAL] Gitana
+- `lib/winery-detection.ts:35:11` [STRING_LITERAL] Oprisor
+- `lib/winery-detection.ts:36:11` [STRING_LITERAL] Serve
+- `lib/winery-detection.ts:37:11` [STRING_LITERAL] Tohani
+- `lib/winery-detection.ts:38:11` [STRING_LITERAL] Columna
+- `lib/winery-detection.ts:39:11` [STRING_LITERAL] Museum

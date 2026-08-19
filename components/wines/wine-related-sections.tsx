@@ -5,6 +5,8 @@ import { buildProgrammaticLinks } from "@/lib/wine-analysis";
 import { VALUE_SCORE_NEUTRAL_MIN } from "@/lib/value-score-thresholds";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
 import type { WineWithRelations } from "@/types";
+import { getLocale, getTranslations } from "next-intl/server";
+import { localizedHref } from "@/i18n/paths";
 
 interface WineRelatedSectionsProps {
   wine: WineWithRelations;
@@ -12,20 +14,22 @@ interface WineRelatedSectionsProps {
   recommended: WineWithRelations[];
 }
 
-export function WineRelatedSections({
+export async function WineRelatedSections({
   wine,
   similar,
   recommended,
 }: WineRelatedSectionsProps) {
-  const programmaticLinks = buildProgrammaticLinks(wine);
+  const locale = await getLocale();
+  const t = await getTranslations("Wine.related");
+  const programmaticLinks = buildProgrammaticLinks(wine, locale);
   const pricing = buildWinePriceViewModel(wine);
   const alternatives = recommended.length > 0 ? recommended : similar;
   const alternativeIntro =
     pricing.purchaseLink == null
-      ? "Nu avem momentan o ofertă verificată. Poți continua cu aceste opțiuni similare."
+      ? t("noOfferIntro")
       : (wine.valueScore ?? 0) < VALUE_SCORE_NEUTRAL_MIN
-        ? "Alternative mai bune la bani similari, din același tip de vin."
-        : "Opțiuni din același tip de vin și dintr-un interval de preț apropiat.";
+        ? t("betterValueIntro")
+        : t("nearbyIntro");
 
   return (
     <div id="alternative" className="scroll-mt-24">
@@ -35,7 +39,7 @@ export function WineRelatedSections({
             id="recommended-heading"
             className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
           >
-            Ce poți cumpăra în loc
+            {t("alternatives")}
           </h2>
           <p className="mt-3 text-muted-foreground">
             {alternativeIntro}
@@ -56,17 +60,16 @@ export function WineRelatedSections({
             id="recommended-heading"
             className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
           >
-            Ce poți cumpăra în loc
+            {t("alternatives")}
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Nu avem încă o alternativă suficient de apropiată pentru această
-            sticlă.
+            {t("noAlternative")}
           </p>
           <Link
-            href="/vinuri"
+            href={localizedHref(locale, "wines")}
             className="mt-5 inline-flex min-h-11 items-center rounded-lg border border-border px-4 text-sm font-medium text-foreground hover:bg-muted"
           >
-            Explorează toate vinurile
+            {t("exploreAll")}
           </Link>
         </section>
       )}
@@ -80,10 +83,10 @@ export function WineRelatedSections({
             id="similar-heading"
             className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
           >
-            Alte vinuri similare
+            {t("similar")}
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Din aceeași cramă sau regiune, cu profil apropiat.
+            {t("similarIntro")}
           </p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {similar.map((item) => (
@@ -98,7 +101,7 @@ export function WineRelatedSections({
           id="pages-heading"
           className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
         >
-          Pagini similare
+          {t("pages")}
         </h2>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           {programmaticLinks.map((link) => (

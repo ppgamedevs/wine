@@ -1,0 +1,169 @@
+{
+  "common": {
+    "home": "Home",
+    "wines": "Wines",
+    "wineries": "Wineries",
+    "topLists": "Top wines",
+    "studies": "Studies",
+    "faq": "Frequently asked questions",
+    "recommendations": "VinIntel recommendations",
+    "detailedRecommendations": "Detailed recommendations",
+    "relatedGuides": "Related guides",
+    "wine": "Wine",
+    "winery": "Winery",
+    "price": "Price",
+    "viewAll": "View all",
+    "notFound": "Page not found"
+  },
+  "topLists": {
+    "indexTitle": "Romanian wine rankings",
+    "indexDescription": "VinIntel rankings for Romanian wines by budget, grape variety, style, food pairing and occasion, ordered with transparent scoring.",
+    "indexIntro": "Explore popular selections by budget, occasion and grape variety. Find the right Romanian wine without browsing the entire catalog.",
+    "catalogCta": "Browse the full catalog",
+    "countLabel": "rankings",
+    "indexLinks": {
+      "curated:best-romanian-wines": {
+        "title": "Best Romanian wines",
+        "description": "Overall ranking by Value Score"
+      },
+      "budget:50": {
+        "title": "Best wines under 50 RON",
+        "description": "Strong value on a smaller budget"
+      },
+      "curated:best-supermarket-wines": {
+        "title": "Good supermarket wines",
+        "description": "Available from major retailers"
+      },
+      "budget-occasion:50:sarmale": {
+        "title": "Wines under 50 RON for sarmale",
+        "description": "Budget-friendly pairings for sarmale"
+      },
+      "grape:feteasca-neagra": {
+        "title": "Best Fetească Neagră wines",
+        "description": "Romania's emblematic red grape variety"
+      },
+      "curated:best-wines-for-gifts": {
+        "title": "Best wines for gifts",
+        "description": "Reliable choices for any celebration"
+      },
+      "budget-occasion:100:cina-romantica": {
+        "title": "Wines under 100 RON for romantic dinners",
+        "description": "Elegant choices for an evening together"
+      }
+    },
+    "summary": "Ranking summary",
+    "generalRanking": "Overall ranking",
+    "verdicts": "Verdict for every wine",
+    "quickAnswer": "Quick answer: top 5 Romanian wines",
+    "quickAnswerDescription": "The strongest current options, with prices in RON and a clear reason for each choice.",
+    "whyInTop": "Why it ranks",
+    "suitableFor": "Best for",
+    "minus": "Drawback",
+    "verdict": "Verdict",
+    "budgetHeading": "Best wines by budget",
+    "colorHeading": "Best wines by style",
+    "occasionHeading": "Best wines by occasion",
+    "methodologyHeading": "How we built the ranking",
+    "methodology": "We order wines by Value Score, current price in RON, medals and awards when available, vintage and store availability. We limit the number of wines from one winery in the top five to keep the selection diverse.",
+    "scoresLink": "How our scores work",
+    "limitationsHeading": "Limitations",
+    "limitations": [
+      "Prices can vary by retailer and promotion.",
+      "The VinIntel editorial team has not tasted every wine.",
+      "Value Score is not the same as a user review rating."
+    ],
+    "updated": "Updated",
+    "cheapGuide": "Good affordable wine guide",
+    "avoidHeading": "What to avoid in a very cheap wine",
+    "avoidItems": [
+      "Labels without a clear winery, region or vintage.",
+      "An unusually low price without a Value Score or market data.",
+      "Promotions without real stock at verified stores."
+    ],
+    "supermarketLink": "See good supermarket wines"
+  },
+  "dish": {
+    "faqPriceQuestion": "Are prices shown in RON?",
+    "faqPriceAnswer": "Yes. We show prices in RON as either a recently verified price or an estimate, depending on the source.",
+    "pages": {
+      "sarmale": {
+        "name": "Sarmale",
+        "heading": "What wine goes with sarmale?",
+        "metaTitle": "Wine for sarmale: Romanian picks under 50 RON",
+        "metaDescription": "The best Romanian wines for sarmale, with dry red styles, Value Scores, prices in RON and clear pairing guidance.",
+        "intro": "Sarmale call for a dry red wine with lively acidity and gentle tannins. These Romanian wines can balance the rich filling, cabbage and spices."
+      },
+      "gratar": {
+        "name": "Romanian barbecue",
+        "heading": "What wine goes with Romanian barbecue?",
+        "metaTitle": "Wine for Romanian barbecue: top local pairings",
+        "metaDescription": "Romanian red and rosé wines for grilled meat, with prices in RON and transparent Value Scores.",
+        "intro": "Romanian barbecue works well with medium to full-bodied wines, ripe tannins and generous red fruit. These choices suit grilled meat without overpowering it."
+      },
+      "peste": {
+        "name": "Fish",
+        "heading": "What wine goes with fish?",
+        "metaTitle": "Wine for fish: dry Romanian whites and rosés",
+        "metaDescription": "Dry Romanian white and rosé wines for fish, selected for freshness, acidity and prices in RON.",
+        "intro": "Fish usually suits dry white or rosé wines with bright acidity and restrained fruit. This selection avoids heavy styles that can overwhelm the dish."
+      },
+      "friptura-de-porc": {
+        "name": "Roast pork",
+        "heading": "What wine goes with roast pork?",
+        "metaTitle": "Wine for roast pork: dry Romanian red wines",
+        "metaDescription": "Dry Romanian red wines for roast pork, ranked by Value Score with current prices in RON.",
+        "intro": "Roast pork works with a balanced dry red that offers soft tannins and ripe fruit. The ranking avoids wines that are too heavy or too sweet."
+      },
+      "cozonac": {
+        "name": "Cozonac",
+        "heading": "What wine goes with cozonac?",
+        "metaTitle": "Wine for cozonac: sweet and sparkling Romanian picks",
+        "metaDescription": "Romanian sweet, medium-sweet and sparkling wines for cozonac, with current prices in RON.",
+        "intro": "Cozonac pairs well with sweet or medium-sweet wines showing dried fruit, honey or vanilla notes. These Romanian choices complement the traditional sweet bread."
+      }
+    }
+  },
+  "grape": {
+    "headingPrefix": "The",
+    "introPrefix": "A guide to",
+    "introSuffix": "in Romanian viticulture, including styles, regions and the strongest wines in the VinIntel catalog.",
+    "fullRanking": "See the complete ranking for",
+    "topWines": "Top wines made with"
+  },
+  "region": {
+    "winesFrom": "Wines from",
+    "topWinesFrom": "Top wines from",
+    "wineriesFrom": "Wineries in",
+    "genericDescription": "A Romanian wine region with {wineries} wineries and {wines} wines analyzed in the VinIntel catalog.",
+    "wineryCard": {
+      "country": "Romania",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "price": "Price:",
+      "best": "Best:",
+      "under50": "Under 50 RON:",
+      "grapes": "Grapes:",
+      "checked": "Checked:",
+      "wineOne": "wine",
+      "wineMany": "wines",
+      "value": "Value",
+      "view": "View winery",
+      "viewAria": "View {name}"
+    }
+  },
+  "study": {
+    "title": "Best Romanian wines under 50 RON in 2026",
+    "description": "VinIntel study of average prices, Value Scores and the top 50 affordable Romanian wines in the current catalog.",
+    "breadcrumb": "2026 study",
+    "intro": "VinIntel analysis of {count} catalog wines, covering average price, Value Score and the top 50 affordable choices.",
+    "updated": "Updated",
+    "interactiveTop": "See the interactive ranking under 50 RON",
+    "dataSummary": "Data summary",
+    "indicator": "Metric",
+    "value": "Value",
+    "winesUnder50": "Wines under 50 RON",
+    "averagePrice": "Average price under 50 RON",
+    "averageValue": "Average Value Score (recommended wines)",
+    "top50": "Top 50 wines under 50 RON"
+  }
+}

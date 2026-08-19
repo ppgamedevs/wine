@@ -12,7 +12,25 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
-export function WineReportButton({ wineId }: { wineId: number }) {
+interface WineReportButtonProps {
+  wineId: number;
+  labels: {
+    trigger: string;
+    title: string;
+    description: string;
+    thanks: string;
+    placeholder: string;
+    cancel: string;
+    sending: string;
+    submit: string;
+    submitError: string;
+  };
+}
+
+export function WineReportButton({
+  wineId,
+  labels,
+}: WineReportButtonProps) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,11 +46,11 @@ export function WineReportButton({ wineId }: { wineId: number }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: reason.trim() || undefined }),
       });
-      const data: { error?: string } = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Eroare la trimitere.");
+      await res.json();
+      if (!res.ok) throw new Error(labels.submitError);
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Eroare la trimitere.");
+      setError(err instanceof Error ? err.message : labels.submitError);
     } finally {
       setLoading(false);
     }
@@ -45,7 +63,7 @@ export function WineReportButton({ wineId }: { wineId: number }) {
         onClick={() => setOpen(true)}
         className="text-sm text-muted-foreground transition-colors hover:text-destructive"
       >
-        Cred ca raspunsul este gresit
+        {labels.trigger}
       </button>
 
       <Dialog
@@ -61,24 +79,22 @@ export function WineReportButton({ wineId }: { wineId: number }) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Raporteaza o problema</DialogTitle>
+            <DialogTitle>{labels.title}</DialogTitle>
             <DialogDescription>
-              Spune-ne ce ti se pare gresit: pret, soiuri, scor sau analiza
-              editoriala. Echipa VinIntel verifica manual.
+              {labels.description}
             </DialogDescription>
           </DialogHeader>
 
           {done ? (
             <p className="text-sm text-foreground">
-              Multumim. Raportul a fost trimis si va fi verificat de echipa
-              noastra.
+              {labels.thanks}
             </p>
           ) : (
             <>
               <Textarea
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
-                placeholder="Ex: pretul afisat nu corespunde sau regiunea e gresita..."
+                placeholder={labels.placeholder}
                 rows={4}
               />
               {error ? (
@@ -90,7 +106,7 @@ export function WineReportButton({ wineId }: { wineId: number }) {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  Anuleaza
+                  {labels.cancel}
                 </Button>
                 <Button
                   type="button"
@@ -98,7 +114,7 @@ export function WineReportButton({ wineId }: { wineId: number }) {
                   disabled={loading}
                   onClick={submitReport}
                 >
-                  {loading ? "Se trimite..." : "Trimite raportul"}
+                  {loading ? labels.sending : labels.submit}
                 </Button>
               </DialogFooter>
             </>

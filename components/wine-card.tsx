@@ -3,8 +3,10 @@ import { buildPublicWineCardViewModel } from "@/lib/public-wine-card";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import type { TopListRankMetric } from "@/lib/top-lists";
 import type { WineWithRelations } from "@/types";
+import { getLocale } from "next-intl/server";
+import type { AppLocale } from "@/i18n/locale";
 
-export function WineCard({
+export async function WineCard({
   wine,
   priority = false,
   /** Prag minim recomandare = 75/100. Cand e setat, ascunde vinurile sub prag. */
@@ -20,6 +22,7 @@ export function WineCard({
   displayedScore?: number | null;
   trackAnalytics?: { wineryId: number; wineId: number };
 }) {
+  const locale = (await getLocale()) as AppLocale;
   if (
     minValueScore != null &&
     (wine.valueScore ?? 0) < minValueScore
@@ -31,7 +34,8 @@ export function WineCard({
     highlightScore,
     displayedScore,
     analytics: trackAnalytics,
+    locale,
   });
 
-  return <WineCardView card={card} priority={priority} />;
+  return <WineCardView card={card} priority={priority} locale={locale} />;
 }

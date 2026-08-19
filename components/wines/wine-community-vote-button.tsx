@@ -30,12 +30,47 @@ interface WineCommunityVoteButtonProps {
   wineId: number;
   initialScore: number | null;
   initialVoteCount: number;
+  labels: {
+    alreadyVoted: string;
+    editVote: string;
+    vote: string;
+    editTitle: string;
+    voteTitle: string;
+    editDescription: string;
+    voteDescription: string;
+    thanks: string;
+    currentScore: string;
+    oneVote: string;
+    manyVotes: string;
+    yourScore: string;
+    rangeLabel: string;
+    weak: string;
+    good: string;
+    excellent: string;
+    cancel: string;
+    sending: string;
+    save: string;
+    submit: string;
+    submitError: string;
+  };
+}
+
+function fillLabel(
+  template: string,
+  values: Record<string, string | number>,
+): string {
+  return Object.entries(values).reduce(
+    (label, [key, value]) =>
+      label.replaceAll(`__${key.toUpperCase()}__`, String(value)),
+    template,
+  );
 }
 
 export function WineCommunityVoteButton({
   wineId,
   initialScore,
   initialVoteCount,
+  labels,
 }: WineCommunityVoteButtonProps) {
   const [open, setOpen] = useState(false);
   const [score, setScore] = useState(75);
@@ -109,7 +144,7 @@ export function WineCommunityVoteButton({
         hasVoted?: boolean;
         rateLimited?: boolean;
       } = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Eroare la trimitere.");
+      if (!res.ok) throw new Error(labels.submitError);
 
       if (data.communityScore != null) setCommunityScore(data.communityScore);
       if (data.communityVoteCount != null) setVoteCount(data.communityVoteCount);
@@ -120,7 +155,7 @@ export function WineCommunityVoteButton({
       }
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Eroare la trimitere.");
+      setError(err instanceof Error ? err.message : labels.submitError);
     } finally {
       setLoading(false);
     }
@@ -137,9 +172,7 @@ export function WineCommunityVoteButton({
       {hasVoted && userScore != null ? (
         <div className="rounded-xl border border-wine/20 bg-wine/5 px-4 py-3">
           <p className="text-sm text-foreground">
-            Ai votat deja acest vin cu nota{" "}
-            <span className="font-semibold text-wine">{userScore}/100</span>.
-            Vrei sa modifici nota?
+            {fillLabel(labels.alreadyVoted, { score: userScore })}
           </p>
         </div>
       ) : null}
@@ -150,7 +183,7 @@ export function WineCommunityVoteButton({
         className="border-wine/30 text-wine hover:bg-wine/5"
         onClick={openVoteDialog}
       >
-        {hasVoted ? "Modifica nota" : "Voteaza si tu"}
+        {hasVoted ? labels.editVote : labels.vote}
       </Button>
 
       <Dialog
@@ -166,31 +199,29 @@ export function WineCommunityVoteButton({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {hasVoted ? "Modifica nota ta" : "Voteaza acest vin"}
+              {hasVoted ? labels.editTitle : labels.voteTitle}
             </DialogTitle>
             <DialogDescription>
               {hasVoted
-                ? "Poti actualiza nota o singura data per cont de browser. Modificarile recalculeaza Community Score."
-                : "Cat de mult merita pretul dupa experienta ta? Nota ta contribuie la Community Score (0-100)."}
+                ? labels.editDescription
+                : labels.voteDescription}
             </DialogDescription>
           </DialogHeader>
 
           {done ? (
             <div className="space-y-3">
               <p className="text-sm text-foreground">
-                Multumim! Nota ta de{" "}
-                <span className="font-semibold text-wine">
-                  {userScore ?? score}/100
-                </span>{" "}
-                a fost inregistrata.
+                {fillLabel(labels.thanks, { score: userScore ?? score })}
               </p>
               {communityScore != null ? (
                 <p className="text-sm text-muted-foreground">
-                  Community Score actual:{" "}
-                  <span className="font-medium text-foreground">
-                    {communityScore}/100
-                  </span>{" "}
-                  ({voteCount} {voteCount === 1 ? "vot" : "voturi"})
+                  {fillLabel(labels.currentScore, {
+                    score: communityScore,
+                    votes:
+                      voteCount === 1
+                        ? labels.oneVote
+                        : fillLabel(labels.manyVotes, { count: voteCount }),
+                  })}
                 </p>
               ) : null}
             </div>
@@ -198,7 +229,9 @@ export function WineCommunityVoteButton({
             <>
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-sm text-muted-foreground">Nota ta</span>
+                  <span className="text-sm text-muted-foreground">
+                    {labels.yourScore}
+                  </span>
                   <VinScoreBadge score={score} size="md" showLabel={false} />
                 </div>
                 <input
@@ -212,12 +245,12 @@ export function WineCommunityVoteButton({
                     "h-2 w-full cursor-pointer appearance-none rounded-full",
                     "bg-secondary accent-wine",
                   )}
-                  aria-label="Nota comunitate 45-98"
+                  aria-label={labels.rangeLabel}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>45 Slab</span>
-                  <span>75 Bun</span>
-                  <span>98 Excelent</span>
+                  <span>{labels.weak}</span>
+                  <span>{labels.good}</span>
+                  <span>{labels.excellent}</span>
                 </div>
               </div>
               {error ? (
@@ -229,7 +262,7 @@ export function WineCommunityVoteButton({
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  Anuleaza
+                  {labels.cancel}
                 </Button>
                 <Button
                   type="button"
@@ -238,10 +271,10 @@ export function WineCommunityVoteButton({
                   onClick={submitVote}
                 >
                   {loading
-                    ? "Se trimite..."
+                    ? labels.sending
                     : hasVoted
-                      ? "Salveaza nota noua"
-                      : "Trimite votul"}
+                      ? labels.save
+                      : labels.submit}
                 </Button>
               </DialogFooter>
             </>

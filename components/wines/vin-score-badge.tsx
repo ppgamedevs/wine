@@ -5,6 +5,7 @@ interface VinScoreBadgeProps {
   score: number;
   size?: "md" | "lg";
   showLabel?: boolean;
+  label?: string;
   className?: string;
 }
 
@@ -12,6 +13,7 @@ export function VinScoreBadge({
   score,
   size = "md",
   showLabel = true,
+  label,
   className,
 }: VinScoreBadgeProps) {
   const meta = getVinScoreMeta(score);
@@ -38,7 +40,7 @@ export function VinScoreBadge({
       </span>
       {showLabel ? (
         <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {meta.label}
+          {label ?? meta.label}
         </span>
       ) : null}
     </div>

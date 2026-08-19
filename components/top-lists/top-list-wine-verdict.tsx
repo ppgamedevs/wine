@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { WineImage } from "@/components/wines/wine-image";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 import { formatRon, valueScoreTone } from "@/lib/format";
+import { getPseoMessages } from "@/lib/i18n/pseo";
 import { buildWorthItAnalysis } from "@/lib/wine-analysis";
 import { resolveWineVintage, stripEmbeddedVintageFromName } from "@/lib/wine-vintage";
 import { cn } from "@/lib/utils";
@@ -11,45 +14,88 @@ interface TopListWineVerdictProps {
   position: number;
   /** Prioritize LCP image for first cards in quick answer. */
   priority?: boolean;
+  locale?: AppLocale;
 }
 
-function buildWhyInTop(wine: WineWithRelations): string {
+function buildWhyInTop(
+  wine: WineWithRelations,
+  locale: AppLocale,
+): string {
   const parts: string[] = [];
   if (wine.valueScore && wine.valueScore >= 75) {
     parts.push(`Value Score ${wine.valueScore}/100`);
   }
   if (wine.priceAvg) {
-    parts.push(`pret bun la ${formatRon(wine.priceAvg)}`);
+    parts.push(
+      locale === "en"
+        ? `good value at ${formatRon(wine.priceAvg, locale)}`
+        : `pret bun la ${formatRon(wine.priceAvg, locale)}`,
+    );
   }
   return parts.length > 0
     ? parts.join(", ")
-    : "raport calitate-pret solid in catalogul nostru";
+    : locale === "en"
+      ? "solid value in the VinIntel catalog"
+      : "raport calitate-pret solid in catalogul nostru";
 }
 
-function buildMinus(wine: WineWithRelations): string | null {
-  if (!wine.priceAvg) return "pret indisponibil momentan";
-  if (wine.overpricedRisk === "high") return "risc moderat de suprapret";
-  if ((wine.availability ?? []).length === 0) return "disponibilitate limitata";
+function buildMinus(
+  wine: WineWithRelations,
+  locale: AppLocale,
+): string | null {
+  if (!wine.priceAvg) {
+    return locale === "en"
+      ? "price currently unavailable"
+      : "pret indisponibil momentan";
+  }
+  if (wine.overpricedRisk === "high") {
+    return locale === "en"
+      ? "some risk of paying above market value"
+      : "risc moderat de suprapret";
+  }
+  if ((wine.availability ?? []).length === 0) {
+    return locale === "en"
+      ? "limited availability"
+      : "disponibilitate limitata";
+  }
   return null;
+}
+
+function englishVerdict(wine: WineWithRelations): string {
+  if ((wine.valueScore ?? 0) >= 80) {
+    return "A strong value choice at its current catalog price.";
+  }
+  if ((wine.valueScore ?? 0) >= 70) {
+    return "Worth considering when the style matches your needs.";
+  }
+  return "Compare the current price before buying.";
 }
 
 export function TopListWineVerdict({
   wine,
   position,
   priority = false,
+  locale = "ro",
 }: TopListWineVerdictProps) {
-  const pairing = wine.foodPairings?.[0]?.dish;
-  const minus = buildMinus(wine);
-  const worthIt = buildWorthItAnalysis(wine);
+  const pairing = locale === "ro" ? wine.foodPairings?.[0]?.dish : undefined;
+  const minus = buildMinus(wine, locale);
+  const worthItHeadline =
+    locale === "en"
+      ? englishVerdict(wine)
+      : buildWorthItAnalysis(wine).headline;
+  const copy = getPseoMessages(locale).topLists;
   const displayVintage = resolveWineVintage(wine);
   const displayName = stripEmbeddedVintageFromName(wine.name, displayVintage);
+  const wineHref = localizedHref(locale, "wine", { slug: wine.slug });
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:border-wine/30 hover:shadow-lg">
       <Link
-        href={`/wines/${wine.slug}`}
+        href={wineHref}
         className="relative block shrink-0 bg-gradient-to-b from-secondary/40 to-secondary/10"
-        aria-label={`Vezi ${displayName}`}
+        aria-label={
+          locale === "en" ? `View ${displayName}` : `Vezi ${displayName}`
+        }
       >
         <WineImage
           slug={wine.slug}
@@ -85,7 +131,7 @@ export function TopListWineVerdict({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="font-serif text-lg font-semibold leading-snug text-foreground">
-              <Link href={`/wines/${wine.slug}`} className="hover:text-wine">
+              <Link href={wineHref} className="hover:text-wine">
                 {displayName}
                 {displayVintage ? (
                   <span className="text-muted-foreground"> {displayVintage}</span>
@@ -99,30 +145,32 @@ export function TopListWineVerdict({
             ) : null}
           </div>
           <p className="shrink-0 text-right text-sm font-semibold text-foreground">
-            {formatRon(wine.priceAvg)}
+            {formatRon(wine.priceAvg, locale)}
           </p>
         </div>
 
         <dl className="mt-4 space-y-2 text-sm">
           <div>
-            <dt className="font-medium text-foreground">De ce e in top</dt>
-            <dd className="text-muted-foreground">{buildWhyInTop(wine)}</dd>
+            <dt className="font-medium text-foreground">{copy.whyInTop}</dt>
+            <dd className="text-muted-foreground">
+              {buildWhyInTop(wine, locale)}
+            </dd>
           </div>
           {pairing ? (
             <div>
-              <dt className="font-medium text-foreground">Potrivit pentru</dt>
+              <dt className="font-medium text-foreground">{copy.suitableFor}</dt>
               <dd className="text-muted-foreground">{pairing.toLowerCase()}</dd>
             </div>
           ) : null}
           {minus ? (
             <div>
-              <dt className="font-medium text-foreground">Minus</dt>
+              <dt className="font-medium text-foreground">{copy.minus}</dt>
               <dd className="text-muted-foreground">{minus}</dd>
             </div>
           ) : null}
           <div>
-            <dt className="font-medium text-foreground">Verdict</dt>
-            <dd className="text-muted-foreground">{worthIt.headline}</dd>
+            <dt className="font-medium text-foreground">{copy.verdict}</dt>
+            <dd className="text-muted-foreground">{worthItHeadline}</dd>
           </div>
         </dl>
       </div>
@@ -132,10 +180,13 @@ export function TopListWineVerdict({
 
 export function TopListQuickAnswer({
   wines,
+  locale = "ro",
 }: {
   wines: WineWithRelations[];
+  locale?: AppLocale;
 }) {
   const top5 = wines.slice(0, 5);
+  const copy = getPseoMessages(locale).topLists;
 
   return (
     <section aria-labelledby="quick-answer-heading">
@@ -143,10 +194,10 @@ export function TopListQuickAnswer({
         id="quick-answer-heading"
         className="font-serif text-2xl font-semibold text-foreground"
       >
-        Raspuns rapid: top 5 vinuri romanesti
+        {copy.quickAnswer}
       </h2>
       <p className="mt-2 text-muted-foreground">
-        Cele mai bune optiuni acum, cu pret in RON si motivul alegerii.
+        {copy.quickAnswerDescription}
       </p>
       <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {top5.map((wine, index) => (
@@ -155,6 +206,7 @@ export function TopListQuickAnswer({
             wine={wine}
             position={index + 1}
             priority={index < 2}
+            locale={locale}
           />
         ))}
       </div>

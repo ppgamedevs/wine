@@ -12,6 +12,7 @@ interface RetailerPurchaseLinkProps {
   size?: "sm" | "default";
   variant?: "default" | "outline";
   showNote?: boolean;
+  note?: string;
   className?: string;
   onTrackClick?: () => void;
 }
@@ -23,6 +24,7 @@ export function RetailerPurchaseLink({
   size = "default",
   variant = "default",
   showNote = false,
+  note,
   className,
   onTrackClick,
 }: RetailerPurchaseLinkProps) {
@@ -76,9 +78,10 @@ export function RetailerPurchaseLink({
       </Button>
       {showNote ? (
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {retailer
-            ? `Deschidem pagina produsului pe ${retailer}, într-un tab nou. Comanda se finalizează direct la magazin.`
-            : "Deschidem pagina produsului într-un tab nou. Comanda se finalizează direct la magazin."}
+          {note ??
+            (retailer
+              ? `Deschidem pagina produsului pe ${retailer}, într-un tab nou. Comanda se finalizează direct la magazin.`
+              : "Deschidem pagina produsului într-un tab nou. Comanda se finalizează direct la magazin.")}
         </p>
       ) : null}
     </div>

@@ -445,7 +445,13 @@ export async function getGrapeVarietyCatalogEntries(): Promise<
 > {
   try {
     const rows = await db
-      .select({ slug: grapeVarieties.slug, name: grapeVarieties.name })
+      .select({
+        id: grapeVarieties.id,
+        slug: grapeVarieties.slug,
+        name: grapeVarieties.name,
+        description: grapeVarieties.description,
+        updatedAt: grapeVarieties.updatedAt,
+      })
       .from(grapeVarieties);
     return rows;
   } catch (error) {

@@ -2,9 +2,11 @@ import { CalendarDays, Clock3 } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 import { formatJournalDate, type JournalArticle } from "@/lib/journal";
 
-function estimateReadingMinutes(body: string): number {
+export function estimateReadingMinutes(body: string): number {
   const words = body.trim().split(/\s+/).length;
   return Math.max(3, Math.round(words / 180));
 }
@@ -108,16 +110,22 @@ function renderParagraphs(body: string) {
 
 interface ArticleBodyProps {
   article: JournalArticle;
+  locale: AppLocale;
+  readingLabel: string;
 }
 
-export function ArticleBody({ article }: ArticleBodyProps) {
-  const readingMinutes = estimateReadingMinutes(article.body);
+export function ArticleBody({
+  article,
+  locale,
+  readingLabel,
+}: ArticleBodyProps) {
+  const journalHref = localizedHref(locale, "journal");
 
   return (
     <article className="mx-auto max-w-3xl">
       <header className="border-b border-border/60 pb-8">
         <Link
-          href={`/journal?category=${article.category}#articole`}
+          href={`${journalHref}?category=${article.category}#articole`}
           className="text-sm font-medium text-wine hover:underline"
         >
           {article.categoryLabel}
@@ -138,12 +146,12 @@ export function ArticleBody({ article }: ArticleBodyProps) {
           <span className="inline-flex items-center gap-1.5">
             <CalendarDays className="h-4 w-4" aria-hidden="true" />
             <time dateTime={article.publishedAt}>
-              {formatJournalDate(article.publishedAt)}
+              {formatJournalDate(article.publishedAt, locale)}
             </time>
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Clock3 className="h-4 w-4" aria-hidden="true" />
-            {readingMinutes} min citire
+            {readingLabel}
           </span>
         </div>
       </header>

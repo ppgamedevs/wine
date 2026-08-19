@@ -8,9 +8,22 @@ import { Input } from "@/components/ui/input";
 
 interface JournalHeroProps {
   initialQuery?: string;
+  journalHref: string;
+  copy: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    read: string;
+    searchPlaceholder: string;
+    searchLabel: string;
+  };
 }
 
-export function JournalHero({ initialQuery = "" }: JournalHeroProps) {
+export function JournalHero({
+  initialQuery = "",
+  journalHref,
+  copy,
+}: JournalHeroProps) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
 
@@ -20,7 +33,7 @@ export function JournalHero({ initialQuery = "" }: JournalHeroProps) {
     const params = new URLSearchParams();
     if (trimmed) params.set("q", trimmed);
     const suffix = params.toString() ? `?${params.toString()}` : "";
-    router.push(`/journal${suffix}#articole`);
+    router.push(`${journalHref}${suffix}#articole`);
   }
 
   return (
@@ -36,13 +49,13 @@ export function JournalHero({ initialQuery = "" }: JournalHeroProps) {
 
       <div className="relative mx-auto max-w-4xl px-6 py-16 text-center lg:py-24">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-wine">
-          VinIntel Editorial
+          {copy.eyebrow}
         </p>
         <h1 className="mt-4 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-          Wine Journal
+          {copy.title}
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-          Povesti, analize si ghiduri practice despre vinurile romanesti
+          {copy.description}
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -52,7 +65,7 @@ export function JournalHero({ initialQuery = "" }: JournalHeroProps) {
             className="rounded-xl bg-wine px-8 text-wine-foreground hover:bg-wine/90"
           >
             <a href="#articole">
-              Citeste articolele
+              {copy.read}
               <ArrowDown className="h-4 w-4" />
             </a>
           </Button>
@@ -70,8 +83,8 @@ export function JournalHero({ initialQuery = "" }: JournalHeroProps) {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Cauta in journal..."
-              aria-label="Cauta articole in Wine Journal"
+              placeholder={copy.searchPlaceholder}
+              aria-label={copy.searchLabel}
               className="h-11 rounded-full border-border/70 bg-background/90 pl-11 shadow-sm focus-visible:ring-wine/40"
             />
           </form>

@@ -316,7 +316,7 @@ export function resolveTopList(
     return {
       slug,
       heading: "Cele mai bune vinuri romanesti",
-      metaTitle: "Cele mai bune vinuri romanesti in 2026 – top pe bugete",
+      metaTitle: "Cele mai bune vinuri romanesti in 2026 - top pe bugete",
       metaDescription:
         "Top vinuri romanesti dupa Value Score: cel mai bun raport calitate-pret, cu preturi in RON, scoruri si pairing-uri.",
       intro:

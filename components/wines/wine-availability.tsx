@@ -7,12 +7,15 @@ import { RetailerPurchaseLink } from "@/components/wines/retailer-purchase-link"
 import { formatRon } from "@/lib/format";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
 import type { WineWithRelations } from "@/types";
+import { getLocale, getTranslations } from "next-intl/server";
 
-export function WineAvailability({ wine }: { wine: WineWithRelations }) {
+export async function WineAvailability({ wine }: { wine: WineWithRelations }) {
+  const locale = await getLocale();
+  const t = await getTranslations("Wine.availability");
   const pricing = buildWinePriceViewModel(wine);
   const hasPrice = pricing.displayPrice != null;
   const isVerified = pricing.isVerifiedRecent;
-  const priceLabel = isVerified ? "Preț actual" : "Preț aproximativ";
+  const priceLabel = isVerified ? t("currentPrice") : t("estimatedPrice");
   const retailer =
     pricing.purchaseLink?.retailer ??
     wine.availability?.find((entry) => entry.retailer.trim())?.retailer ??
@@ -24,11 +27,10 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
         id="price-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Preț și disponibilitate
+        {t("heading")}
       </h2>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        Prețul și oferta sunt prezentate conform celor mai recente date pe care
-        le avem. Cumpărarea se finalizează la magazin.
+        {t("intro")}
       </p>
 
       <Card className="mt-6 border-border/70">
@@ -43,14 +45,14 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
                   {isVerified ? (
                   <Badge className="gap-1 bg-emerald-600/10 text-emerald-800 hover:bg-emerald-600/15">
                     <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-                    Preț verificat
+                    {t("verifiedPrice")}
                   </Badge>
                   ) : (
                   <Badge
                     variant="outline"
                     className="border-amber-500/40 bg-amber-500/10 text-amber-900"
                   >
-                    Preț estimativ
+                    {t("estimatedBadge")}
                   </Badge>
                   )}
                 </div>
@@ -61,19 +63,19 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
                     <span className="mr-2 text-base font-medium text-muted-foreground">
                       {priceLabel}:
                     </span>
-                    {formatRon(pricing.displayPrice)}
+                    {formatRon(pricing.displayPrice, locale)}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Sursa principală: {retailer}
+                    {t("primarySource", { retailer })}
                   </p>
                 </>
               ) : (
                 <>
                   <p className="mt-3 font-medium text-foreground">
-                    Preț indisponibil momentan
+                    {t("unavailable")}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Nu avem momentan o ofertă verificată pentru acest vin.
+                    {t("noVerifiedOffer")}
                   </p>
                 </>
               )}
@@ -85,11 +87,19 @@ export function WineAvailability({ wine }: { wine: WineWithRelations }) {
               url={pricing.purchaseLink.url}
               retailerName={pricing.purchaseLink.retailer}
               showNote
+              label={t("offer")}
+              note={
+                pricing.purchaseLink.retailer
+                  ? t("retailerNote", {
+                      retailer: pricing.purchaseLink.retailer,
+                    })
+                  : t("retailerNoteGeneric")
+              }
               className="mt-0 [&_a]:h-11"
             />
           ) : (
             <Button asChild variant="outline" size="lg" className="h-11">
-              <Link href="#alternative">Vezi alternative similare</Link>
+              <Link href="#alternative">{t("similarAlternatives")}</Link>
             </Button>
           )}
         </CardContent>

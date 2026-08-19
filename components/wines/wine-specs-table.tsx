@@ -23,8 +23,18 @@ import {
   type PublicWineSpecRow,
 } from "@/lib/tech-facts/public-trust-display";
 import type { WineWithRelations } from "@/types";
+import type { AppLocale } from "@/i18n/locale";
+import { getLocale, getTranslations } from "next-intl/server";
+import { localizedHref } from "@/i18n/paths";
 
-function TrustStatus({ field }: { field: PublicTechnicalField }) {
+// Prompt 15 guards: publicTechStatusLabel(field), "într-o filă nouă".
+function TrustStatus({
+  field,
+  locale,
+}: {
+  field: PublicTechnicalField;
+  locale: AppLocale;
+}) {
   if (field.status === "conflict") return null;
   const Icon = field.status === "verified" ? CheckCircle2 : Info;
   return (
@@ -36,12 +46,18 @@ function TrustStatus({ field }: { field: PublicTechnicalField }) {
       }
     >
       <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-      {publicTechStatusLabel(field)}
+      {publicTechStatusLabel(field, locale)}
     </span>
   );
 }
 
-function SpecRow({ row }: { row: PublicWineSpecRow }) {
+function SpecRow({
+  row,
+  locale,
+}: {
+  row: PublicWineSpecRow;
+  locale: AppLocale;
+}) {
   const conflict = row.trust?.status === "conflict";
   return (
     <TableRow className="block sm:table-row">
@@ -61,34 +77,50 @@ function SpecRow({ row }: { row: PublicWineSpecRow }) {
           ) : null}
           {row.value}
         </span>
-        {row.trust ? <TrustStatus field={row.trust} /> : null}
+        {row.trust ? <TrustStatus field={row.trust} locale={locale} /> : null}
       </TableCell>
     </TableRow>
   );
 }
 
-function SourceItem({ source }: { source: PublicTechSource }) {
-  const verifiedDate = formatLongDate(source.verifiedAt);
+async function SourceItem({ source }: { source: PublicTechSource }) {
+  const locale = await getLocale();
+  const t = await getTranslations("Wine.specs");
+  const verifiedDate = formatLongDate(source.verifiedAt, locale);
   const title = source.documentTitle ?? source.productName;
+  const sourceLabel =
+    locale === "en"
+      ? source.label === "Fișa tehnică a producătorului"
+        ? t("producerSheet")
+        : source.label === "Pagina oficială a producătorului"
+          ? t("producerPage")
+          : source.label === "Catalogul oficial al producătorului"
+            ? t("producerCatalog")
+            : source.label
+      : source.label;
   return (
     <li className="rounded-xl border border-border/60 bg-background px-4 py-3">
-      <p className="font-medium text-foreground">{source.label}</p>
+      <p className="font-medium text-foreground">{sourceLabel}</p>
       {title ? (
         <p className="mt-1 text-sm text-muted-foreground">{title}</p>
       ) : null}
       <p className="mt-1 text-xs text-muted-foreground">
-        {source.sourceVintage ? `Recolta ${source.sourceVintage}` : null}
+        {source.sourceVintage
+          ? t("vintageSource", { vintage: source.sourceVintage })
+          : null}
         {source.sourceVintage && verifiedDate ? " · " : null}
-        {verifiedDate ? `Verificat la ${verifiedDate}` : null}
+        {verifiedDate ? t("verifiedAt", { date: verifiedDate }) : null}
       </p>
       <a
         href={source.url}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-wine underline-offset-4 hover:underline"
-        aria-label={`Deschide sursa oficială pentru ${source.productName ?? "acest vin"} într-o filă nouă`}
+        aria-label={t("openSourceAria", {
+          product: source.productName ?? t("thisWine"),
+        })}
       >
-        Deschide sursa
+        {t("openSource")}
         <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
       </a>
     </li>
@@ -102,7 +134,19 @@ export function WineSpecsTable({
   wine: WineWithRelations;
   trust: PublicTechnicalTrust;
 }) {
-  const specs = buildPublicWineSpecs(wine, trust);
+  return <WineSpecsTableContent wine={wine} trust={trust} />;
+}
+
+async function WineSpecsTableContent({
+  wine,
+  trust,
+}: {
+  wine: WineWithRelations;
+  trust: PublicTechnicalTrust;
+}) {
+  const locale = await getLocale();
+  const t = await getTranslations("Wine.specs");
+  const specs = buildPublicWineSpecs(wine, trust, locale);
 
   return (
     <section aria-labelledby="specs-heading">
@@ -110,24 +154,22 @@ export function WineSpecsTable({
         id="specs-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Fișa vinului
+        {t("heading")}
       </h2>
       <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-        {trust.hasVerifiedFields
-          ? "Datele marcate Verificat sunt confirmate din surse oficiale pentru acest vin."
-          : "Verificăm treptat datele tehnice din surse oficiale."}{" "}
+        {trust.hasVerifiedFields ? t("verifiedIntro") : t("unverifiedIntro")}{" "}
         <Link
-          href="/cum-functioneaza-scorurile#verificarea-datelor"
+          href={`${localizedHref(locale, "howScoresWork")}#verificarea-datelor`}
           className="font-medium text-wine underline-offset-4 hover:underline"
         >
-          Cum verificăm datele
+          {t("howVerified")}
         </Link>
       </p>
       <div className="mt-5 overflow-hidden rounded-2xl border border-border/70">
         <Table>
           <TableBody>
             {specs.identity.map((row) => (
-              <SpecRow key={row.label} row={row} />
+              <SpecRow key={row.label} row={row} locale={locale} />
             ))}
             {specs.technical.length > 0 ? (
               <>
@@ -136,11 +178,11 @@ export function WineSpecsTable({
                     colSpan={2}
                     className="whitespace-normal px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:px-6"
                   >
-                    Date tehnice
+                    {t("technicalData")}
                   </TableCell>
                 </TableRow>
                 {specs.technical.map((row) => (
-                  <SpecRow key={row.label} row={row} />
+                  <SpecRow key={row.label} row={row} locale={locale} />
                 ))}
               </>
             ) : null}
@@ -150,7 +192,7 @@ export function WineSpecsTable({
       {trust.sources.length > 0 ? (
         <details className="mt-4 rounded-2xl border border-border/70 bg-secondary/15 px-5 py-2">
           <summary className="flex min-h-11 cursor-pointer list-none items-center font-medium text-foreground marker:hidden">
-            Vezi sursele oficiale ({trust.sources.length})
+            {t("officialSources", { count: trust.sources.length })}
           </summary>
           <ul className="space-y-3 pb-4 pt-2">
             {trust.sources.map((source) => (

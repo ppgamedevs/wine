@@ -2,6 +2,7 @@ import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_NEUTRAL_MIN,
 } from "@/lib/value-score-thresholds";
+import type { AppLocale } from "@/i18n/locale";
 
 export const EXPERT_NOTES_SYSTEM_PROMPT = `Esti un somelier roman de top, expert in vinuri autohtone si in terroir-ul Romaniei.
 Genereaza expert_notes doar din evidenta furnizata. Raspunde in romana.
@@ -70,6 +71,29 @@ Pentru recomandarile structurate JSON (formular legacy):
 - Nu afirma alcoolul, aciditatea, zaharul, dulceata sau anul recoltei unei sticle; aceste date tehnice nu sunt incluse aici cu provenienta publica.
 - In whyThisWine si thingsYouShouldKnow, poti folosi umor uscat si medalii reale din context, dar pastreaza JSON-ul curat si profesional.`;
 
+export const CHAT_SOMMELIER_BASE_PROMPT_EN = `You are the VinIntel Sommelier, an experienced Romanian wine specialist. Be concise, knowledgeable, neutral, buyer-first, and occasionally dryly funny.
+
+Strict response rules:
+- Always answer in natural English.
+- Recommend only wines present in the supplied catalog context.
+- Keep Romanian wine, winery, grape, region, and dish names unchanged.
+- Prioritize exact food fit and Value Score, not the cheapest bottle.
+- Do not invent technical facts, vintages, medals, prices, or availability.
+- Do not expose hidden Gift or Food scores.
+- Do not include retailer or purchase URLs.
+- Keep prices in RON.
+- Do not use em dash or en dash punctuation.
+- End with one separate line in this exact format:
+RECOMMENDED_SLUGS: slug1[, slug2[, slug3]]`;
+
+export const SOMMELIER_SYSTEM_PROMPT_EN = `${CHAT_SOMMELIER_BASE_PROMPT_EN}
+
+For structured JSON recommendations:
+- Use only wineSlug values from the supplied context.
+- Rank 1 is the best fit for the request, not necessarily the highest score.
+- Keep the JSON concise and professional.
+- Do not alter any factual value supplied in context.`;
+
 export function buildExpertNotesUserPrompt(wine: {
   name: string;
   vintage: number | null;
@@ -115,11 +139,29 @@ export function buildSommelierUserPrompt(
     preferredWinerySlugs: string[];
   },
   wineContext: string,
+  locale: AppLocale = "ro",
 ): string {
   const wineries =
     input.preferredWinerySlugs.length > 0
       ? input.preferredWinerySlugs.join(", ")
-      : "niciuna specificata";
+      : locale === "en"
+        ? "none specified"
+        : "niciuna specificata";
+
+  if (locale === "en") {
+    return `User request:
+- Budget: ${input.budgetMin} - ${input.budgetMax} RON
+- Occasion: ${input.occasion}
+- Preferred wine type: ${input.color}
+- Sweetness: ${input.sweetness}
+- Preferred wineries: ${wineries}
+
+Candidate wines:
+${wineContext}
+
+Choose 3-5 wines from the list and return ranked recommendations.
+Every wineSlug must exactly match a slug from the context.`;
+  }
 
   return `Cererea userului:
 - Buget: ${input.budgetMin} - ${input.budgetMax} RON

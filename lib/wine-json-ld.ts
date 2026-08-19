@@ -5,6 +5,9 @@ import { absoluteUrl } from "@/lib/seo";
 import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
 import type { WineLikeForSecondaryScores } from "@/lib/scoring-v2/wine-score-inputs";
 import { buildWineFullTitle } from "@/lib/wine-vintage";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
+import { resolvePublicWinePairings } from "@/lib/public-wine-pairings";
 import {
   getVerifiedTechnicalValue,
   type PublicTechnicalTrust,
@@ -39,8 +42,8 @@ export type WineStructuredDataInput = Pick<
     foodMatchScore?: number | null;
   };
 
-function winePageUrl(slug: string): string {
-  return absoluteUrl(`/wines/${slug}`);
+function winePageUrl(slug: string, locale: AppLocale = "ro"): string {
+  return absoluteUrl(localizedHref(locale, "wine", { slug }));
 }
 
 /** Best available catalog price for schema.org Offer nodes. */
@@ -91,8 +94,9 @@ function buildProductAggregateRating(wine: WineStructuredDataInput) {
  */
 export function buildWineProductNode(
   wine: WineStructuredDataInput,
+  locale: AppLocale = "ro",
 ): Record<string, unknown> {
-  const url = winePageUrl(wine.slug);
+  const url = winePageUrl(wine.slug, locale);
   const wineryName = wine.winery?.name;
   const { src: imageUrl } = resolveWineImage(wine);
   const offers = buildProductOffers(wine, url);
@@ -102,8 +106,10 @@ export function buildWineProductNode(
     "@type": "Product",
     name: wine.name,
     description: wine.tastingNotes
-      ? sanitizePublicSecondaryCopy(wine.tastingNotes, wine)
-      : `Vin romanesc ${wine.name}.`,
+      ? sanitizePublicSecondaryCopy(wine.tastingNotes, wine, locale)
+      : locale === "en"
+        ? `Romanian wine ${wine.name}.`
+        : `Vin romanesc ${wine.name}.`,
     url,
     ...(imageUrl ? { image: imageUrl } : {}),
     ...(wineryName ? { brand: { "@type": "Brand", name: wineryName } } : {}),
@@ -117,10 +123,11 @@ export function buildWineProductNode(
 
 export function buildWineProductJsonLd(
   wine: WineStructuredDataInput,
+  locale: AppLocale = "ro",
 ): Record<string, unknown> {
   return {
     "@context": SCHEMA_CONTEXT,
-    ...buildWineProductNode(wine),
+    ...buildWineProductNode(wine, locale),
   };
 }
 
@@ -146,8 +153,9 @@ export function buildWineJsonLd(
   wine: WineWithRelations,
   faq: WineFaqItem[],
   technicalTrust: PublicTechnicalTrust,
+  locale: AppLocale = "ro",
 ) {
-  const url = winePageUrl(wine.slug);
+  const url = winePageUrl(wine.slug, locale);
   const wineryName = wine.winery?.name;
   const regionName = wine.region?.name;
   const { src: imageUrl, alt: imageAlt } = resolveWineImage(wine);
@@ -167,8 +175,10 @@ export function buildWineJsonLd(
     "@type": "Wine",
     name: wine.name,
     description: wine.tastingNotes
-      ? sanitizePublicSecondaryCopy(wine.tastingNotes, wine)
-      : `${wine.name} din ${regionName ?? "Romania"}.`,
+      ? sanitizePublicSecondaryCopy(wine.tastingNotes, wine, locale)
+      : locale === "en"
+        ? `${wine.name} from ${regionName ?? "Romania"}.`
+        : `${wine.name} din ${regionName ?? "Romania"}.`,
     url,
     ...(imageUrl
       ? {
@@ -199,7 +209,7 @@ export function buildWineJsonLd(
     ...(wine.updatedAt ? { dateModified: wine.updatedAt } : {}),
   };
 
-  const productSchema = buildWineProductJsonLd(wine);
+  const productSchema = buildWineProductJsonLd(wine, locale);
 
   const faqSchema = {
     "@context": SCHEMA_CONTEXT,
@@ -221,14 +231,14 @@ export function buildWineJsonLd(
       {
         "@type": "ListItem",
         position: 1,
-        name: "Acasa",
-        item: absoluteUrl("/"),
+        name: locale === "en" ? "Home" : "Acasa",
+        item: absoluteUrl(localizedHref(locale, "home")),
       },
       {
         "@type": "ListItem",
         position: 2,
-        name: "Vinuri",
-        item: absoluteUrl("/vinuri"),
+        name: locale === "en" ? "Wines" : "Vinuri",
+        item: absoluteUrl(localizedHref(locale, "wines")),
       },
       {
         "@type": "ListItem",
@@ -242,8 +252,25 @@ export function buildWineJsonLd(
   return [wineSchema, productSchema, faqSchema, breadcrumbSchema];
 }
 
-export function buildWineMetadataDescription(wine: WineWithRelations): string {
+export function buildWineMetadataDescription(
+  wine: WineWithRelations,
+  locale: AppLocale = "ro",
+): string {
   const price = resolveWineOfferPrice(wine);
+  if (locale === "en") {
+    const englishPairing = resolvePublicWinePairings(wine, 1, "en")[0];
+    const parts = [
+      buildWineFullTitle(wine.name, wine.vintage),
+      wine.winery?.name ? `from ${wine.winery.name}` : null,
+      price != null ? `at ${formatRon(price, "en")}` : null,
+      wine.valueScore ? `Value Score ${wine.valueScore}/100` : null,
+      englishPairing?.dish
+        ? `suited to ${englishPairing.dish.toLowerCase()}`
+        : null,
+    ].filter(Boolean);
+
+    return `${parts.join(", ")}. Full analysis, Romanian food pairings, and where to buy it.`;
+  }
   const parts = [
     `${buildWineFullTitle(wine.name, wine.vintage)}`,
     wine.winery?.name ? `de la ${wine.winery.name}` : null,

@@ -7,19 +7,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  wineryRepresentativeLead,
-  wineryVerificationContactPhrase,
-} from "@/lib/winery-copy";
-
 interface VerificationLeadFormProps {
   wineryName: string;
   wineName: string;
+  labels: {
+    submitError: string;
+    sent: string;
+    contact: string;
+    title: string;
+    intro: string;
+    name: string;
+    email: string;
+    message: string;
+    messageAria: string;
+    sending: string;
+    submit: string;
+  };
 }
 
 export function VerificationLeadForm({
   wineryName,
   wineName,
+  labels,
 }: VerificationLeadFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [pending, setPending] = useState(false);
@@ -42,7 +51,7 @@ export function VerificationLeadForm({
       return;
     }
 
-    setError(result.error ?? "Nu am putut trimite cererea.");
+    setError(labels.submitError);
   }
 
   if (submitted) {
@@ -51,10 +60,9 @@ export function VerificationLeadForm({
         <CardContent className="flex items-center gap-4 p-6">
           <CheckCircle2 className="h-8 w-8 shrink-0 text-wine" aria-hidden="true" />
           <div>
-            <p className="font-medium text-foreground">Cerere trimisa</p>
+            <p className="font-medium text-foreground">{labels.sent}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Te contactam in 2-3 zile lucratoare pentru{" "}
-              {wineryVerificationContactPhrase(wineryName)}.
+              {labels.contact}
             </p>
           </div>
         </CardContent>
@@ -71,35 +79,34 @@ export function VerificationLeadForm({
           </span>
           <div className="flex-1">
             <h3 className="font-serif text-xl font-semibold text-foreground">
-              Solicita verificare crama
+              {labels.title}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              {wineryRepresentativeLead(wineryName)} Solicita verificarea
-              oficiala pentru {wineName} si toate vinurile din portofoliu.
+              {labels.intro}
             </p>
             <form onSubmit={handleSubmit} className="mt-5 space-y-3">
               <Input
                 type="text"
                 name="name"
-                placeholder="Numele tau"
+                placeholder={labels.name}
                 required
                 disabled={pending}
-                aria-label="Numele tau"
+                aria-label={labels.name}
               />
               <Input
                 type="email"
                 name="email"
-                placeholder="Email de contact"
+                placeholder={labels.email}
                 required
                 disabled={pending}
-                aria-label="Email de contact"
+                aria-label={labels.email}
               />
               <Textarea
                 name="message"
-                placeholder="Mesaj optional (website, CUI, detalii)"
+                placeholder={labels.message}
                 rows={3}
                 disabled={pending}
-                aria-label="Mesaj optional"
+                aria-label={labels.messageAria}
               />
               {error ? (
                 <p className="text-sm text-destructive" role="alert">
@@ -111,7 +118,7 @@ export function VerificationLeadForm({
                 disabled={pending}
                 className="w-full bg-wine text-wine-foreground hover:bg-wine/90 sm:w-auto"
               >
-                {pending ? "Se trimite..." : "Trimite cererea"}
+                {pending ? labels.sending : labels.submit}
               </Button>
             </form>
           </div>

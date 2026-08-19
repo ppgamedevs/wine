@@ -10,19 +10,24 @@ import {
   type PublicTechnicalTrust,
 } from "@/lib/tech-facts/public-trust";
 import type { WineSweetness, WineWithRelations } from "@/types";
+import { getLocale } from "next-intl/server";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 
-export function WinePairings({
+export async function WinePairings({
   wine,
   technicalTrust,
 }: {
   wine: WineWithRelations;
   technicalTrust: PublicTechnicalTrust;
 }) {
+  const locale = (await getLocale()) as AppLocale;
   const evaluatedPairings = wine.foodPairings ?? [];
-  const visiblePairings = resolvePublicWinePairings(wine);
-  const producerGuidance = sanitizeCulinaryText(
-    wine.producerContent?.culinaryPairings,
-  );
+  const visiblePairings = resolvePublicWinePairings(wine, 4, locale);
+  const producerGuidance =
+    locale === "ro"
+      ? sanitizeCulinaryText(wine.producerContent?.culinaryPairings)
+      : null;
   const hasEvaluatedPairings = evaluatedPairings.length > 0;
 
   if (!hasEvaluatedPairings) {
@@ -39,6 +44,7 @@ export function WinePairings({
         typeof verifiedSweetness === "string"
           ? (verifiedSweetness as WineSweetness)
           : null,
+      locale,
     });
 
     return (
@@ -47,11 +53,12 @@ export function WinePairings({
           id="pairings-heading"
           className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
         >
-          Cu ce se potrivește
+          {locale === "en" ? "What to pair it with" : "Cu ce se potrivește"}
         </h2>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          Nu avem încă suficiente date pentru recomandări specifice. Îți
-          arătăm o orientare generală pentru acest stil de vin.
+          {locale === "en"
+            ? "We do not yet have enough data for specific recommendations. Here is general guidance for this wine style."
+            : "Nu avem încă suficiente date pentru recomandări specifice. Îți arătăm o orientare generală pentru acest stil de vin."}
         </p>
         <Card className="mt-6 border-border/70 bg-secondary/20">
           <CardContent className="flex items-start gap-4 p-5">
@@ -80,10 +87,12 @@ export function WinePairings({
         id="pairings-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Cu ce se potrivește
+        {locale === "en" ? "What to pair it with" : "Cu ce se potrivește"}
       </h2>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        Cele mai bune asocieri culinare pentru acest vin.
+        {locale === "en"
+          ? "The best food pairings for this wine."
+          : "Cele mai bune asocieri culinare pentru acest vin."}
       </p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {visiblePairings.map((pairing) => {
@@ -91,7 +100,9 @@ export function WinePairings({
             <h3 className="font-medium text-foreground">
               {pairing.dishSlug ? (
                 <Link
-                  href={`/vin-pentru/${pairing.dishSlug}`}
+                  href={localizedHref(locale, "wineFor", {
+                    dish: pairing.dishSlug,
+                  })}
                   className="hover:text-wine hover:underline"
                 >
                   {pairing.dish}
@@ -117,7 +128,11 @@ export function WinePairings({
                     {pairing.score != null ? (
                       <span
                         className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getVinScoreMeta(pairing.score).badgeClass}`}
-                        title="Scor de compatibilitate culinară"
+                        title={
+                          locale === "en"
+                            ? "Food pairing compatibility score"
+                            : "Scor de compatibilitate culinară"
+                        }
                       >
                         {pairing.score}/100
                       </span>

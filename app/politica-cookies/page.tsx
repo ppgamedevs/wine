@@ -9,98 +9,110 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { localizedHref } from "@/i18n/paths";
+import {
+  getContentLocale,
+  getContentTranslator,
+  localizedDate,
+} from "@/lib/i18n/content";
 import { LEGAL } from "@/lib/legal";
 import { absoluteUrl, SITE } from "@/lib/seo";
+import { localizedRobots } from "@/lib/i18n/indexing";
 
-const PATH = "/politica-cookies";
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getContentLocale();
+  const t = getContentTranslator(locale);
+  const href = localizedHref(locale, "cookiePolicy");
 
-export const metadata: Metadata = {
-  title: "Politica de cookies",
-  description:
-    "Politica de cookies VinIntel.ro: ce cookie-uri folosim, cat dureaza si cum iti gestionezi preferintele.",
-  alternates: { canonical: absoluteUrl(PATH) },
-  openGraph: {
-    type: "article",
-    locale: SITE.locale,
-    url: absoluteUrl(PATH),
-    siteName: SITE.name,
-    title: "Politica de cookies | VinIntel",
-    description:
-      "Informatii despre cookie-urile folosite pe VinIntel.ro si consimtamantul tau.",
-  },
-  robots: { index: true, follow: true },
-};
+  return {
+    title: t("Cookies.metadata.title"),
+    description: t("Cookies.metadata.description"),
+    alternates: {
+      canonical: absoluteUrl(href),
+      languages: {
+        ro: absoluteUrl(localizedHref("ro", "cookiePolicy")),
+        en: absoluteUrl(localizedHref("en", "cookiePolicy")),
+        "x-default": absoluteUrl(localizedHref("ro", "cookiePolicy")),
+      },
+    },
+    openGraph: {
+      type: "article",
+      locale: locale === "en" ? "en_US" : SITE.locale,
+      url: absoluteUrl(href),
+      siteName: SITE.name,
+      title: `${t("Cookies.metadata.title")} | VinIntel`,
+      description: t("Cookies.metadata.ogDescription"),
+    },
+    robots: localizedRobots(locale),
+  };
+}
 
-const cookieRows = [
-  {
-    name: "vinintel_cookie_consent",
-    provider: "VinIntel",
-    purpose: "Memoreaza faptul ca ai acceptat utilizarea cookie-urilor.",
-    type: "Necesar / preferinte",
-    duration: "12 luni",
-  },
-  {
-    name: "_ga",
-    provider: "Google Analytics",
-    purpose: "Distinctie utilizatori pentru statistici agregate de trafic.",
-    type: "Analitic (cu consimtamant)",
-    duration: "2 ani",
-  },
-  {
-    name: "_ga_*",
-    provider: "Google Analytics",
-    purpose: "Persistenta sesiune analitica Google Analytics 4.",
-    type: "Analitic (cu consimtamant)",
-    duration: "2 ani",
-  },
-  {
-    name: "vinintel_admin",
-    provider: "VinIntel",
-    purpose: "Sesiune administrator (doar zona /admin, daca te autentifici).",
-    type: "Necesar (functional)",
-    duration: "Sesiune",
-  },
-] as const;
+export default async function CookiePolicyPage() {
+  const locale = await getContentLocale();
+  const t = getContentTranslator(locale);
+  const path = localizedHref(locale, "cookiePolicy");
+  const cookieRows = [
+    {
+      name: "vinintel_cookie_consent",
+      provider: "VinIntel",
+      purpose: t("Cookies.sections.consentPurpose"),
+      type: t("Cookies.sections.consentType"),
+      duration: t("Cookies.sections.twelveMonths"),
+    },
+    {
+      name: "_ga",
+      provider: "Google Analytics",
+      purpose: t("Cookies.sections.gaPurpose"),
+      type: t("Cookies.sections.analyticsType"),
+      duration: t("Cookies.sections.twoYears"),
+    },
+    {
+      name: "_ga_*",
+      provider: "Google Analytics",
+      purpose: t("Cookies.sections.gaSessionPurpose"),
+      type: t("Cookies.sections.analyticsType"),
+      duration: t("Cookies.sections.twoYears"),
+    },
+    {
+      name: "vinintel_admin",
+      provider: "VinIntel",
+      purpose: t("Cookies.sections.adminPurpose"),
+      type: t("Cookies.sections.functionalType"),
+      duration: t("Cookies.sections.session"),
+    },
+  ];
 
-export default function CookiePolicyPage() {
   return (
     <LegalPageShell
-      path={PATH}
-      title="Politica de cookies"
-      description="Explicam ce sunt cookie-urile, ce folosim pe VinIntel.ro si cum functioneaza acceptarea ta."
+      path={path}
+      title={t("Cookies.title")}
+      description={t("Cookies.description")}
     >
       <p className="text-sm text-muted-foreground">
-        Ultima actualizare: {LEGAL.lastUpdated}
+        {t("Cookies.lastUpdated", {
+          date:
+            locale === "ro"
+              ? LEGAL.lastUpdated
+              : localizedDate("2026-07-06", locale),
+        })}
       </p>
 
-      <h2>1. Ce sunt cookie-urile</h2>
-      <p>
-        Cookie-urile sunt fisiere mici stocate in browserul tau. Ne ajuta sa
-        tinem minte preferinte, sa masuram traficul si sa oferim o experienta
-        mai buna pe {LEGAL.siteUrl}.
-      </p>
+      <h2>{t("Cookies.sections.whatTitle")}</h2>
+      <p>{t("Cookies.sections.what", { siteUrl: LEGAL.siteUrl })}</p>
 
-      <h2>2. Cum iti exprimi acordul</h2>
-      <p>
-        La prima vizita vei vedea un banner cu informatii despre cookie-uri. Prin
-        apasarea butonului <strong>Accept</strong> esti de acord cu utilizarea
-        cookie-urilor descrise in aceasta politica, inclusiv cookie-urile
-        analitice.
-      </p>
-      <p>
-        Cookie-urile strict necesare pentru functionarea site-ului pot fi setate
-        inainte de accept, insa Google Analytics se activeaza doar dupa accept.
-      </p>
+      <h2>{t("Cookies.sections.consentTitle")}</h2>
+      <p>{t("Cookies.sections.consent")}</p>
+      <p>{t("Cookies.sections.essential")}</p>
 
-      <h2>3. Cookie-uri pe care le folosim</h2>
+      <h2>{t("Cookies.sections.listTitle")}</h2>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Cookie</TableHead>
-            <TableHead>Furnizor</TableHead>
-            <TableHead>Scop</TableHead>
-            <TableHead>Tip</TableHead>
-            <TableHead>Durata</TableHead>
+            <TableHead>{t("Cookies.sections.cookieHead")}</TableHead>
+            <TableHead>{t("Cookies.sections.providerHead")}</TableHead>
+            <TableHead>{t("Cookies.sections.purposeHead")}</TableHead>
+            <TableHead>{t("Cookies.sections.typeHead")}</TableHead>
+            <TableHead>{t("Cookies.sections.durationHead")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -116,45 +128,33 @@ export default function CookiePolicyPage() {
         </TableBody>
       </Table>
 
-      <h2>4. Google Analytics</h2>
-      <p>
-        Folosim Google Analytics pentru a intelege cum este folosit site-ul
-        (pagini populare, surse de trafic, dispozitive). Datele sunt in general
-        agregate si nu sunt folosite de noi pentru publicitate comportamentala.
-      </p>
-      <p>
-        Serviciul este furnizat de Google. Poti citi politica Google privind
-        confidentialitatea pe site-ul lor oficial.
-      </p>
+      <h2>{t("Cookies.sections.analyticsTitle")}</h2>
+      <p>{t("Cookies.sections.analytics")}</p>
+      <p>{t("Cookies.sections.google")}</p>
 
-      <h2>5. Cum poti controla cookie-urile</h2>
+      <h2>{t("Cookies.sections.controlTitle")}</h2>
       <ul>
+        <li>{t("Cookies.sections.controlDelete")}</li>
+        <li>{t("Cookies.sections.controlBlock")}</li>
         <li>
-          Sterge cookie-urile din setarile browserului (Chrome, Firefox, Safari,
-          Edge).
-        </li>
-        <li>
-          Blocheaza cookie-terte parti din setarile browserului (Analytics nu va
-          mai functiona).
-        </li>
-        <li>
-          Daca stergi cookie-ul <code>vinintel_cookie_consent</code>, bannerul
-          va aparea din nou la urmatoarea vizita.
+          {t("Cookies.sections.controlConsentBefore")}{" "}
+          <code>vinintel_cookie_consent</code>{" "}
+          {t("Cookies.sections.controlConsentAfter")}
         </li>
       </ul>
 
-      <h2>6. Legatura cu confidentialitatea</h2>
+      <h2>{t("Cookies.sections.privacyTitle")}</h2>
       <p>
-        Prelucrarea datelor asociate cookie-urilor este descrisa si in{" "}
-        <Link href="/politica-confidentialitate">
-          Politica de confidentialitate
+        {t("Cookies.sections.privacyBefore")}{" "}
+        <Link href={localizedHref(locale, "privacyPolicy")}>
+          {t("Cookies.sections.privacyLink")}
         </Link>
         .
       </p>
 
-      <h2>7. Contact</h2>
+      <h2>{t("Cookies.sections.contactTitle")}</h2>
       <p>
-        Pentru intrebari despre cookie-uri:{" "}
+        {t("Cookies.sections.contact")}{" "}
         <a href={`mailto:${LEGAL.contactEmail}`}>{LEGAL.contactEmail}</a>.
       </p>
     </LegalPageShell>

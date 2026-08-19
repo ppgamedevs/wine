@@ -1,5 +1,9 @@
 import { buildWinePriceViewModel } from "@/lib/wine-price";
-import { CHAT_SOMMELIER_BASE_PROMPT } from "@/lib/ai/prompts";
+import {
+  CHAT_SOMMELIER_BASE_PROMPT,
+  CHAT_SOMMELIER_BASE_PROMPT_EN,
+} from "@/lib/ai/prompts";
+import type { AppLocale } from "@/i18n/locale";
 import { resolveWineImage } from "@/lib/wine-images";
 import { formatWineMedalsForSommelier } from "@/lib/wine-medals";
 import { formatProducerContentForSommelier } from "@/lib/producer-page-extract";
@@ -24,11 +28,11 @@ function detectAbsurdFoodRequest(text: string): boolean {
   );
 }
 
-function normalizeText(text: string): string {
+function normalizeText(text: string, locale: AppLocale): string {
   return text
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
+    .toLocaleLowerCase(locale === "en" ? "en" : "ro");
 }
 
 export function extractUserTexts(messages: { role: string; parts: { type: string; text?: string }[] }[]): string[] {
@@ -46,8 +50,12 @@ export function extractUserTexts(messages: { role: string; parts: { type: string
 export function parseChatToSommelierInput(
   latestMessage: string,
   conversationTexts: string[] = [],
+  locale: AppLocale = "ro",
 ): SommelierInput {
-  const combined = normalizeText([...conversationTexts, latestMessage].join(" "));
+  const combined = normalizeText(
+    [...conversationTexts, latestMessage].join(" "),
+    locale,
+  );
 
   let budgetMin = 0;
   let budgetMax = DEFAULT_BUDGET_MAX;
@@ -55,23 +63,29 @@ export function parseChatToSommelierInput(
   let budgetConstraint: SommelierInput["budgetConstraint"] = "none";
 
   const aroundMatch = combined.match(
-    /(?:in jur de|aproximativ|around|vreo)\s*(\d{2,4})\s*(?:de\s*)?lei/,
+    /(?:in jur de|aproximativ|around|about|roughly|vreo)\s*(\d{2,4})\s*(?:de\s*)?(?:lei|ron)/,
   );
-  const subMatch = combined.match(/sub\s*(\d{2,4})\s*(?:de\s*)?lei/);
+  const subMatch = combined.match(
+    /(?:sub|under|below)\s*(\d{2,4})\s*(?:de\s*)?(?:lei|ron)/,
+  );
   if (subMatch) {
     budgetMax = Number.parseInt(subMatch[1] ?? "", 10);
     budgetSpecified = true;
     budgetConstraint = "hard";
   }
 
-  const maxMatch = combined.match(/(?:maxim|maximum|pana la|max)\s*(\d{2,4})\s*lei/);
+  const maxMatch = combined.match(
+    /(?:maxim|maximum|pana la|up to|max)\s*(\d{2,4})\s*(?:lei|ron)/,
+  );
   if (maxMatch) {
     budgetMax = Number.parseInt(maxMatch[1] ?? "", 10);
     budgetSpecified = true;
     budgetConstraint = "hard";
   }
 
-  const rangeMatch = combined.match(/(\d{2,4})\s*[-–]\s*(\d{2,4})\s*lei/);
+  const rangeMatch = combined.match(
+    /(\d{2,4})\s*[-\u2013]\s*(\d{2,4})\s*(?:lei|ron)/,
+  );
   if (rangeMatch) {
     budgetMin = Number.parseInt(rangeMatch[1] ?? "", 10);
     budgetMax = Number.parseInt(rangeMatch[2] ?? "", 10);
@@ -79,7 +93,9 @@ export function parseChatToSommelierInput(
     budgetConstraint = "hard";
   }
 
-  const bugetMatch = combined.match(/buget\s*(\d{2,4})\s*lei/);
+  const bugetMatch = combined.match(
+    /(?:buget|budget)\s*(?:of\s*)?(\d{2,4})\s*(?:lei|ron)/,
+  );
   if (bugetMatch && !subMatch && !maxMatch) {
     budgetMax = Number.parseInt(bugetMatch[1] ?? "", 10);
     budgetSpecified = true;
@@ -104,26 +120,26 @@ export function parseChatToSommelierInput(
 
   let occasion: OccasionId = "oricare";
   if (
-    /cozonac|pasca|gogosi|placinta|desert|prajitur|papana|coliva|dulceata/.test(
+    /cozonac|pasca|gogosi|placinta|desert|dessert|cake|prajitur|papana|coliva|dulceata/.test(
       combined,
     )
   ) {
     occasion = "pentru-desert";
-  } else if (/sarmale|mamaliga|varza/.test(combined)) {
+  } else if (/sarmale|stuffed cabbage|mamaliga|polenta|varza/.test(combined)) {
     occasion = "sarmale";
-  } else if (/gratar|mititei|mici|bbq/.test(combined)) {
+  } else if (/gratar|grill|grilled meat|barbecue|mititei|mici|bbq/.test(combined)) {
     occasion = "gratar";
-  } else if (/nunta|nunti|botez/.test(combined)) {
+  } else if (/nunta|nunti|botez|wedding/.test(combined)) {
     occasion = "nunta";
-  } else if (/cadou business|partener|client/.test(combined)) {
+  } else if (/cadou business|business gift|partner|partener|client/.test(combined)) {
     occasion = "cadou-business";
-  } else if (/cadou|dar|aniversare/.test(combined)) {
+  } else if (/cadou|gift|dar|aniversare|birthday/.test(combined)) {
     occasion = "cadou";
-  } else if (/cina romantica|romantic|in doi/.test(combined)) {
+  } else if (/cina romantica|romantic dinner|date night|romantic|in doi/.test(combined)) {
     occasion = "cina-romantica";
-  } else if (/petrecere|prieteni|grup/.test(combined)) {
+  } else if (/petrecere|party|friends|prieteni|grup/.test(combined)) {
     occasion = "petrecere";
-  } else if (/craciun|paste|sarbatori|sarbatoare/.test(combined)) {
+  } else if (/craciun|christmas|easter|paste|holiday|sarbatori|sarbatoare/.test(combined)) {
     occasion = "sarbatori";
   }
 
@@ -134,9 +150,11 @@ export function parseChatToSommelierInput(
   else if (/spumant|prosecco|bule|champagne/.test(combined)) color = "sparkling";
 
   let sweetness: SweetnessPreference = "any";
-  if (/\bdulce\b|\bdemidulce\b/.test(combined)) sweetness = "demidulce";
-  else if (/\bdemisec\b/.test(combined)) sweetness = "demisec";
-  else if (/\bsec\b/.test(combined)) sweetness = "sec";
+  if (/\bdulce\b|\bdemidulce\b|\bsweet\b|\bmedium-sweet\b/.test(combined))
+    sweetness = "demidulce";
+  else if (/\bdemisec\b|\bmedium-dry\b|\boff-dry\b/.test(combined))
+    sweetness = "demisec";
+  else if (/\bsec\b|\bdry\b/.test(combined)) sweetness = "sec";
 
   return {
     budgetMin,
@@ -173,8 +191,13 @@ export async function retrieveWinesForChat(
   latestMessage: string,
   conversationTexts: string[],
   limit = 6,
+  locale: AppLocale = "ro",
 ): Promise<{ input: SommelierInput; wines: WineWithRelations[] }> {
-  const input = parseChatToSommelierInput(latestMessage, conversationTexts);
+  const input = parseChatToSommelierInput(
+    latestMessage,
+    conversationTexts,
+    locale,
+  );
   const wines = await hybridRetrieve(input, limit);
   return { input, wines };
 }
@@ -182,6 +205,7 @@ export async function retrieveWinesForChat(
 export function buildChatSommelierSystemPrompt(
   candidates: WineWithRelations[],
   input: SommelierInput,
+  locale: AppLocale = "ro",
 ): string {
   const occasion = getOccasion(input.occasion);
   const catalog = candidates
@@ -207,13 +231,29 @@ export function buildChatSommelierSystemPrompt(
           ? `Gift ${secondary.gift.score}/100`
           : null,
         secondary.food.score != null
-          ? `Versatilitate ${secondary.food.score}/100`
+          ? `${locale === "en" ? "Food Versatility" : "Versatilitate"} ${secondary.food.score}/100`
           : null,
       ]
         .filter((part): part is string => part != null)
         .join(" | ");
 
-      return [
+      return locale === "en"
+        ? [
+            `${index + 1}. slug: ${wine.slug}`,
+            `   Name: ${wine.name}`,
+            `   Winery: ${wine.winery?.name ?? "N/A"} | Region: ${wine.region?.name ?? "N/A"}`,
+            `   Type: ${wine.type}`,
+            `   Price: ${price != null ? `${price} RON` : "unavailable"}`,
+            `   Grapes: ${grapes || "N/A"}`,
+            `   ${publicScoreLine}`,
+            medalsSummary ? `   Medals: ${medalsSummary}` : null,
+            producerSummary ? `   Producer: ${producerSummary}` : null,
+            foodNotes ? `   Food pairings: ${foodNotes}` : null,
+            dessertNotes ? `   Dessert pairings: ${dessertNotes}` : null,
+          ]
+            .filter(Boolean)
+            .join("\n")
+        : [
         `${index + 1}. slug: ${wine.slug}`,
         `   Nume: ${wine.name}`,
         `   Crama: ${wine.winery?.name ?? "N/A"} | Regiune: ${wine.region?.name ?? "N/A"}`,
@@ -225,9 +265,9 @@ export function buildChatSommelierSystemPrompt(
         producerSummary ? `   Producator (site): ${producerSummary}` : null,
         foodNotes ? `   Pairing mancare: ${foodNotes}` : null,
         dessertNotes ? `   Pairing desert: ${dessertNotes}` : null,
-      ]
-        .filter(Boolean)
-        .join("\n");
+          ]
+            .filter(Boolean)
+            .join("\n");
     })
     .join("\n\n");
 
@@ -238,6 +278,28 @@ export function buildChatSommelierSystemPrompt(
   const absurdLine = input.absurdRequest
     ? `- CERERE ABSURDA/ILEGALA detectata. Refuza pairing-ul cerut (ex. carne de delfin e ilegala). Fii ferm si sarcastic, nu cooperativ. Poti lua usor peste picior stilul userului (parizer, mancare dubioasa), apoi redirectioneaza spre ceva real din Romania. Nu recomanda vin ca si cum cererea ar fi normala.`
     : "";
+
+  if (locale === "en") {
+    const englishBudget = input.budgetSpecified
+      ? `- Explicit budget: ${input.budgetMin}-${input.budgetMax} RON`
+      : "- Budget: not specified. Do not invent one. Prioritize fit and Value Score.";
+    return `${CHAT_SOMMELIER_BASE_PROMPT_EN}
+
+Request context:
+${englishBudget}
+- Detected occasion ID: ${occasion.id}
+- Preferred wine type: ${input.color === "any" ? "any" : input.color}
+- Preferred sweetness: ${input.sweetness === "any" ? "any" : input.sweetness}
+
+Candidate wine catalog, the only source of truth:
+${catalog || "(no matching wine, explain this honestly and suggest relaxing the request)"}
+
+Final rules:
+- Respect an explicit budget.
+- Recommend one wine by default and at most three when alternatives are requested.
+- Mention an approximate RON price only for recommended wines.
+- The final RECOMMENDED_SLUGS line must contain exact catalog slugs in recommendation order.`;
+  }
 
   return `${CHAT_SOMMELIER_BASE_PROMPT}
 

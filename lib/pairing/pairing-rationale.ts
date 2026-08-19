@@ -3,6 +3,7 @@
  */
 import type { RomanianDishProfile } from "@/lib/pairing/romanian-dishes";
 import type { WinePairingProfile } from "@/lib/pairing/wine-pairing-profile";
+import type { AppLocale } from "@/i18n/locale";
 
 function grapeMention(profile: WinePairingProfile): string | null {
   const first = profile.grapeNames[0];
@@ -27,11 +28,61 @@ function sweetLabel(profile: WinePairingProfile): string {
   return "dulce";
 }
 
-export function pairingRationale(
+function englishStyleLabel(profile: WinePairingProfile): string {
+  if (profile.type === "red") return "red wine";
+  if (profile.type === "white") return "white wine";
+  if (profile.type === "rose") return "rosé wine";
+  if (profile.type === "sparkling") return "sparkling wine";
+  if (profile.type === "orange") return "orange wine";
+  return "dessert wine";
+}
+
+function englishSweetLabel(profile: WinePairingProfile): string {
+  if (profile.sweetness === "sec") return "dry";
+  if (profile.sweetness === "demisec") return "medium-dry";
+  if (profile.sweetness === "demidulce") return "medium-sweet";
+  return "sweet";
+}
+
+function englishPairingRationale(
   profile: WinePairingProfile,
   dish: RomanianDishProfile,
   exactProducer: boolean,
 ): string {
+  const wine = `${englishSweetLabel(profile)} ${englishStyleLabel(profile)}`;
+  if (exactProducer) {
+    return `${dish.name} is also recommended by the producer and works well with a ${wine} in this style.`;
+  }
+  if (dish.foodCategory === "dessert" || dish.foodCategory === "chocolate") {
+    return `${dish.name} needs enough sweetness, and this ${wine} can match the dessert.`;
+  }
+  if (dish.family === "sour-soup") {
+    return `${dish.name} has a tangy profile, so a fresher ${wine} is more natural than a heavy wine.`;
+  }
+  if (dish.family === "smoked-pork") {
+    return `${dish.name} brings smoke and salt, and this ${wine} has enough presence for it.`;
+  }
+  if (dish.family === "mountain-cheese" || dish.family === "aged-cheese") {
+    return `${dish.name} brings salt and richness that this ${wine} can balance without masking.`;
+  }
+  if (dish.family === "cabbage-roll" || dish.family === "vine-leaf-roll") {
+    return `${dish.name} is a classic Romanian match for this ${wine}, with enough structure for the filling.`;
+  }
+  if (dish.foodCategory === "vegetable") {
+    return `For ${dish.name}, this ${wine} is a more natural choice than a heavy wine.`;
+  }
+  return `${dish.name} is a very good match for this ${wine}.`;
+}
+
+export function pairingRationale(
+  profile: WinePairingProfile,
+  dish: RomanianDishProfile,
+  exactProducer: boolean,
+  locale: AppLocale = "ro",
+): string {
+  if (locale === "en") {
+    return englishPairingRationale(profile, dish, exactProducer);
+  }
   const grape = grapeMention(profile);
   const style = styleLabel(profile);
   const sweet = sweetLabel(profile);

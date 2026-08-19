@@ -1,6 +1,7 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
+import type { AppLocale } from "@/i18n/locale";
 import {
   getJournalCategoryLabel,
   type JournalCategorySlug,
@@ -173,11 +174,14 @@ export function getTopJournalArticles(limit = 5): JournalArticle[] {
   return getFeaturedJournalArticles(limit);
 }
 
-export function formatJournalDate(isoDate: string): string {
+export function formatJournalDate(
+  isoDate: string,
+  locale: AppLocale = "ro",
+): string {
   const date = new Date(isoDate);
   if (Number.isNaN(date.getTime())) return isoDate;
 
-  return new Intl.DateTimeFormat("ro-RO", {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "ro-RO", {
     day: "numeric",
     month: "long",
     year: "numeric",

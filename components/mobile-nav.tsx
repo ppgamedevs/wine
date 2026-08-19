@@ -1,8 +1,8 @@
 "use client";
 
 import { Menu, Wine } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { type ComponentProps, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -11,14 +11,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Link } from "@/i18n/navigation";
 
 interface NavLink {
   label: string;
-  href: string;
+  href: ComponentProps<typeof Link>["href"];
 }
 
 export function MobileNav({ links }: { links: NavLink[] }) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations("Navigation");
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -27,7 +29,7 @@ export function MobileNav({ links }: { links: NavLink[] }) {
           variant="ghost"
           size="icon"
           className="md:hidden"
-          aria-label="Deschide meniul"
+          aria-label={t("openMenu")}
         >
           <Menu className="h-5 w-5" />
         </Button>
@@ -41,10 +43,13 @@ export function MobileNav({ links }: { links: NavLink[] }) {
             Vin<span className="-ml-1 text-wine">Intel</span>
           </SheetTitle>
         </SheetHeader>
-        <nav className="mt-4 flex flex-col gap-1 px-4" aria-label="Meniu mobil">
+        <nav
+          className="mt-4 flex flex-col gap-1 px-4"
+          aria-label={t("mobileLabel")}
+        >
           {links.map((link) => (
             <Link
-              key={link.href}
+              key={link.label}
               href={link.href}
               onClick={() => setOpen(false)}
               className="rounded-lg px-3 py-2.5 text-base font-medium text-foreground/80 transition-colors hover:bg-secondary hover:text-wine"
@@ -57,7 +62,7 @@ export function MobileNav({ links }: { links: NavLink[] }) {
             className="mt-3 bg-wine text-wine-foreground hover:bg-wine/90"
           >
             <Link href="/ai-sommelier" onClick={() => setOpen(false)}>
-              Intreaba somelierul
+              {t("sommelier")}
             </Link>
           </Button>
         </nav>

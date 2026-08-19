@@ -1,0 +1,318 @@
+{
+  "Home": {
+    "metadata": {
+      "title": "VinIntel - Romanian wine guide, prices and recommendations",
+      "description": "The intelligent guide to Romanian wines: a catalog with prices in RON, Value Score, budget lists and an AI sommelier for every occasion.",
+      "openGraphDescription": "The intelligent guide to Romanian wines: catalog, top lists and an AI sommelier."
+    },
+    "faq": {
+      "heading": "Frequently asked questions",
+      "intro": "What to know about VinIntel and how we help you choose.",
+      "what": {
+        "question": "What is VinIntel?",
+        "answer": "VinIntel is an intelligent guide to Romanian wines. We offer clear, honest recommendations, a Value Score that measures value for money, pairings for Romanian food, and an AI sommelier that considers your budget, occasion and preferences."
+      },
+      "value": {
+        "question": "What does Value Score mean?",
+        "answer": "Value Score is an indicator from 0 to 100 that shows how good a wine is for its asking price. It is calculated with a transparent formula based on estimated quality and price efficiency, not user votes. Above {recommended}, a wine is worth its price; between {fair} and {upperFair}, the price is fair; below {fair}, better alternatives probably exist. Data confidence is shown separately: scores based on insufficient data are capped and marked as provisional."
+      },
+      "find": {
+        "question": "How do I find a wine for a particular dish or occasion?",
+        "answer": "Use the AI sommelier: choose your budget in RON, the occasion, such as sarmale, a barbecue, a gift or a romantic dinner, and your preferences. You will instantly receive 3 to 5 suitable recommendations with explanations."
+      },
+      "prices": {
+        "question": "Are prices in RON and kept up to date?",
+        "answer": "Yes. Prices are shown in RON as either a currently verified price or an approximate price, depending on the source available for each wine."
+      }
+    },
+    "cta": {
+      "heading": "Not sure which wine to choose?",
+      "description": "Tell the AI sommelier what you are cooking, your budget and the occasion. Get a clear recommendation in seconds.",
+      "button": "Ask the AI sommelier"
+    }
+  },
+  "Hero": {
+    "badge": "A hyper-local AI sommelier for Romanian wine",
+    "title": "Romanian wines.",
+    "titleAccent": "Clear. Honest. Fast.",
+    "description": "Find the right wine in seconds. Transparent recommendations, prices in RON and pairings designed for your food and occasion.",
+    "frequentSearches": "Popular searches:",
+    "links": {
+      "catalog": "Wine catalog",
+      "best": "Best wines",
+      "budget": "Good value wines",
+      "wineries": "Wineries",
+      "sarmale": "Wine for sarmale",
+      "sommelier": "AI Sommelier"
+    }
+  },
+  "ValueProps": {
+    "heading": "Why VinIntel works",
+    "description": "A clear guide to Romanian wines, built for speed, clarity and trust.",
+    "items": {
+      "value": {
+        "title": "A genuine Value Score",
+        "description": "An honest score from 0 to 100 that shows how good a wine is for its price. No marketing, just real value."
+      },
+      "pairing": {
+        "title": "Romanian food pairings",
+        "description": "Pairings designed for local dishes: sarmale, mici, tripe soup, roast pork or cozonac."
+      },
+      "price": {
+        "title": "Current prices",
+        "description": "We show the current or estimated price in RON from the wine's primary source."
+      },
+      "local": {
+        "title": "Local knowledge",
+        "description": "Information about wineries, native grape varieties and Romanian regions, gathered in one clear and fast place."
+      }
+    }
+  },
+  "FeaturedWines": {
+    "heading": "Recommended wines",
+    "description": "Our selection by Value Score, with a minimum of 75/100: the strongest value for money in Romanian wine.",
+    "all": "All wines"
+  },
+  "TopLists": {
+    "heading": "Top lists and guides",
+    "description": "The most popular Romanian wine selections, ready to help you choose quickly.",
+    "items": {
+      "best": {
+        "title": "Best Romanian wines",
+        "description": "Overall ranking by Value Score"
+      },
+      "under50": {
+        "title": "Best wines under 50 RON",
+        "description": "Maximum value on a small budget"
+      },
+      "supermarket": {
+        "title": "Good supermarket wines",
+        "description": "Available from major retailers"
+      },
+      "sarmale": {
+        "title": "Wines under 50 RON for sarmale",
+        "description": "Excellent sarmale pairings on a budget"
+      },
+      "feteasca": {
+        "title": "Best Feteasca Neagra wines",
+        "description": "Romania's emblematic red grape variety"
+      },
+      "gift": {
+        "title": "Gift wines",
+        "description": "Reliable choices for every occasion"
+      },
+      "romantic": {
+        "title": "Wines under 100 RON for a romantic dinner",
+        "description": "Elegant choices for an evening together"
+      }
+    }
+  },
+  "SmartSearch": {
+    "placeholder": "Search for a wine or winery, or paste a link (https://...)",
+    "ariaLabel": "Search wines and wineries or add a link",
+    "analyzing": "Analyzing...",
+    "submitLink": "Submit",
+    "search": "Search",
+    "loading": "Searching...",
+    "sommelierHint": "Have a wine question? Press Enter to ask the AI sommelier.",
+    "emptyHint": "No results. Press Enter for a full search or paste a Romanian wine link.",
+    "wineType": "Wine",
+    "wineryType": "Winery",
+    "linkHelper": "Add a Romanian wine link from a retailer or winery website",
+    "analysisFailed": "Analysis failed.",
+    "invalidResult": "No valid result was returned.",
+    "pendingReview": "This wine is not in our database. It has been submitted for review and will appear on the site after approval.",
+    "alreadyPending": "This wine has already been submitted for review and will appear on the site after approval."
+  },
+  "Catalog": {
+    "metadata": {
+      "title": "Romanian wines: catalog, prices and scores",
+      "description": "A complete Romanian wine catalog with Value Score, prices in RON, winery and region. Search quickly and compare value for money.",
+      "openGraphTitle": "Romanian wines: catalog, prices and scores | VinIntel",
+      "openGraphDescription": "Every Romanian wine in the VinIntel catalog, ordered by Value Score."
+    },
+    "breadcrumbHome": "Home",
+    "breadcrumbCurrent": "Wines",
+    "listName": "VinIntel Romanian wine catalog",
+    "verified": "{count} verified wines",
+    "heading": "Romanian wines",
+    "description": "Explore Romanian wines by color, sweetness and budget, then compare them by Value Score.",
+    "popular": "Popular top lists",
+    "add": "Add a wine",
+    "emptyPrefix": "There are no wines in the catalog yet. Check back soon or",
+    "emptyLink": "submit the first wine",
+    "faqHeading": "Frequently asked questions",
+    "faq": {
+      "value": {
+        "question": "What is Value Score?",
+        "answer": "Value Score is VinIntel's measure of value for money. The higher it is, the more a wine offers for its price."
+      },
+      "search": {
+        "question": "How do I search the catalog?",
+        "answer": "Filter by color or type, sweetness, price and Value Score. You can also search by name, winery, region or grape variety."
+      },
+      "add": {
+        "question": "Can I add a missing wine?",
+        "answer": "Yes. Send the wine page link through the Add a wine form and we will verify it before publication."
+      }
+    },
+    "directory": {
+      "searchPlaceholder": "Search by name, winery, region or grape variety...",
+      "searchAria": "Search wines",
+      "typeLabel": "Color / type",
+      "sweetnessLabel": "Sweetness",
+      "sortAria": "Sort",
+      "sortPlaceholder": "Sort",
+      "priceAria": "Price",
+      "pricePlaceholder": "Price",
+      "scoreAria": "Recommendation",
+      "scorePlaceholder": "Recommendation",
+      "reset": "Reset",
+      "foundOne": "wine found",
+      "foundMany": "wines found",
+      "removeFilter": "Remove filter {label}",
+      "recommendedNote": "Showing wines with a Value Score of {score}+ (worth the price)",
+      "exceptionalNote": "Showing wines with a Value Score of {score}+ (exceptional value)",
+      "noResults": "No wines match the selected combination",
+      "noResultsHint": "Try another sweetness, color or a wider budget.",
+      "resetFilters": "Reset filters",
+      "viewOnly": "View only {type}",
+      "types": {
+        "all": "All",
+        "red": "Red",
+        "white": "White",
+        "rose": "Rosé",
+        "sparkling": "Sparkling",
+        "orange": "Orange",
+        "dessert": "Dessert"
+      },
+      "sweetness": {
+        "all": "All",
+        "sec": "Dry",
+        "demisec": "Medium-dry",
+        "demidulce": "Medium-sweet",
+        "dulce": "Sweet"
+      },
+      "sort": {
+        "value": "Value Score (highest first)",
+        "priceAsc": "Price: low to high",
+        "priceDesc": "Price: high to low",
+        "name": "Name A-Z"
+      },
+      "prices": {
+        "all": "Any price",
+        "under50": "Under 50 RON",
+        "from50To100": "50-100 RON",
+        "over100": "Over 100 RON"
+      },
+      "scores": {
+        "all": "All scores",
+        "recommended": "Worth the price ({score}+)",
+        "exceptional": "Exceptional ({score}+)",
+        "recommendedChip": "Worth the price",
+        "exceptionalChip": "Exceptional"
+      },
+      "sections": {
+        "red": "Red wines",
+        "white": "White wines",
+        "rose": "Rosé wines",
+        "sparkling": "Sparkling wines",
+        "orange": "Orange wines",
+        "dessert": "Dessert wines"
+      },
+      "sectionDescriptions": {
+        "sparkling": "Traditional method, brut styles and festive occasions",
+        "orange": "Skin-contact wines with a modern Romanian expression",
+        "default": "A {type} selection from the VinIntel catalog"
+      }
+    }
+  },
+  "Wineries": {
+    "metadata": {
+      "title": "Romanian wineries: regions, wines and rankings",
+      "description": "A directory of Romanian wineries with region, wine count, average Value Score, price range and each winery's best wine.",
+      "openGraphTitle": "Romanian wineries: regions, wines and rankings | VinIntel",
+      "openGraphDescription": "Romanian wineries in one place, with regions, wines, scores and prices."
+    },
+    "breadcrumbHome": "Home",
+    "breadcrumbCurrent": "Wineries",
+    "listName": "Romanian wineries",
+    "count": "{count} wineries",
+    "heading": "Romanian wineries",
+    "description": "Explore Romania's wine producers. See each winery's region, wine count, average Value Score and price range.",
+    "regionsHeading": "Explore by region",
+    "wineRegion": "Wine region",
+    "empty": "There are no listed wineries yet. Check back soon.",
+    "faqHeading": "Frequently asked questions",
+    "faq": {
+      "count": {
+        "question": "How many Romanian wineries are on VinIntel?",
+        "answer": "We list wineries with at least one analyzed wine in the catalog. Each profile includes its region, wine count, average Value Score and price range."
+      },
+      "choose": {
+        "question": "How do I choose a winery?",
+        "answer": "Compare the average Value Score, price range and available wines. You can also explore wine regions for local context."
+      },
+      "claim": {
+        "question": "Can I claim a winery profile?",
+        "answer": "Yes. Producers can claim their profile, verify the data and update wine information through the Claim your winery form."
+      }
+    },
+    "directory": {
+      "searchPlaceholder": "Search by name or region...",
+      "searchAria": "Search wineries",
+      "foundOne": "winery found",
+      "foundMany": "wineries found",
+      "noResults": "No winery matches your search"
+    },
+    "card": {
+      "country": "Romania",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "price": "Price:",
+      "best": "Best wine:",
+      "under50": "Under 50 RON:",
+      "grapes": "Grape varieties:",
+      "checked": "Checked:",
+      "wineOne": "wine",
+      "wineMany": "wines",
+      "value": "Value",
+      "view": "View winery",
+      "viewAria": "View {name}"
+    }
+  },
+  "Footer": {
+    "tagline": "A Romanian wine guide with prices, Value Score and honest recommendations.",
+    "pivotHeading": "Explore",
+    "pivotAria": "Featured wine pages",
+    "regionsHeading": "Wine regions",
+    "regionsAria": "Wine regions",
+    "navigationAria": "Footer navigation",
+    "copyright": "{year} VinIntel. Romanian wine, clearly and honestly.",
+    "links": {
+      "wines": "Wines",
+      "wineries": "Wineries",
+      "top": "Top wines",
+      "studies": "Studies",
+      "journal": "Wine Journal",
+      "sommelier": "AI Sommelier",
+      "scores": "How we calculate scores",
+      "privacy": "Privacy",
+      "cookies": "Cookie policy",
+      "claim": "Claim your winery",
+      "catalog": "Romanian wines",
+      "best": "Best Romanian wines",
+      "budget": "Good value wines",
+      "wineryDirectory": "Romanian wineries"
+    }
+  },
+  "Cookies": {
+    "ariaLabel": "Cookie notice",
+    "heading": "Cookies and privacy",
+    "descriptionBefore": "We use essential cookies and, with your consent, analytics cookies to measure traffic and improve VinIntel.ro. By continuing, you accept the",
+    "cookiePolicy": "Cookie policy",
+    "and": "and",
+    "privacyPolicy": "Privacy policy",
+    "accept": "Accept"
+  }
+}

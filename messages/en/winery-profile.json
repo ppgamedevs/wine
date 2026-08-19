@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "notFound": "Winery not found",
+    "descriptionFallback": "{name} in {region}: {count} wines, scores, prices in RON, and food pairings.",
+    "wineryKeyword": "winery",
+    "romanianWineKeyword": "Romanian wines"
+  },
+  "limited": {
+    "heading": "Limited English data",
+    "notice": "English editorial content for this winery is not yet complete. We are showing factual details, scores, and available prices only."
+  },
+  "hero": {
+    "breadcrumb": "Breadcrumb",
+    "home": "Home",
+    "wineries": "Wineries",
+    "verified": "Verified winery",
+    "unverified": "Unverified",
+    "founded": "Founded in {year}",
+    "officialWebsite": "Official website",
+    "visit": "Visit the winery",
+    "visitUnavailable": "Tasting package links become available after the winery claims and verifies its profile.",
+    "listedWines": "Listed wines",
+    "averageValueScore": "Average Value Score",
+    "priceRange": "Price range",
+    "dashboard": "Premium analytics dashboard"
+  },
+  "banner": {
+    "alt": "{name} winery banner"
+  },
+  "events": {
+    "heading": "Events calendar",
+    "intro": "Tastings, tours, and events from {name}. The schedule is updated by the winery.",
+    "fallbackTitle": "Winery event",
+    "details": "Details / registration",
+    "types": {
+      "tasting": "Tasting",
+      "tour": "Winery tour",
+      "harvest": "Harvest",
+      "festival": "Festival",
+      "workshop": "Workshop",
+      "other": "Event"
+    }
+  },
+  "wines": {
+    "heading": "Wines from {name}",
+    "intro": "Ordered by Value Score, our indicator for quality relative to price.",
+    "scoresLink": "How we calculate scores",
+    "empty": "We do not yet have wines listed for this winery."
+  },
+  "claim": {
+    "heading": "Do you represent {name}?",
+    "description": "Claim the profile, verify its details, and update information about your wines. It is free and quick.",
+    "button": "Claim this winery"
+  },
+  "faq": {
+    "heading": "Frequently asked questions",
+    "count": {
+      "question": "How many {name} wines are listed on VinIntel?",
+      "answer": "VinIntel lists {count} wines from {name}, ordered by Value Score, with prices in RON and food pairings."
+    },
+    "best": {
+      "question": "What is the best wine from {name}?",
+      "answer": "{wine} currently leads with a Value Score of {score}/100 at {price}.",
+      "empty": "We update the list of wines from {name} as catalog data becomes available."
+    },
+    "location": {
+      "question": "Where is {name} winery located?",
+      "answer": "{name} is located in the {region} wine region{founded}.",
+      "founded": " and was founded in {year}"
+    },
+    "verified": {
+      "question": "Is {name} a verified winery?",
+      "yes": "Yes. {name} is a verified winery in the VinIntel database.",
+      "no": "{name} is not yet officially verified. A winery representative can request verification."
+    }
+  },
+  "structuredData": {
+    "home": "Home",
+    "wineries": "Wineries",
+    "wineList": "Wines from {name}"
+  }
+}

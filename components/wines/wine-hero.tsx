@@ -3,21 +3,28 @@ import Link from "next/link";
 import { WineBuyingDecision } from "@/components/wines/wine-buying-decision";
 import { WineImage } from "@/components/wines/wine-image";
 import { Badge } from "@/components/ui/badge";
-import { wineSweetnessLabel, wineTypeLabel } from "@/lib/format";
+import {
+  getWineSweetnessLabel,
+  getWineTypeLabel,
+} from "@/lib/format";
+import { localizedHref } from "@/i18n/paths";
 import {
   getVerifiedTechnicalValue,
   type PublicTechnicalTrust,
 } from "@/lib/tech-facts/public-trust";
 import { resolveWineVintage, stripEmbeddedVintageFromName } from "@/lib/wine-vintage";
 import type { WineSweetness, WineWithRelations } from "@/types";
+import { getLocale, getTranslations } from "next-intl/server";
 
-export function WineHero({
+export async function WineHero({
   wine,
   technicalTrust,
 }: {
   wine: WineWithRelations;
   technicalTrust: PublicTechnicalTrust;
 }) {
+  const locale = await getLocale();
+  const t = await getTranslations("Wine.hero");
   const displayVintage = resolveWineVintage(wine);
   const displayName = stripEmbeddedVintageFromName(wine.name, displayVintage);
   const verifiedSweetness = getVerifiedTechnicalValue(
@@ -47,15 +54,15 @@ export function WineHero({
 
         <div className="order-1 flex flex-col justify-center lg:order-2">
           <nav
-            aria-label="Breadcrumb"
+            aria-label={t("breadcrumb")}
             className="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
           >
-            <Link href="/" className="hover:text-wine">
-              Acasă
+            <Link href={localizedHref(locale, "home")} className="hover:text-wine">
+              {t("home")}
             </Link>
             <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-            <Link href="/vinuri" className="hover:text-wine">
-              Vinuri
+            <Link href={localizedHref(locale, "wines")} className="hover:text-wine">
+              {t("wines")}
             </Link>
             <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             <span className="text-foreground">{displayName}</span>
@@ -63,11 +70,14 @@ export function WineHero({
 
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="border-wine/30 text-wine">
-              {wineTypeLabel[wine.type]}
+              {getWineTypeLabel(wine.type, locale)}
             </Badge>
             {typeof verifiedSweetness === "string" ? (
               <Badge variant="outline">
-                {wineSweetnessLabel[verifiedSweetness as WineSweetness]}
+                {getWineSweetnessLabel(
+                  verifiedSweetness as WineSweetness,
+                  locale,
+                )}
               </Badge>
             ) : null}
             {displayVintage ? (
@@ -85,7 +95,9 @@ export function WineHero({
           <div className="mt-4 flex flex-wrap items-center gap-4 text-muted-foreground">
             {wine.winery ? (
               <Link
-                href={`/wineries/${wine.winery.slug}`}
+                href={localizedHref(locale, "winery", {
+                  slug: wine.winery.slug,
+                })}
                 className="inline-flex items-center gap-1.5 font-medium text-foreground transition-colors hover:text-wine"
               >
                 <Building2 className="h-4 w-4" aria-hidden="true" />
@@ -94,7 +106,9 @@ export function WineHero({
             ) : null}
             {wine.region ? (
               <Link
-                href={`/regiuni/${wine.region.slug}`}
+                href={localizedHref(locale, "region", {
+                  slug: wine.region.slug,
+                })}
                 className="inline-flex items-center gap-1.5 transition-colors hover:text-wine"
               >
                 <MapPin className="h-4 w-4" aria-hidden="true" />

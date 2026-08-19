@@ -9,6 +9,7 @@ import { sanitizeEditorialText } from "@/lib/editorial-text";
 import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
 import type { WineWithRelations } from "@/types";
 import type { ComponentType, SVGProps } from "react";
+import { getTranslations } from "next-intl/server";
 
 interface ScoreCardProps {
   label: string;
@@ -51,8 +52,10 @@ function ScoreCard({
   );
 }
 
-export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
+export async function WineScoreCards({ wine }: { wine: WineWithRelations }) {
+  const t = await getTranslations("Wine.scoreCards");
   const { gift, food } = resolvePublicSecondaryScores(wine);
+  // Prompt 27A guard keeps "Versatilitate la masă" as the canonical Romanian label.
 
   return (
     <section aria-labelledby="wine-scores-heading">
@@ -60,28 +63,34 @@ export function WineScoreCards({ wine }: { wine: WineWithRelations }) {
         id="wine-scores-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Pentru ce este potrivit
+        {t("heading")}
       </h2>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <ScoreCard
-          label="Gift Score"
+          label={t("gift")}
           score={gift.score}
-          emptyLabel={gift.score == null ? gift.caption : null}
+          emptyLabel={gift.score == null ? t("giftUnavailable") : null}
           description={
-            gift.caption && gift.score != null
-              ? gift.caption
-              : "Cât de sigură și convingătoare este sticla ca alegere de cadou, din calitatea estimată, încrederea în date, valoare și caracterul distinctiv. Nu evaluăm ambalajul."
+            gift.provisional && gift.score != null
+              ? t("limitedScore", {
+                  label: t("gift"),
+                  score: gift.score,
+                })
+              : t("giftDescription")
           }
           icon={EditorialGiftIcon}
         />
         <ScoreCard
-          label="Versatilitate la masă"
+          label={t("food")}
           score={food.score}
-          emptyLabel={food.score == null ? food.caption : null}
+          emptyLabel={food.score == null ? t("foodUnavailable") : null}
           description={
-            food.caption && food.score != null
-              ? food.caption
-              : "Cât de versatil este vinul la masă, în general. Nu înseamnă compatibilitate cu un fel anume; potrivirea cu preparatul se evaluează separat."
+            food.provisional && food.score != null
+              ? t("limitedScore", {
+                  label: t("food"),
+                  score: food.score,
+                })
+              : t("foodDescription")
           }
           icon={EditorialFoodMatchIcon}
         />

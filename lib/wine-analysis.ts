@@ -13,6 +13,8 @@ import {
 import { WINE_TYPE_TO_TOP_SLUG } from "@/lib/top-lists";
 import { resolveWineDisplayPrice } from "@/lib/wine-price";
 import type { WineWithRelations } from "@/types";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 
 export interface WorthItAnalysis {
   verdict: "da" | "partial" | "nu";
@@ -27,7 +29,61 @@ const overpricedLabel = {
   high: "risc ridicat de suprapret",
 } as const;
 
-export function buildWorthItAnalysis(wine: WineWithRelations): WorthItAnalysis {
+function englishWorthItAnalysis(wine: WineWithRelations): WorthItAnalysis {
+  const value = wine.valueScore ?? 0;
+  const price = resolveWineDisplayPrice(wine);
+  if (price == null) {
+    return {
+      verdict: "partial",
+      headline: "Price currently unavailable",
+      summary:
+        "We cannot confirm current value without a current price. The historical Value Score remains indicative.",
+      bullets: [
+        "We do not assume a price when no offer is available.",
+        "Compare alternatives with a verifiable price before buying.",
+      ],
+    };
+  }
+
+  const priceLabel = formatRon(price, "en");
+  if (value >= MIN_RECOMMENDED_VALUE_SCORE) {
+    return {
+      verdict: "da",
+      headline: "Good value for money",
+      summary: `${wine.name} offers good value at ${priceLabel}, with a Value Score of ${value}/100.`,
+      bullets: [
+        `Value Score ${value}/100 is above our ${MIN_RECOMMENDED_VALUE_SCORE}/100 recommendation threshold.`,
+        "Check the separately evaluated food pairings for this wine.",
+      ],
+    };
+  }
+  if (value >= VALUE_SCORE_NEUTRAL_MIN) {
+    return {
+      verdict: "partial",
+      headline: "Fair value",
+      summary: `${wine.name} is a reasonable choice at ${priceLabel}, with a Value Score of ${value}/100.`,
+      bullets: [
+        `Value Score ${value}/100 is in the fair-price range.`,
+        `For a clearer recommendation, look for at least ${MIN_RECOMMENDED_VALUE_SCORE}/100.`,
+      ],
+    };
+  }
+  return {
+    verdict: "nu",
+    headline: "Better value is available",
+    summary: `At ${priceLabel}, ${wine.name} has a Value Score of ${value}/100. We recommend comparing better-value alternatives.`,
+    bullets: [
+      `Value Score ${value}/100 is below the neutral ${VALUE_SCORE_NEUTRAL_MIN}/100 threshold.`,
+      "Check similar wines with a better price-to-quality ratio.",
+    ],
+  };
+}
+
+export function buildWorthItAnalysis(
+  wine: WineWithRelations,
+  locale: AppLocale = "ro",
+): WorthItAnalysis {
+  if (locale === "en") return englishWorthItAnalysis(wine);
   const value = wine.valueScore ?? 0;
   const price = resolveWineDisplayPrice(wine);
   const priceLabel = formatRon(price);
@@ -111,11 +167,44 @@ export interface WineFaqItem {
   answer: string;
 }
 
-export function buildWineFaq(wine: WineWithRelations): WineFaqItem[] {
+export function buildWineFaq(
+  wine: WineWithRelations,
+  locale: AppLocale = "ro",
+): WineFaqItem[] {
   const wineryName = wine.winery?.name ?? "crama producatoare";
   const regionName = wine.region?.name ?? "Romania";
-  const price = formatRon(wine.priceAvg);
-  const topPairing = resolvePublicWinePairings(wine, 1)[0] ?? null;
+  const price = formatRon(wine.priceAvg, locale);
+  const topPairing = resolvePublicWinePairings(wine, 1, locale)[0] ?? null;
+  if (locale === "en") {
+    const foodAnswer =
+      topPairing == null
+        ? "We do not yet have enough data for a wine-specific food recommendation."
+        : topPairing.score == null
+          ? `One recommended pairing is ${topPairing.dish}. ${topPairing.rationale ?? ""}`.trim()
+          : `One of the best pairings is ${topPairing.dish}, with a compatibility score of ${topPairing.score}/100. ${topPairing.rationale ?? ""}`.trim();
+    return [
+      {
+        question: `How much does ${wine.name} cost?`,
+        answer: `The current average price is ${price}. Prices can vary by retailer and promotion.`,
+      },
+      {
+        question: `What food pairs with ${wine.name}?`,
+        answer: foodAnswer,
+      },
+      {
+        question: `Is ${wine.name} worth the money?`,
+        answer: buildWorthItAnalysis(wine, "en").summary,
+      },
+      {
+        question: `Who makes ${wine.name}?`,
+        answer: `${wine.name} is made by ${wine.winery?.name ?? "the producer"}, in ${regionName}. ${wine.winery?.verified ? "The winery is verified in our database." : "The winery is not yet officially verified by VinIntel."}`,
+      },
+      {
+        question: `What does a Value Score of ${wine.valueScore ?? "N/A"} mean?`,
+        answer: `Value Score is VinIntel's value-for-money score from 0 to 100. A score above ${MIN_RECOMMENDED_VALUE_SCORE} indicates good value at the tracked price.`,
+      },
+    ];
+  }
   const foodAnswer =
     topPairing == null
       ? "Nu avem încă suficiente date pentru o recomandare culinară specifică acestui vin."
@@ -147,45 +236,64 @@ export function buildWineFaq(wine: WineWithRelations): WineFaqItem[] {
   ];
 }
 
-export function buildProgrammaticLinks(wine: WineWithRelations) {
+export function buildProgrammaticLinks(
+  wine: WineWithRelations,
+  locale: AppLocale = "ro",
+) {
   const links: { label: string; href: string }[] = [];
 
   if (wine.region?.slug) {
     links.push({
-      label: `Vinuri din ${wine.region.name}`,
-      href: `/regiuni/${wine.region.slug}`,
+      label:
+        locale === "en"
+          ? `Wines from ${wine.region.name}`
+          : `Vinuri din ${wine.region.name}`,
+      href: localizedHref(locale, "region", { slug: wine.region.slug }),
     });
   }
 
   if (wine.winery?.slug) {
     links.push({
-      label: `Toate vinurile ${wine.winery.name}`,
-      href: `/wineries/${wine.winery.slug}`,
+      label:
+        locale === "en"
+          ? `All wines from ${wine.winery.name}`
+          : `Toate vinurile ${wine.winery.name}`,
+      href: localizedHref(locale, "winery", { slug: wine.winery.slug }),
     });
   }
 
   links.push({
-    label: `Top vinuri ${wine.type === "red" ? "rosii" : wine.type === "white" ? "albe" : wine.type}`,
-    href: `/topuri/vinuri-${WINE_TYPE_TO_TOP_SLUG[wine.type]}`,
+    label:
+      locale === "en"
+        ? `Best ${wine.type} wines`
+        : `Top vinuri ${wine.type === "red" ? "rosii" : wine.type === "white" ? "albe" : wine.type}`,
+    href: localizedHref(locale, "topWine", {
+      slug: `vinuri-${WINE_TYPE_TO_TOP_SLUG[wine.type]}`,
+    }),
   });
 
   if (wine.priceAvg && wine.priceAvg <= 50) {
     links.push({
-      label: "Cele mai bune vinuri sub 50 lei",
-      href: "/topuri/vinuri-sub-50-lei",
+      label:
+        locale === "en"
+          ? "Best wines under 50 RON"
+          : "Cele mai bune vinuri sub 50 lei",
+      href: localizedHref(locale, "topWine", {
+        slug: "vinuri-sub-50-lei",
+      }),
     });
   }
 
-  const topDish = resolvePublicWinePairings(wine, 1)[0]?.dish;
-  if (topDish) {
-    const dishSlug = topDish
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, "-");
+  const topPairing = resolvePublicWinePairings(wine, 1, locale)[0];
+  if (topPairing?.dishSlug) {
     links.push({
-      label: `Vinuri pentru ${topDish.toLowerCase()}`,
-      href: `/vin-pentru/${dishSlug}`,
+      label:
+        locale === "en"
+          ? `Best wines for ${topPairing.dish}`
+          : `Vinuri pentru ${topPairing.dish.toLowerCase()}`,
+      href: localizedHref(locale, "wineFor", {
+        dish: topPairing.dishSlug,
+      }),
     });
   }
 
@@ -200,10 +308,37 @@ export interface WineProsCons {
 export function buildWineProsCons(
   wine: WineWithRelations,
   technicalTrust: PublicTechnicalTrust,
+  locale: AppLocale = "ro",
 ): WineProsCons {
   const pros: string[] = [];
   const cons: string[] = [];
   const value = wine.valueScore ?? 0;
+
+  if (locale === "en") {
+    if (value >= MIN_RECOMMENDED_VALUE_SCORE) {
+      pros.push(`Value Score ${value}/100: a clear value recommendation.`);
+    } else if (value >= VALUE_SCORE_NEUTRAL_MIN) {
+      pros.push(`Value Score ${value}/100: a reasonable choice.`);
+    }
+    if (wine.beginnerFriendly) {
+      pros.push("An approachable profile for wine beginners.");
+    }
+    if (wine.overpricedRisk === "high") {
+      cons.push("High overpricing risk compared with similar alternatives.");
+    }
+    if (value < VALUE_SCORE_NEUTRAL_MIN) {
+      cons.push(
+        `Value Score below ${VALUE_SCORE_NEUTRAL_MIN}/100: compare alternatives.`,
+      );
+    }
+    if (!wine.priceAvg) {
+      cons.push("Price unavailable: check a verified source before buying.");
+    }
+    if (pros.length === 0) {
+      pros.push("Limited data: prices and scores are still being updated.");
+    }
+    return { pros: pros.slice(0, 4), cons: cons.slice(0, 4) };
+  }
 
   if (value >= MIN_RECOMMENDED_VALUE_SCORE) {
     pros.push(`Value Score ${value}/100: recomandare clara la acest pret.`);

@@ -4,6 +4,7 @@ import type {
   WineFactIdentityMatch,
 } from "@/lib/schema";
 import { techValuesEqual } from "@/lib/tech-facts/types";
+import type { AppLocale } from "@/i18n/locale";
 
 /**
  * Public technical policy:
@@ -305,15 +306,27 @@ export function getVerifiedTechnicalValue(
   return resolved.status === "verified" ? resolved.value : null;
 }
 
-export function publicTechStatusLabel(field: PublicTechnicalField): string {
+export function publicTechStatusLabel(
+  field: PublicTechnicalField,
+  locale: AppLocale = "ro",
+): string {
   if (field.status === "verified") {
+    if (locale === "en") {
+      return field.sourceCount > 1
+        ? `Confirmed by ${field.sourceCount} official sources`
+        : "Verified";
+    }
     return field.sourceCount > 1
       ? `Confirmat din ${field.sourceCount} surse oficiale`
       : "Verificat";
   }
   if (field.status === "catalog_only") {
-    return "Sursă oficială neconfirmată";
+    return locale === "en"
+      ? "Official source not yet confirmed"
+      : "Sursă oficială neconfirmată";
   }
-  if (field.status === "conflict") return "În verificare";
-  return "Necunoscut";
+  if (field.status === "conflict") {
+    return locale === "en" ? "Under review" : "În verificare";
+  }
+  return locale === "en" ? "Unknown" : "Necunoscut";
 }

@@ -3,6 +3,9 @@ import type { WineWithRelations } from "@/types";
 export interface GrapeVarietyCatalogEntry {
   slug: string;
   name: string;
+  id?: number;
+  description?: string | null;
+  updatedAt?: string;
 }
 
 export interface IndexableGrapeVariety extends GrapeVarietyCatalogEntry {

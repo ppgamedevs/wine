@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getLocale } from "next-intl/server";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -16,6 +17,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatRon } from "@/lib/format";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
+import {
+  getLocalizedResolvableTopListRoutes,
+  resolveLocalizedTopListRoute,
+} from "@/lib/i18n/top-list-routes";
+import {
+  buildLocalizedAlternates,
+  buildLocalizedTopListPresentation,
+  getPseoMessages,
+  localizedTopListRankColumnLabel,
+  localizedTopListRankSummary,
+  localizedWineHref,
+  openGraphLocale,
+} from "@/lib/i18n/pseo";
 import {
   getGrapeVarietySlugs,
   getWinesForSommelier,
@@ -27,15 +43,13 @@ import {
   SITE,
 } from "@/lib/seo";
 import {
-  getResolvableTopListSlugs,
-  resolveTopList,
-  slugToLabel,
   TOP_LIST_SLUGS,
   MIN_INDEXABLE_TOP_LIST_WINES,
-  topListRankColumnLabel,
   topListRankScore,
-  topListRankSummary,
 } from "@/lib/top-lists";
+import RomanianBestWinesPage, {
+  generateMetadata as generateRomanianBestWinesMetadata,
+} from "@/app/topuri/cele-mai-bune-vinuri-romanesti/page";
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -44,92 +58,166 @@ interface TopListPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
+export async function generateTopListStaticParams(
+  locale: AppLocale,
+): Promise<Array<{ slug: string }>> {
   const [allWines, grapeSlugs] = await Promise.all([
     getWinesForSommelier(),
     getGrapeVarietySlugs(),
   ]);
 
-  const slugs = getResolvableTopListSlugs(allWines, grapeSlugs);
-  return slugs.map((slug) => ({ slug }));
+  return getLocalizedResolvableTopListRoutes(allWines, grapeSlugs).map(
+    ({ roSlug, enSlug }) => ({ slug: locale === "en" ? enSlug : roSlug }),
+  );
+}
+
+export async function generateStaticParams() {
+  return generateTopListStaticParams("ro");
 }
 
 export async function generateMetadata({
   params,
 }: TopListPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const allWines = await getWinesForSommelier();
-  const list = resolveTopList(slug, allWines);
+  const locale = (await getLocale()) as AppLocale;
+  if (locale === "ro" && slug === "cele-mai-bune-vinuri-romanesti") {
+    return generateRomanianBestWinesMetadata();
+  }
+  const [allWines, grapeSlugs] = await Promise.all([
+    getWinesForSommelier(),
+    getGrapeVarietySlugs(),
+  ]);
+  const route = resolveLocalizedTopListRoute(
+    slug,
+    locale,
+    allWines,
+    grapeSlugs,
+  );
 
-  if (!list) return { title: "Top negasit" };
+  if (!route) {
+    return { title: getPseoMessages(locale).common.notFound };
+  }
 
-  const url = absoluteUrl(`/topuri/${slug}`);
+  const { list, definition, roSlug, enSlug } = route;
+  const presentation = buildLocalizedTopListPresentation(
+    definition,
+    list,
+    locale,
+  );
+  const path = localizedHref(locale, "topWine", { slug });
+  const url = absoluteUrl(path);
   const indexable =
-    slug === "cele-mai-bune-vinuri-romanesti" ||
+    route.canonicalId === "curated:best-romanian-wines" ||
     list.wines.length >= MIN_INDEXABLE_TOP_LIST_WINES;
 
   return {
-    title: list.metaTitle,
-    description: list.metaDescription,
+    title: presentation.metaTitle,
+    description: presentation.metaDescription,
     ...(indexable ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       type: "website",
-      locale: SITE.locale,
+      locale: openGraphLocale(locale),
       url,
       siteName: SITE.name,
-      title: `${list.metaTitle} | VinIntel`,
-      description: list.metaDescription,
+      title: `${presentation.metaTitle} | VinIntel`,
+      description: presentation.metaDescription,
     },
     twitter: {
       card: "summary_large_image",
       site: SITE.twitter,
-      title: `${list.metaTitle} | VinIntel`,
-      description: list.metaDescription,
+      title: `${presentation.metaTitle} | VinIntel`,
+      description: presentation.metaDescription,
     },
-    alternates: { canonical: url },
+    alternates: buildLocalizedAlternates(
+      locale,
+      localizedHref("ro", "topWine", { slug: roSlug }),
+      localizedHref("en", "topWine", { slug: enSlug }),
+    ),
   };
 }
 
 export default async function TopListPage({ params }: TopListPageProps) {
   const { slug } = await params;
-  const allWines = await getWinesForSommelier();
-  const list = resolveTopList(slug, allWines);
+  const locale = (await getLocale()) as AppLocale;
+  if (locale === "ro" && slug === "cele-mai-bune-vinuri-romanesti") {
+    return <RomanianBestWinesPage />;
+  }
+  const messages = getPseoMessages(locale);
+  const [allWines, grapeSlugs] = await Promise.all([
+    getWinesForSommelier(),
+    getGrapeVarietySlugs(),
+  ]);
+  const route = resolveLocalizedTopListRoute(
+    slug,
+    locale,
+    allWines,
+    grapeSlugs,
+  );
 
-  if (!list) notFound();
+  if (!route) notFound();
+  const { list, definition } = route;
 
   if (
-    slug !== "cele-mai-bune-vinuri-romanesti" &&
+    route.canonicalId !== "curated:best-romanian-wines" &&
     list.wines.length < MIN_INDEXABLE_TOP_LIST_WINES
   ) {
     notFound();
   }
 
-  const url = absoluteUrl(`/topuri/${slug}`);
+  const presentation = buildLocalizedTopListPresentation(
+    definition,
+    list,
+    locale,
+  );
+  const path = localizedHref(locale, "topWine", { slug });
+  const url = absoluteUrl(path);
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: list.metaTitle,
-    description: list.metaDescription,
+    inLanguage: locale === "en" ? "en" : "ro",
+    name: presentation.metaTitle,
+    description: presentation.metaDescription,
     url,
     numberOfItems: list.wines.length,
     itemListElement: list.wines.map((wine, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: absoluteUrl(`/wines/${wine.slug}`),
+      url: absoluteUrl(localizedWineHref(locale, wine)),
       name: wine.name,
     })),
   };
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
-    { name: "Acasa", path: "/" },
-    { name: "Topuri", path: "/topuri" },
-    { name: list.breadcrumbName, path: `/topuri/${slug}` },
+    { name: messages.common.home, path: localizedHref(locale, "home") },
+    {
+      name: messages.common.topLists,
+      path: localizedHref(locale, "topWines"),
+    },
+    { name: presentation.breadcrumbName, path },
   ]);
 
-  const faqJsonLd = buildFaqJsonLd(list.faq);
+  const faqJsonLd = buildFaqJsonLd(presentation.faq);
 
-  const relatedSlugs = TOP_LIST_SLUGS.filter((s) => s !== slug).slice(0, 6);
+  const relatedRoutes = TOP_LIST_SLUGS.flatMap((romanianSlug) => {
+    const related = resolveLocalizedTopListRoute(
+      romanianSlug,
+      "ro",
+      allWines,
+      grapeSlugs,
+    );
+    if (!related || related.canonicalId === route.canonicalId) return [];
+    return [
+      {
+        slug: locale === "en" ? related.enSlug : related.roSlug,
+        label: buildLocalizedTopListPresentation(
+          related.definition,
+          related.list,
+          locale,
+        ).breadcrumbName,
+      },
+    ];
+  }).slice(0, 6);
 
   return (
     <>
@@ -145,42 +233,51 @@ export default async function TopListPage({ params }: TopListPageProps) {
               aria-label="Breadcrumb"
               className="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
             >
-              <Link href="/" className="hover:text-wine">
-                Acasa
+              <Link
+                href={localizedHref(locale, "home")}
+                className="hover:text-wine"
+              >
+                {messages.common.home}
               </Link>
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-              <span className="text-foreground">{list.breadcrumbName}</span>
+              <span className="text-foreground">
+                {presentation.breadcrumbName}
+              </span>
             </nav>
             <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              {list.heading}
+              {presentation.heading}
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              {list.intro}
+              {presentation.intro}
             </p>
           </div>
         </section>
 
-        <div className="mx-auto max-w-5xl space-y-14 px-6 py-12">
-          <section aria-labelledby="summary-heading">
+        <div className="mx-auto w-full min-w-0 max-w-5xl space-y-14 px-6 py-12">
+          <section className="min-w-0" aria-labelledby="summary-heading">
             <h2
               id="summary-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              Clasament pe scurt
+              {messages.topLists.summary}
             </h2>
             <p className="mt-2 text-muted-foreground">
-              {topListRankSummary(list)}
+              {localizedTopListRankSummary(list, locale)}
             </p>
             <div className="mt-6 overflow-hidden rounded-2xl border border-border/70">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12 pl-6">#</TableHead>
-                    <TableHead>Vin</TableHead>
-                    <TableHead className="hidden sm:table-cell">Crama</TableHead>
-                    <TableHead className="text-right">Pret</TableHead>
+                    <TableHead>{messages.common.wine}</TableHead>
+                    <TableHead className="hidden sm:table-cell">
+                      {messages.common.winery}
+                    </TableHead>
+                    <TableHead className="text-right">
+                      {messages.common.price}
+                    </TableHead>
                     <TableHead className="text-right pr-6">
-                      {topListRankColumnLabel(list.rankMetric)}
+                      {localizedTopListRankColumnLabel(list.rankMetric, locale)}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -192,7 +289,7 @@ export default async function TopListPage({ params }: TopListPageProps) {
                       </TableCell>
                       <TableCell>
                         <Link
-                          href={`/wines/${wine.slug}`}
+                          href={localizedWineHref(locale, wine)}
                           className="font-medium text-foreground hover:text-wine"
                         >
                           {wine.name}
@@ -203,7 +300,7 @@ export default async function TopListPage({ params }: TopListPageProps) {
                         {wine.winery?.name ?? "-"}
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        {formatRon(wine.priceAvg)}
+                        {formatRon(wine.priceAvg, locale)}
                       </TableCell>
                       <TableCell className="pr-6 text-right">
                         {topListRankScore(wine, list.rankMetric, list.rankScores[index]) ?? "-"}
@@ -220,7 +317,7 @@ export default async function TopListPage({ params }: TopListPageProps) {
               id="grid-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              Recomandari detaliate
+              {messages.common.detailedRecommendations}
             </h2>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {list.wines.map((wine, index) => (
@@ -235,8 +332,12 @@ export default async function TopListPage({ params }: TopListPageProps) {
             </div>
           </section>
 
-          {slug === "vinuri-sub-50-lei" ? (
-            <BudgetPageSections allWines={allWines} budget={50} />
+          {definition.kind === "budget" && definition.budget === 50 ? (
+            <BudgetPageSections
+              allWines={allWines}
+              budget={50}
+              locale={locale}
+            />
           ) : null}
 
           <section aria-labelledby="faq-heading">
@@ -244,10 +345,10 @@ export default async function TopListPage({ params }: TopListPageProps) {
               id="faq-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              Intrebari frecvente
+              {messages.common.faq}
             </h2>
             <div className="mt-6 space-y-3">
-              {list.faq.map((item) => (
+              {presentation.faq.map((item) => (
                 <div
                   key={item.question}
                   className="rounded-2xl border border-border/70 bg-card p-5 sm:p-6"
@@ -268,17 +369,19 @@ export default async function TopListPage({ params }: TopListPageProps) {
               id="related-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              Ghiduri similare
+              {messages.common.relatedGuides}
             </h2>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {relatedSlugs.map((relatedSlug) => (
+              {relatedRoutes.map((related) => (
                 <Link
-                  key={relatedSlug}
-                  href={`/topuri/${relatedSlug}`}
+                  key={related.slug}
+                  href={localizedHref(locale, "topWine", {
+                    slug: related.slug,
+                  })}
                   className="group flex items-center justify-between rounded-xl border border-border/70 bg-card px-5 py-4 transition-all hover:border-wine/30 hover:shadow-sm"
                 >
                   <span className="font-medium text-foreground group-hover:text-wine">
-                    {slugToLabel(relatedSlug)}
+                    {related.label}
                   </span>
                   <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-wine" />
                 </Link>

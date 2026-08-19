@@ -9,63 +9,44 @@ import {
   MarketingVerifiedBadgeIcon,
   MarketingVisibilityIcon,
 } from "@/components/marketing-icons";
+import { localizedHref } from "@/i18n/paths";
+import { getContentLocale, getContentTranslator } from "@/lib/i18n/content";
 import { getWineryBySlug } from "@/lib/queries";
 import { absoluteUrl, buildBreadcrumbJsonLd, SITE } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Revendica-ti crama",
-  description:
-    "Esti producator de vin? Revendica-ti crama pe VinIntel, verifica datele, actualizeaza vinurile si ajungi in fata cumparatorilor care cauta calitate.",
-  alternates: { canonical: absoluteUrl("/claim-your-winery") },
-  openGraph: {
-    type: "website",
-    locale: SITE.locale,
-    url: absoluteUrl("/claim-your-winery"),
-    siteName: SITE.name,
-    title: "Revendica-ti crama | VinIntel",
-    description:
-      "Verifica datele cramei tale, actualizeaza vinurile si castiga incredere in fata cumparatorilor.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Revendica-ti crama | VinIntel",
-    description:
-      "Verifica datele cramei tale, actualizeaza vinurile si castiga incredere in fata cumparatorilor.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getContentLocale();
+  const t = getContentTranslator(locale);
+  const href = localizedHref(locale, "claimWinery");
 
-const benefits: {
-  icon: ComponentType<SVGProps<SVGSVGElement>>;
-  title: string;
-  description: string;
-}[] = [
-  {
-    icon: MarketingVerifiedBadgeIcon,
-    title: "Badge de crama verificata",
-    description:
-      "Profilul tau primeste un badge de incredere, vizibil pe fiecare vin din portofoliu.",
-  },
-  {
-    icon: MarketingDataIcon,
-    title: "Date corecte si actualizate",
-    description:
-      "Corecteaza preturi, vintage-uri, specificatii tehnice si pairing-uri direct de la sursa.",
-  },
-  {
-    icon: MarketingVisibilityIcon,
-    title: "Mai multa vizibilitate",
-    description:
-      "Vinurile verificate apar mai sus in topuri si in recomandarile AI Sommelier.",
-  },
-  {
-    icon: MarketingFastIcon,
-    title: "Gratuit si rapid",
-    description:
-      "Revendicarea este gratuita. Te contactam in 2-3 zile lucratoare pentru activare.",
-  },
-];
+  return {
+    title: t("ClaimWinery.metadata.title"),
+    description: t("ClaimWinery.metadata.description"),
+    alternates: {
+      canonical: absoluteUrl(href),
+      languages: {
+        ro: absoluteUrl(localizedHref("ro", "claimWinery")),
+        en: absoluteUrl(localizedHref("en", "claimWinery")),
+        "x-default": absoluteUrl(localizedHref("ro", "claimWinery")),
+      },
+    },
+    openGraph: {
+      type: "website",
+      locale: locale === "en" ? "en_US" : SITE.locale,
+      url: absoluteUrl(href),
+      siteName: SITE.name,
+      title: `${t("ClaimWinery.metadata.title")} | VinIntel`,
+      description: t("ClaimWinery.metadata.ogDescription"),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${t("ClaimWinery.metadata.title")} | VinIntel`,
+      description: t("ClaimWinery.metadata.ogDescription"),
+    },
+  };
+}
 
 interface ClaimPageProps {
   searchParams: Promise<{ crama?: string }>;
@@ -74,12 +55,41 @@ interface ClaimPageProps {
 export default async function ClaimYourWineryPage({
   searchParams,
 }: ClaimPageProps) {
+  const locale = await getContentLocale();
+  const t = getContentTranslator(locale);
   const { crama } = await searchParams;
   const winery = crama ? await getWineryBySlug(crama) : null;
+  const claimHref = localizedHref(locale, "claimWinery");
+  const benefits: {
+    icon: ComponentType<SVGProps<SVGSVGElement>>;
+    title: string;
+    description: string;
+  }[] = [
+    {
+      icon: MarketingVerifiedBadgeIcon,
+      title: t("ClaimWinery.benefit1Title"),
+      description: t("ClaimWinery.benefit1Description"),
+    },
+    {
+      icon: MarketingDataIcon,
+      title: t("ClaimWinery.benefit2Title"),
+      description: t("ClaimWinery.benefit2Description"),
+    },
+    {
+      icon: MarketingVisibilityIcon,
+      title: t("ClaimWinery.benefit3Title"),
+      description: t("ClaimWinery.benefit3Description"),
+    },
+    {
+      icon: MarketingFastIcon,
+      title: t("ClaimWinery.benefit4Title"),
+      description: t("ClaimWinery.benefit4Description"),
+    },
+  ];
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
-    { name: "Acasa", path: "/" },
-    { name: "Revendica-ti crama", path: "/claim-your-winery" },
+    { name: t("LegalShell.home"), path: localizedHref(locale, "home") },
+    { name: t("ClaimWinery.metadata.title"), path: claimHref },
   ]);
 
   return (
@@ -91,15 +101,13 @@ export default async function ClaimYourWineryPage({
           <div className="mx-auto max-w-4xl px-6 py-14 text-center lg:py-20">
             <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
               <MarketingVerifiedBadgeIcon className="h-4 w-4" aria-hidden="true" />
-              Pentru producatori
+              {t("ClaimWinery.badge")}
             </span>
             <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Revendica-ti crama pe VinIntel
+              {t("ClaimWinery.title")}
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Ia controlul asupra modului in care crama si vinurile tale apar in
-              fata miilor de pasionati care cauta vinuri romanesti bune. Verifica
-              datele, actualizeaza informatiile si castiga incredere.
+              {t("ClaimWinery.description")}
             </p>
           </div>
         </section>
@@ -107,7 +115,7 @@ export default async function ClaimYourWineryPage({
         <div className="mx-auto grid max-w-6xl gap-12 px-6 py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <div>
             <h2 className="font-serif text-2xl font-semibold text-foreground">
-              De ce sa iti revendici crama
+              {t("ClaimWinery.why")}
             </h2>
             <ul className="mt-6 space-y-5">
               {benefits.map((benefit) => {
@@ -138,7 +146,40 @@ export default async function ClaimYourWineryPage({
           </div>
 
           <div>
-            <ClaimForm defaultWineryName={winery?.name ?? ""} />
+            <ClaimForm
+              defaultWineryName={winery?.name ?? ""}
+              locale={locale}
+              copy={{
+                fallbackError: t("ClaimWinery.form.fallbackError"),
+                successTitle: t("ClaimWinery.form.successTitle"),
+                successDescription: t(
+                  "ClaimWinery.form.successDescription",
+                ),
+                winery: t("ClaimWinery.form.winery"),
+                wineryPlaceholder: t(
+                  "ClaimWinery.form.wineryPlaceholder",
+                ),
+                name: t("ClaimWinery.form.name"),
+                namePlaceholder: t("ClaimWinery.form.namePlaceholder"),
+                role: t("ClaimWinery.form.role"),
+                rolePlaceholder: t("ClaimWinery.form.rolePlaceholder"),
+                email: t("ClaimWinery.form.email"),
+                emailPlaceholder: t("ClaimWinery.form.emailPlaceholder"),
+                phone: t("ClaimWinery.form.phone"),
+                phonePlaceholder: t("ClaimWinery.form.phonePlaceholder"),
+                website: t("ClaimWinery.form.website"),
+                websitePlaceholder: t(
+                  "ClaimWinery.form.websitePlaceholder",
+                ),
+                message: t("ClaimWinery.form.message"),
+                messagePlaceholder: t(
+                  "ClaimWinery.form.messagePlaceholder",
+                ),
+                sending: t("ClaimWinery.form.sending"),
+                submit: t("ClaimWinery.form.submit"),
+                consent: t("ClaimWinery.form.consent"),
+              }}
+            />
           </div>
         </div>
       </main>

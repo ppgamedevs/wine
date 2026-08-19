@@ -5,59 +5,92 @@ import { SiteHeader } from "@/components/site-header";
 import { SommelierChat } from "@/components/sommelier/sommelier-chat";
 import { absoluteUrl } from "@/lib/seo";
 import AiSommelierLoading from "./loading";
+import { getLocale } from "next-intl/server";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 
 export const revalidate = 3600;
 
-const url = absoluteUrl("/ai-sommelier");
-const description =
-  "Chat cu somelierul AI VinIntel: recomandari oneste de vinuri romanesti pentru orice ocazie, mancare, desert sau buget in RON.";
+function pageCopy(locale: AppLocale) {
+  return locale === "en"
+    ? {
+        description:
+          "Ask VinIntel's AI Sommelier for practical Romanian wine recommendations by food, occasion, gift, or budget in RON.",
+        keywords: [
+          "AI sommelier",
+          "Romanian wine recommendation",
+          "wine for sarmale",
+          "wine pairing",
+        ],
+      }
+    : {
+        description:
+          "Chat cu somelierul AI VinIntel: recomandari oneste de vinuri romanesti pentru orice ocazie, mancare, desert sau buget in RON.",
+        keywords: [
+          "somelier AI",
+          "chat vin",
+          "recomandare vin",
+          "vin pentru cozonac",
+          "vin pentru sarmale",
+          "vin pentru desert",
+          "vin romanesc",
+          "asociere vin mancare",
+        ],
+      };
+}
 
-export const metadata: Metadata = {
-  title: "AI Sommelier",
-  description,
-  keywords: [
-    "somelier AI",
-    "chat vin",
-    "recomandare vin",
-    "vin pentru cozonac",
-    "vin pentru sarmale",
-    "vin pentru desert",
-    "vin romanesc",
-    "asociere vin mancare",
-  ],
-  openGraph: {
-    type: "website",
-    locale: "ro_RO",
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = (await getLocale()) as AppLocale;
+  const copy = pageCopy(locale);
+  const canonicalPath = localizedHref(locale, "aiSommelier");
+  const url = absoluteUrl(canonicalPath);
+  return {
+    title: "AI Sommelier",
+    description: copy.description,
+    keywords: copy.keywords,
+    openGraph: {
+      type: "website",
+      locale: locale === "en" ? "en_US" : "ro_RO",
+      url,
+      title: "AI Sommelier | VinIntel",
+      description: copy.description,
+      siteName: "VinIntel",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "AI Sommelier | VinIntel",
+      description: copy.description,
+    },
+    alternates: {
+      canonical: url,
+      languages: {
+        ro: absoluteUrl(localizedHref("ro", "aiSommelier")),
+        en: absoluteUrl(localizedHref("en", "aiSommelier")),
+        "x-default": absoluteUrl(localizedHref("ro", "aiSommelier")),
+      },
+    },
+  };
+}
+
+export default async function AiSommelierPage() {
+  const locale = (await getLocale()) as AppLocale;
+  const copy = pageCopy(locale);
+  const url = absoluteUrl(localizedHref(locale, "aiSommelier"));
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "VinIntel AI Sommelier",
     url,
-    title: "AI Sommelier | VinIntel",
-    description,
-    siteName: "VinIntel",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "AI Sommelier | VinIntel",
-    description,
-  },
-  alternates: { canonical: url },
-};
-
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "VinIntel AI Sommelier",
-  url,
-  applicationCategory: "LifestyleApplication",
-  operatingSystem: "Web",
-  inLanguage: "ro-RO",
-  description,
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "RON",
-  },
-};
-
-export default function AiSommelierPage() {
+    applicationCategory: "LifestyleApplication",
+    operatingSystem: "Web",
+    inLanguage: locale === "en" ? "en" : "ro-RO",
+    description: copy.description,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "RON",
+    },
+  };
   return (
     <>
       <script
@@ -67,7 +100,7 @@ export default function AiSommelierPage() {
       <SiteHeader />
       <main className="flex-1">
         <Suspense fallback={<AiSommelierLoading />}>
-          <SommelierChat />
+          <SommelierChat locale={locale} />
         </Suspense>
       </main>
       <SiteFooter />

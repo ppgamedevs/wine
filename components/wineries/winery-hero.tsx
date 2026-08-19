@@ -5,7 +5,6 @@ import {
   ChevronRight,
   ExternalLink,
   MapPin,
-  Ticket,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +12,39 @@ import { Button } from "@/components/ui/button";
 import { PremiumBadge } from "@/components/wineries/premium-badge";
 import { WineryLogo } from "@/components/wineries/winery-logo";
 import {
+  WineryVisitLink,
+  type WineryVisitLinkCopy,
+} from "@/components/wineries/winery-visit-link";
+import type { AppLocale } from "@/i18n/locale";
+import { formatRon } from "@/lib/format";
+import {
   getWineryCatalogEnrichment,
   resolveWineryLogoUrl,
 } from "@/lib/winery-catalog";
-import { trackWineryEvent } from "@/lib/winery-analytics-client";
 import { isWineryPremium, resolveWineryStory } from "@/lib/winery-premium";
 import type { WineryWithWines } from "@/types";
+
+export interface WineryHeroCopy {
+  breadcrumb: string;
+  home: string;
+  wineries: string;
+  verified: string;
+  unverified: string;
+  founded: string;
+  officialWebsite: string;
+  listedWines: string;
+  averageValueScore: string;
+  priceRange: string;
+  dashboard: string;
+  visit: WineryVisitLinkCopy;
+}
+
+export interface WineryHeroLinks {
+  home: string;
+  wineries: string;
+  region: string | null;
+  dashboard: string;
+}
 
 interface WineryHeroProps {
   winery: WineryWithWines;
@@ -27,33 +53,45 @@ interface WineryHeroProps {
     avgValueScore: number | null;
     priceRange: { min: number; max: number } | null;
   };
+  locale: AppLocale;
+  copy: WineryHeroCopy;
+  links: WineryHeroLinks;
   trackAnalytics?: boolean;
 }
 
-export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHeroProps) {
+export function WineryHero({
+  winery,
+  stats,
+  locale,
+  copy,
+  links,
+  trackAnalytics = false,
+}: WineryHeroProps) {
   const enrichment = getWineryCatalogEnrichment(winery.slug);
   const premium = isWineryPremium(winery);
-  const tagline = enrichment?.tagline ?? winery.description;
+  const catalogTagline = locale === "ro" ? enrichment?.tagline : null;
+  const catalogStory = locale === "ro" ? enrichment?.story : null;
+  const tagline = catalogTagline ?? winery.description;
   const storyParagraphs = resolveWineryStory({
     isPremium: winery.isPremium,
     customStory: winery.customStory,
     description: winery.description,
-    catalogStory: enrichment?.story ?? null,
+    catalogStory: catalogStory ?? null,
   });
 
   return (
     <section className="border-b border-border/60 bg-secondary/20">
       <div className="mx-auto max-w-6xl px-6 py-10 lg:py-14">
         <nav
-          aria-label="Breadcrumb"
+          aria-label={copy.breadcrumb}
           className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
         >
-          <Link href="/" className="hover:text-wine">
-            Acasa
+          <Link href={links.home} className="hover:text-wine">
+            {copy.home}
           </Link>
           <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-          <Link href="/crame" className="hover:text-wine">
-            Crame
+          <Link href={links.wineries} className="hover:text-wine">
+            {copy.wineries}
           </Link>
           <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
           <span className="text-foreground">{winery.name}</span>
@@ -73,10 +111,10 @@ export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHero
               {winery.verified ? (
                 <Badge className="gap-1 bg-wine/10 text-wine hover:bg-wine/15">
                   <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                  Crama verificata
+                  {copy.verified}
                 </Badge>
               ) : (
-                <Badge variant="secondary">Neverificata</Badge>
+                <Badge variant="secondary">{copy.unverified}</Badge>
               )}
               {winery.region ? (
                 <Badge variant="outline" className="border-wine/30 text-wine">
@@ -92,7 +130,7 @@ export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHero
             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
               {winery.region ? (
                 <Link
-                  href={`/regiuni/${winery.region.slug}`}
+                  href={links.region ?? "#"}
                   className="inline-flex items-center gap-1.5 transition-colors hover:text-wine"
                 >
                   <MapPin className="h-4 w-4" aria-hidden="true" />
@@ -102,7 +140,7 @@ export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHero
               {winery.foundedYear ? (
                 <span className="inline-flex items-center gap-1.5">
                   <CalendarDays className="h-4 w-4" aria-hidden="true" />
-                  Fondata in {winery.foundedYear}
+                  {copy.founded}
                 </span>
               ) : null}
               {winery.verified && winery.website ? (
@@ -113,7 +151,7 @@ export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHero
                   className="inline-flex items-center gap-1.5 transition-colors hover:text-wine"
                 >
                   <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                  Website oficial
+                  {copy.officialWebsite}
                 </a>
               ) : null}
             </div>
@@ -143,61 +181,28 @@ export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHero
 
             {enrichment?.visitUrl ? (
               <div className="mt-6 flex flex-col items-start gap-2">
-                {winery.verified ? (
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="border-wine/30 text-wine hover:bg-wine/5"
-                  >
-                    <a
-                      href={enrichment.visitUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        if (trackAnalytics) {
-                          void trackWineryEvent(winery.id, "visit_click");
-                        }
-                      }}
-                    >
-                      <Ticket className="h-4 w-4" aria-hidden="true" />
-                      Viziteaza crama
-                      <ExternalLink
-                        className="h-3.5 w-3.5 opacity-70"
-                        aria-hidden="true"
-                      />
-                    </a>
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      disabled
-                      className="pointer-events-none opacity-50"
-                      aria-disabled="true"
-                    >
-                      <Ticket className="h-4 w-4" aria-hidden="true" />
-                      Viziteaza crama
-                    </Button>
-                    <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
-                      Linkul catre pachetele de degustare se activeaza dupa ce
-                      crama isi revendica si verifica profilul.
-                    </p>
-                  </>
-                )}
+                <WineryVisitLink
+                  wineryId={winery.id}
+                  visitUrl={enrichment.visitUrl}
+                  verified={winery.verified}
+                  trackAnalytics={trackAnalytics}
+                  copy={copy.visit}
+                />
               </div>
             ) : null}
 
             <dl className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:max-w-lg">
               <div className="rounded-xl border border-border/70 bg-card p-4">
-                <dt className="text-xs text-muted-foreground">Vinuri listate</dt>
+                <dt className="text-xs text-muted-foreground">
+                  {copy.listedWines}
+                </dt>
                 <dd className="mt-1 text-2xl font-bold text-foreground">
                   {stats.wineCount}
                 </dd>
               </div>
               <div className="rounded-xl border border-border/70 bg-card p-4">
                 <dt className="text-xs text-muted-foreground">
-                  Value Score mediu
+                  {copy.averageValueScore}
                 </dt>
                 <dd className="mt-1 text-2xl font-bold text-foreground">
                   {stats.avgValueScore ?? "N/A"}
@@ -211,19 +216,14 @@ export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHero
               {stats.priceRange ? (
                 <div className="col-span-2 rounded-xl border border-border/70 bg-card p-4 sm:col-span-1">
                   <dt className="text-xs text-muted-foreground">
-                    Interval de pret
+                    {copy.priceRange}
                   </dt>
                   <dd className="mt-1 text-2xl font-bold text-foreground">
-                    {stats.priceRange.min}
+                    {formatRon(stats.priceRange.min, locale)}
                     <span className="text-sm font-medium text-muted-foreground">
-                      {" "}
-                      -{" "}
+                      {" - "}
                     </span>
-                    {stats.priceRange.max}
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {" "}
-                      RON
-                    </span>
+                    {formatRon(stats.priceRange.max, locale)}
                   </dd>
                 </div>
               ) : null}
@@ -237,9 +237,9 @@ export function WineryHero({ winery, stats, trackAnalytics = false }: WineryHero
                   size="sm"
                   className="h-auto px-0 text-wine hover:bg-transparent hover:text-wine/80"
                 >
-                  <Link href={`/wineries/${winery.slug}/dashboard`}>
+                  <Link href={links.dashboard}>
                     <BarChart3 className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                    Dashboard analytics Premium
+                    {copy.dashboard}
                   </Link>
                 </Button>
               </div>

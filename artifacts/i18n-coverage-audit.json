@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2026-08-19T13:54:06.957Z",
+  "messageKeys": {
+    "romanian": 873,
+    "english": 873,
+    "missingInEnglish": [],
+    "extraInEnglish": []
+  },
+  "dynamic": {
+    "sources": 1490,
+    "ready": 0,
+    "stale": 0,
+    "reviewRequired": 0,
+    "failed": 0,
+    "missing": 1490,
+    "byEntityType": {
+      "wine": {
+        "sources": 1355,
+        "ready": 0
+      },
+      "winery": {
+        "sources": 25,
+        "ready": 0
+      },
+      "region": {
+        "sources": 18,
+        "ready": 0
+      },
+      "grape_variety": {
+        "sources": 18,
+        "ready": 0
+      },
+      "journal_article": {
+        "sources": 24,
+        "ready": 0
+      },
+      "winery_catalog": {
+        "sources": 50,
+        "ready": 0
+      }
+    }
+  },
+  "englishIndexingEnabled": false,
+  "indexingGateSafe": true,
+  "pass": false
+}

@@ -1,13 +1,25 @@
 import { ArrowUpRight, CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 import { formatJournalDate, type JournalArticle } from "@/lib/journal";
 
 interface ArticleCardProps {
   article: JournalArticle;
+  locale: AppLocale;
+  readLabel: string;
 }
 
-export function ArticleCard({ article }: ArticleCardProps) {
+export function ArticleCard({
+  article,
+  locale,
+  readLabel,
+}: ArticleCardProps) {
+  const href = localizedHref(locale, "journalArticle", {
+    slug: article.slug,
+  });
+
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-wine/30 hover:shadow-lg">
       <div className="flex flex-1 flex-col p-6">
@@ -21,14 +33,14 @@ export function ArticleCard({ article }: ArticleCardProps) {
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
             <time dateTime={article.publishedAt}>
-              {formatJournalDate(article.publishedAt)}
+              {formatJournalDate(article.publishedAt, locale)}
             </time>
           </span>
         </div>
 
         <h3 className="mt-4 font-serif text-xl font-semibold leading-snug text-foreground">
           <Link
-            href={`/journal/${article.slug}`}
+            href={href}
             className="transition-colors group-hover:text-wine"
           >
             {article.title}
@@ -40,10 +52,10 @@ export function ArticleCard({ article }: ArticleCardProps) {
         </p>
 
         <Link
-          href={`/journal/${article.slug}`}
+          href={href}
           className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-wine transition-colors hover:text-wine/80"
         >
-          Citeste articolul
+          {readLabel}
           <ArrowUpRight
             className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             aria-hidden="true"

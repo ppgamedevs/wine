@@ -1,0 +1,318 @@
+{
+  "Home": {
+    "metadata": {
+      "title": "VinIntel - Ghid de vinuri romanesti, preturi si recomandari",
+      "description": "Ghidul inteligent al vinurilor romanesti: catalog cu preturi in RON, Value Score, topuri pe bugete si somelier AI pentru orice ocazie.",
+      "openGraphDescription": "Ghidul inteligent al vinurilor romanesti: catalog, topuri si somelier AI."
+    },
+    "faq": {
+      "heading": "Intrebari frecvente",
+      "intro": "Ce trebuie sa stii despre VinIntel si cum te ajutam sa alegi.",
+      "what": {
+        "question": "Ce este VinIntel?",
+        "answer": "VinIntel este un ghid inteligent al vinurilor romanesti. Oferim recomandari clare si oneste, cu un Value Score care masoara raportul calitate-pret, pairing-uri pentru mancarea romaneasca si un somelier AI care tine cont de buget, ocazie si preferinte."
+      },
+      "value": {
+        "question": "Ce inseamna Value Score?",
+        "answer": "Value Score este un indicator de la 0 la 100 care arata cat de bun este un vin raportat la pretul cerut, calculat dintr-o formula transparenta (calitate estimata + eficienta pretului), nu dintr-un vot al utilizatorilor. Peste {recommended} merita pretul, intre {fair} si {upperFair} este pret corect, sub {fair} exista probabil alternative mai bune. Increderea datelor este afisata separat: scorurile bazate pe date insuficiente sunt plafonate si marcate ca provizorii."
+      },
+      "find": {
+        "question": "Cum gasesc un vin pentru o anumita mancare sau ocazie?",
+        "answer": "Foloseste somelierul AI: alegi bugetul in RON, ocazia (de exemplu sarmale, gratar, cadou sau cina romantica) si preferintele, iar tu primesti instant 3 pana la 5 recomandari potrivite, cu explicatii."
+      },
+      "prices": {
+        "question": "Preturile sunt in RON si actualizate?",
+        "answer": "Da. Preturile sunt afisate in RON ca pret actual verificat sau pret aproximativ, in functie de sursa disponibila pentru fiecare vin."
+      }
+    },
+    "cta": {
+      "heading": "Nu stii ce vin sa alegi?",
+      "description": "Spune-i somelierului AI ce gatesti, ce buget ai si pentru ce ocazie. Primesti o recomandare clara in cateva secunde.",
+      "button": "Intreaba somelierul AI"
+    }
+  },
+  "Hero": {
+    "badge": "Somelier AI hiper-local pentru vinul romanesc",
+    "title": "Vinuri romanesti.",
+    "titleAccent": "Clar. Onest. Rapid.",
+    "description": "Gaseste vinul potrivit in cateva secunde. Recomandari transparente, preturi in RON si asocieri gandite pentru mancarea si ocazia ta.",
+    "frequentSearches": "Cauta des:",
+    "links": {
+      "catalog": "Catalog vinuri",
+      "best": "Cele mai bune",
+      "budget": "Vin ieftin si bun",
+      "wineries": "Crame",
+      "sarmale": "Pentru sarmale",
+      "sommelier": "Somelier AI"
+    }
+  },
+  "ValueProps": {
+    "heading": "De ce merita",
+    "description": "Un ghid limpede al vinurilor romanesti, construit pentru viteza, claritate si incredere.",
+    "items": {
+      "value": {
+        "title": "Value Score real",
+        "description": "Un scor onest de la 0 la 100 care arata cat de bun e vinul pentru banii ceruti. Fara marketing, doar valoare reala."
+      },
+      "pairing": {
+        "title": "Pairing-uri romanesti",
+        "description": "Asocieri gandite pentru mancarea de aici: sarmale, mici, ciorba de burta, friptura de porc sau cozonac."
+      },
+      "price": {
+        "title": "Preturi actuale",
+        "description": "Afisam pretul curent sau estimativ in RON, preluat din sursa principala a vinului."
+      },
+      "local": {
+        "title": "Date locale",
+        "description": "Informatii despre crame, soiuri autohtone si regiuni romanesti, adunate intr-un singur loc clar si rapid."
+      }
+    }
+  },
+  "FeaturedWines": {
+    "heading": "Vinuri recomandate",
+    "description": "Selectia noastra dupa Value Score (minim 75/100): cel mai bun raport calitate pret din vinul romanesc.",
+    "all": "Toate vinurile"
+  },
+  "TopLists": {
+    "heading": "Topuri si ghiduri",
+    "description": "Cele mai cautate selectii de vinuri romanesti, gata sa te ajute sa alegi rapid.",
+    "items": {
+      "best": {
+        "title": "Cele mai bune vinuri romanesti",
+        "description": "Top general dupa Value Score"
+      },
+      "under50": {
+        "title": "Cele mai bune vinuri sub 50 lei",
+        "description": "Valoare maxima la buget mic"
+      },
+      "supermarket": {
+        "title": "Vinuri bune din supermarket",
+        "description": "Disponibile la retaileri mari"
+      },
+      "sarmale": {
+        "title": "Vinuri sub 50 lei pentru sarmale",
+        "description": "Asocieri perfecte cu sarmale, la buget mic"
+      },
+      "feteasca": {
+        "title": "Cea mai buna Feteasca Neagra",
+        "description": "Soiul rosu emblematic al Romaniei"
+      },
+      "gift": {
+        "title": "Vinuri cadou",
+        "description": "Alegeri sigure pentru orice ocazie"
+      },
+      "romantic": {
+        "title": "Vinuri sub 100 lei pentru cina romantica",
+        "description": "Eleganta pentru o seara in doi"
+      }
+    }
+  },
+  "SmartSearch": {
+    "placeholder": "Cauta vin, crama sau lipeste link (https://...)",
+    "ariaLabel": "Cauta vinuri, crame sau adauga link",
+    "analyzing": "Analizez...",
+    "submitLink": "Trimite",
+    "search": "Cauta",
+    "loading": "Cautam...",
+    "sommelierHint": "Intrebare despre vin? Apasa Enter pentru a intreba somelierul AI.",
+    "emptyHint": "Niciun rezultat. Apasa Enter pentru cautare completa sau lipeste un link de vin romanesc.",
+    "wineType": "Vin",
+    "wineryType": "Crama",
+    "linkHelper": "Adauga un link de vin romanesc (eMag, site crama etc.)",
+    "analysisFailed": "Analiza a esuat.",
+    "invalidResult": "Nu am primit un rezultat valid.",
+    "pendingReview": "Vinul nu este in baza noastra de date. Vinul a fost trimis spre verificare. Va aparea pe site dupa aprobare.",
+    "alreadyPending": "Acest vin a fost deja trimis spre verificare. Va aparea pe site dupa aprobare."
+  },
+  "Catalog": {
+    "metadata": {
+      "title": "Vinuri romanesti: catalog, preturi si scoruri",
+      "description": "Catalog complet de vinuri romanesti cu Value Score, preturi in RON, crama si regiune. Cauta rapid si compara raportul calitate-pret.",
+      "openGraphTitle": "Vinuri romanesti: catalog, preturi si scoruri | VinIntel",
+      "openGraphDescription": "Toate vinurile romanesti din catalogul VinIntel, ordonate dupa Value Score."
+    },
+    "breadcrumbHome": "Acasa",
+    "breadcrumbCurrent": "Vinuri",
+    "listName": "Catalog vinuri romanesti VinIntel",
+    "verified": "{count} vinuri verificate",
+    "heading": "Vinuri romanesti",
+    "description": "Exploreaza vinurile romanesti dupa culoare, dulceata si buget, apoi compara-le dupa Value Score.",
+    "popular": "Topuri populare",
+    "add": "Adauga un vin",
+    "emptyPrefix": "Inca nu avem vinuri in catalog. Revino in curand sau",
+    "emptyLink": "trimite primul vin",
+    "faqHeading": "Intrebari frecvente",
+    "faq": {
+      "value": {
+        "question": "Ce este Value Score?",
+        "answer": "Value Score este scorul VinIntel pentru raportul calitate-pret. Cu cat e mai mare, cu atat vinul ofera mai mult pentru banii tai."
+      },
+      "search": {
+        "question": "Cum caut un vin in catalog?",
+        "answer": "Filtreaza dupa culoare sau tip, dulceata, pret si Value Score. Poti cauta si dupa nume, crama, regiune sau soi."
+      },
+      "add": {
+        "question": "Pot adauga un vin care lipseste?",
+        "answer": "Da. Trimite linkul paginii vinului prin formularul Adauga vin si il verificam inainte de publicare."
+      }
+    },
+    "directory": {
+      "searchPlaceholder": "Cauta dupa nume, crama, regiune sau soi...",
+      "searchAria": "Cauta vinuri",
+      "typeLabel": "Culoare / tip",
+      "sweetnessLabel": "Dulceata",
+      "sortAria": "Sortare",
+      "sortPlaceholder": "Sortare",
+      "priceAria": "Pret",
+      "pricePlaceholder": "Pret",
+      "scoreAria": "Recomandare",
+      "scorePlaceholder": "Recomandare",
+      "reset": "Reseteaza",
+      "foundOne": "vin gasit",
+      "foundMany": "vinuri gasite",
+      "removeFilter": "Sterge filtrul {label}",
+      "recommendedNote": "Afisam vinuri cu Value Score {score}+ (merita pretul)",
+      "exceptionalNote": "Afisam vinuri cu Value Score {score}+ (valoare exceptionala)",
+      "noResults": "Niciun vin nu corespunde combinatiei alese",
+      "noResultsHint": "Incearca alta dulceata, culoare sau un buget mai larg.",
+      "resetFilters": "Reseteaza filtrele",
+      "viewOnly": "Vezi doar {type}",
+      "types": {
+        "all": "Toate",
+        "red": "Rosu",
+        "white": "Alb",
+        "rose": "Roze",
+        "sparkling": "Spumant",
+        "orange": "Orange",
+        "dessert": "Desert"
+      },
+      "sweetness": {
+        "all": "Toate",
+        "sec": "Sec",
+        "demisec": "Demisec",
+        "demidulce": "Demidulce",
+        "dulce": "Dulce"
+      },
+      "sort": {
+        "value": "Value Score (cel mai bun)",
+        "priceAsc": "Pret crescator",
+        "priceDesc": "Pret descrescator",
+        "name": "Nume A-Z"
+      },
+      "prices": {
+        "all": "Orice pret",
+        "under50": "Sub 50 RON",
+        "from50To100": "50-100 RON",
+        "over100": "Peste 100 RON"
+      },
+      "scores": {
+        "all": "Toate scorurile",
+        "recommended": "Merita pretul ({score}+)",
+        "exceptional": "Exceptionale ({score}+)",
+        "recommendedChip": "Merita pretul",
+        "exceptionalChip": "Exceptionale"
+      },
+      "sections": {
+        "red": "Vinuri rosii",
+        "white": "Vinuri albe",
+        "rose": "Vinuri roze",
+        "sparkling": "Spumante",
+        "orange": "Orange",
+        "dessert": "Vinuri desert"
+      },
+      "sectionDescriptions": {
+        "sparkling": "Metoda traditionala, brut si ocazii festive",
+        "orange": "Vinuri macerate, expresie moderna romaneasca",
+        "default": "Selectie {type} din catalogul VinIntel"
+      }
+    }
+  },
+  "Wineries": {
+    "metadata": {
+      "title": "Crame din Romania: regiuni, vinuri si clasamente",
+      "description": "Director de crame romanesti: regiune, numar de vinuri, Value Score mediu, interval de pret si cel mai bun vin al fiecarei crame.",
+      "openGraphTitle": "Crame din Romania: regiuni, vinuri si clasamente | VinIntel",
+      "openGraphDescription": "Toate cramele romanesti intr-un singur loc: regiune, vinuri, scoruri si preturi."
+    },
+    "breadcrumbHome": "Acasa",
+    "breadcrumbCurrent": "Crame",
+    "listName": "Crame romanesti",
+    "count": "{count} crame",
+    "heading": "Crame din Romania",
+    "description": "Exploreaza producatorii de vin din Romania. Vezi regiunea, numarul de vinuri, Value Score-ul mediu si intervalul de pret pentru fiecare crama.",
+    "regionsHeading": "Exploreaza pe regiuni",
+    "wineRegion": "Regiune viticola",
+    "empty": "Inca nu avem crame listate. Revino in curand.",
+    "faqHeading": "Intrebari frecvente",
+    "faq": {
+      "count": {
+        "question": "Cate crame romanesti sunt pe VinIntel?",
+        "answer": "Listam crame cu cel putin un vin analizat in catalog. Fiecare profil include regiune, numar de vinuri, Value Score mediu si interval de pret."
+      },
+      "choose": {
+        "question": "Cum aleg o crama potrivita?",
+        "answer": "Compara Value Score-ul mediu, intervalul de pret si vinurile disponibile. Poti explora si regiunile viticole pentru context local."
+      },
+      "claim": {
+        "question": "Pot revendica profilul cramei?",
+        "answer": "Da. Producatorii pot revendica profilul, verifica datele si actualiza informatiile despre vinuri prin formularul Revendica crama."
+      }
+    },
+    "directory": {
+      "searchPlaceholder": "Cauta dupa nume sau regiune...",
+      "searchAria": "Cauta crame",
+      "foundOne": "crama gasita",
+      "foundMany": "crame gasite",
+      "noResults": "Nicio crama nu corespunde cautarii"
+    },
+    "card": {
+      "country": "Romania",
+      "verified": "Verificata",
+      "unverified": "Neverificata",
+      "price": "Pret:",
+      "best": "Cel mai bun:",
+      "under50": "Sub 50 lei:",
+      "grapes": "Soiuri:",
+      "checked": "Verificat:",
+      "wineOne": "vin",
+      "wineMany": "vinuri",
+      "value": "Value",
+      "view": "Vezi crama",
+      "viewAria": "Vezi crama {name}"
+    }
+  },
+  "Footer": {
+    "tagline": "Ghid de vinuri romanesti: preturi, Value Score si recomandari oneste.",
+    "pivotHeading": "Pagini pivot",
+    "pivotAria": "Pagini pivot SEO",
+    "regionsHeading": "Regiuni viticole",
+    "regionsAria": "Regiuni viticole",
+    "navigationAria": "Navigatie footer",
+    "copyright": "{year} VinIntel. Vinuri romanesti, clar si onest.",
+    "links": {
+      "wines": "Vinuri",
+      "wineries": "Crame",
+      "top": "Topuri",
+      "studies": "Studii",
+      "journal": "Wine Journal",
+      "sommelier": "AI Sommelier",
+      "scores": "Cum calculam scorurile",
+      "privacy": "Confidentialitate",
+      "cookies": "Politica cookies",
+      "claim": "Revendica crama",
+      "catalog": "Vinuri romanesti",
+      "best": "Cele mai bune vinuri romanesti",
+      "budget": "Vinuri ieftine si bune",
+      "wineryDirectory": "Crame din Romania"
+    }
+  },
+  "Cookies": {
+    "ariaLabel": "Informare cookie-uri",
+    "heading": "Cookie-uri si confidentialitate",
+    "descriptionBefore": "Folosim cookie-uri esentiale si, cu acordul tau, cookie-uri analitice pentru a masura traficul si a imbunatati VinIntel.ro. Continuand, accepti",
+    "cookiePolicy": "Politica de cookies",
+    "and": "si",
+    "privacyPolicy": "Politica de confidentialitate",
+    "accept": "Accept"
+  }
+}

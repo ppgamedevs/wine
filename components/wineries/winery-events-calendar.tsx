@@ -1,25 +1,27 @@
 import { CalendarDays, ExternalLink, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import type { AppLocale } from "@/i18n/locale";
 import { formatLongDate } from "@/lib/format";
 import type { WineryEvent } from "@/types";
 
-const eventTypeLabel: Record<WineryEvent["eventType"], string> = {
-  tasting: "Degustare",
-  tour: "Tur crama",
-  harvest: "Recolta",
-  festival: "Festival",
-  workshop: "Workshop",
-  other: "Eveniment",
-};
+export interface WineryEventsCalendarCopy {
+  heading: string;
+  intro: string;
+  fallbackTitle: string;
+  details: string;
+  eventTypeLabels: Record<WineryEvent["eventType"], string>;
+}
 
 interface WineryEventsCalendarProps {
   events: WineryEvent[];
-  wineryName: string;
+  locale: AppLocale;
+  copy: WineryEventsCalendarCopy;
 }
 
 export function WineryEventsCalendar({
   events,
-  wineryName,
+  locale,
+  copy,
 }: WineryEventsCalendarProps) {
   if (events.length === 0) return null;
 
@@ -29,18 +31,17 @@ export function WineryEventsCalendar({
         id="winery-events-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Calendar evenimente
+        {copy.heading}
       </h2>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        Degustari, tururi si evenimente de la {wineryName}. Program actualizat de
-        crama.
+        {copy.intro}
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {events.map((event) => {
-          const dateLabel = formatLongDate(event.startsAt);
+          const dateLabel = formatLongDate(event.startsAt, locale);
           const endLabel = event.endsAt
-            ? formatLongDate(event.endsAt)
+            ? formatLongDate(event.endsAt, locale)
             : null;
 
           return (
@@ -51,7 +52,7 @@ export function WineryEventsCalendar({
               <CardContent className="p-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-wine/10 px-2.5 py-0.5 text-xs font-medium text-wine">
-                    {eventTypeLabel[event.eventType]}
+                    {copy.eventTypeLabels[event.eventType]}
                   </span>
                   {dateLabel ? (
                     <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -65,7 +66,7 @@ export function WineryEventsCalendar({
                 </div>
 
                 <h3 className="mt-3 font-serif text-lg font-semibold text-foreground">
-                  {event.title}
+                  {event.title || copy.fallbackTitle}
                 </h3>
 
                 {event.description ? (
@@ -88,7 +89,7 @@ export function WineryEventsCalendar({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 font-medium text-wine hover:underline"
                     >
-                      Detalii / inscriere
+                      {copy.details}
                       <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                     </a>
                   ) : null}

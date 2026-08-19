@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "notFound": "Crama negasita",
+    "descriptionFallback": "{name} din {region}: {count} vinuri, scoruri, preturi in RON si pairing-uri.",
+    "wineryKeyword": "crama",
+    "romanianWineKeyword": "vinuri romanesti"
+  },
+  "limited": {
+    "heading": "Date editoriale limitate",
+    "notice": "Profilul este in curs de completare. Afisam datele factuale, scorurile si preturile disponibile."
+  },
+  "hero": {
+    "breadcrumb": "Breadcrumb",
+    "home": "Acasa",
+    "wineries": "Crame",
+    "verified": "Crama verificata",
+    "unverified": "Neverificata",
+    "founded": "Fondata in {year}",
+    "officialWebsite": "Website oficial",
+    "visit": "Viziteaza crama",
+    "visitUnavailable": "Linkul catre pachetele de degustare se activeaza dupa ce crama isi revendica si verifica profilul.",
+    "listedWines": "Vinuri listate",
+    "averageValueScore": "Value Score mediu",
+    "priceRange": "Interval de pret",
+    "dashboard": "Dashboard analytics Premium"
+  },
+  "banner": {
+    "alt": "Banner {name}"
+  },
+  "events": {
+    "heading": "Calendar evenimente",
+    "intro": "Degustari, tururi si evenimente de la {name}. Program actualizat de crama.",
+    "fallbackTitle": "Eveniment la crama",
+    "details": "Detalii / inscriere",
+    "types": {
+      "tasting": "Degustare",
+      "tour": "Tur crama",
+      "harvest": "Recolta",
+      "festival": "Festival",
+      "workshop": "Workshop",
+      "other": "Eveniment"
+    }
+  },
+  "wines": {
+    "heading": "Vinuri de la {name}",
+    "intro": "Ordonate dupa Value Score, indicatorul nostru pentru raportul calitate-pret.",
+    "scoresLink": "Cum calculam scorurile",
+    "empty": "Inca nu avem vinuri listate pentru aceasta crama."
+  },
+  "claim": {
+    "heading": "Reprezinti {name}?",
+    "description": "Revendica profilul, verifica datele si actualizeaza informatiile despre vinurile tale. Gratuit si rapid.",
+    "button": "Revendica aceasta crama"
+  },
+  "faq": {
+    "heading": "Intrebari frecvente",
+    "count": {
+      "question": "Cate vinuri are {name} pe VinIntel?",
+      "answer": "Avem {count} vinuri de la {name} in baza de date, ordonate dupa Value Score, cu preturi in RON si pairing-uri."
+    },
+    "best": {
+      "question": "Care este cel mai bun vin de la {name}?",
+      "answer": "In acest moment, {wine} conduce, cu Value Score {score}/100 la {price}.",
+      "empty": "Actualizam constant lista de vinuri de la {name}."
+    },
+    "location": {
+      "question": "Unde se afla crama {name}?",
+      "answer": "{name} se afla in regiunea {region}{founded}.",
+      "founded": " si a fost fondata in {year}"
+    },
+    "verified": {
+      "question": "Este {name} o crama verificata?",
+      "yes": "Da, {name} este o crama verificata in baza noastra de date.",
+      "no": "{name} nu este inca verificata oficial. Daca reprezinti aceasta crama, poti solicita verificarea."
+    }
+  },
+  "structuredData": {
+    "home": "Acasa",
+    "wineries": "Crame",
+    "wineList": "Vinuri de la {name}"
+  }
+}

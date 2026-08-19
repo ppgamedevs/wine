@@ -8,13 +8,32 @@ import { formatRon } from "@/lib/format";
 import { buildWorthItAnalysis } from "@/lib/wine-analysis";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
 import type { WineWithRelations } from "@/types";
+import { getValueScoreVerdict } from "@/lib/value-score-thresholds";
+import { getLocale, getTranslations } from "next-intl/server";
 
-export function WineBuyingDecision({ wine }: { wine: WineWithRelations }) {
+export async function WineBuyingDecision({ wine }: { wine: WineWithRelations }) {
+  const locale = await getLocale();
+  const t = await getTranslations("Wine.buyingDecision");
+  const scoreLabels = await getTranslations("Wine.scoreLabels");
+  // Prompt 20 guard: Value Score remains the single primary score.
   const pricing = buildWinePriceViewModel(wine);
-  const analysis = buildWorthItAnalysis(wine);
-  const pairing = resolvePublicWinePairings(wine, 1)[0] ?? null;
+  const analysis = buildWorthItAnalysis(wine, locale);
+  const pairing = resolvePublicWinePairings(wine, 1, locale)[0] ?? null;
   const { gift } = resolvePublicSecondaryScores(wine);
   const hasOffer = pricing.purchaseLink != null;
+  const verdict = getValueScoreVerdict(wine.valueScore);
+  const scoreLabel =
+    verdict === "exceptional"
+      ? scoreLabels("exceptional")
+      : verdict === "very_good"
+        ? scoreLabels("veryGood")
+        : verdict === "recommended"
+          ? scoreLabels("recommended")
+          : verdict === "fair"
+            ? scoreLabels("fair")
+            : verdict === "modest"
+              ? scoreLabels("modest")
+              : scoreLabels("overpriced");
 
   return (
     <Card className="mt-6 border-wine/20 bg-background shadow-sm">
@@ -22,19 +41,19 @@ export function WineBuyingDecision({ wine }: { wine: WineWithRelations }) {
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {pricing.status === "verified"
-              ? "Preț actual"
+              ? t("currentPrice")
               : pricing.status === "estimated"
-                ? "Preț aproximativ"
-                : "Preț"}
+                ? t("estimatedPrice")
+                : t("price")}
           </p>
           <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
-            {formatRon(pricing.displayPrice)}
+            {formatRon(pricing.displayPrice, locale)}
           </p>
         </div>
         <div className="flex items-start justify-between gap-5">
           <div className="min-w-0">
             <p className="text-sm font-medium text-muted-foreground">
-              Merită banii?
+              {t("worthIt")}
             </p>
             <p className="mt-1 font-serif text-xl font-semibold text-foreground">
               {analysis.headline}
@@ -45,9 +64,13 @@ export function WineBuyingDecision({ wine }: { wine: WineWithRelations }) {
           </div>
           {wine.valueScore != null ? (
             <div className="shrink-0 text-center">
-              <VinScoreBadge score={wine.valueScore} size="lg" />
+              <VinScoreBadge
+                score={wine.valueScore}
+                size="lg"
+                label={scoreLabel}
+              />
               <p className="mt-1 text-xs font-medium text-muted-foreground">
-                Value Score
+                {t("valueScore")}
               </p>
             </div>
           ) : null}
@@ -62,7 +85,7 @@ export function WineBuyingDecision({ wine }: { wine: WineWithRelations }) {
               />
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Cel mai bun cu
+                  {t("bestWith")}
                 </p>
                 <p className="text-sm font-medium text-foreground">
                   {pairing.dish}
@@ -77,12 +100,12 @@ export function WineBuyingDecision({ wine }: { wine: WineWithRelations }) {
             />
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Pentru cadou
+                {t("forGift")}
               </p>
               <p className="text-sm font-medium text-foreground">
                 {gift.score != null
-                  ? `${gift.score}/100${gift.provisional ? ", date limitate" : ""}`
-                  : gift.caption ?? "Scor indisponibil"}
+                  ? `${gift.score}/100${gift.provisional ? `, ${t("limitedData")}` : ""}`
+                  : t("scoreUnavailable")}
               </p>
             </div>
           </div>
@@ -99,7 +122,7 @@ export function WineBuyingDecision({ wine }: { wine: WineWithRelations }) {
             ) : (
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             )}
-            {hasOffer ? "Vezi unde îl găsești" : "Vezi alternative"}
+            {hasOffer ? t("findOffer") : t("seeAlternatives")}
           </a>
         </Button>
       </CardContent>

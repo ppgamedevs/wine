@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getLocale } from "next-intl/server";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -27,6 +28,48 @@ import {
 } from "@/lib/top-lists";
 import type { WineWithRelations } from "@/types";
 import { formatRon } from "@/lib/format";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
+import {
+  resolveTopListDefinitionById,
+  topListSlugForLocale,
+} from "@/lib/i18n/top-list-routes";
+import {
+  buildLocalizedAlternates,
+  getPseoMessages,
+  localizedWineHref,
+  openGraphLocale,
+} from "@/lib/i18n/pseo";
+import { getReadyTranslationValue } from "@/lib/i18n/content-translations";
+
+interface GrapeDescriptionSource {
+  id?: number;
+  description?: string | null;
+  updatedAt?: string;
+}
+
+async function englishGrapeDescription(
+  grape: GrapeDescriptionSource,
+): Promise<{ value: string | null; ready: boolean }> {
+  const source = grape.description?.trim();
+  if (!source) return { value: null, ready: true };
+  if (grape.id == null || grape.updatedAt == null) {
+    return { value: null, ready: false };
+  }
+  const translated = await getReadyTranslationValue({
+    entityType: "grape_variety",
+    entityId: String(grape.id),
+    field: "description",
+    sourceLocale: "ro",
+    targetLocale: "en",
+    sourceValueJson: source,
+    sourceUpdatedAt: grape.updatedAt,
+  });
+  return {
+    value: typeof translated === "string" ? translated : null,
+    ready: typeof translated === "string",
+  };
+}
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -38,9 +81,28 @@ interface SoiuriPageProps {
 function buildGrapeFaq(
   grapeName: string,
   wines: WineWithRelations[],
-  topListSlug: string,
+  topListPath: string,
+  locale: AppLocale,
 ): FaqEntry[] {
   const top = wines[0];
+  if (locale === "en") {
+    return [
+      {
+        question: `Which are the best ${grapeName} wines?`,
+        answer: top
+          ? `${top.name} currently leads with a Value Score of ${top.valueScore ?? "N/A"}/100 at ${formatRon(top.priceAvg, locale)}.`
+          : `We update the ${grapeName} ranking regularly.`,
+      },
+      {
+        question: `What is the ${grapeName} grape variety like?`,
+        answer: `${grapeName} is part of Romanian viticulture and can produce different styles depending on the region and winery.`,
+      },
+      {
+        question: "Where can I see the complete ranking?",
+        answer: `The complete ${grapeName} wine ranking is available at ${absoluteUrl(topListPath)}.`,
+      },
+    ];
+  }
   return [
     {
       question: `Care sunt cele mai bune vinuri ${grapeName}?`,
@@ -54,7 +116,7 @@ function buildGrapeFaq(
     },
     {
       question: "Unde vad clasamentul complet?",
-      answer: `Clasamentul complet de vinuri ${grapeName} este pe vinintel.ro/topuri/${topListSlug}.`,
+      answer: `Clasamentul complet de vinuri ${grapeName} este disponibil la ${absoluteUrl(topListPath)}.`,
     },
   ];
 }
@@ -74,6 +136,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: SoiuriPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const locale = (await getLocale()) as AppLocale;
   const [allWines, grapes] = await Promise.all([
     getWinesForSommelier(),
     getGrapeVarietyCatalogEntries(),
@@ -84,21 +147,43 @@ export async function generateMetadata({ params }: SoiuriPageProps): Promise<Met
     : [];
 
   if (!grape || grapeWines.length < MIN_INDEXABLE_TOP_LIST_WINES) {
-    return { title: "Soi negasit", robots: { index: false, follow: true } };
+    return {
+      title: getPseoMessages(locale).common.notFound,
+      robots: { index: false, follow: true },
+    };
   }
   const grapeName = grape.name;
+  const translatedDescription =
+    locale === "en"
+      ? await englishGrapeDescription(grape)
+      : { value: null, ready: true };
 
-  const title = `Soiul ${grapeName}: ghid si top vinuri romanesti`;
-  const description = `Ghid despre ${grapeName}: caracteristici, regiuni si cele mai bune vinuri romanesti cu preturi in RON.`;
-  const url = absoluteUrl(`/soiuri/${slug}`);
+  const title =
+    locale === "en"
+      ? `${grapeName} grape variety: guide and top Romanian wines`
+      : `Soiul ${grapeName}: ghid si top vinuri romanesti`;
+  const description =
+    locale === "en"
+      ? translatedDescription.value ??
+        `A guide to ${grapeName}, including its character, Romanian regions and the best catalog wines with prices in RON.`
+      : `Ghid despre ${grapeName}: caracteristici, regiuni si cele mai bune vinuri romanesti cu preturi in RON.`;
+  const path = localizedHref(locale, "grapeVariety", { slug });
+  const url = absoluteUrl(path);
 
   return {
     title,
     description,
-    alternates: { canonical: url },
+    ...(translatedDescription.ready
+      ? {}
+      : { robots: { index: false, follow: true } }),
+    alternates: buildLocalizedAlternates(
+      locale,
+      localizedHref("ro", "grapeVariety", { slug }),
+      localizedHref("en", "grapeVariety", { slug }),
+    ),
     openGraph: {
       type: "website",
-      locale: SITE.locale,
+      locale: openGraphLocale(locale),
       url,
       siteName: SITE.name,
       title: `${title} | VinIntel`,
@@ -114,6 +199,8 @@ export async function generateMetadata({ params }: SoiuriPageProps): Promise<Met
 
 export default async function SoiuriPage({ params }: SoiuriPageProps) {
   const { slug } = await params;
+  const locale = (await getLocale()) as AppLocale;
+  const messages = getPseoMessages(locale);
   const [allWines, grapes] = await Promise.all([
     getWinesForSommelier(),
     getGrapeVarietyCatalogEntries(),
@@ -121,31 +208,46 @@ export default async function SoiuriPage({ params }: SoiuriPageProps) {
   const grape = grapes.find((entry) => entry.slug === slug);
   if (!grape) notFound();
   const grapeName = grape.name;
+  const translatedDescription =
+    locale === "en"
+      ? await englishGrapeDescription(grape)
+      : { value: null, ready: true };
   const grapeWines = filterWinesByGrapeVariety(allWines, grape);
 
   if (grapeWines.length < MIN_INDEXABLE_TOP_LIST_WINES) notFound();
 
   const topWines = getTopWinesByValue(grapeWines, 5);
-  const topListSlug = `cele-mai-bune-${slug}`;
-  const faq = buildGrapeFaq(grapeName, topWines, topListSlug);
+  const topListDefinition = resolveTopListDefinitionById(
+    `grape:${slug}`,
+    [slug],
+  );
+  if (!topListDefinition) notFound();
+  const topListSlug = topListSlugForLocale(topListDefinition, locale);
+  const topListPath = localizedHref(locale, "topWine", {
+    slug: topListSlug,
+  });
+  const faq = buildGrapeFaq(grapeName, topWines, topListPath, locale);
+  const path = localizedHref(locale, "grapeVariety", { slug });
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `Vinuri ${grapeName}`,
+    inLanguage: locale === "en" ? "en" : "ro",
+    name:
+      locale === "en" ? `Wines made with ${grapeName}` : `Vinuri ${grapeName}`,
     numberOfItems: topWines.length,
     itemListElement: topWines.map((wine, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: absoluteUrl(`/wines/${wine.slug}`),
+      url: absoluteUrl(localizedWineHref(locale, wine)),
       name: wine.name,
     })),
   };
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
-    { name: "Acasa", path: "/" },
-    { name: "Vinuri", path: "/vinuri" },
-    { name: grapeName, path: `/soiuri/${slug}` },
+    { name: messages.common.home, path: localizedHref(locale, "home") },
+    { name: messages.common.wines, path: localizedHref(locale, "wines") },
+    { name: grapeName, path },
   ]);
 
   return (
@@ -162,25 +264,32 @@ export default async function SoiuriPage({ params }: SoiuriPageProps) {
               aria-label="Breadcrumb"
               className="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
             >
-              <Link href="/" className="hover:text-wine">
-                Acasa
+              <Link
+                href={localizedHref(locale, "home")}
+                className="hover:text-wine"
+              >
+                {messages.common.home}
               </Link>
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="text-foreground">{grapeName}</span>
             </nav>
             <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Soiul {grapeName}
+              {locale === "en" ? grapeName : `Soiul ${grapeName}`}
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Ghid despre {grapeName} in viticultura romaneasca: stiluri, regiuni
-              si cele mai bune vinuri din catalogul VinIntel.
+              {locale === "en"
+                ? translatedDescription.value ??
+                  `A guide to ${grapeName} in Romanian viticulture, including styles, regions and the strongest wines in the VinIntel catalog.`
+                : `Ghid despre ${grapeName} in viticultura romaneasca: stiluri, regiuni si cele mai bune vinuri din catalogul VinIntel.`}
             </p>
             <p className="mt-4">
               <Link
-                href={`/topuri/${topListSlug}`}
+                href={topListPath}
                 className="font-medium text-wine hover:underline"
               >
-                Vezi clasamentul complet {grapeName}
+                {locale === "en"
+                  ? `See the complete ${grapeName} ranking`
+                  : `Vezi clasamentul complet ${grapeName}`}
               </Link>
             </p>
           </div>
@@ -192,7 +301,9 @@ export default async function SoiuriPage({ params }: SoiuriPageProps) {
               id="top-wines-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              Top vinuri {grapeName}
+              {locale === "en"
+                ? `Top wines made with ${grapeName}`
+                : `Top vinuri ${grapeName}`}
             </h2>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {topWines.map((wine) => (
@@ -206,7 +317,7 @@ export default async function SoiuriPage({ params }: SoiuriPageProps) {
               id="faq-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              Intrebari frecvente
+              {messages.common.faq}
             </h2>
             <div className="mt-6 space-y-3">
               {faq.map((item) => (

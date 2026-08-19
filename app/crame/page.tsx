@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import { Building2, MapPin } from "lucide-react";
 import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
-import { SiteFooter } from "@/components/site-footer";
+import { LocalizedSiteFooter } from "@/components/localized-site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { WineryDirectory } from "@/components/wineries/winery-directory";
+import {
+  WineryDirectory,
+  type WineryDirectoryCopy,
+} from "@/components/wineries/winery-directory";
+import { localizedHref } from "@/i18n/paths";
+import { getDiscoveryI18n } from "@/lib/i18n/discovery";
 import { getFeaturedRegions, getWineriesIndex } from "@/lib/queries";
 import {
   absoluteUrl,
@@ -15,70 +20,100 @@ import {
 
 export const revalidate = 3600;
 
-const PATH = "/crame";
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, t } = await getDiscoveryI18n();
+  const path = localizedHref(locale, "wineries");
 
-export const metadata: Metadata = {
-  title: "Crame din Romania: regiuni, vinuri si clasamente",
-  description:
-    "Director de crame romanesti: regiune, numar de vinuri, Value Score mediu, interval de pret si cel mai bun vin al fiecarei crame.",
-  keywords: ["crame romanesti", "producatori vin", "vinarii", "vinuri romanesti"],
-  alternates: { canonical: absoluteUrl(PATH) },
-  openGraph: {
-    type: "website",
-    locale: SITE.locale,
-    url: absoluteUrl(PATH),
-    siteName: SITE.name,
-    title: "Crame din Romania: regiuni, vinuri si clasamente | VinIntel",
-    description:
-      "Toate cramele romanesti intr-un singur loc: regiune, vinuri, scoruri si preturi.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: SITE.twitter,
-    title: "Crame din Romania: regiuni, vinuri si clasamente | VinIntel",
-    description:
-      "Toate cramele romanesti intr-un singur loc: regiune, vinuri, scoruri si preturi.",
-  },
-};
-
-const faq = [
-  {
-    question: "Cate crame romanesti sunt pe VinIntel?",
-    answer:
-      "Listam crame cu cel putin un vin analizat in catalog. Fiecare profil include regiune, numar de vinuri, Value Score mediu si interval de pret.",
-  },
-  {
-    question: "Cum aleg o crama potrivita?",
-    answer:
-      "Compara Value Score-ul mediu, intervalul de pret si vinurile disponibile. Poti explora si regiunile viticole pentru context local.",
-  },
-  {
-    question: "Pot revendica profilul cramei?",
-    answer:
-      "Da. Producatorii pot revendica profilul, verifica datele si actualiza informatiile despre vinuri prin formularul Revendica crama.",
-  },
-];
+  return {
+    title: t("Wineries.metadata.title"),
+    description: t("Wineries.metadata.description"),
+    keywords:
+      locale === "en"
+        ? ["Romanian wineries", "wine producers", "Romanian wine"]
+        : ["crame romanesti", "producatori vin", "vinarii", "vinuri romanesti"],
+    alternates: {
+      canonical: absoluteUrl(path),
+      languages: {
+        ro: absoluteUrl(localizedHref("ro", "wineries")),
+        en: absoluteUrl(localizedHref("en", "wineries")),
+        "x-default": absoluteUrl(localizedHref("ro", "wineries")),
+      },
+    },
+    openGraph: {
+      type: "website",
+      locale: locale === "en" ? "en_GB" : SITE.locale,
+      url: absoluteUrl(path),
+      siteName: SITE.name,
+      title: t("Wineries.metadata.openGraphTitle"),
+      description: t("Wineries.metadata.openGraphDescription"),
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: SITE.twitter,
+      title: t("Wineries.metadata.openGraphTitle"),
+      description: t("Wineries.metadata.openGraphDescription"),
+    },
+  };
+}
 
 export default async function WineriesIndexPage() {
-  const [wineries, featuredRegions] = await Promise.all([
+  const [{ locale, t }, wineries, featuredRegions] = await Promise.all([
+    getDiscoveryI18n(),
     getWineriesIndex(),
     getFeaturedRegions(6),
   ]);
+  const path = localizedHref(locale, "wineries");
+  const faq = [
+    {
+      question: t("Wineries.faq.count.question"),
+      answer: t("Wineries.faq.count.answer"),
+    },
+    {
+      question: t("Wineries.faq.choose.question"),
+      answer: t("Wineries.faq.choose.answer"),
+    },
+    {
+      question: t("Wineries.faq.claim.question"),
+      answer: t("Wineries.faq.claim.answer"),
+    },
+  ];
+  const directoryCopy: WineryDirectoryCopy = {
+    searchPlaceholder: t("Wineries.directory.searchPlaceholder"),
+    searchAria: t("Wineries.directory.searchAria"),
+    foundOne: t("Wineries.directory.foundOne"),
+    foundMany: t("Wineries.directory.foundMany"),
+    noResults: t("Wineries.directory.noResults"),
+    card: {
+      country: t("Wineries.card.country"),
+      verified: t("Wineries.card.verified"),
+      unverified: t("Wineries.card.unverified"),
+      price: t("Wineries.card.price"),
+      best: t("Wineries.card.best"),
+      under50: t("Wineries.card.under50"),
+      grapes: t("Wineries.card.grapes"),
+      checked: t("Wineries.card.checked"),
+      wineOne: t("Wineries.card.wineOne"),
+      wineMany: t("Wineries.card.wineMany"),
+      value: t("Wineries.card.value"),
+      view: t("Wineries.card.view"),
+      viewAria: t("Wineries.card.viewAria", { name: "{name}" }),
+    },
+  };
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
-    { name: "Acasa", path: "/" },
-    { name: "Crame", path: PATH },
+    { name: t("Wineries.breadcrumbHome"), path: localizedHref(locale, "home") },
+    { name: t("Wineries.breadcrumbCurrent"), path },
   ]);
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Crame romanesti",
+    name: t("Wineries.listName"),
     numberOfItems: wineries.length,
     itemListElement: wineries.map((winery, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: absoluteUrl(`/wineries/${winery.slug}`),
+      url: absoluteUrl(localizedHref(locale, "winery", { slug: winery.slug })),
       name: winery.name,
     })),
   };
@@ -95,15 +130,13 @@ export default async function WineriesIndexPage() {
           <div className="mx-auto max-w-4xl px-6 py-12 text-center lg:py-16">
             <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
               <Building2 className="h-4 w-4" aria-hidden="true" />
-              {wineries.length} crame
+              {t("Wineries.count", { count: wineries.length })}
             </span>
             <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Crame din Romania
+              {t("Wineries.heading")}
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Exploreaza producatorii de vin din Romania. Vezi regiunea, numarul
-              de vinuri, Value Score-ul mediu si intervalul de pret pentru fiecare
-              crama.
+              {t("Wineries.description")}
             </p>
           </div>
         </section>
@@ -115,23 +148,25 @@ export default async function WineriesIndexPage() {
                 id="regions-heading"
                 className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
               >
-                Exploreaza pe regiuni
+                {t("Wineries.regionsHeading")}
               </h2>
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {featuredRegions.map((region) => (
                   <Link
                     key={region.slug}
-                    href={`/regiuni/${region.slug}`}
+                    href={localizedHref(locale, "region", {
+                      slug: region.slug,
+                    })}
                     className="group rounded-2xl border border-border/70 bg-card p-5 transition-all hover:border-wine/30 hover:shadow-sm"
                   >
                     <span className="inline-flex items-center gap-1.5 text-sm text-wine">
                       <MapPin className="h-4 w-4" aria-hidden="true" />
-                      Regiune viticola
+                      {t("Wineries.wineRegion")}
                     </span>
                     <h3 className="mt-2 font-serif text-lg font-semibold text-foreground group-hover:text-wine">
                       {region.name}
                     </h3>
-                    {region.description ? (
+                    {region.description && locale === "ro" ? (
                       <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
                         {region.description}
                       </p>
@@ -143,10 +178,14 @@ export default async function WineriesIndexPage() {
           ) : null}
 
           {wineries.length > 0 ? (
-            <WineryDirectory wineries={wineries} />
+            <WineryDirectory
+              wineries={wineries}
+              locale={locale}
+              copy={directoryCopy}
+            />
           ) : (
             <p className="rounded-2xl border border-dashed border-border bg-secondary/20 p-12 text-center text-muted-foreground">
-              Inca nu avem crame listate. Revino in curand.
+              {t("Wineries.empty")}
             </p>
           )}
         </div>
@@ -160,7 +199,7 @@ export default async function WineriesIndexPage() {
               id="crame-faq-heading"
               className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
             >
-              Intrebari frecvente
+              {t("Wineries.faqHeading")}
             </h2>
             <dl className="mt-8 space-y-6">
               {faq.map((item) => (
@@ -173,7 +212,7 @@ export default async function WineriesIndexPage() {
           </div>
         </section>
       </main>
-      <SiteFooter />
+      <LocalizedSiteFooter />
     </>
   );
 }

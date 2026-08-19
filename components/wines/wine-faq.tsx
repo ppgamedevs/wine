@@ -1,14 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
 import type { WineFaqItem } from "@/lib/wine-analysis";
+import { getTranslations } from "next-intl/server";
 
-export function WineFaq({ items }: { items: WineFaqItem[] }) {
+export async function WineFaq({ items }: { items: WineFaqItem[] }) {
+  const t = await getTranslations("Wine.faq");
   return (
     <section aria-labelledby="faq-heading">
       <h2
         id="faq-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Intrebari frecvente
+        {t("heading")}
       </h2>
       <div className="mt-6 space-y-3">
         {items.map((item) => (

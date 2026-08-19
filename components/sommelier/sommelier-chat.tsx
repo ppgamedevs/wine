@@ -13,13 +13,90 @@ import type { ChatWineRecommendation } from "@/lib/sommelier-chat-types";
 import { sanitizeAssistantChatText } from "@/lib/sommelier-chat-utils";
 import { useSpeechRecognition } from "@/lib/use-speech-recognition";
 import { cn } from "@/lib/utils";
+import type { AppLocale } from "@/i18n/locale";
 
-const QUICK_PROMPTS = [
-  "Vin bun pentru cozonac",
-  "Ce vin rosu merge la sarmale?",
-  "Recomandare sub 60 lei",
-  "Ceva special pentru o cina romantica",
-] as const;
+interface SommelierChatCopy {
+  quickPrompts: readonly string[];
+  recommendationsLabel: string;
+  recommendationsDescription: string;
+  assistantLabel: string;
+  listening: string;
+  placeholder: string;
+  messageLabel: string;
+  stopListening: string;
+  startListening: string;
+  stopGeneration: string;
+  sendMessage: string;
+  title: string;
+  description: string;
+  analyzing: string;
+  voiceErrors: {
+    microphoneDenied: string;
+    recognitionFailed: string;
+    microphoneActive: string;
+  };
+}
+
+const SOMMELIER_CHAT_COPY: Record<AppLocale, SommelierChatCopy> = {
+  ro: {
+    quickPrompts: [
+      "Vin bun pentru cozonac",
+      "Ce vin rosu merge la sarmale?",
+      "Recomandare sub 60 lei",
+      "Ceva special pentru o cina romantica",
+    ],
+    recommendationsLabel: "Recomandari principale",
+    recommendationsDescription:
+      "Selectie din catalogul VinIntel, potrivita cererii tale",
+    assistantLabel: "Somelier VinIntel",
+    listening: "Ascult...",
+    placeholder: "Scrie ce ocazie ai sau ce fel de vin cauti...",
+    messageLabel: "Mesaj pentru somelier",
+    stopListening: "Opreste ascultarea",
+    startListening: "Vorbeste mesajul",
+    stopGeneration: "Opreste generarea",
+    sendMessage: "Trimite mesaj",
+    title: "Somelierul tau romanesc",
+    description:
+      "Intreaba orice despre vinuri autohtone: ocazii, mancare, deserturi, buget in lei.",
+    analyzing: "Somelierul analizeaza catalogul...",
+    voiceErrors: {
+      microphoneDenied:
+        "Acces la microfon refuzat. Permite microfonul in browser.",
+      recognitionFailed: "Nu am putut recunoaste vocea. Incearca din nou.",
+      microphoneActive: "Microfonul este deja activ.",
+    },
+  },
+  en: {
+    quickPrompts: [
+      "A wine for cozonac",
+      "What should I drink with sarmale?",
+      "Recommend a wine under 60 RON",
+      "Something special for a romantic dinner",
+    ],
+    recommendationsLabel: "Top recommendations",
+    recommendationsDescription:
+      "Selected from the VinIntel catalog for your request",
+    assistantLabel: "VinIntel Sommelier",
+    listening: "Listening...",
+    placeholder: "Describe the occasion or the wine you want...",
+    messageLabel: "Message for the Sommelier",
+    stopListening: "Stop listening",
+    startListening: "Speak your message",
+    stopGeneration: "Stop generating",
+    sendMessage: "Send message",
+    title: "Your Romanian wine Sommelier",
+    description:
+      "Ask about Romanian wines, food pairings, gifts, occasions, and budgets in RON.",
+    analyzing: "The Sommelier is checking the catalog...",
+    voiceErrors: {
+      microphoneDenied:
+        "Microphone access was denied. Allow microphone access in your browser.",
+      recognitionFailed: "We could not recognize your voice. Try again.",
+      microphoneActive: "The microphone is already active.",
+    },
+  },
+};
 
 export type SommelierChatUiMessage = UIMessage<
   unknown,
@@ -52,8 +129,12 @@ function getRecommendationsFromMessage(
 
 function AssistantRecommendations({
   recommendations,
+  copy,
+  locale,
 }: {
   recommendations: ChatWineRecommendation[];
+  copy: SommelierChatCopy;
+  locale: AppLocale;
 }) {
   if (recommendations.length === 0) return null;
 
@@ -63,7 +144,7 @@ function AssistantRecommendations({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: EASE_OUT }}
       className="w-full max-w-[min(100%,42rem)] space-y-4"
-      aria-label="Recomandari principale"
+      aria-label={copy.recommendationsLabel}
     >
       <div className="flex items-center gap-2.5 px-1">
         <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-wine/10 text-wine">
@@ -71,17 +152,22 @@ function AssistantRecommendations({
         </span>
         <div>
           <h2 className="font-serif text-lg font-semibold text-foreground">
-            Recomandari principale
+            {copy.recommendationsLabel}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Selectie din catalogul VinIntel, potrivita cererii tale
+            {copy.recommendationsDescription}
           </p>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         {recommendations.map((wine, index) => (
-          <ChatWineCard key={wine.slug} wine={wine} index={index} />
+          <ChatWineCard
+            key={wine.slug}
+            wine={wine}
+            index={index}
+            locale={locale}
+          />
         ))}
       </div>
     </motion.section>
@@ -91,9 +177,11 @@ function AssistantRecommendations({
 function ChatBubble({
   role,
   children,
+  assistantLabel,
 }: {
   role: "user" | "assistant";
   children: ReactNode;
+  assistantLabel: string;
 }) {
   const isUser = role === "user";
 
@@ -115,7 +203,7 @@ function ChatBubble({
         {!isUser ? (
           <div className="mb-2 flex items-center gap-2 text-xs font-medium text-wine">
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            Somelier VinIntel
+            {assistantLabel}
           </div>
         ) : null}
         {children}
@@ -126,8 +214,10 @@ function ChatBubble({
 
 function ListeningIndicator({
   interimTranscript,
+  label,
 }: {
   interimTranscript: string;
+  label: string;
 }) {
   return (
     <motion.div
@@ -151,7 +241,7 @@ function ListeningIndicator({
           />
         ))}
       </span>
-      <span className="font-medium">Ascult...</span>
+      <span className="font-medium">{label}</span>
       {interimTranscript ? (
         <span className="truncate text-foreground/70">{interimTranscript}</span>
       ) : null}
@@ -172,6 +262,7 @@ function ChatComposer({
   onKeyDown,
   onToggleListening,
   onStop,
+  copy,
   className,
 }: {
   input: string;
@@ -186,13 +277,17 @@ function ChatComposer({
   onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onToggleListening: () => void;
   onStop: () => void;
+  copy: SommelierChatCopy;
   className?: string;
 }) {
   return (
     <div className={cn("w-full", className)}>
       <AnimatePresence>
         {isListening ? (
-          <ListeningIndicator interimTranscript={interimTranscript} />
+          <ListeningIndicator
+            interimTranscript={interimTranscript}
+            label={copy.listening}
+          />
         ) : null}
       </AnimatePresence>
 
@@ -217,10 +312,10 @@ function ChatComposer({
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={onKeyDown}
             rows={1}
-            placeholder="Scrie ce ocazie ai sau ce fel de vin cauti..."
+            placeholder={copy.placeholder}
             disabled={isBusy || isListening}
             className="min-h-[48px] max-h-36 min-w-0 flex-1 resize-none overflow-hidden bg-transparent px-3 py-3 text-sm leading-relaxed outline-none placeholder:text-muted-foreground disabled:opacity-60 sm:text-[15px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-            aria-label="Mesaj pentru somelier"
+            aria-label={copy.messageLabel}
           />
 
           {isVoiceSupported ? (
@@ -236,7 +331,7 @@ function ChatComposer({
                   "bg-wine/15 text-wine hover:bg-wine/20 hover:text-wine",
               )}
               aria-label={
-                isListening ? "Opreste ascultarea" : "Vorbeste mesajul"
+                isListening ? copy.stopListening : copy.startListening
               }
               aria-pressed={isListening}
             >
@@ -253,7 +348,7 @@ function ChatComposer({
               variant="outline"
               className="h-11 w-11 shrink-0 rounded-xl"
               onClick={onStop}
-              aria-label="Opreste generarea"
+              aria-label={copy.stopGeneration}
             >
               <Square className="h-4 w-4" />
             </Button>
@@ -263,7 +358,7 @@ function ChatComposer({
               size="icon"
               disabled={!input.trim()}
               className="h-11 w-11 shrink-0 rounded-xl bg-wine text-wine-foreground hover:bg-wine/90 disabled:opacity-40"
-              aria-label="Trimite mesaj"
+              aria-label={copy.sendMessage}
             >
               <SendHorizontal className="h-4 w-4" />
             </Button>
@@ -274,7 +369,12 @@ function ChatComposer({
   );
 }
 
-export function SommelierChat() {
+export function SommelierChat({
+  locale = "ro",
+}: {
+  locale?: AppLocale;
+}) {
+  const copy = SOMMELIER_CHAT_COPY[locale];
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -283,8 +383,12 @@ export function SommelierChat() {
   const initialQuerySent = useRef(false);
 
   const transport = useMemo(
-    () => new DefaultChatTransport<SommelierChatUiMessage>({ api: "/api/sommelier/chat" }),
-    [],
+    () =>
+      new DefaultChatTransport<SommelierChatUiMessage>({
+        api: "/api/sommelier/chat",
+        body: { locale },
+      }),
+    [locale],
   );
 
   const { messages, sendMessage, status, error, stop, setMessages } =
@@ -315,7 +419,8 @@ export function SommelierChat() {
     toggleListening,
     stopListening,
   } = useSpeechRecognition({
-    lang: "ro-RO",
+    lang: locale === "en" ? "en-US" : "ro-RO",
+    errorMessages: copy.voiceErrors,
     onFinalTranscript: (transcript) => {
       void submitText(transcript);
     },
@@ -372,7 +477,7 @@ export function SommelierChat() {
           const res = await fetch("/api/sommelier/recommendations", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: rawText }),
+            body: JSON.stringify({ text: rawText, locale }),
           });
           if (!res.ok) continue;
 
@@ -404,7 +509,7 @@ export function SommelierChat() {
         }
       }
     })();
-  }, [messages, setMessages, status]);
+  }, [locale, messages, setMessages, status]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -439,11 +544,10 @@ export function SommelierChat() {
                 <Wine className="h-7 w-7" aria-hidden="true" />
               </div>
               <h1 className="mt-5 font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Somelierul tau romanesc
+                {copy.title}
               </h1>
               <p className="mt-3 max-w-md text-balance text-muted-foreground">
-                Intreaba orice despre vinuri autohtone: ocazii, mancare,
-                deserturi, buget in lei.
+                {copy.description}
               </p>
 
               <ChatComposer
@@ -459,11 +563,12 @@ export function SommelierChat() {
                 onKeyDown={handleKeyDown}
                 onToggleListening={toggleListening}
                 onStop={stop}
+                copy={copy}
                 className="mt-8"
               />
 
               <div className="mt-6 flex w-full flex-wrap justify-center gap-2">
-                {QUICK_PROMPTS.map((prompt) => (
+                {copy.quickPrompts.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
@@ -495,13 +600,20 @@ export function SommelierChat() {
               return (
                 <div key={message.id} className="space-y-4">
                   {text ? (
-                    <ChatBubble role={isUser ? "user" : "assistant"}>
+                    <ChatBubble
+                      role={isUser ? "user" : "assistant"}
+                      assistantLabel={copy.assistantLabel}
+                    >
                       <p className="whitespace-pre-wrap">{text}</p>
                     </ChatBubble>
                   ) : null}
 
                   {!isUser ? (
-                    <AssistantRecommendations recommendations={recommendations} />
+                    <AssistantRecommendations
+                      recommendations={recommendations}
+                      copy={copy}
+                      locale={locale}
+                    />
                   ) : null}
                 </div>
               );
@@ -511,7 +623,7 @@ export function SommelierChat() {
           {isBusy && status === "submitted" ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin text-wine" />
-              Somelierul analizeaza catalogul...
+              {copy.analyzing}
             </div>
           ) : null}
 
@@ -538,6 +650,7 @@ export function SommelierChat() {
             onKeyDown={handleKeyDown}
             onToggleListening={toggleListening}
             onStop={stop}
+            copy={copy}
             className="mx-auto max-w-2xl"
           />
         </div>

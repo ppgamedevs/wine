@@ -8,11 +8,39 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { AppLocale } from "@/i18n/locale";
+
+export interface ClaimFormCopy {
+  fallbackError: string;
+  successTitle: string;
+  successDescription: string;
+  winery: string;
+  wineryPlaceholder: string;
+  name: string;
+  namePlaceholder: string;
+  role: string;
+  rolePlaceholder: string;
+  email: string;
+  emailPlaceholder: string;
+  phone: string;
+  phonePlaceholder: string;
+  website: string;
+  websitePlaceholder: string;
+  message: string;
+  messagePlaceholder: string;
+  sending: string;
+  submit: string;
+  consent: string;
+}
 
 export function ClaimForm({
   defaultWineryName = "",
+  locale,
+  copy,
 }: {
   defaultWineryName?: string;
+  locale: AppLocale;
+  copy: ClaimFormCopy;
 }) {
   const [submitted, setSubmitted] = useState(false);
   const [pending, setPending] = useState(false);
@@ -32,7 +60,11 @@ export function ClaimForm({
       return;
     }
 
-    setError(result.error ?? "Nu am putut trimite cererea.");
+    setError(
+      locale === "en"
+        ? copy.fallbackError
+        : result.error ?? copy.fallbackError,
+    );
   }
 
   if (submitted) {
@@ -43,11 +75,10 @@ export function ClaimForm({
             <CheckCircle2 className="h-7 w-7" aria-hidden="true" />
           </span>
           <h2 className="font-serif text-2xl font-semibold text-foreground">
-            Multumim! Cererea ta a fost trimisa
+            {copy.successTitle}
           </h2>
           <p className="max-w-md text-muted-foreground">
-            Echipa VinIntel te va contacta in 2-3 zile lucratoare pentru a
-            confirma datele si a activa profilul cramei tale.
+            {copy.successDescription}
           </p>
         </CardContent>
       </Card>
@@ -59,81 +90,81 @@ export function ClaimForm({
       <CardContent className="p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="winery">Numele cramei</Label>
+            <Label htmlFor="winery">{copy.winery}</Label>
             <Input
               id="winery"
               name="winery"
               required
               disabled={pending}
               defaultValue={defaultWineryName}
-              placeholder="ex. Crama Exemplu"
+              placeholder={copy.wineryPlaceholder}
             />
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="contactName">Numele tau</Label>
+              <Label htmlFor="contactName">{copy.name}</Label>
               <Input
                 id="contactName"
                 name="contactName"
                 required
                 disabled={pending}
-                placeholder="Nume si prenume"
+                placeholder={copy.namePlaceholder}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="role">Rol in cadrul cramei</Label>
+              <Label htmlFor="role">{copy.role}</Label>
               <Input
                 id="role"
                 name="role"
                 disabled={pending}
-                placeholder="ex. proprietar, marketing"
+                placeholder={copy.rolePlaceholder}
               />
             </div>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{copy.email}</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
                 required
                 disabled={pending}
-                placeholder="email@crama.ro"
+                placeholder={copy.emailPlaceholder}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefon (optional)</Label>
+              <Label htmlFor="phone">{copy.phone}</Label>
               <Input
                 id="phone"
                 name="phone"
                 type="tel"
                 disabled={pending}
-                placeholder="07xx xxx xxx"
+                placeholder={copy.phonePlaceholder}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="website">Website sau CUI (optional)</Label>
+            <Label htmlFor="website">{copy.website}</Label>
             <Input
               id="website"
               name="website"
               disabled={pending}
-              placeholder="https://crama.ro sau CUI"
+              placeholder={copy.websitePlaceholder}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="message">Mesaj (optional)</Label>
+            <Label htmlFor="message">{copy.message}</Label>
             <Textarea
               id="message"
               name="message"
               rows={4}
               disabled={pending}
-              placeholder="Spune-ne cum te putem ajuta sa iti revendici crama."
+              placeholder={copy.messagePlaceholder}
             />
           </div>
 
@@ -149,12 +180,11 @@ export function ClaimForm({
             disabled={pending}
             className="w-full bg-wine text-wine-foreground hover:bg-wine/90 sm:w-auto"
           >
-            {pending ? "Se trimite..." : "Trimite cererea de revendicare"}
+            {pending ? copy.sending : copy.submit}
           </Button>
 
           <p className="text-xs text-muted-foreground">
-            Prin trimiterea formularului esti de acord sa fii contactat de
-            echipa VinIntel in legatura cu revendicarea cramei.
+            {copy.consent}
           </p>
         </form>
       </CardContent>

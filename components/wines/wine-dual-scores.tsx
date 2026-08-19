@@ -4,8 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { VinScoreBadge } from "@/components/wines/vin-score-badge";
 import { WineCommunityVoteButton } from "@/components/wines/wine-community-vote-button";
 import {
-  COMMUNITY_SCORE_EXPLANATION,
-  formatCommunityVoteLabel,
   getCommunityScoreDisplay,
 } from "@/lib/community-score";
 import { splitValueExplanation, sanitizeEditorialText } from "@/lib/editorial-text";
@@ -17,6 +15,8 @@ import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-d
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
 import { Users } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
+import { localizedHref } from "@/i18n/paths";
 
 function ScoreColumn({
   title,
@@ -67,11 +67,39 @@ function MetricPill({
   );
 }
 
-function BreakdownTable({
+type BreakdownMessageKey =
+  | "modelQuality"
+  | "peerPrior"
+  | "estimatedQuality"
+  | "expectedQuality"
+  | "segmentDelta"
+  | "priceEfficiency"
+  | "rawScore"
+  | "qualityLimit"
+  | "confidenceLimit";
+
+function breakdownMessageKey(label: string): BreakdownMessageKey | null {
+  const labels: Record<string, BreakdownMessageKey> = {
+    "Q model (calitate intrinseca)": "modelQuality",
+    "Q prior (vinuri similare)": "peerPrior",
+    "Calitate estimata (Q)": "estimatedQuality",
+    "Calitate asteptata la pret (E)": "expectedQuality",
+    "Delta fata de segment (Q - E)": "segmentDelta",
+    "Eficienta pret": "priceEfficiency",
+    "Scor brut combinat": "rawScore",
+    "Plafonare calitate": "qualityLimit",
+    "Plafon incredere date": "confidenceLimit",
+  };
+  return labels[label] ?? null;
+}
+
+async function BreakdownTable({
   wine,
 }: {
   wine: WineWithRelations;
 }) {
+  const locale = await getLocale();
+  const t = await getTranslations("Wine.valueBreakdown");
   const input = valueScoreInputFromWine(wine);
   const breakdown = buildValueScoreBreakdown(input);
   const storedScore = wine.valueScore;
@@ -79,45 +107,43 @@ function BreakdownTable({
     ? sanitizePublicSecondaryCopy(
         splitValueExplanation(wine.valueExplanation).summary,
         wine,
+        locale,
       )
     : null;
 
   return (
     <div className="space-y-4">
       <h3 className="font-serif text-xl font-semibold text-foreground">
-        Cum am calculat Value Score
+        {t("heading")}
       </h3>
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-        VinIntel Value Score separa calitatea intrinseca (Q) de eficienta
-        pretului. Q foloseste date de degustare, medalii validate, regiune,
-        crama si vintage, fara a infera calitatea din pret. Eficienta pretului
-        masoara cat de bine se pozitioneaza vinul fata de nivelul obisnuit al
-        segmentului sau la acel pret.
+        {t("intro")}
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {breakdown.quality != null ? (
-          <MetricPill label="Calitate estimata (Q)" value={breakdown.quality} />
+          <MetricPill label={t("quality")} value={breakdown.quality} />
         ) : null}
         {breakdown.priceEfficiency != null ? (
           <MetricPill
-            label="Eficienta pret"
+            label={t("priceEfficiency")}
             value={breakdown.priceEfficiency}
           />
         ) : null}
         <MetricPill
-          label="VinIntel Value Score"
+          label={t("valueScore")}
           value={storedScore ?? breakdown.finalScore}
         />
-        {breakdown.confidenceLabel ? (
+        {breakdown.confidencePercent != null ? (
           <div className="rounded-lg border border-border/70 bg-secondary/30 px-3 py-2">
-            <p className="text-xs text-muted-foreground">Increderea datelor</p>
+            <p className="text-xs text-muted-foreground">
+              {t("dataConfidence")}
+            </p>
             <p className="font-medium text-foreground">
-              {breakdown.confidenceLabel}
-              {breakdown.confidencePercent != null
-                ? ` (${breakdown.confidencePercent}%)`
-                : ""}
-              {breakdown.provisional ? " · scor provizoriu" : ""}
+              {t("confidenceValue", {
+                percent: breakdown.confidencePercent,
+                provisional: breakdown.provisional ? t("provisional") : "",
+              })}
             </p>
           </div>
         ) : null}
@@ -134,42 +160,49 @@ function BreakdownTable({
           <thead>
             <tr className="border-b border-border/70 bg-secondary/40">
               <th className="px-4 py-3 text-left font-medium text-foreground">
-                Factor
+                {t("factor")}
               </th>
               <th className="hidden px-4 py-3 text-left font-medium text-foreground sm:table-cell">
-                Detaliu
+                {t("detail")}
               </th>
               <th className="px-4 py-3 text-right font-medium text-foreground">
-                Puncte
+                {t("points")}
               </th>
             </tr>
           </thead>
           <tbody>
-            {breakdown.items.map((item) => (
-              <tr
-                key={item.label}
-                className="border-b border-border/50 last:border-0"
-              >
-                <td className="px-4 py-3 font-medium text-foreground">
-                  {item.label}
-                </td>
-                <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                  {item.detail}
-                </td>
-                <td
-                  className={cn(
-                    "px-4 py-3 text-right font-semibold tabular-nums",
-                    item.points >= 0 ? "text-wine" : "text-destructive",
-                  )}
+            {breakdown.items.map((item) => {
+              const messageKey = breakdownMessageKey(item.label);
+              return (
+                <tr
+                  key={item.label}
+                  className="border-b border-border/50 last:border-0"
                 >
-                  {item.points >= 0 ? "+" : ""}
-                  {item.points}
-                </td>
-              </tr>
-            ))}
+                  <td className="px-4 py-3 font-medium text-foreground">
+                    {locale === "en" && messageKey
+                      ? t(`item.${messageKey}`)
+                      : item.label}
+                  </td>
+                  <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
+                    {locale === "en" && messageKey
+                      ? t(`detailText.${messageKey}`)
+                      : item.detail}
+                  </td>
+                  <td
+                    className={cn(
+                      "px-4 py-3 text-right font-semibold tabular-nums",
+                      item.points >= 0 ? "text-wine" : "text-destructive",
+                    )}
+                  >
+                    {item.points >= 0 ? "+" : ""}
+                    {item.points}
+                  </td>
+                </tr>
+              );
+            })}
             <tr className="bg-secondary/30">
               <td className="px-4 py-3 font-medium text-foreground" colSpan={2}>
-                Scor brut combinat
+                {t("subtotal")}
               </td>
               <td className="px-4 py-3 text-right font-semibold tabular-nums text-foreground">
                 {breakdown.subtotal}
@@ -181,13 +214,15 @@ function BreakdownTable({
                   className="px-4 py-3 text-sm text-muted-foreground"
                   colSpan={3}
                 >
-                  {breakdown.penaltyNote}
+                  {locale === "en"
+                    ? t("provisionalNote")
+                    : breakdown.penaltyNote}
                 </td>
               </tr>
             ) : null}
             <tr className="bg-wine/5">
               <td className="px-4 py-3 font-serif text-base font-semibold text-foreground" colSpan={2}>
-                VinIntel Value Score final
+                {t("final")}
               </td>
               <td className="px-4 py-3 text-right">
                 <span className="font-serif text-lg font-bold text-wine">
@@ -202,7 +237,10 @@ function BreakdownTable({
   );
 }
 
-export function WineDualScores({ wine }: { wine: WineWithRelations }) {
+export async function WineDualScores({ wine }: { wine: WineWithRelations }) {
+  const locale = await getLocale();
+  const t = await getTranslations("Wine.community");
+  const breakdown = await getTranslations("Wine.valueBreakdown");
   const community = getCommunityScoreDisplay(wine);
   const hasVinIntelScore = wine.valueScore != null;
 
@@ -216,36 +254,46 @@ export function WineDualScores({ wine }: { wine: WineWithRelations }) {
         id="wine-dual-scores-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        Ce spun utilizatorii
+        {t("heading")}
       </h2>
       <Card className="mt-5 border-border/70">
         <CardContent className="p-6 sm:p-8">
           <ScoreColumn
-              title="Scorul comunității"
+              title={t("scoreTitle")}
               badge={
                 community.score != null ? (
                   <div className="flex flex-col items-start gap-2">
-                    <VinScoreBadge score={community.score} size="lg" />
+                    <VinScoreBadge
+                      score={community.score}
+                      size="lg"
+                      showLabel={false}
+                    />
                     <Badge
                       variant="secondary"
                       className="gap-1 font-normal"
                     >
                       <Users className="h-3 w-3" aria-hidden="true" />
-                      {formatCommunityVoteLabel(community.voteCount)}
+                      {community.voteCount === 0
+                        ? t("noVotesLabel")
+                        : community.voteCount === 1
+                          ? t("oneVoteLabel")
+                          : t("manyVotesLabel", {
+                              count: community.voteCount,
+                            })}
                     </Badge>
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    Inca nu exista voturi. Fii primul care noteaza acest vin.
+                    {t("noVotes")}
                   </p>
                 )
               }
               explanation={
                 community.isLiveCommunity
-                  ? COMMUNITY_SCORE_EXPLANATION
+                  ? t("explanation")
                   : community.score != null
-                    ? `${COMMUNITY_SCORE_EXPLANATION} Date estimate din surse externe până la primele voturi VinIntel.`
-                    : COMMUNITY_SCORE_EXPLANATION
+                    ? `${t("explanation")} ${t("estimatedExplanation")}`
+                    : t("explanation")
               }
               footer={
                 <WineCommunityVoteButton
@@ -254,6 +302,34 @@ export function WineDualScores({ wine }: { wine: WineWithRelations }) {
                   initialVoteCount={
                     community.isLiveCommunity ? community.voteCount : 0
                   }
+                  labels={{
+                    alreadyVoted: t("alreadyVoted", {
+                      score: "__SCORE__",
+                    }),
+                    editVote: t("editVote"),
+                    vote: t("vote"),
+                    editTitle: t("editTitle"),
+                    voteTitle: t("voteTitle"),
+                    editDescription: t("editDescription"),
+                    voteDescription: t("voteDescription"),
+                    thanks: t("thanks", { score: "__SCORE__" }),
+                    currentScore: t("currentScore", {
+                      score: "__SCORE__",
+                      votes: "__VOTES__",
+                    }),
+                    oneVote: t("oneVote"),
+                    manyVotes: t("manyVotes", { count: "__COUNT__" }),
+                    yourScore: t("yourScore"),
+                    rangeLabel: t("rangeLabel"),
+                    weak: t("weak"),
+                    good: t("good"),
+                    excellent: t("excellent"),
+                    cancel: t("cancel"),
+                    sending: t("sending"),
+                    save: t("save"),
+                    submit: t("submit"),
+                    submitError: t("submitError"),
+                  }}
                 />
               }
             />
@@ -263,15 +339,15 @@ export function WineDualScores({ wine }: { wine: WineWithRelations }) {
       {hasVinIntelScore ? (
         <details className="mt-8 rounded-xl border border-border/70 bg-card">
           <summary className="cursor-pointer px-5 py-4 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            Cum am calculat Value Score
+            {breakdown("summary")}
           </summary>
           <div className="border-t border-border/70 px-5 py-6 sm:px-8">
             <BreakdownTable wine={wine} />
             <a
-              href="/cum-functioneaza-scorurile"
+              href={localizedHref(locale, "howScoresWork")}
               className="mt-5 inline-flex text-sm font-medium text-wine hover:underline"
             >
-              Vezi metodologia completă
+              {breakdown("methodology")}
             </a>
           </div>
         </details>

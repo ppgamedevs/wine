@@ -13,6 +13,7 @@ import {
   giftScoreInputFromWine,
   type WineLikeForSecondaryScores,
 } from "@/lib/scoring-v2/wine-score-inputs";
+import type { AppLocale } from "@/i18n/locale";
 
 export interface PublicScoreDisplay {
   score: number | null;
@@ -120,18 +121,25 @@ export function sanitizePublicSecondaryCopy(
     giftScore?: number | null;
     foodMatchScore?: number | null;
   },
+  locale: AppLocale = "ro",
 ): string {
   if (!text) return "";
   const { gift, food } = resolvePublicSecondaryScores(wine);
   const giftReplacement =
     gift.score == null
-      ? gift.caption ?? "Gift Score indisponibil."
+      ? locale === "en"
+        ? "Gift Score unavailable."
+        : gift.caption ?? "Gift Score indisponibil."
       : `Gift Score ${gift.score}/100`;
   const foodReplacement =
     food.score == null
-      ? food.caption ??
-        "Nu avem încă suficiente date pentru un scor general precis de versatilitate la masă."
-      : `Versatilitate la masă ${food.score}/100`;
+      ? locale === "en"
+        ? "There is not yet enough data for a precise food versatility score."
+        : food.caption ??
+          "Nu avem încă suficiente date pentru un scor general precis de versatilitate la masă."
+      : locale === "en"
+        ? `Food versatility ${food.score}/100`
+        : `Versatilitate la masă ${food.score}/100`;
 
   return text
     .replace(

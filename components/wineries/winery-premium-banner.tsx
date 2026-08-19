@@ -4,9 +4,13 @@ import type { Winery } from "@/types";
 
 interface WineryPremiumBannerProps {
   winery: Pick<Winery, "isPremium" | "customBannerUrl" | "name">;
+  alt: string;
 }
 
-export function WineryPremiumBanner({ winery }: WineryPremiumBannerProps) {
+export function WineryPremiumBanner({
+  winery,
+  alt,
+}: WineryPremiumBannerProps) {
   const bannerUrl = resolveWineryBannerUrl(winery);
   if (!bannerUrl) return null;
 
@@ -14,7 +18,7 @@ export function WineryPremiumBanner({ winery }: WineryPremiumBannerProps) {
     <div className="relative aspect-[21/9] w-full overflow-hidden border-b border-border/60 bg-secondary/30 sm:aspect-[3/1]">
       <Image
         src={bannerUrl}
-        alt={`Banner ${winery.name}`}
+        alt={alt}
         fill
         priority
         className="object-cover"

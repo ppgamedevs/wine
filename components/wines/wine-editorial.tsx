@@ -9,6 +9,7 @@ import {
 import { sanitizeEditorialText } from "@/lib/editorial-text";
 import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
 import type { WineWithRelations } from "@/types";
+import { getLocale, getTranslations } from "next-intl/server";
 
 function EditorialBlock({
   id,
@@ -37,9 +38,17 @@ function EditorialBlock({
   );
 }
 
-export function WineEditorial({ wine }: { wine: WineWithRelations }) {
+export async function WineEditorial({
+  wine,
+  limitedData = false,
+}: {
+  wine: WineWithRelations;
+  limitedData?: boolean;
+}) {
+  const locale = await getLocale();
+  const t = await getTranslations("Wine.editorial");
   const publicEditorialText = (text: string | null | undefined) =>
-    sanitizeEditorialText(sanitizePublicSecondaryCopy(text, wine));
+    sanitizeEditorialText(sanitizePublicSecondaryCopy(text, wine, locale));
   const hasDescription = Boolean(wine.descriptionEditorial?.trim());
   const hasThings = (wine.thingsYouShouldKnow ?? []).length > 0;
   const hasTaste = Boolean(wine.tasteProfile?.trim());
@@ -51,9 +60,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
       {!hasEditorialContent ? (
         <Card className="border-dashed border-border/80 bg-secondary/20">
           <CardContent className="p-6 text-sm leading-relaxed text-muted-foreground">
-            Analiza editoriala pentru acest vin este in pregatire. Datele
-            factuale (pret, soiuri, crama) sunt afisate mai jos; scorurile
-            VinIntel vor fi completate curand.
+            {limitedData ? t("limitedEnglish") : t("preparing")}
           </CardContent>
         </Card>
       ) : null}
@@ -61,7 +68,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
       {hasDescription ? (
         <EditorialBlock
           id="wine-description-editorial"
-          title="Despre acest vin"
+          title={t("about")}
           icon={EditorialWineIcon}
         >
           <p className="max-w-3xl text-base leading-relaxed text-foreground/90">
@@ -73,7 +80,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
       {hasTaste ? (
         <EditorialBlock
           id="wine-taste-profile"
-          title="Profil gustativ"
+          title={t("taste")}
           icon={EditorialTasteIcon}
         >
           <p className="max-w-3xl text-base leading-relaxed text-foreground/90">
@@ -85,7 +92,7 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
       {hasThings ? (
         <EditorialBlock
           id="wine-things-to-know"
-          title="Ce ar trebui sa stii"
+          title={t("know")}
           icon={EditorialInsightIcon}
         >
           <ul className="grid gap-3 sm:grid-cols-2">

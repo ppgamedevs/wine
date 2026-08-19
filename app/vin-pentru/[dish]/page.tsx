@@ -2,16 +2,26 @@ import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getLocale } from "next-intl/server";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WineCard } from "@/components/wine-card";
 import {
-  buildDishFaq,
   getAllDishPairingSlugs,
   getDishPairingPage,
   rankWinesForDish,
 } from "@/lib/dish-pairing-pages";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
+import {
+  buildLocalizedAlternates,
+  buildLocalizedDishFaq,
+  buildLocalizedDishPresentation,
+  getPseoMessages,
+  localizedWineHref,
+  openGraphLocale,
+} from "@/lib/i18n/pseo";
 import { getWinesForSommelier } from "@/lib/queries";
 import {
   absoluteUrl,
@@ -41,61 +51,73 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: VinPentruPageProps): Promise<Metadata> {
   const { dish } = await params;
+  const locale = (await getLocale()) as AppLocale;
   const config = getDishPairingPage(dish);
-  if (!config) return { title: "Pagina negasita" };
+  if (!config) return { title: getPseoMessages(locale).common.notFound };
 
-  const url = absoluteUrl(`/vin-pentru/${dish}`);
+  const presentation = buildLocalizedDishPresentation(config, locale);
+  const path = localizedHref(locale, "wineFor", { dish });
+  const url = absoluteUrl(path);
   return {
-    title: config.metaTitle,
-    description: config.metaDescription,
-    alternates: { canonical: url },
+    title: presentation.metaTitle,
+    description: presentation.metaDescription,
+    alternates: buildLocalizedAlternates(
+      locale,
+      localizedHref("ro", "wineFor", { dish }),
+      localizedHref("en", "wineFor", { dish }),
+    ),
     openGraph: {
       type: "website",
-      locale: SITE.locale,
+      locale: openGraphLocale(locale),
       url,
       siteName: SITE.name,
-      title: `${config.metaTitle} | VinIntel`,
-      description: config.metaDescription,
+      title: `${presentation.metaTitle} | VinIntel`,
+      description: presentation.metaDescription,
     },
     twitter: {
       card: "summary_large_image",
-      title: `${config.metaTitle} | VinIntel`,
-      description: config.metaDescription,
+      title: `${presentation.metaTitle} | VinIntel`,
+      description: presentation.metaDescription,
     },
   };
 }
 
 export default async function VinPentruPage({ params }: VinPentruPageProps) {
   const { dish } = await params;
+  const locale = (await getLocale()) as AppLocale;
+  const messages = getPseoMessages(locale);
   const config = getDishPairingPage(dish);
   if (!config) notFound();
+  const presentation = buildLocalizedDishPresentation(config, locale);
 
   const allWines = await getWinesForSommelier();
   const wines = rankWinesForDish(allWines, config);
 
   if (wines.length < MIN_INDEXABLE_TOP_LIST_WINES) notFound();
 
-  const faq = buildDishFaq(config, wines);
-  const url = absoluteUrl(`/vin-pentru/${dish}`);
+  const faq = buildLocalizedDishFaq(presentation, wines, locale);
+  const path = localizedHref(locale, "wineFor", { dish });
+  const url = absoluteUrl(path);
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: config.heading,
+    inLanguage: locale === "en" ? "en" : "ro",
+    name: presentation.heading,
     url,
     numberOfItems: wines.length,
     itemListElement: wines.map((wine, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: absoluteUrl(`/wines/${wine.slug}`),
+      url: absoluteUrl(localizedWineHref(locale, wine)),
       name: wine.name,
     })),
   };
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
-    { name: "Acasa", path: "/" },
-    { name: "Vinuri", path: "/vinuri" },
-    { name: config.dishName, path: `/vin-pentru/${dish}` },
+    { name: messages.common.home, path: localizedHref(locale, "home") },
+    { name: messages.common.wines, path: localizedHref(locale, "wines") },
+    { name: presentation.name, path },
   ]);
 
   return (
@@ -112,17 +134,20 @@ export default async function VinPentruPage({ params }: VinPentruPageProps) {
               aria-label="Breadcrumb"
               className="mb-4 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
             >
-              <Link href="/" className="hover:text-wine">
-                Acasa
+              <Link
+                href={localizedHref(locale, "home")}
+                className="hover:text-wine"
+              >
+                {messages.common.home}
               </Link>
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-              <span className="text-foreground">{config.dishName}</span>
+              <span className="text-foreground">{presentation.name}</span>
             </nav>
             <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              {config.heading}
+              {presentation.heading}
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              {config.intro}
+              {presentation.intro}
             </p>
           </div>
         </section>
@@ -133,7 +158,7 @@ export default async function VinPentruPage({ params }: VinPentruPageProps) {
               id="wines-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              Recomandari VinIntel
+              {messages.common.recommendations}
             </h2>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {wines.map((wine) => (
@@ -147,7 +172,7 @@ export default async function VinPentruPage({ params }: VinPentruPageProps) {
               id="faq-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              Intrebari frecvente
+              {messages.common.faq}
             </h2>
             <div className="mt-6 space-y-3">
               {faq.map((item) => (

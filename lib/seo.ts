@@ -1,3 +1,6 @@
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
+
 export const SITE = {
   name: "VinIntel",
   url: "https://www.vinintel.ro",
@@ -23,52 +26,64 @@ export function defaultOgImage(title: string) {
   };
 }
 
-export const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: SITE.name,
-  url: SITE.url,
-  logo: absoluteUrl("/icon.svg"),
-  description: SITE.description,
-  sameAs: [
-    "https://www.facebook.com/vinintel",
-    "https://www.instagram.com/vinintel",
-  ],
-  areaServed: {
-    "@type": "Country",
-    name: "Romania",
-  },
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "customer support",
-    email: "somelier@vinintel.ro",
-    areaServed: "RO",
-    availableLanguage: ["Romanian"],
-  },
-};
+const ENGLISH_SITE_DESCRIPTION =
+  "An independent guide to Romanian wines with clear recommendations, prices in RON, transparent scores and an AI Sommelier.";
 
-export const websiteJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: SITE.name,
-  url: SITE.url,
-  inLanguage: SITE.language,
-  description: SITE.description,
-  publisher: {
+export function buildOrganizationJsonLd(locale: AppLocale) {
+  return {
+    "@context": "https://schema.org",
     "@type": "Organization",
     name: SITE.name,
-    url: SITE.url,
+    url: absoluteUrl(localizedHref(locale, "home")),
     logo: absoluteUrl("/icon.svg"),
-  },
-  potentialAction: {
-    "@type": "SearchAction",
-    target: {
-      "@type": "EntryPoint",
-      urlTemplate: `${SITE.url}/cauta?q={search_term_string}`,
+    description:
+      locale === "en" ? ENGLISH_SITE_DESCRIPTION : SITE.description,
+    sameAs: [
+      "https://www.facebook.com/vinintel",
+      "https://www.instagram.com/vinintel",
+    ],
+    areaServed: {
+      "@type": "Country",
+      name: "Romania",
     },
-    "query-input": "required name=search_term_string",
-  },
-};
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: "somelier@vinintel.ro",
+      areaServed: "RO",
+      availableLanguage: [locale === "en" ? "English" : "Romanian"],
+    },
+  };
+}
+
+export function buildWebsiteJsonLd(locale: AppLocale) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE.name,
+    url: absoluteUrl(localizedHref(locale, "home")),
+    inLanguage: locale === "en" ? "en" : SITE.language,
+    description:
+      locale === "en" ? ENGLISH_SITE_DESCRIPTION : SITE.description,
+    publisher: {
+      "@type": "Organization",
+      name: SITE.name,
+      url: SITE.url,
+      logo: absoluteUrl("/icon.svg"),
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${absoluteUrl(localizedHref(locale, "search"))}?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+export const organizationJsonLd = buildOrganizationJsonLd("ro");
+export const websiteJsonLd = buildWebsiteJsonLd("ro");
 
 export interface BreadcrumbStep {
   name: string;

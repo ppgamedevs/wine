@@ -4,6 +4,8 @@ import { Reveal } from "@/components/reveal";
 import { WineCard } from "@/components/wine-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { localizedHref } from "@/i18n/paths";
+import { getDiscoveryI18n } from "@/lib/i18n/discovery";
 import { getFeaturedWines } from "@/lib/queries";
 
 export function FeaturedWinesSkeleton() {
@@ -36,7 +38,10 @@ export function FeaturedWinesSkeleton() {
 }
 
 export async function FeaturedWines() {
-  const featured = await getFeaturedWines(8);
+  const [{ locale, t }, featured] = await Promise.all([
+    getDiscoveryI18n(),
+    getFeaturedWines(8),
+  ]);
 
   if (featured.length === 0) return null;
 
@@ -47,11 +52,10 @@ export async function FeaturedWines() {
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
             <div className="max-w-2xl">
               <h2 className="font-serif text-3xl font-semibold text-foreground sm:text-4xl">
-                Vinuri recomandate
+                {t("FeaturedWines.heading")}
               </h2>
               <p className="mt-3 text-muted-foreground">
-                Selectia noastra dupa Value Score (minim 75/100): cel mai bun
-                raport calitate pret din vinul romanesc.
+                {t("FeaturedWines.description")}
               </p>
             </div>
             <Button
@@ -59,8 +63,8 @@ export async function FeaturedWines() {
               variant="outline"
               className="shrink-0 border-wine/30 text-wine hover:bg-wine/10 hover:text-wine"
             >
-              <Link href="/vinuri">
-                Toate vinurile
+              <Link href={localizedHref(locale, "wines")}>
+                {t("FeaturedWines.all")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

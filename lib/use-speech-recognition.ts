@@ -65,11 +65,22 @@ function getSpeechRecognitionConstructor(): SpeechRecognitionConstructor | null 
 export interface UseSpeechRecognitionOptions {
   lang?: string;
   onFinalTranscript?: (text: string) => void;
+  errorMessages?: {
+    microphoneDenied: string;
+    recognitionFailed: string;
+    microphoneActive: string;
+  };
 }
 
 export function useSpeechRecognition({
   lang = "ro-RO",
   onFinalTranscript,
+  errorMessages = {
+    microphoneDenied:
+      "Acces la microfon refuzat. Permite microfonul in browser.",
+    recognitionFailed: "Nu am putut recunoaste vocea. Incearca din nou.",
+    microphoneActive: "Microfonul este deja activ.",
+  },
 }: UseSpeechRecognitionOptions = {}) {
   const [isSupported, setIsSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -139,9 +150,9 @@ export function useSpeechRecognition({
         return;
       }
       if (event.error === "not-allowed") {
-        setError("Acces la microfon refuzat. Permite microfonul in browser.");
+        setError(errorMessages.microphoneDenied);
       } else {
-        setError("Nu am putut recunoaste vocea. Incearca din nou.");
+        setError(errorMessages.recognitionFailed);
       }
       setIsListening(false);
       setInterimTranscript("");
@@ -158,10 +169,10 @@ export function useSpeechRecognition({
     try {
       recognition.start();
     } catch {
-      setError("Microfonul este deja activ.");
+      setError(errorMessages.microphoneActive);
       setIsListening(false);
     }
-  }, [lang]);
+  }, [errorMessages, lang]);
 
   const toggleListening = useCallback(() => {
     if (isListening) {

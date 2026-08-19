@@ -7,23 +7,28 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { VinScoreBadge } from "@/components/wines/vin-score-badge";
-import { formatRon, wineTypeLabel } from "@/lib/format";
+import { formatRon, getWineTypeLabel } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
 import type { ChatWineRecommendation } from "@/lib/sommelier-chat-types";
 import { buildWineFullTitle } from "@/lib/wine-vintage";
 import { cn } from "@/lib/utils";
+import type { AppLocale } from "@/i18n/locale";
+import { localizedHref } from "@/i18n/paths";
 
 export function ChatWineCard({
   wine,
   index = 0,
+  locale = "ro",
 }: {
   wine: ChatWineRecommendation;
   index?: number;
+  locale?: AppLocale;
 }) {
   const displayName = wine.vintage
     ? buildWineFullTitle(wine.name, wine.vintage)
     : wine.name;
-  const purchaseHref = `/wines/${wine.slug}#price-heading`;
+  const wineHref = localizedHref(locale, "wine", { slug: wine.slug });
+  const purchaseHref = `${wineHref}#price-heading`;
 
   return (
     <motion.div
@@ -55,7 +60,7 @@ export function ChatWineCard({
           )}
 
           <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur">
-            {wineTypeLabel[wine.type]}
+            {getWineTypeLabel(wine.type, locale)}
           </span>
         </div>
 
@@ -72,9 +77,9 @@ export function ChatWineCard({
 
           <div className="flex flex-wrap items-end justify-between gap-3">
             <p className="text-sm font-medium text-foreground/90">
-              {formatRon(wine.priceRon)}
+              {formatRon(wine.priceRon, locale)}
               <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                pret aprox.
+                {locale === "en" ? "approx. price" : "pret aprox."}
               </span>
             </p>
 
@@ -90,14 +95,16 @@ export function ChatWineCard({
             size="sm"
             className="bg-wine text-wine-foreground hover:bg-wine/90"
           >
-            <Link href={`/wines/${wine.slug}`}>Vezi detalii</Link>
+            <Link href={wineHref}>
+              {locale === "en" ? "View details" : "Vezi detalii"}
+            </Link>
           </Button>
 
           {wine.hasAffiliateLink ? (
             <Button asChild size="sm" variant="ghost" className="text-muted-foreground">
               <Link href={purchaseHref}>
                 <ShoppingBag className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-                Cumpara
+                {locale === "en" ? "Buy" : "Cumpara"}
               </Link>
             </Button>
           ) : null}

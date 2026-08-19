@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-08-19T14:02:43.189Z",
+  "locale": "en",
+  "apply": false,
+  "model": "NOT_CONFIGURED",
+  "sourceCount": 1,
+  "missing": 1,
+  "stale": 0,
+  "readyReused": 0,
+  "reviewRequired": 0,
+  "failed": 0,
+  "apiCalls": 0,
+  "writes": 0,
+  "skippedExistingNonReady": 0,
+  "failures": []
+}
