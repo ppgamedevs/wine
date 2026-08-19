@@ -9,6 +9,7 @@ import {
   hasActiveCatalogFilters,
   type CatalogFilterState,
 } from "@/lib/wine-catalog-filters";
+import { buildPublicWineCatalogItem } from "@/lib/public-wine-card";
 import type { WineWithRelations } from "@/types";
 
 function wine(
@@ -24,6 +25,9 @@ function wine(
     status: "verified",
     foodPairings: [],
     grapeVarieties: [{ name: "Feteasca Neagra" }],
+    affiliateLinks: [],
+    availability: [],
+    priceHistory: [],
     valueScore: 70,
     priceAvg: 45,
     winery: { name: "Crama Test", slug: "crama-test" },
@@ -78,7 +82,7 @@ const catalog = [
     priceAvg: 120,
     grapeVarieties: [{ name: "Feteasca Neagra" }],
   }),
-];
+].map(buildPublicWineCatalogItem);
 
 function filters(patch: Partial<CatalogFilterState> = {}): CatalogFilterState {
   return { ...DEFAULT_CATALOG_FILTERS, ...patch };
@@ -88,23 +92,25 @@ describe("catalog sweetness and combined filters", () => {
   it("A: sweetness=sec returns only sec wines", () => {
     const rows = filterCatalogWines(catalog, filters({ sweetness: "sec" }));
     expect(rows.every((item) => item.sweetness === "sec")).toBe(true);
-    expect(rows.map((item) => item.slug)).not.toContain("rosu-demisec");
+    expect(rows.map((item) => item.card.slug)).not.toContain("rosu-demisec");
   });
 
   it("B: demisec does not match demidulce", () => {
     const extra = [
       ...catalog,
-      wine({ slug: "alb-demidulce", type: "white", sweetness: "demidulce" }),
+      buildPublicWineCatalogItem(
+        wine({ slug: "alb-demidulce", type: "white", sweetness: "demidulce" }),
+      ),
     ];
     const rows = filterCatalogWines(extra, filters({ sweetness: "demisec" }));
-    expect(rows.map((item) => item.slug)).toEqual(["rosu-demisec"]);
+    expect(rows.map((item) => item.card.slug)).toEqual(["rosu-demisec"]);
   });
 
   it("C: null sweetness appears in all, but not explicit sweetness filters", () => {
     const all = filterCatalogWines(catalog, filters());
-    expect(all.map((item) => item.slug)).toContain("unknown-sweet");
+    expect(all.map((item) => item.card.slug)).toContain("unknown-sweet");
     const sec = filterCatalogWines(catalog, filters({ sweetness: "sec" }));
-    expect(sec.map((item) => item.slug)).not.toContain("unknown-sweet");
+    expect(sec.map((item) => item.card.slug)).not.toContain("unknown-sweet");
   });
 
   it("D: red + sec composes correctly", () => {
@@ -115,7 +121,7 @@ describe("catalog sweetness and combined filters", () => {
     expect(rows.every((item) => item.type === "red" && item.sweetness === "sec")).toBe(
       true,
     );
-    expect(rows.map((item) => item.slug)).not.toContain("alb-sec");
+    expect(rows.map((item) => item.card.slug)).not.toContain("alb-sec");
   });
 
   it("E: white + dulce works", () => {
@@ -123,7 +129,7 @@ describe("catalog sweetness and combined filters", () => {
       catalog,
       filters({ type: "white", sweetness: "dulce" }),
     );
-    expect(rows.map((item) => item.slug)).toEqual(["alb-dulce"]);
+    expect(rows.map((item) => item.card.slug)).toEqual(["alb-dulce"]);
   });
 
   it("F: type counts respect sweetness selection", () => {
@@ -148,8 +154,8 @@ describe("catalog sweetness and combined filters", () => {
       catalog,
       filters({ sweetness: "sec", priceBand: "under50" }),
     );
-    expect(rows.every((item) => (item.priceAvg ?? 0) < 50)).toBe(true);
-    expect(rows.map((item) => item.slug)).not.toContain("feteasca-scump");
+    expect(rows.every((item) => (item.filterPrice ?? 0) < 50)).toBe(true);
+    expect(rows.map((item) => item.card.slug)).not.toContain("feteasca-scump");
   });
 
   it("I: Value verdict + sweetness works", () => {
@@ -158,7 +164,7 @@ describe("catalog sweetness and combined filters", () => {
       filters({ sweetness: "sec", verdict: "recommended" }),
     );
     expect(rows.every((item) => (item.valueScore ?? 0) >= 75)).toBe(true);
-    expect(rows.map((item) => item.slug)).not.toContain("feteasca-scump");
+    expect(rows.map((item) => item.card.slug)).not.toContain("feteasca-scump");
   });
 
   it("J: search + sweetness works", () => {
@@ -167,8 +173,8 @@ describe("catalog sweetness and combined filters", () => {
       filters({ query: "Feteasca", sweetness: "sec" }),
     );
     expect(rows.every((item) => item.sweetness === "sec")).toBe(true);
-    expect(rows.some((item) => item.slug === "alb-sec")).toBe(true);
-    expect(rows.map((item) => item.slug)).not.toContain("alb-dulce");
+    expect(rows.some((item) => item.card.slug === "alb-sec")).toBe(true);
+    expect(rows.map((item) => item.card.slug)).not.toContain("alb-dulce");
   });
 
   it("K: reset restores sweetness=all", () => {

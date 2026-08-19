@@ -3,7 +3,8 @@ import {
   MIN_RECOMMENDED_VALUE_SCORE,
   VALUE_SCORE_EXCEPTIONAL_MIN,
 } from "@/lib/value-score-thresholds";
-import type { WineSweetness, WineType, WineWithRelations } from "@/types";
+import type { PublicWineCatalogItem } from "@/lib/public-wine-card-types";
+import type { WineSweetness, WineType } from "@/types";
 
 export type CatalogTypeFilter = "all" | WineType;
 
@@ -103,32 +104,18 @@ export interface CatalogActiveChip {
   label: string;
 }
 
-function winePrice(wine: WineWithRelations): number | null {
-  const price = wine.currentPrice ?? wine.priceAvg;
-  return price != null && price > 0 ? price : null;
+function winePrice(wine: PublicWineCatalogItem): number | null {
+  return wine.filterPrice;
 }
 
-function matchesQuery(wine: WineWithRelations, query: string): boolean {
+function matchesQuery(wine: PublicWineCatalogItem, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-
-  const grapes = wine.grapeVarieties.map((grape) => grape.name).join(" ");
-  const haystack = [
-    wine.name,
-    wine.winery?.name ?? "",
-    wine.region?.name ?? "",
-    wineTypeLabel[wine.type],
-    wine.vintage?.toString() ?? "",
-    grapes,
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(q);
+  return wine.searchText.includes(q);
 }
 
 function matchesVerdict(
-  wine: WineWithRelations,
+  wine: PublicWineCatalogItem,
   verdict: CatalogVerdictFilter,
 ): boolean {
   const score = wine.valueScore ?? 0;
@@ -142,7 +129,7 @@ function matchesVerdict(
 }
 
 function matchesPriceBand(
-  wine: WineWithRelations,
+  wine: PublicWineCatalogItem,
   band: CatalogPriceBand,
 ): boolean {
   if (band === "all") return true;
@@ -153,12 +140,15 @@ function matchesPriceBand(
   return price > 100;
 }
 
-function matchesType(wine: WineWithRelations, type: CatalogTypeFilter): boolean {
+function matchesType(
+  wine: PublicWineCatalogItem,
+  type: CatalogTypeFilter,
+): boolean {
   return type === "all" || wine.type === type;
 }
 
 function matchesSweetness(
-  wine: WineWithRelations,
+  wine: PublicWineCatalogItem,
   sweetness: CatalogSweetnessFilter,
 ): boolean {
   if (sweetness === "all") return true;
@@ -166,7 +156,7 @@ function matchesSweetness(
 }
 
 function matchesSharedConstraints(
-  wine: WineWithRelations,
+  wine: PublicWineCatalogItem,
   filters: CatalogFilterState,
   omit: Array<"type" | "sweetness"> = [],
 ): boolean {
@@ -180,8 +170,8 @@ function matchesSharedConstraints(
 }
 
 function compareWines(
-  a: WineWithRelations,
-  b: WineWithRelations,
+  a: PublicWineCatalogItem,
+  b: PublicWineCatalogItem,
   sort: CatalogSort,
 ): number {
   switch (sort) {
@@ -196,26 +186,26 @@ function compareWines(
       return pb - pa || (b.valueScore ?? 0) - (a.valueScore ?? 0);
     }
     case "name-asc":
-      return a.name.localeCompare(b.name, "ro");
+      return a.card.displayName.localeCompare(b.card.displayName, "ro");
     case "value-desc":
     default:
       return (
         (b.valueScore ?? 0) - (a.valueScore ?? 0) ||
-        a.name.localeCompare(b.name, "ro")
+        a.card.displayName.localeCompare(b.card.displayName, "ro")
       );
   }
 }
 
 export function filterCatalogWines(
-  wines: WineWithRelations[],
+  wines: PublicWineCatalogItem[],
   filters: CatalogFilterState,
-): WineWithRelations[] {
+): PublicWineCatalogItem[] {
   const filtered = wines.filter((wine) => matchesSharedConstraints(wine, filters));
   return [...filtered].sort((a, b) => compareWines(a, b, filters.sort));
 }
 
 export function countWinesByType(
-  wines: WineWithRelations[],
+  wines: PublicWineCatalogItem[],
   filters: CatalogFilterState,
 ): CatalogTypeOption[] {
   const base = wines.filter((wine) =>
@@ -233,7 +223,7 @@ export function countWinesByType(
 }
 
 export function countWinesBySweetness(
-  wines: WineWithRelations[],
+  wines: PublicWineCatalogItem[],
   filters: CatalogFilterState,
 ): CatalogSweetnessOption[] {
   const base = wines.filter((wine) =>
@@ -294,11 +284,11 @@ export function catalogActiveFilterChips(
 export interface CatalogTypeSection {
   type: WineType;
   label: string;
-  wines: WineWithRelations[];
+  wines: PublicWineCatalogItem[];
 }
 
 export function groupCatalogWinesByType(
-  wines: WineWithRelations[],
+  wines: PublicWineCatalogItem[],
 ): CatalogTypeSection[] {
   return CATALOG_TYPE_ORDER.map((type) => ({
     type,

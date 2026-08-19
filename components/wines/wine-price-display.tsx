@@ -1,11 +1,7 @@
 import { BadgeCheck } from "lucide-react";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { RetailerPurchaseLink } from "@/components/wines/retailer-purchase-link";
-import { VerifyPriceButton } from "@/components/wines/verify-price-button";
 import { formatRon } from "@/lib/format";
-import { trackWineryEvent } from "@/lib/winery-analytics-client";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
@@ -111,63 +107,6 @@ export function WinePriceDisplay({
           onTrackClick={trackAnalytics?.onPurchaseClick}
         />
       ) : null}
-    </div>
-  );
-}
-
-export function WineCardPriceFooter({
-  wine,
-  trackAnalytics,
-}: {
-  wine: WineWithRelations;
-  trackAnalytics?: { wineryId: number; wineId: number };
-}) {
-  const pricing = buildWinePriceViewModel(wine);
-
-  const onPurchaseClick = trackAnalytics
-    ? () => {
-        void trackWineryEvent(trackAnalytics.wineryId, "purchase_click", {
-          wineId: trackAnalytics.wineId,
-          metadata: { wineSlug: wine.slug },
-        });
-      }
-    : undefined;
-
-  return (
-    <div className="mt-auto space-y-3 pt-4">
-      <WinePriceDisplay
-        wine={wine}
-        variant="card"
-        showPurchaseButton={false}
-        trackAnalytics={{ onPurchaseClick }}
-      />
-
-      <div className="flex items-center justify-between gap-2">
-        {pricing.status !== "unavailable" && pricing.purchaseLink ? (
-          <RetailerPurchaseLink
-            url={pricing.purchaseLink.url}
-            retailerName={pricing.purchaseLink.retailer}
-            size="sm"
-            onTrackClick={onPurchaseClick}
-          />
-        ) : pricing.status !== "unavailable" && pricing.verifyPriceUrl ? (
-          <VerifyPriceButton
-            url={pricing.verifyPriceUrl}
-            enabled={wine.winery?.verified === true}
-          />
-        ) : (
-          <span />
-        )}
-
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="-mr-2 text-wine hover:bg-wine/10 hover:text-wine"
-        >
-          <Link href={`/wines/${wine.slug}`}>Vezi detalii</Link>
-        </Button>
-      </div>
     </div>
   );
 }

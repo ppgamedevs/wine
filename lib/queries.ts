@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { grapeVarieties, regions, wineryEvents, wineries, wines } from "@/lib/schema";
 import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
 import { normalizeWineRow, normalizeWineRows } from "@/lib/normalize-wine";
+import type { GrapeVarietyCatalogEntry } from "@/lib/grape-variety-index";
 import { MIN_INDEXABLE_TOP_LIST_WINES } from "@/lib/top-lists";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import type {
@@ -435,13 +436,20 @@ export async function getAllWineries(): Promise<
 }
 
 export async function getGrapeVarietySlugs(): Promise<string[]> {
+  const entries = await getGrapeVarietyCatalogEntries();
+  return entries.map((entry) => entry.slug);
+}
+
+export async function getGrapeVarietyCatalogEntries(): Promise<
+  GrapeVarietyCatalogEntry[]
+> {
   try {
     const rows = await db
-      .select({ slug: grapeVarieties.slug })
+      .select({ slug: grapeVarieties.slug, name: grapeVarieties.name })
       .from(grapeVarieties);
-    return rows.map((row) => row.slug);
+    return rows;
   } catch (error) {
-    console.error("getGrapeVarietySlugs failed", error);
+    console.error("getGrapeVarietyCatalogEntries failed", error);
     return [];
   }
 }
@@ -452,7 +460,7 @@ export async function getWinesForSommelier(): Promise<WineWithRelations[]> {
       with: { winery: true, region: true },
       where: catalogWineCondition(),
     });
-    return rows as WineWithRelations[];
+    return normalizeWineRows(rows as WineWithRelations[]);
   } catch (error) {
     console.error("getWinesForSommelier failed", error);
     return [];

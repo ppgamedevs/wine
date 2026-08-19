@@ -8,7 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { WineCard } from "@/components/wine-card";
+import { WineCardView } from "@/components/wines/wine-card-view";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +43,8 @@ import {
   type CatalogVerdictFilter,
 } from "@/lib/wine-catalog-filters";
 import { cn } from "@/lib/utils";
-import type { WineType, WineWithRelations } from "@/types";
+import type { PublicWineCatalogItem } from "@/lib/public-wine-card-types";
+import type { WineType } from "@/types";
 
 function FilterChip({
   active,
@@ -106,17 +107,16 @@ function WineGrid({
   wines,
   priorityCount = 4,
 }: {
-  wines: WineWithRelations[];
+  wines: PublicWineCatalogItem[];
   priorityCount?: number;
 }) {
   return (
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {wines.map((wine, index) => (
-        <WineCard
+        <WineCardView
           key={wine.id}
-          wine={wine}
+          card={wine.card}
           priority={index < priorityCount}
-          minValueScore={null}
         />
       ))}
     </div>
@@ -171,7 +171,7 @@ function TypeSectionHeader({
 export function WineCatalogDirectory({
   wines,
 }: {
-  wines: WineWithRelations[];
+  wines: PublicWineCatalogItem[];
 }) {
   const [filters, setFilters] = useState<CatalogFilterState>(
     DEFAULT_CATALOG_FILTERS,

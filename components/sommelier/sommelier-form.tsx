@@ -21,7 +21,10 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { OCCASIONS, computeBudgetFit, type OccasionId } from "@/lib/sommelier";
 import { EASE_OUT } from "@/lib/motion";
-import type { ExpertRecommendationDisplay, WineWithRelations } from "@/types";
+import type {
+  PublicLegacyExpertRecommendation,
+  PublicLegacySommelierWine,
+} from "@/lib/public-wine-card-types";
 
 interface WineryOption {
   id: number;
@@ -51,7 +54,7 @@ export function SommelierForm({
   initialOccasion = "oricare",
 }: {
   wineries: WineryOption[];
-  wines: WineWithRelations[];
+  wines: PublicLegacySommelierWine[];
   initialOccasion?: OccasionId;
 }) {
   const [budget, setBudget] = useState<[number, number]>([30, 150]);
@@ -66,13 +69,14 @@ export function SommelierForm({
   });
 
   const wineBySlug = useMemo(
-    () => new Map(wines.map((w) => [w.slug, w])),
+    () => new Map(wines.map((wine) => [wine.card.slug, wine])),
     [wines],
   );
 
   const activeOccasion = OCCASIONS.find((o) => o.id === occasion);
 
-  const enrichedRecommendations = useMemo((): ExpertRecommendationDisplay[] => {
+  const enrichedRecommendations = useMemo(
+    (): PublicLegacyExpertRecommendation[] => {
     if (!object?.recommendations?.length) return [];
 
     return object.recommendations
@@ -90,12 +94,18 @@ export function SommelierForm({
           pairingScience: rec.pairingScience ?? "",
           servingAndStorage: rec.servingAndStorage ?? "",
           wine,
-          budgetFit: computeBudgetFit(wine.priceAvg, budget[0], budget[1]),
+          budgetFit: computeBudgetFit(
+            wine.card.price.displayPrice,
+            budget[0],
+            budget[1],
+          ),
         };
       })
-      .filter((r): r is ExpertRecommendationDisplay => r !== null)
+      .filter((r): r is PublicLegacyExpertRecommendation => r !== null)
       .sort((a, b) => a.rank - b.rank);
-  }, [object, wineBySlug, budget]);
+    },
+    [object, wineBySlug, budget],
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

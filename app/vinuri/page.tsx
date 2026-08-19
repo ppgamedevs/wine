@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WineCatalogDirectory } from "@/components/wines/wine-catalog-directory";
 import { Button } from "@/components/ui/button";
+import { buildPublicWineCatalogItem } from "@/lib/public-wine-card";
 import { getCatalogWines } from "@/lib/queries";
 import {
   absoluteUrl,
@@ -68,6 +69,7 @@ const faq = [
 
 export default async function VinuriCatalogPage() {
   const catalogWines = await getCatalogWines();
+  const publicCatalog = catalogWines.map(buildPublicWineCatalogItem);
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: "Acasa", path: "/" },
@@ -134,7 +136,7 @@ export default async function VinuriCatalogPage() {
 
         <div className="mx-auto max-w-6xl px-6 py-10 lg:py-12">
           {catalogWines.length > 0 ? (
-            <WineCatalogDirectory wines={catalogWines} />
+            <WineCatalogDirectory wines={publicCatalog} />
           ) : (
             <p className="rounded-2xl border border-dashed border-border bg-secondary/20 p-12 text-center text-muted-foreground">
               Inca nu avem vinuri in catalog. Revino in curand sau{" "}

@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
 import {
-  getGrapeVarietySlugs,
+  getGrapeVarietyCatalogEntries,
   getIndexableRegionSlugs,
   getWinerySitemapEntries,
   getWineSitemapEntries,
   getWinesForSommelier,
 } from "@/lib/queries";
+import { getIndexableGrapeVarieties } from "@/lib/grape-variety-index";
 import {
   getAllDishPairingSlugs,
   getDishPairingPage,
@@ -106,10 +107,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const [allWines, grapeSlugs] = await Promise.all([
+  const [allWines, grapeCatalog] = await Promise.all([
     getWinesForSommelier(),
-    getGrapeVarietySlugs(),
+    getGrapeVarietyCatalogEntries(),
   ]);
+  const grapeSlugs = grapeCatalog.map((grape) => grape.slug);
   const topListSlugs = getResolvableTopListSlugs(allWines, grapeSlugs);
   const topListRoutes: MetadataRoute.Sitemap = topListSlugs.map((slug) => ({
     url: absoluteUrl(`/topuri/${slug}`),
@@ -136,18 +138,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.65,
   }));
 
-  const grapeSlugsForSoiuri = grapeSlugs.filter((slug) => {
-    const count = allWines.filter((w) =>
-      w.grapeVarieties.some((g) => g.slug === slug),
-    ).length;
-    return count >= MIN_INDEXABLE_TOP_LIST_WINES;
-  });
-  const soiuriRoutes: MetadataRoute.Sitemap = grapeSlugsForSoiuri.map((slug) => ({
-    url: absoluteUrl(`/soiuri/${slug}`),
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.65,
-  }));
+  const indexableGrapes = getIndexableGrapeVarieties(
+    allWines,
+    grapeCatalog,
+    MIN_INDEXABLE_TOP_LIST_WINES,
+  );
+  const soiuriRoutes: MetadataRoute.Sitemap = indexableGrapes.map(
+    ({ slug }) => ({
+      url: absoluteUrl(`/soiuri/${slug}`),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.65,
+    }),
+  );
 
   const vinPentruRoutes: MetadataRoute.Sitemap = getAllDishPairingSlugs()
     .filter((slug) => {
@@ -171,7 +174,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  return flattenSitemapRouteFamilies({
+  const families = {
     static: staticRoutes,
     wines: wineRoutes,
     wineries: wineryRoutes,
@@ -181,5 +184,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     vinPentru: vinPentruRoutes,
     studii: studiiRoutes,
     journal: journalArticleRoutes,
+  };
+
+  return flattenSitemapRouteFamilies(families, {
+    static: { expected: "nonempty" },
+    wines: { expected: "nonempty" },
+    wineries: { expected: "nonempty" },
+    topLists: { expected: "nonempty" },
+    regions: { expected: "nonempty" },
+    soiuri:
+      indexableGrapes.length > 0
+        ? { expected: "nonempty", count: indexableGrapes.length }
+        : { expected: "empty" },
+    vinPentru: { expected: "nonempty" },
+    studii: { expected: "nonempty" },
+    journal: { expected: "nonempty" },
   });
 }

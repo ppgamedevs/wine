@@ -6,7 +6,14 @@ import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WineCard } from "@/components/wine-card";
-import { getGrapeVarietySlugs, getWinesForSommelier } from "@/lib/queries";
+import {
+  filterWinesByGrapeVariety,
+  getIndexableGrapeVarieties,
+} from "@/lib/grape-variety-index";
+import {
+  getGrapeVarietyCatalogEntries,
+  getWinesForSommelier,
+} from "@/lib/queries";
 import {
   absoluteUrl,
   buildBreadcrumbJsonLd,
@@ -26,27 +33,6 @@ export const dynamicParams = true;
 
 interface SoiuriPageProps {
   params: Promise<{ slug: string }>;
-}
-
-function deslugify(slug: string): string {
-  return slug
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function filterWinesByGrape(
-  wines: WineWithRelations[],
-  grapeSlug: string,
-  grapeName: string,
-): WineWithRelations[] {
-  return wines.filter((w) =>
-    w.grapeVarieties.some(
-      (g) =>
-        g.slug === grapeSlug ||
-        g.name.toLowerCase() === grapeName.toLowerCase(),
-    ),
-  );
 }
 
 function buildGrapeFaq(
@@ -74,29 +60,33 @@ function buildGrapeFaq(
 }
 
 export async function generateStaticParams() {
-  const [allWines, grapeSlugs] = await Promise.all([
+  const [allWines, grapes] = await Promise.all([
     getWinesForSommelier(),
-    getGrapeVarietySlugs(),
+    getGrapeVarietyCatalogEntries(),
   ]);
 
-  return grapeSlugs
-    .filter((slug) => {
-      const name = deslugify(slug);
-      const wines = filterWinesByGrape(allWines, slug, name);
-      return wines.length >= MIN_INDEXABLE_TOP_LIST_WINES;
-    })
-    .map((slug) => ({ slug }));
+  return getIndexableGrapeVarieties(
+    allWines,
+    grapes,
+    MIN_INDEXABLE_TOP_LIST_WINES,
+  ).map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: SoiuriPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const grapeName = deslugify(slug);
-  const allWines = await getWinesForSommelier();
-  const grapeWines = filterWinesByGrape(allWines, slug, grapeName);
+  const [allWines, grapes] = await Promise.all([
+    getWinesForSommelier(),
+    getGrapeVarietyCatalogEntries(),
+  ]);
+  const grape = grapes.find((entry) => entry.slug === slug);
+  const grapeWines = grape
+    ? filterWinesByGrapeVariety(allWines, grape)
+    : [];
 
-  if (grapeWines.length < MIN_INDEXABLE_TOP_LIST_WINES) {
+  if (!grape || grapeWines.length < MIN_INDEXABLE_TOP_LIST_WINES) {
     return { title: "Soi negasit", robots: { index: false, follow: true } };
   }
+  const grapeName = grape.name;
 
   const title = `Soiul ${grapeName}: ghid si top vinuri romanesti`;
   const description = `Ghid despre ${grapeName}: caracteristici, regiuni si cele mai bune vinuri romanesti cu preturi in RON.`;
@@ -124,9 +114,14 @@ export async function generateMetadata({ params }: SoiuriPageProps): Promise<Met
 
 export default async function SoiuriPage({ params }: SoiuriPageProps) {
   const { slug } = await params;
-  const grapeName = deslugify(slug);
-  const allWines = await getWinesForSommelier();
-  const grapeWines = filterWinesByGrape(allWines, slug, grapeName);
+  const [allWines, grapes] = await Promise.all([
+    getWinesForSommelier(),
+    getGrapeVarietyCatalogEntries(),
+  ]);
+  const grape = grapes.find((entry) => entry.slug === slug);
+  if (!grape) notFound();
+  const grapeName = grape.name;
+  const grapeWines = filterWinesByGrapeVariety(allWines, grape);
 
   if (grapeWines.length < MIN_INDEXABLE_TOP_LIST_WINES) notFound();
 

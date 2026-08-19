@@ -22,8 +22,7 @@ import {
   wineTypeLabel,
 } from "@/lib/format";
 import { EASE_OUT } from "@/lib/motion";
-import { buildWinePriceViewModel } from "@/lib/wine-price";
-import type { ExpertRecommendationDisplay } from "@/types";
+import type { PublicLegacyExpertRecommendation } from "@/lib/public-wine-card-types";
 import { cn } from "@/lib/utils";
 
 const budgetLabel = {
@@ -57,21 +56,22 @@ export function ExpertRecommendationCard({
   rank,
   index = 0,
 }: {
-  recommendation: ExpertRecommendationDisplay;
+  recommendation: PublicLegacyExpertRecommendation;
   rank: number;
   index?: number;
 }) {
   const { wine, matchScore, whyThisWine, thingsYouShouldKnow, pairingScience, servingAndStorage, budgetFit } =
     recommendation;
-  const pricing = buildWinePriceViewModel(wine);
+  const { card, expertValueInsight } = wine;
+  const pricing = card.price;
 
   const handleShare = async () => {
-    const text = `${wine.name}: ${whyThisWine}`;
+    const text = `${card.name}: ${whyThisWine}`;
     if (navigator.share) {
       await navigator.share({
-        title: `VinIntel - ${wine.name}`,
+        title: `VinIntel - ${card.name}`,
         text,
-        url: `${window.location.origin}/wines/${wine.slug}`,
+        url: `${window.location.origin}/wines/${card.slug}`,
       });
     } else {
       await navigator.clipboard.writeText(text);
@@ -88,13 +88,14 @@ export function ExpertRecommendationCard({
       <div className="flex flex-col gap-5 sm:flex-row">
         <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-xl sm:h-auto sm:w-40">
           <WineImage
-            slug={wine.slug}
-            name={wine.name}
-            type={wine.type}
-            imageUrl={wine.imageUrl}
-            imageSource={wine.imageSource}
-            vintage={wine.vintage}
-            wineryName={wine.winery?.name}
+            slug={card.slug}
+            name={card.name}
+            type={card.type}
+            imageUrl={card.image.url}
+            imageSource={card.image.source}
+            imageAlt={card.image.alt}
+            vintage={card.vintage}
+            wineryName={card.wineryName}
             sizes="(max-width: 640px) 100vw, 160px"
             aspectClassName="relative h-full min-h-44 w-full overflow-hidden bg-secondary/20"
             objectFit="contain"
@@ -108,22 +109,22 @@ export function ExpertRecommendationCard({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>{wineTypeLabel[wine.type]}</span>
-                {wine.winery?.name ? (
+                <span>{wineTypeLabel[card.type]}</span>
+                {card.wineryName ? (
                   <>
                     <span aria-hidden="true">.</span>
-                    <span>{wine.winery.name}</span>
+                    <span>{card.wineryName}</span>
                   </>
                 ) : null}
               </div>
               <h3 className="mt-1 font-serif text-xl font-semibold text-foreground">
                 <Link
-                  href={`/wines/${wine.slug}`}
+                  href={`/wines/${card.slug}`}
                   className="transition-colors hover:text-wine"
                 >
-                  {wine.name}
-                  {wine.vintage ? (
-                    <span className="text-muted-foreground"> {wine.vintage}</span>
+                  {card.name}
+                  {card.vintage ? (
+                    <span className="text-muted-foreground"> {card.vintage}</span>
                   ) : null}
                 </Link>
               </h3>
@@ -141,7 +142,7 @@ export function ExpertRecommendationCard({
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <span className="text-lg font-semibold text-foreground">
-              {formatRon(wine.priceAvg)}
+              {formatRon(card.price.displayPrice)}
             </span>
             <span
               className={cn(
@@ -153,14 +154,14 @@ export function ExpertRecommendationCard({
             >
               {budgetLabel[budgetFit]}
             </span>
-            {wine.valueScore !== null && wine.valueScore !== undefined ? (
+            {card.valueScore !== null && card.valueScore !== undefined ? (
               <span
                 className={cn(
                   "rounded-full px-2.5 py-0.5 text-xs font-semibold",
-                  valueScoreTone(wine.valueScore),
+                  valueScoreTone(card.valueScore),
                 )}
               >
-                Value {wine.valueScore}/100
+                Value {card.valueScore}/100
               </span>
             ) : null}
           </div>
@@ -187,9 +188,9 @@ export function ExpertRecommendationCard({
           {servingAndStorage}
         </Section>
 
-        {wine.expertNotes?.valueInsight ? (
+        {expertValueInsight ? (
           <Section icon={BookOpen} title="Insight de valoare">
-            {wine.expertNotes.valueInsight}
+            {expertValueInsight}
           </Section>
         ) : null}
       </div>
@@ -200,7 +201,7 @@ export function ExpertRecommendationCard({
           size="sm"
           className="bg-wine text-wine-foreground hover:bg-wine/90"
         >
-          <Link href={`/wines/${wine.slug}`}>
+          <Link href={`/wines/${card.slug}`}>
             Vezi fisa completa
             <ArrowRight className="h-4 w-4" />
           </Link>

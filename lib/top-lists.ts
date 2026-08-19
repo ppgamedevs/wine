@@ -1,4 +1,5 @@
 import { formatRon, wineTypeLabel } from "@/lib/format";
+import { filterWinesByGrapeVariety } from "@/lib/grape-variety-index";
 import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
 import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
 import { usesPublicOccasionMatch } from "@/lib/recommendation/occasion-match-mode";
@@ -399,14 +400,10 @@ export function resolveTopList(
   if (grapeMatch && grapeMatch[1] !== "vinuri-romanesti") {
     const grapeSlug = grapeMatch[1];
     const grapeName = deslugify(grapeSlug);
-    const wines = allWines
-      .filter((w) =>
-        w.grapeVarieties.some(
-          (g) =>
-            g.slug === grapeSlug ||
-            g.name.toLowerCase() === grapeName.toLowerCase(),
-        ),
-      )
+    const wines = filterWinesByGrapeVariety(allWines, {
+      slug: grapeSlug,
+      name: grapeName,
+    })
       .sort(byValueScore)
       .slice(0, 12);
 
