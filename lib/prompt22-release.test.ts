@@ -118,7 +118,7 @@ describe("Prompt 22 public secondary semantic contract", () => {
     expect(publicText).not.toContain("90/100");
     expect(publicText).not.toContain("Food 85");
     expect(publicText).not.toContain("Gift 90");
-    expect(faq[1]?.answer).toContain("puține dovezi");
+    expect(faq[1]?.answer).toContain("Nu avem încă suficiente date");
     expect(
       sanitizePublicSecondaryCopy(
         "Food Match 85/100 și Gift Score 90/100.",
@@ -167,12 +167,15 @@ describe("Prompt 22 public secondary semantic contract", () => {
     expect(JSON.stringify(list?.faq)).not.toContain("85/100");
   });
 
-  it("preserves shadow legacy display without leaking it into display mode", () => {
+  it("preserves shadow score behavior while keeping FAQ dish specific", () => {
     const fixture = wine({ id: 1, slug: "shadow-secondary" });
     setSecondaryScoringModeForTests("shadow");
     expect(resolvePublicSecondaryScores(fixture).gift.score).toBe(90);
     expect(resolvePublicSecondaryScores(fixture).food.score).toBe(85);
-    expect(buildWineFaq(fixture)[1]?.answer).toContain("85/100");
+    expect(buildWineFaq(fixture)[1]?.answer).not.toContain("85/100");
+    expect(buildWineFaq(fixture)[1]?.answer).toContain(
+      "Nu avem încă suficiente date",
+    );
 
     setSecondaryScoringModeForTests("display");
     expect(resolvePublicSecondaryScores(fixture).gift.score).toBeNull();

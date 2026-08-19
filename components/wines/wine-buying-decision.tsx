@@ -2,41 +2,17 @@ import { ArrowRight, Gift, ShoppingBag, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { VinScoreBadge } from "@/components/wines/vin-score-badge";
-import { isVinIntelCuratedPairing } from "@/lib/pairing-curation";
+import { resolvePublicWinePairings } from "@/lib/public-wine-pairings";
 import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
 import { formatRon } from "@/lib/format";
 import { buildWorthItAnalysis } from "@/lib/wine-analysis";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
-import type { FoodPairing } from "@/lib/schema";
 import type { WineWithRelations } from "@/types";
-
-const PAIRING_STRENGTH = {
-  strong: 3,
-  good: 2,
-  possible: 1,
-} as const;
-
-export function selectQuickDecisionPairing(
-  pairings: FoodPairing[] | null | undefined,
-): FoodPairing | null {
-  return (
-    [...(pairings ?? [])].sort((left, right) => {
-      const curatedDelta =
-        Number(isVinIntelCuratedPairing(right)) -
-        Number(isVinIntelCuratedPairing(left));
-      if (curatedDelta !== 0) return curatedDelta;
-      return (
-        (PAIRING_STRENGTH[right.strength ?? "possible"] ?? 0) -
-        (PAIRING_STRENGTH[left.strength ?? "possible"] ?? 0)
-      );
-    })[0] ?? null
-  );
-}
 
 export function WineBuyingDecision({ wine }: { wine: WineWithRelations }) {
   const pricing = buildWinePriceViewModel(wine);
   const analysis = buildWorthItAnalysis(wine);
-  const pairing = selectQuickDecisionPairing(wine.foodPairings);
+  const pairing = resolvePublicWinePairings(wine, 1)[0] ?? null;
   const { gift } = resolvePublicSecondaryScores(wine);
   const hasOffer = pricing.purchaseLink != null;
 

@@ -3,7 +3,7 @@ import {
   getVerifiedTechnicalValue,
   type PublicTechnicalTrust,
 } from "@/lib/tech-facts/public-trust";
-import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
+import { resolvePublicWinePairings } from "@/lib/public-wine-pairings";
 import { formatRon } from "@/lib/format";
 import {
   MIN_RECOMMENDED_VALUE_SCORE,
@@ -115,13 +115,13 @@ export function buildWineFaq(wine: WineWithRelations): WineFaqItem[] {
   const wineryName = wine.winery?.name ?? "crama producatoare";
   const regionName = wine.region?.name ?? "Romania";
   const price = formatRon(wine.priceAvg);
-  const topPairing =
-    wine.foodPairings?.[0]?.dish ?? "mancare traditionala romaneasca";
-  const { food } = resolvePublicSecondaryScores(wine);
+  const topPairing = resolvePublicWinePairings(wine, 1)[0] ?? null;
   const foodAnswer =
-    food.score == null
-      ? `Recomandam in special ${topPairing}. ${food.caption ?? "Nu avem încă suficiente date pentru un scor general precis de versatilitate la masă."} Potrivirea cu preparatul se evalueaza separat.`
-      : `Recomandam in special ${topPairing}. Versatilitatea la masa este ${food.score}/100${food.caption ? ` (${food.caption.toLowerCase()})` : ""}; potrivirea cu preparatul se evalueaza separat.`;
+    topPairing == null
+      ? "Nu avem încă suficiente date pentru o recomandare culinară specifică acestui vin."
+      : topPairing.score == null
+        ? `Una dintre asocierile recomandate este ${topPairing.dish}. ${topPairing.rationale ?? ""}`.trim()
+        : `Una dintre cele mai bune asocieri este ${topPairing.dish}, cu un scor de compatibilitate de ${topPairing.score}/100. ${topPairing.rationale ?? ""}`.trim();
 
   return [
     {
@@ -176,7 +176,7 @@ export function buildProgrammaticLinks(wine: WineWithRelations) {
     });
   }
 
-  const topDish = wine.foodPairings?.[0]?.dish;
+  const topDish = resolvePublicWinePairings(wine, 1)[0]?.dish;
   if (topDish) {
     const dishSlug = topDish
       .toLowerCase()

@@ -55,7 +55,8 @@
     "tech:value-manifest": "tsx scripts/prompt18-manifest-apply.ts --manifest=C",
     "product:release-gate": "tsx scripts/product-release-gate.ts",
     "audit:public-flight": "tsx scripts/public-flight-payload-audit.ts",
-    "tech:recovery-candidates": "tsx scripts/source-audit.ts"
+    "tech:recovery-candidates": "tsx scripts/source-audit.ts",
+    "price:discover-missing": "tsx scripts/discover-missing-prices.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",

@@ -1,27 +1,15 @@
 import { UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { matchDishPairingSlug } from "@/lib/dish-pairing-pages";
+import { getVinScoreMeta } from "@/lib/format";
 import { buildGenericPairingGuidance } from "@/lib/generic-pairing-guidance";
-import {
-  isVinIntelCuratedPairing,
-  isPublicProducerBackedPairing,
-  publicPairingAttribution,
-  publicProducerAttribution,
-} from "@/lib/pairing-curation";
+import { resolvePublicWinePairings } from "@/lib/public-wine-pairings";
 import { sanitizeCulinaryText } from "@/lib/culinary-extract";
 import {
   getVerifiedTechnicalValue,
   type PublicTechnicalTrust,
 } from "@/lib/tech-facts/public-trust";
 import type { WineSweetness, WineWithRelations } from "@/types";
-
-function pairingTone(score: number | undefined): string {
-  if (!score) return "bg-muted text-muted-foreground";
-  if (score >= 90) return "bg-wine text-wine-foreground";
-  if (score >= 80) return "bg-wine/15 text-wine";
-  return "bg-secondary text-secondary-foreground";
-}
 
 export function WinePairings({
   wine,
@@ -31,15 +19,7 @@ export function WinePairings({
   technicalTrust: PublicTechnicalTrust;
 }) {
   const evaluatedPairings = wine.foodPairings ?? [];
-  const visiblePairings = [...evaluatedPairings]
-    .sort((left, right) => {
-      const rank = { strong: 3, good: 2, possible: 1 } as const;
-      return (
-        (rank[right.strength ?? "possible"] ?? 0) -
-        (rank[left.strength ?? "possible"] ?? 0)
-      );
-    })
-    .slice(0, 4);
+  const visiblePairings = resolvePublicWinePairings(wine);
   const producerGuidance = sanitizeCulinaryText(
     wine.producerContent?.culinaryPairings,
   );
@@ -67,11 +47,11 @@ export function WinePairings({
           id="pairings-heading"
           className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
         >
-          Cu ce îl mănânci
+          Cu ce se potrivește
         </h2>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          Nu avem încă o asociere specifică evaluată pentru acest vin. Arătăm
-          doar o orientare generală pentru stilul său.
+          Nu avem încă suficiente date pentru recomandări specifice. Îți
+          arătăm o orientare generală pentru acest stil de vin.
         </p>
         <Card className="mt-6 border-border/70 bg-secondary/20">
           <CardContent className="flex items-start gap-4 p-5">
@@ -100,20 +80,18 @@ export function WinePairings({
         id="pairings-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-          Cu ce îl mănânci
+        Cu ce se potrivește
       </h2>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        Până la patru asocieri practice, evaluate pentru acest vin.
+        Cele mai bune asocieri culinare pentru acest vin.
       </p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {visiblePairings.map((pairing) => {
-          const dishSlug = matchDishPairingSlug(pairing.dish);
-          const producerBacked = isPublicProducerBackedPairing(wine, pairing);
           const dishHeading = (
             <h3 className="font-medium text-foreground">
-              {dishSlug ? (
+              {pairing.dishSlug ? (
                 <Link
-                  href={`/vin-pentru/${dishSlug}`}
+                  href={`/vin-pentru/${pairing.dishSlug}`}
                   className="hover:text-wine hover:underline"
                 >
                   {pairing.dish}
@@ -134,29 +112,25 @@ export function WinePairings({
                   <UtensilsCrossed className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div className="flex-1">
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     {dishHeading}
-                    {producerBacked ? (
-                      <span className="shrink-0 text-xs font-medium text-wine">
-                        {publicProducerAttribution()}
-                      </span>
-                    ) : pairing.score && !isVinIntelCuratedPairing(pairing) ? (
+                    {pairing.score != null ? (
                       <span
-                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${pairingTone(pairing.score)}`}
+                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getVinScoreMeta(pairing.score).badgeClass}`}
+                        title="Scor de compatibilitate culinară"
                       >
                         {pairing.score}/100
                       </span>
-                    ) : (
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {publicPairingAttribution(pairing)}
-                      </span>
-                    )}
+                    ) : null}
                   </div>
-                  {pairing.note ? (
+                  {pairing.rationale ? (
                     <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                      {pairing.note}
+                      {pairing.rationale}
                     </p>
                   ) : null}
+                  <p className="mt-2 text-xs font-medium text-wine">
+                    {pairing.attribution}
+                  </p>
                 </div>
               </CardContent>
             </Card>

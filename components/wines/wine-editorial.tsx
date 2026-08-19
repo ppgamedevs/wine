@@ -1,21 +1,13 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EditorialSectionIcon } from "@/components/wines/editorial-section-icon";
 import {
-  EditorialDessertIcon,
-  EditorialFoodMatchIcon,
-  EditorialGiftIcon,
   EditorialInsightIcon,
-  EditorialOccasionIcon,
-  EditorialPairingIcon,
   EditorialTasteIcon,
   EditorialWineIcon,
 } from "@/components/wines/editorial-icons";
-import { getVinScoreMeta } from "@/lib/format";
 import { sanitizeEditorialText } from "@/lib/editorial-text";
 import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
-import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
 
 function EditorialBlock({
@@ -45,28 +37,14 @@ function EditorialBlock({
   );
 }
 
-function pairingTone(score: number | undefined): string {
-  if (score == null) return "bg-muted text-muted-foreground";
-  return getVinScoreMeta(score).badgeClass;
-}
-
 export function WineEditorial({ wine }: { wine: WineWithRelations }) {
   const publicEditorialText = (text: string | null | undefined) =>
     sanitizeEditorialText(sanitizePublicSecondaryCopy(text, wine));
   const hasDescription = Boolean(wine.descriptionEditorial?.trim());
   const hasThings = (wine.thingsYouShouldKnow ?? []).length > 0;
   const hasTaste = Boolean(wine.tasteProfile?.trim());
-  const hasPairingNotes = (wine.foodPairingNotes ?? []).length > 0;
-  const hasDessertPairings = (wine.dessertPairings ?? []).length > 0;
-  const hasOccasions = (wine.recommendedOccasions ?? []).length > 0;
 
-  const hasEditorialContent =
-    hasDescription ||
-    hasThings ||
-    hasTaste ||
-    hasPairingNotes ||
-    hasDessertPairings ||
-    hasOccasions;
+  const hasEditorialContent = hasDescription || hasThings || hasTaste;
 
   return (
     <div className="space-y-12">
@@ -127,106 +105,6 @@ export function WineEditorial({ wine }: { wine: WineWithRelations }) {
         </EditorialBlock>
       ) : null}
 
-      {hasPairingNotes ? (
-        <EditorialBlock
-          id="wine-pairing-notes"
-          title="Pairing-uri recomandate"
-          icon={EditorialPairingIcon}
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            {(wine.foodPairingNotes ?? []).map((pairing) => (
-              <Card
-                key={pairing.dish}
-                className="border-border/70 transition-colors hover:border-wine/30"
-              >
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-medium text-foreground">
-                      {pairing.dish}
-                    </h3>
-                    {pairing.score != null ? (
-                      <span
-                        className={cn(
-                          "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold",
-                          pairingTone(pairing.score),
-                        )}
-                      >
-                        {pairing.score}/100
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {publicEditorialText(pairing.note)}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </EditorialBlock>
-      ) : null}
-
-      {hasDessertPairings ? (
-        <EditorialBlock
-          id="wine-dessert-pairings"
-          title="Pairing cu deserturi romanesti"
-          icon={EditorialDessertIcon}
-        >
-          <p className="mb-5 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            Sugestii VinIntel pentru dulciuri traditionale: cum aromele vinului
-            echilibreaza zaharul si grasimea desertului.
-          </p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {(wine.dessertPairings ?? []).map((pairing) => (
-              <Card
-                key={pairing.dish}
-                className="border-border/70 border-gold/20 bg-gold/5 transition-colors hover:border-wine/30"
-              >
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-medium text-foreground">
-                      {pairing.dish}
-                    </h3>
-                    {pairing.score != null ? (
-                      <span
-                        className={cn(
-                          "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold",
-                          pairingTone(pairing.score),
-                        )}
-                      >
-                        {pairing.score}/100
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {publicEditorialText(pairing.note)}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </EditorialBlock>
-      ) : null}
-
-      {hasOccasions ? (
-        <EditorialBlock
-          id="wine-occasions"
-          title="Ocazii recomandate"
-          icon={EditorialOccasionIcon}
-        >
-          <ul className="flex flex-wrap gap-2">
-            {(wine.recommendedOccasions ?? []).map((occasion) => (
-              <li key={occasion}>
-                <Badge
-                  variant="secondary"
-                  className="px-3 py-1.5 text-sm font-normal"
-                >
-                  {occasion}
-                </Badge>
-              </li>
-            ))}
-          </ul>
-        </EditorialBlock>
-      ) : null}
     </div>
   );
 }

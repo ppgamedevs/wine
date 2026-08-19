@@ -47,6 +47,12 @@ local.db-*
 next-env.d.ts
 /tmp/prompt18-runs/
 /artifacts/product-release-gate.*
+/artifacts/missing-price-search-cache.json
+/artifacts/missing-price-page-cache.json
+/artifacts/missing-price-discovery.json
+/artifacts/missing-price-discovery.md
+/artifacts/p26-agent-cache-*.json
+/tmp/prompt26-*.json
 
 .vercel
 .env*.local
