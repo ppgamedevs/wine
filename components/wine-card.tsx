@@ -20,7 +20,7 @@ export async function WineCard({
   minValueScore?: number | null;
   highlightScore?: TopListRankMetric;
   displayedScore?: number | null;
-  trackAnalytics?: { wineryId: number; wineId: number };
+  trackAnalytics?: { winerySlug: string; wineSlug: string };
 }) {
   const locale = (await getLocale()) as AppLocale;
   if (

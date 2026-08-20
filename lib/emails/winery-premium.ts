@@ -52,29 +52,17 @@ export function toSqlTimestamp(date: Date): string {
   return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
-function dashboardUrl(ctx: PremiumEmailContext): string {
+function profileUrl(ctx: PremiumEmailContext): string {
   if (ctx.winerySlug) {
-    return absoluteUrl(`/wineries/${ctx.winerySlug}/dashboard`);
+    return absoluteUrl(`/wineries/${ctx.winerySlug}`);
   }
   return absoluteUrl("/crame");
 }
 
 function renewUrl(ctx: PremiumEmailContext): string {
-  if (ctx.hasActiveStripeSubscription && ctx.winerySlug) {
-    return absoluteUrl(
-      `/wineries/premium/manage?crama=${encodeURIComponent(ctx.winerySlug)}`,
-    );
-  }
-
   const params = new URLSearchParams({ plan: ctx.plan });
   if (ctx.winerySlug) params.set("crama", ctx.winerySlug);
   return absoluteUrl(`/wineries/premium/checkout?${params.toString()}`);
-}
-
-function renewButtonLabel(ctx: PremiumEmailContext): string {
-  return ctx.hasActiveStripeSubscription
-    ? "Gestioneaza abonamentul"
-    : "Reinnoieste abonamentul";
 }
 
 function emailShell(title: string, bodyHtml: string): string {
@@ -164,7 +152,7 @@ export async function sendPremiumWelcomeEmail(
   ctx: PremiumEmailContext,
 ): Promise<{ sent: boolean }> {
   const planDef = getPremiumPlan(ctx.plan);
-  const profileUrl = dashboardUrl(ctx);
+  const wineryProfileUrl = profileUrl(ctx);
   const subject = `Bine ai venit in programul Premium, ${ctx.wineryName}!`;
 
   const bodyHtml = `
@@ -185,7 +173,7 @@ export async function sendPremiumWelcomeEmail(
     </table>
     <p style="margin:0;font-size:15px;color:#44403c;">Beneficiile tale Premium:</p>
     ${benefitsList()}
-    ${button("Deschide dashboard-ul Premium", profileUrl)}
+    ${button("Vezi profilul Premium", wineryProfileUrl)}
   `;
 
   const text = [
@@ -194,7 +182,7 @@ export async function sendPremiumWelcomeEmail(
     `Plata confirmata: ${planDef.priceLabel}.`,
     `Incepere: ${formatPremiumDate(ctx.startedAt)}`,
     `Expirare: ${formatPremiumDate(ctx.expiresAt)}`,
-    `Profil: ${profileUrl}`,
+    `Profil: ${wineryProfileUrl}`,
   ].join("\n");
 
   return sendPremiumEmail({ to: ctx.email, subject, html: emailShell(subject, bodyHtml), text });
@@ -216,7 +204,7 @@ export async function sendPremiumExpiryReminderEmail(
       Reinnoieste acum ca sa pastrezi bannerul personalizat, analytics, calendarul de evenimente
       si prioritatea in AI Sommelier.
     </p>
-    ${button(renewButtonLabel(ctx), renew)}
+    ${button("Reinnoieste abonamentul", renew)}
   `;
 
   const text = [

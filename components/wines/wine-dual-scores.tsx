@@ -297,7 +297,7 @@ export async function WineDualScores({ wine }: { wine: WineWithRelations }) {
               }
               footer={
                 <WineCommunityVoteButton
-                  wineId={wine.id}
+                  wineSlug={wine.slug}
                   initialScore={community.isLiveCommunity ? community.score : null}
                   initialVoteCount={
                     community.isLiveCommunity ? community.voteCount : 0

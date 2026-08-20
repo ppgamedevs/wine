@@ -12,6 +12,9 @@ import {
   WINE_VOTE_SCORE_MAX,
   WINE_VOTE_SCORE_MIN,
 } from "@/lib/wine-vote-service";
+import { guardInteractiveApi } from "@/lib/security/api-guard";
+import { readBoundedJson } from "@/lib/security/request-body";
+import { RATE_LIMIT_POLICIES } from "@/lib/security/route-policy";
 
 const requestSchema = z.object({
   score: z.number().int().min(WINE_VOTE_SCORE_MIN).max(WINE_VOTE_SCORE_MAX),
@@ -22,17 +25,22 @@ interface RouteContext {
   params: Promise<{ wineId: string }>;
 }
 
+function wineSlugCondition(slug: string) {
+  return eq(wines.slug, slug);
+}
+
 export async function POST(req: Request, context: RouteContext) {
   try {
-    const { wineId: wineIdParam } = await context.params;
-    const wineId = Number(wineIdParam);
+    const denied = await guardInteractiveApi(req, {
+      checkLevel: "basic",
+      rateLimit: RATE_LIMIT_POLICIES.wineVote,
+    });
+    if (denied) return denied;
 
-    if (!Number.isInteger(wineId) || wineId <= 0) {
-      return Response.json({ error: "ID vin invalid." }, { status: 400 });
-    }
+    const { wineId: wineReference } = await context.params;
 
     const wine = await db.query.wines.findFirst({
-      where: eq(wines.id, wineId),
+      where: wineSlugCondition(wineReference),
       columns: { id: true, status: true },
     });
 
@@ -47,20 +55,16 @@ export async function POST(req: Request, context: RouteContext) {
       );
     }
 
-    const body = await req.json().catch(() => ({}));
-    const parsed = requestSchema.safeParse(body);
+    const parsedBody = await readBoundedJson(req, requestSchema, 1_024);
+    if (!parsedBody.ok) return parsedBody.response;
 
-    if (!parsed.success) {
-      return Response.json({ error: "Date invalide." }, { status: 400 });
-    }
-
-    const { score, voterKey } = parsed.data;
+    const { score, voterKey } = parsedBody.data;
     const userId = await resolveGuestUserId(voterKey);
     const ipAddress = getClientIp(req);
 
     const result = await submitWineVote({
       userId,
-      wineId,
+      wineId: wine.id,
       score,
       ipAddress,
     });
@@ -96,17 +100,13 @@ export async function POST(req: Request, context: RouteContext) {
 
 export async function GET(req: Request, context: RouteContext) {
   try {
-    const { wineId: wineIdParam } = await context.params;
-    const wineId = Number(wineIdParam);
+    const { wineId: wineReference } = await context.params;
     const voterKey = new URL(req.url).searchParams.get("voterKey");
 
-    if (!Number.isInteger(wineId) || wineId <= 0) {
-      return Response.json({ error: "ID vin invalid." }, { status: 400 });
-    }
-
     const wine = await db.query.wines.findFirst({
-      where: eq(wines.id, wineId),
+      where: wineSlugCondition(wineReference),
       columns: {
+        id: true,
         communityScore: true,
         communityVoteCount: true,
       },
@@ -121,7 +121,7 @@ export async function GET(req: Request, context: RouteContext) {
 
     if (voterKey && z.string().uuid().safeParse(voterKey).success) {
       const userId = await resolveGuestUserId(voterKey);
-      const vote = await getUserWineVote(userId, wineId);
+      const vote = await getUserWineVote(userId, wine.id);
       if (vote) {
         userScore = vote.score;
         hasVoted = true;

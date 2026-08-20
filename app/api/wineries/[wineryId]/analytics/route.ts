@@ -1,8 +1,17 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { wineries } from "@/lib/schema";
+import { wineries, wineryEvents, wines } from "@/lib/schema";
 import { trackWineryAnalyticsEvent } from "@/lib/winery-analytics";
+import { guardInteractiveApi } from "@/lib/security/api-guard";
+import { readBoundedJson } from "@/lib/security/request-body";
+import { RATE_LIMIT_POLICIES } from "@/lib/security/route-policy";
+
+const metadataValueSchema = z.union([
+  z.string().max(200),
+  z.number().finite(),
+  z.boolean(),
+]);
 
 const requestSchema = z.object({
   eventType: z.enum([
@@ -15,12 +24,13 @@ const requestSchema = z.object({
     "visit_click",
     "banner_click",
   ]),
-  wineId: z.number().int().positive().optional(),
-  wineryEventId: z.number().int().positive().optional(),
-  path: z.string().max(500).optional(),
+  wineSlug: z.string().min(1).max(160).optional(),
+  wineryEventSlug: z.string().min(1).max(160).optional(),
+  path: z.string().max(300).optional(),
   referrer: z.string().max(500).optional(),
   metadata: z
-    .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
+    .record(z.string().max(60), metadataValueSchema)
+    .refine((value) => Object.keys(value).length <= 10)
     .optional(),
 });
 
@@ -28,17 +38,22 @@ interface RouteContext {
   params: Promise<{ wineryId: string }>;
 }
 
+function winerySlugCondition(slug: string) {
+  return eq(wineries.slug, slug);
+}
+
 export async function POST(req: Request, context: RouteContext) {
   try {
-    const { wineryId: wineryIdParam } = await context.params;
-    const wineryId = Number(wineryIdParam);
+    const denied = await guardInteractiveApi(req, {
+      checkLevel: "basic",
+      rateLimit: RATE_LIMIT_POLICIES.wineryAnalytics,
+    });
+    if (denied) return denied;
 
-    if (!Number.isInteger(wineryId) || wineryId <= 0) {
-      return Response.json({ error: "ID crama invalid." }, { status: 400 });
-    }
+    const { wineryId: wineryReference } = await context.params;
 
     const winery = await db.query.wineries.findFirst({
-      where: eq(wineries.id, wineryId),
+      where: winerySlugCondition(wineryReference),
       columns: { id: true },
     });
 
@@ -46,27 +61,45 @@ export async function POST(req: Request, context: RouteContext) {
       return Response.json({ error: "Crama negasita." }, { status: 404 });
     }
 
-    const body = await req.json().catch(() => ({}));
-    const parsed = requestSchema.safeParse(body);
+    const parsedBody = await readBoundedJson(req, requestSchema, 4_096);
+    if (!parsedBody.ok) return parsedBody.response;
+    const data = parsedBody.data;
 
-    if (!parsed.success) {
-      return Response.json({ error: "Date invalide." }, { status: 400 });
-    }
+    const wine =
+      data.wineSlug != null
+        ? await db.query.wines.findFirst({
+            where: eq(wines.slug, data.wineSlug),
+            columns: { id: true, wineryId: true },
+          })
+        : null;
+    const wineId = wine?.wineryId === winery.id ? wine.id : undefined;
+    const wineryEvent =
+      data.wineryEventSlug != null
+        ? await db.query.wineryEvents.findFirst({
+            where: and(
+              eq(wineryEvents.wineryId, winery.id),
+              eq(wineryEvents.slug, data.wineryEventSlug),
+            ),
+            columns: { id: true, wineryId: true },
+          })
+        : null;
+    const wineryEventId =
+      wineryEvent?.wineryId === winery.id ? wineryEvent.id : undefined;
 
     const userAgent = req.headers.get("user-agent") ?? undefined;
     const referrer =
-      parsed.data.referrer ?? req.headers.get("referer") ?? undefined;
+      data.referrer ?? req.headers.get("referer") ?? undefined;
 
     const result = await trackWineryAnalyticsEvent(
       {
-        wineryId,
-        eventType: parsed.data.eventType,
-        wineId: parsed.data.wineId,
-        wineryEventId: parsed.data.wineryEventId,
-        path: parsed.data.path,
+        wineryId: winery.id,
+        eventType: data.eventType,
+        wineId,
+        wineryEventId,
+        path: data.path,
         referrer,
         userAgent,
-        metadata: parsed.data.metadata,
+        metadata: data.metadata,
       },
       req,
     );
@@ -78,7 +111,10 @@ export async function POST(req: Request, context: RouteContext) {
       return Response.json({ error: "Nu am putut inregistra evenimentul." }, { status: 400 });
     }
 
-    return Response.json({ ok: true, id: result.id });
+    return Response.json(
+      { ok: true },
+      { headers: { "Cache-Control": "private, no-store" } },
+    );
   } catch (error) {
     console.error("[winery-analytics]", error);
     return Response.json(

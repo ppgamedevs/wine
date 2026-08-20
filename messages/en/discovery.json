@@ -1,7 +1,7 @@
 {
   "Home": {
     "metadata": {
-      "title": "VinIntel - Romanian wine guide, prices and recommendations",
+      "title": "VinIntel: Romanian wine guide, prices and recommendations",
       "description": "The intelligent guide to Romanian wines: a catalog with prices in RON, Value Score, budget lists and an AI sommelier for every occasion.",
       "openGraphDescription": "The intelligent guide to Romanian wines: catalog, top lists and an AI sommelier."
     },
@@ -167,6 +167,7 @@
       "pricePlaceholder": "Price",
       "scoreAria": "Recommendation",
       "scorePlaceholder": "Recommendation",
+      "apply": "Apply filters",
       "reset": "Reset",
       "foundOne": "wine found",
       "foundMany": "wines found",
@@ -177,6 +178,11 @@
       "noResultsHint": "Try another sweetness, color or a wider budget.",
       "resetFilters": "Reset filters",
       "viewOnly": "View only {type}",
+      "pagination": {
+        "previous": "Previous page",
+        "next": "Next page",
+        "page": "Page {page} of {totalPages}"
+      },
       "types": {
         "all": "All",
         "red": "Red",
@@ -261,9 +267,16 @@
     "directory": {
       "searchPlaceholder": "Search by name or region...",
       "searchAria": "Search wineries",
+      "apply": "Search",
+      "reset": "Reset",
       "foundOne": "winery found",
       "foundMany": "wineries found",
-      "noResults": "No winery matches your search"
+      "noResults": "No winery matches your search",
+      "pagination": {
+        "previous": "Previous page",
+        "next": "Next page",
+        "page": "Page {page} of {totalPages}"
+      }
     },
     "card": {
       "country": "Romania",

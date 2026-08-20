@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { alternateLocaleHref } from "@/i18n/paths";
@@ -52,27 +51,27 @@ export function LanguageSwitcher() {
   return (
     <nav
       aria-label={t("languageSwitcher")}
-      className="flex items-center rounded-md border border-border/70 bg-background/70 p-0.5"
+      className="flex items-center rounded-md border border-wine/25 bg-card p-0.5 shadow-sm"
     >
       {alternatives.map(({ locale, href }) => {
         const isCurrent = locale === currentLocale;
 
         return (
-          <Link
+          <a
             key={locale}
             href={href!}
             hrefLang={locale}
             lang={locale}
             aria-current={isCurrent ? "page" : undefined}
             aria-label={locale === "ro" ? t("romanian") : t("english")}
-            className={`rounded px-2 py-1 text-[11px] font-semibold tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            className={`min-w-8 rounded border border-transparent px-2 py-1 text-center text-[11px] font-semibold tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               isCurrent
-                ? "bg-wine text-wine-foreground"
-                : "text-muted-foreground hover:text-wine"
+                ? "bg-wine text-white shadow-sm"
+                : "bg-background text-foreground hover:bg-wine/10 hover:text-wine"
             }`}
           >
             {LOCALE_LABELS[locale]}
-          </Link>
+          </a>
         );
       })}
     </nav>

@@ -61,7 +61,8 @@
     "i18n:translate": "node --conditions=react-server --import tsx scripts/translate-content.ts",
     "i18n:audit": "node --conditions=react-server --import tsx scripts/i18n-coverage-audit.ts",
     "i18n:smoke": "tsx scripts/i18n-route-smoke.ts",
-    "i18n:mobile-smoke": "playwright test --config=playwright.i18n.config.ts"
+    "i18n:mobile-smoke": "playwright test --config=playwright.i18n.config.ts",
+    "security:audit": "tsx scripts/anti-scrape-audit.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.5",
@@ -71,8 +72,10 @@
     "@libsql/client": "^0.17.4",
     "@next/third-parties": "^16.2.10",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/firewall": "^1.2.5",
     "@vercel/speed-insights": "^2.0.0",
     "ai": "^7.0.4",
+    "botid": "^1.5.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

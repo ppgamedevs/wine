@@ -49,8 +49,8 @@ export async function generateMetadata(): Promise<Metadata> {
     ? "An independent guide to Romanian wines with prices in RON, transparent scores and an AI Sommelier."
     : SITE.description;
   const socialTitle = isEnglish
-    ? "VinIntel - Romanian wine, clearly explained"
-    : "VinIntel - Vinuri romanesti. Clar. Onest. Rapid.";
+    ? "VinIntel: Romanian wine, clearly explained"
+    : "VinIntel: Vinuri romanesti. Clar. Onest. Rapid.";
   const homeUrl = absoluteUrl(localizedHref(locale, "home"));
   const robots = localizedRobots(locale);
 
@@ -58,8 +58,8 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(SITE.url),
     title: {
       default: isEnglish
-        ? "VinIntel - Romanian wine guide, prices and recommendations"
-        : "VinIntel - Ghid de vinuri romanesti, preturi si recomandari",
+        ? "VinIntel: Romanian wine guide, prices and recommendations"
+        : "VinIntel: Ghid de vinuri romanesti, preturi si recomandari",
       template: "%s | VinIntel",
     },
     description,

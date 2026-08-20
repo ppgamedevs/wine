@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { isStripeConfigured } from "@/lib/stripe/config";
 import { createPremiumCheckoutSession } from "@/lib/stripe/premium-checkout";
+import { guardInteractiveApi } from "@/lib/security/api-guard";
+import { readBoundedJson } from "@/lib/security/request-body";
+import { RATE_LIMIT_POLICIES } from "@/lib/security/route-policy";
 
 const requestSchema = z.object({
   plan: z.enum(["monthly", "annual"]),
@@ -12,6 +15,12 @@ const requestSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const denied = await guardInteractiveApi(req, {
+      checkLevel: "deepAnalysis",
+      rateLimit: RATE_LIMIT_POLICIES.premiumCheckout,
+    });
+    if (denied) return denied;
+
     if (!isStripeConfigured()) {
       return Response.json(
         { error: "Plata online nu este configurata inca." },
@@ -19,14 +28,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json().catch(() => ({}));
-    const parsed = requestSchema.safeParse(body);
+    const parsedBody = await readBoundedJson(req, requestSchema, 4_096);
+    if (!parsedBody.ok) return parsedBody.response;
 
-    if (!parsed.success) {
-      return Response.json({ error: "Date invalide." }, { status: 400 });
-    }
-
-    const session = await createPremiumCheckoutSession(parsed.data);
+    const session = await createPremiumCheckoutSession(parsedBody.data);
 
     return Response.json({
       ok: true,

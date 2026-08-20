@@ -6,6 +6,7 @@ import {
   streamText,
   type UIMessage,
 } from "ai";
+import { z } from "zod";
 import { getChatSommelierModel } from "@/lib/ai/model";
 import {
   buildChatSommelierSystemPrompt,
@@ -15,8 +16,27 @@ import {
 } from "@/lib/sommelier-chat";
 import { extractRecommendedSlugs } from "@/lib/sommelier-chat-utils";
 import { isAppLocale } from "@/i18n/locale";
+import { guardInteractiveApi } from "@/lib/security/api-guard";
+import { readBoundedJson } from "@/lib/security/request-body";
+import { RATE_LIMIT_POLICIES } from "@/lib/security/route-policy";
 
 export const maxDuration = 60;
+
+const requestSchema = z.object({
+  messages: z
+    .array(
+      z.custom<UIMessage>(
+        (value) =>
+          typeof value === "object" &&
+          value !== null &&
+          "role" in value &&
+          "parts" in value,
+      ),
+    )
+    .min(1)
+    .max(20),
+  locale: z.string().optional(),
+});
 
 function getLatestUserText(messages: UIMessage[]): string {
   const texts = extractUserTexts(messages);
@@ -25,19 +45,18 @@ function getLatestUserText(messages: UIMessage[]): string {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as {
-      messages?: UIMessage[];
-      locale?: string;
-    };
-    const messages = body.messages ?? [];
-    const locale = isAppLocale(body.locale) ? body.locale : "ro";
+    const denied = await guardInteractiveApi(req, {
+      checkLevel: "deepAnalysis",
+      rateLimit: RATE_LIMIT_POLICIES.sommelierChat,
+    });
+    if (denied) return denied;
 
-    if (messages.length === 0) {
-      return Response.json(
-        { error: locale === "en" ? "Message is missing." : "Mesaj lipsa." },
-        { status: 400 },
-      );
-    }
+    const parsedBody = await readBoundedJson(req, requestSchema, 24_000);
+    if (!parsedBody.ok) return parsedBody.response;
+
+    const body = parsedBody.data;
+    const messages = body.messages;
+    const locale = isAppLocale(body.locale) ? body.locale : "ro";
 
     const latestUserText = getLatestUserText(messages);
     if (!latestUserText.trim()) {
@@ -48,6 +67,25 @@ export async function POST(req: Request) {
     }
 
     const conversationTexts = extractUserTexts(messages);
+    const totalUserCharacters = conversationTexts.reduce(
+      (total, text) => total + text.length,
+      0,
+    );
+    if (latestUserText.length > 2_000 || totalUserCharacters > 12_000) {
+      return Response.json(
+        {
+          error:
+            locale === "en"
+              ? "The conversation is too long. Start a new request."
+              : "Conversatia este prea lunga. Incepe o cerere noua.",
+        },
+        {
+          status: 413,
+          headers: { "Cache-Control": "private, no-store" },
+        },
+      );
+    }
+
     const { input, wines } = await retrieveWinesForChat(
       latestUserText,
       conversationTexts,
@@ -68,6 +106,8 @@ export async function POST(req: Request) {
           system,
           messages: modelMessages,
           temperature: 0.45,
+          maxOutputTokens: 900,
+          abortSignal: AbortSignal.timeout(45_000),
         });
 
         writer.merge(result.toUIMessageStream());
@@ -98,8 +138,12 @@ export async function POST(req: Request) {
     return createUIMessageStreamResponse({ stream });
   } catch (error) {
     console.error("POST /api/sommelier/chat failed", error);
-    const message =
-      error instanceof Error ? error.message : "Eroare interna somelier chat.";
-    return Response.json({ error: message }, { status: 500 });
+    return Response.json(
+      { error: "Somelierul nu a putut raspunde. Incearca din nou." },
+      {
+        status: 500,
+        headers: { "Cache-Control": "private, no-store" },
+      },
+    );
   }
 }

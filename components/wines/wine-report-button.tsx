@@ -13,7 +13,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 interface WineReportButtonProps {
-  wineId: number;
+  wineSlug: string;
   labels: {
     trigger: string;
     title: string;
@@ -28,7 +28,7 @@ interface WineReportButtonProps {
 }
 
 export function WineReportButton({
-  wineId,
+  wineSlug,
   labels,
 }: WineReportButtonProps) {
   const [open, setOpen] = useState(false);
@@ -41,11 +41,14 @@ export function WineReportButton({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/wines/${wineId}/report`, {
+      const res = await fetch(
+        `/api/wines/${encodeURIComponent(wineSlug)}/report`,
+        {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: reason.trim() || undefined }),
-      });
+        },
+      );
       await res.json();
       if (!res.ok) throw new Error(labels.submitError);
       setDone(true);

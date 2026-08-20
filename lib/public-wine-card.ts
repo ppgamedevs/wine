@@ -2,6 +2,7 @@ import { getWineTypeLabel } from "@/lib/format";
 import type {
   PublicWineCardViewModel,
   PublicWineCatalogItem,
+  PublicWineryDirectoryItem,
   WineCardAnalyticsViewModel,
 } from "@/lib/public-wine-card-types";
 import {
@@ -13,7 +14,7 @@ import {
   resolveWineVintage,
   stripEmbeddedVintageFromName,
 } from "@/lib/wine-vintage";
-import type { WineWithRelations } from "@/types";
+import type { WineryListItem, WineWithRelations } from "@/types";
 import type { AppLocale } from "@/i18n/locale";
 
 interface PublicWineCardOptions {
@@ -53,7 +54,6 @@ export function buildPublicWineCardViewModel(
   const pricing = buildWinePriceViewModel(wine);
 
   return {
-    id: wine.id,
     slug: wine.slug,
     name: wine.name,
     displayName: stripEmbeddedVintageFromName(wine.name, vintage),
@@ -119,7 +119,6 @@ function buildPublicWineCatalogItemForLocale(
     .toLocaleLowerCase(locale === "en" ? "en" : "ro");
 
   return {
-    id: wine.id,
     type: wine.type,
     sweetness: wine.sweetness,
     valueScore: wine.valueScore,
@@ -140,4 +139,36 @@ export function buildLocalizedPublicWineCatalogItem(
   locale: AppLocale,
 ): PublicWineCatalogItem {
   return buildPublicWineCatalogItemForLocale(wine, locale);
+}
+
+export function buildPublicWineryDirectoryItem(
+  winery: WineryListItem,
+): PublicWineryDirectoryItem {
+  return {
+    slug: winery.slug,
+    name: winery.name,
+    description: winery.description,
+    logoUrl: winery.logoUrl,
+    verified: winery.verified,
+    regionName: winery.region?.name ?? null,
+    wineCount: winery.wineCount,
+    avgValueScore: winery.avgValueScore,
+    priceRange: winery.priceRange,
+    bestWine: winery.bestWine
+      ? {
+          slug: winery.bestWine.slug,
+          name: winery.bestWine.name,
+          valueScore: winery.bestWine.valueScore,
+        }
+      : null,
+    bestUnder50: winery.bestUnder50
+      ? {
+          slug: winery.bestUnder50.slug,
+          name: winery.bestUnder50.name,
+          valueScore: winery.bestUnder50.valueScore,
+        }
+      : null,
+    topGrapes: winery.topGrapes,
+    lastPriceCheck: winery.lastPriceCheck,
+  };
 }

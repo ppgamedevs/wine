@@ -11,6 +11,7 @@ import {
 import type Stripe from "stripe";
 
 export const runtime = "nodejs";
+const MAX_WEBHOOK_BODY_BYTES = 256 * 1024;
 
 async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
@@ -22,6 +23,17 @@ async function handleCheckoutSessionCompleted(
 }
 
 export async function POST(req: Request) {
+  const contentLength = Number(req.headers.get("content-length"));
+  if (
+    Number.isFinite(contentLength) &&
+    contentLength > MAX_WEBHOOK_BODY_BYTES
+  ) {
+    return Response.json(
+      { error: "Payload prea mare." },
+      { status: 413, headers: { "Cache-Control": "private, no-store" } },
+    );
+  }
+
   const webhookSecret = getStripeWebhookSecret();
   if (!webhookSecret) {
     return Response.json({ error: "Webhook neconfigurat." }, { status: 503 });
@@ -33,6 +45,12 @@ export async function POST(req: Request) {
   }
 
   const body = await req.text();
+  if (Buffer.byteLength(body, "utf8") > MAX_WEBHOOK_BODY_BYTES) {
+    return Response.json(
+      { error: "Payload prea mare." },
+      { status: 413, headers: { "Cache-Control": "private, no-store" } },
+    );
+  }
   const stripe = getStripe();
 
   let event: Stripe.Event;

@@ -6,7 +6,7 @@ import { envOrUndefined } from "@/lib/env";
 import { absoluteUrl } from "@/lib/seo";
 import { wineryPremiumCheckouts, type PremiumCheckoutPlan } from "@/lib/schema";
 import { sendWelcomeEmailForCheckout } from "@/lib/premium-subscription-emails";
-import { createBillingPortalSession, getStripe } from "@/lib/stripe/config";
+import { getStripe } from "@/lib/stripe/config";
 import { getPremiumPlan } from "@/lib/stripe/premium-plans";
 import {
   getCustomerIdFromSession,
@@ -51,14 +51,9 @@ export async function createPremiumCheckoutSession(
     winery.stripeSubscriptionId &&
     (await isStripeSubscriptionStillActive(winery.stripeSubscriptionId))
   ) {
-    const portal = await createBillingPortalSession({
-      customerId: winery.stripeCustomerId,
-      returnPath: `/wineries/${winery.slug}/dashboard`,
-    });
-
     return {
       sessionId: "",
-      url: portal.url,
+      url: absoluteUrl(`/wineries/${winery.slug}`),
       existingSubscription: true,
     };
   }
@@ -137,8 +132,6 @@ export interface FulfillPremiumCheckoutResult {
   wineryName: string;
   email: string;
   plan: PremiumCheckoutPlan;
-  stripeCustomerId: string | null;
-  stripeSubscriptionId: string | null;
 }
 
 export async function fulfillPremiumCheckout(
@@ -160,8 +153,6 @@ export async function fulfillPremiumCheckout(
       wineryName: existing.wineryName,
       email: existing.email,
       plan: existing.plan,
-      stripeCustomerId: existing.stripeCustomerId,
-      stripeSubscriptionId: existing.stripeSubscriptionId,
     };
   }
 
@@ -270,7 +261,5 @@ export async function fulfillPremiumCheckout(
     wineryName,
     email,
     plan,
-    stripeCustomerId,
-    stripeSubscriptionId: subscriptionId,
   };
 }

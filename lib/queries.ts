@@ -1,5 +1,21 @@
 import "server-only";
-import { and, asc, count, desc, eq, gte, like, ne, or } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  gte,
+  inArray,
+  like,
+  lt,
+  lte,
+  ne,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
 import { db } from "@/lib/db";
 import { grapeVarieties, regions, wineryEvents, wineries, wines } from "@/lib/schema";
 import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
@@ -7,11 +23,25 @@ import { normalizeWineRow, normalizeWineRows } from "@/lib/normalize-wine";
 import type { GrapeVarietyCatalogEntry } from "@/lib/grape-variety-index";
 import { MIN_INDEXABLE_TOP_LIST_WINES } from "@/lib/top-lists";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
+import { VALUE_SCORE_EXCEPTIONAL_MIN } from "@/lib/value-score-thresholds";
+import {
+  MAX_PUBLIC_CATALOG_PAGE,
+  WINE_CATALOG_PAGE_SIZE,
+  WINERY_DIRECTORY_PAGE_SIZE,
+  type PublicCatalogFacet,
+  type PublicCatalogPage,
+  type PublicWineCatalogFacets,
+  type PublicWineCatalogFilters,
+  type PublicWineCatalogRequest,
+  type PublicWineryDirectoryRequest,
+} from "@/lib/public-wine-card-types";
 import type {
   Region,
   Winery,
   WineryEvent,
   WineryListItem,
+  WineSweetness,
+  WineType,
   WineryWithWines,
   WineWithRelations,
 } from "@/types";
@@ -249,21 +279,212 @@ export async function getFeaturedWines(
   }
 }
 
-/** Full verified catalog for listing pages, ordered by Value Score. */
-export async function getCatalogWines(): Promise<WineWithRelations[]> {
+const CATALOG_WINE_TYPES: WineType[] = [
+  "red",
+  "white",
+  "rose",
+  "sparkling",
+  "orange",
+  "dessert",
+];
+const CATALOG_WINE_SWEETNESS: WineSweetness[] = [
+  "sec",
+  "demisec",
+  "demidulce",
+  "dulce",
+];
+const catalogPrice = sql<number | null>`coalesce(nullif(${wines.currentPrice}, 0), nullif(${wines.priceAvg}, 0))`;
+
+function boundedPublicPage(page: number): number {
+  if (!Number.isFinite(page)) return 1;
+  return Math.min(
+    Math.max(1, Math.trunc(page)),
+    MAX_PUBLIC_CATALOG_PAGE,
+  );
+}
+
+function totalPages(total: number, pageSize: number): number {
+  return Math.max(1, Math.ceil(total / pageSize));
+}
+
+function wineCatalogFilterCondition(
+  filters: PublicWineCatalogFilters,
+  omit: ReadonlyArray<"type" | "sweetness"> = [],
+): SQL {
+  const conditions: SQL[] = [catalogWineCondition()];
+
+  const searchable = filters.query.replace(/[%_]/g, "").trim();
+  if (searchable) {
+    const pattern = `%${searchable}%`;
+    conditions.push(
+      or(
+        like(wines.name, pattern),
+        like(wines.grapeVarieties, pattern),
+        inArray(
+          wines.wineryId,
+          db
+            .select({ id: wineries.id })
+            .from(wineries)
+            .where(like(wineries.name, pattern)),
+        ),
+        inArray(
+          wines.regionId,
+          db
+            .select({ id: regions.id })
+            .from(regions)
+            .where(like(regions.name, pattern)),
+        ),
+      ) as SQL,
+    );
+  }
+
+  if (!omit.includes("type") && filters.type !== "all") {
+    conditions.push(eq(wines.type, filters.type));
+  }
+  if (!omit.includes("sweetness") && filters.sweetness !== "all") {
+    conditions.push(eq(wines.sweetness, filters.sweetness));
+  }
+  if (filters.verdict === "recommended") {
+    conditions.push(gte(wines.valueScore, MIN_RECOMMENDED_VALUE_SCORE));
+  } else if (filters.verdict === "exceptional") {
+    conditions.push(gte(wines.valueScore, VALUE_SCORE_EXCEPTIONAL_MIN));
+  }
+  if (filters.priceBand === "under50") {
+    conditions.push(lt(catalogPrice, 50));
+  } else if (filters.priceBand === "50-100") {
+    conditions.push(and(gte(catalogPrice, 50), lte(catalogPrice, 100)) as SQL);
+  } else if (filters.priceBand === "over100") {
+    conditions.push(gt(catalogPrice, 100));
+  }
+
+  return and(...conditions) as SQL;
+}
+
+function wineCatalogOrder(filters: PublicWineCatalogFilters): SQL[] {
+  if (filters.sort === "price-asc") {
+    return [
+      sql`${catalogPrice} is null`,
+      asc(catalogPrice),
+      desc(wines.valueScore),
+      asc(wines.name),
+    ];
+  }
+  if (filters.sort === "price-desc") {
+    return [
+      sql`${catalogPrice} is null`,
+      desc(catalogPrice),
+      desc(wines.valueScore),
+      asc(wines.name),
+    ];
+  }
+  if (filters.sort === "name-asc") {
+    return [asc(wines.name), asc(wines.slug)];
+  }
+  return [desc(wines.valueScore), asc(wines.name), asc(wines.slug)];
+}
+
+function facetMap<T extends string>(
+  ids: readonly T[],
+  rows: Array<{ id: T | null; total: number }>,
+  allCount: number,
+): Array<PublicCatalogFacet<"all" | T>> {
+  const counts = new Map(
+    rows
+      .filter((row): row is { id: T; total: number } => row.id !== null)
+      .map((row) => [row.id, row.total]),
+  );
+  return [
+    { id: "all", count: allCount },
+    ...ids.map((id) => ({ id, count: counts.get(id) ?? 0 })),
+  ];
+}
+
+export interface CatalogWinePage extends PublicCatalogPage<WineWithRelations> {
+  facets: PublicWineCatalogFacets;
+}
+
+/** Bounded verified catalog page. Page size is fixed and cannot be caller controlled. */
+export async function getCatalogWinePage(
+  request: PublicWineCatalogRequest,
+): Promise<CatalogWinePage> {
+  const requestedPage = boundedPublicPage(request.page);
+  const empty: CatalogWinePage = {
+    items: [],
+    total: 0,
+    page: 1,
+    pageSize: WINE_CATALOG_PAGE_SIZE,
+    totalPages: 1,
+    facets: {
+      types: facetMap(CATALOG_WINE_TYPES, [], 0),
+      sweetness: facetMap(CATALOG_WINE_SWEETNESS, [], 0),
+    },
+  };
+
   try {
-    const rows = await db.query.wines.findMany({
-      with: { winery: true, region: true },
-      where: catalogWineCondition(),
-      orderBy: (table, { desc: orderDesc, asc: orderAsc }) => [
-        orderDesc(table.valueScore),
-        orderAsc(table.name),
-      ],
-    });
-    return normalizeWineRows(rows as WineWithRelations[]);
+    const mainCondition = wineCatalogFilterCondition(request.filters);
+    const typeCondition = wineCatalogFilterCondition(request.filters, ["type"]);
+    const sweetnessCondition = wineCatalogFilterCondition(request.filters, [
+      "sweetness",
+    ]);
+    const [totalRow] = await db
+      .select({ total: count() })
+      .from(wines)
+      .where(mainCondition);
+    const total = totalRow?.total ?? 0;
+    const pageCount = totalPages(total, WINE_CATALOG_PAGE_SIZE);
+    const page = Math.min(requestedPage, pageCount);
+
+    const [rows, typeRows, sweetnessRows, typeTotalRow, sweetnessTotalRow] =
+      await Promise.all([
+        db.query.wines.findMany({
+          with: { winery: true, region: true },
+          where: mainCondition,
+          orderBy: wineCatalogOrder(request.filters),
+          limit: WINE_CATALOG_PAGE_SIZE,
+          offset: (page - 1) * WINE_CATALOG_PAGE_SIZE,
+        }),
+        db
+          .select({ id: wines.type, total: count() })
+          .from(wines)
+          .where(typeCondition)
+          .groupBy(wines.type),
+        db
+          .select({ id: wines.sweetness, total: count() })
+          .from(wines)
+          .where(sweetnessCondition)
+          .groupBy(wines.sweetness),
+        db
+          .select({ total: count() })
+          .from(wines)
+          .where(typeCondition),
+        db
+          .select({ total: count() })
+          .from(wines)
+          .where(sweetnessCondition),
+      ]);
+
+    return {
+      items: normalizeWineRows(rows as WineWithRelations[]),
+      total,
+      page,
+      pageSize: WINE_CATALOG_PAGE_SIZE,
+      totalPages: pageCount,
+      facets: {
+        types: facetMap(
+          CATALOG_WINE_TYPES,
+          typeRows,
+          typeTotalRow[0]?.total ?? 0,
+        ),
+        sweetness: facetMap(
+          CATALOG_WINE_SWEETNESS,
+          sweetnessRows,
+          sweetnessTotalRow[0]?.total ?? 0,
+        ),
+      },
+    };
   } catch (error) {
-    console.error("getCatalogWines failed", error);
-    return [];
+    console.error("getCatalogWinePage failed", error);
+    return empty;
   }
 }
 
@@ -293,13 +514,60 @@ export async function getWineSitemapEntries(): Promise<
   }
 }
 
+function wineryDirectoryCondition(query: string): SQL {
+  const visibleWineExists = sql`exists (
+    select 1 from ${wines}
+    where ${wines.wineryId} = ${wineries.id}
+      and ${catalogWineCondition()}
+  )`;
+  const searchable = query.replace(/[%_]/g, "").trim();
+  if (!searchable) return visibleWineExists;
+  const pattern = `%${searchable}%`;
+
+  return and(
+    visibleWineExists,
+    or(
+      like(wineries.name, pattern),
+      inArray(
+        wineries.regionId,
+        db
+          .select({ id: regions.id })
+          .from(regions)
+          .where(like(regions.name, pattern)),
+      ),
+    ),
+  ) as SQL;
+}
+
+export type WineryDirectoryPage = PublicCatalogPage<WineryListItem>;
+
 /**
- * All wineries for the index page, ordered alphabetically, with region and
- * aggregated wine stats (count, average value score, price range).
+ * Bounded public winery directory ordered alphabetically. Page size is fixed
+ * and cannot be caller controlled.
  */
-export async function getWineriesIndex(): Promise<WineryListItem[]> {
+export async function getWineryDirectoryPage(
+  request: PublicWineryDirectoryRequest,
+): Promise<WineryDirectoryPage> {
+  const requestedPage = boundedPublicPage(request.page);
+  const empty: WineryDirectoryPage = {
+    items: [],
+    total: 0,
+    page: 1,
+    pageSize: WINERY_DIRECTORY_PAGE_SIZE,
+    totalPages: 1,
+  };
+
   try {
+    const condition = wineryDirectoryCondition(request.query);
+    const [totalRow] = await db
+      .select({ total: count() })
+      .from(wineries)
+      .where(condition);
+    const total = totalRow?.total ?? 0;
+    const pageCount = totalPages(total, WINERY_DIRECTORY_PAGE_SIZE);
+    const page = Math.min(requestedPage, pageCount);
     const rows = await db.query.wineries.findMany({
+      where: condition,
       with: {
         region: true,
         wines: {
@@ -312,20 +580,27 @@ export async function getWineriesIndex(): Promise<WineryListItem[]> {
             updatedAt: true,
             grapeVarieties: true,
           },
+          where: catalogWineCondition(),
         },
       },
-      orderBy: () => [asc(wineries.name)],
+      orderBy: () => [asc(wineries.name), asc(wineries.slug)],
+      limit: WINERY_DIRECTORY_PAGE_SIZE,
+      offset: (page - 1) * WINERY_DIRECTORY_PAGE_SIZE,
     });
 
-    return rows
-      .map((row) => {
+    return {
+      items: rows.map((row) => {
         const { wines: wineryWines, region, ...base } = row;
         return mapWineryToListItem(base, region ?? null, wineryWines);
-      })
-      .filter((winery) => winery.wineCount > 0);
+      }),
+      total,
+      page,
+      pageSize: WINERY_DIRECTORY_PAGE_SIZE,
+      totalPages: pageCount,
+    };
   } catch (error) {
-    console.error("getWineriesIndex failed", error);
-    return [];
+    console.error("getWineryDirectoryPage failed", error);
+    return empty;
   }
 }
 
@@ -573,6 +848,8 @@ export async function getSearchSuggestions(
 ): Promise<SearchSuggestion[]> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return [];
+  const normalizedLimit = Number.isFinite(limit) ? Math.trunc(limit) : 6;
+  const cappedLimit = Math.max(1, Math.min(normalizedLimit, 8));
 
   const pattern = `%${trimmed}%`;
 
@@ -587,12 +864,12 @@ export async function getSearchSuggestions(
         .from(wines)
         .where(and(catalogWineCondition(), like(wines.name, pattern)))
         .orderBy(desc(wines.valueScore))
-        .limit(limit),
+        .limit(cappedLimit),
       db
         .select({ name: wineries.name, slug: wineries.slug })
         .from(wineries)
         .where(like(wineries.name, pattern))
-        .limit(limit),
+        .limit(cappedLimit),
     ]);
 
     const wineSuggestions: SearchSuggestion[] = wineRows.map((row) => ({
@@ -608,7 +885,7 @@ export async function getSearchSuggestions(
       slug: row.slug,
     }));
 
-    return [...wineSuggestions, ...winerySuggestions].slice(0, limit + 2);
+    return [...wineSuggestions, ...winerySuggestions].slice(0, cappedLimit);
   } catch (error) {
     console.error("getSearchSuggestions failed", error);
     return [];

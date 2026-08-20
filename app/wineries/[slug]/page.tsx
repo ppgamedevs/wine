@@ -277,7 +277,6 @@ export default async function WineryPage({ params }: WineryPageProps) {
     listedWines: t("hero.listedWines"),
     averageValueScore: t("hero.averageValueScore"),
     priceRange: t("hero.priceRange"),
-    dashboard: t("hero.dashboard"),
     visit: {
       visit: t("hero.visit"),
       unavailable: t("hero.visitUnavailable"),
@@ -302,7 +301,9 @@ export default async function WineryPage({ params }: WineryPageProps) {
     <>
       <JsonLd data={jsonLd} id="winery" />
       <SiteHeader />
-      {trackAnalytics ? <WineryPageViewTracker wineryId={winery.id} /> : null}
+      {trackAnalytics ? (
+        <WineryPageViewTracker winerySlug={winery.slug} />
+      ) : null}
       <main className="flex-1">
         {premium ? (
           <WineryPremiumBanner
@@ -321,7 +322,6 @@ export default async function WineryPage({ params }: WineryPageProps) {
             region: winery.region
               ? localizedHref(locale, "region", { slug: winery.region.slug })
               : null,
-            dashboard: `/wineries/${winery.slug}/dashboard`,
           }}
           trackAnalytics={trackAnalytics}
         />
@@ -376,12 +376,15 @@ export default async function WineryPage({ params }: WineryPageProps) {
               <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {winery.wines.map((wine) => (
                   <WineCard
-                    key={wine.id}
+                    key={wine.slug}
                     wine={wine}
                     minValueScore={null}
                     trackAnalytics={
                       trackAnalytics
-                        ? { wineryId: winery.id, wineId: wine.id }
+                        ? {
+                            winerySlug: winery.slug,
+                            wineSlug: wine.slug,
+                          }
                         : undefined
                     }
                   />

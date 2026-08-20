@@ -14,7 +14,7 @@ import { VinScoreBadge } from "@/components/wines/vin-score-badge";
 import { cn } from "@/lib/utils";
 
 const VOTER_KEY_STORAGE = "vinintel-voter-key";
-const voteStorageKey = (wineId: number) => `vinintel-vote-${wineId}`;
+const voteStorageKey = (wineSlug: string) => `vinintel-vote-${wineSlug}`;
 
 function getOrCreateVoterKey(): string {
   if (typeof window === "undefined") return "";
@@ -27,7 +27,7 @@ function getOrCreateVoterKey(): string {
 }
 
 interface WineCommunityVoteButtonProps {
-  wineId: number;
+  wineSlug: string;
   initialScore: number | null;
   initialVoteCount: number;
   labels: {
@@ -67,7 +67,7 @@ function fillLabel(
 }
 
 export function WineCommunityVoteButton({
-  wineId,
+  wineSlug,
   initialScore,
   initialVoteCount,
   labels,
@@ -86,7 +86,7 @@ export function WineCommunityVoteButton({
     const voterKey = getOrCreateVoterKey();
     if (!voterKey) return;
 
-    const cached = localStorage.getItem(voteStorageKey(wineId));
+    const cached = localStorage.getItem(voteStorageKey(wineSlug));
     if (cached) {
       const parsed = Number(cached);
       if (Number.isInteger(parsed) && parsed >= 1 && parsed <= 100) {
@@ -98,7 +98,7 @@ export function WineCommunityVoteButton({
 
     try {
       const res = await fetch(
-        `/api/wines/${wineId}/vote?voterKey=${encodeURIComponent(voterKey)}`,
+        `/api/wines/${encodeURIComponent(wineSlug)}/vote?voterKey=${encodeURIComponent(voterKey)}`,
       );
       if (!res.ok) return;
       const data: {
@@ -113,14 +113,14 @@ export function WineCommunityVoteButton({
         setUserScore(data.userScore);
         setScore(data.userScore);
         setHasVoted(true);
-        localStorage.setItem(voteStorageKey(wineId), String(data.userScore));
+        localStorage.setItem(voteStorageKey(wineSlug), String(data.userScore));
       } else if (data.hasVoted === false) {
         setHasVoted(false);
       }
     } catch {
       /* ignore sync errors */
     }
-  }, [wineId]);
+  }, [wineSlug]);
 
   useEffect(() => {
     void syncFromServer();
@@ -131,7 +131,7 @@ export function WineCommunityVoteButton({
     setError(null);
     try {
       const voterKey = getOrCreateVoterKey();
-      const res = await fetch(`/api/wines/${wineId}/vote`, {
+      const res = await fetch(`/api/wines/${encodeURIComponent(wineSlug)}/vote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ score, voterKey }),
@@ -151,7 +151,7 @@ export function WineCommunityVoteButton({
       if (data.userScore != null) {
         setUserScore(data.userScore);
         setHasVoted(true);
-        localStorage.setItem(voteStorageKey(wineId), String(data.userScore));
+        localStorage.setItem(voteStorageKey(wineSlug), String(data.userScore));
       }
       setDone(true);
     } catch (err) {

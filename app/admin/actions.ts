@@ -27,6 +27,7 @@ import { scheduleIndexNowWine, scheduleIndexNowWinery } from "@/lib/indexnow";
 import { recordScoreOverride, recordScoreSnapshot } from "@/lib/score-history";
 import { VALUE_SCORE_ALGORITHM_VERSION } from "@/lib/scoring";
 import type { FoodCategoryId } from "@/lib/food-taxonomy";
+import { verifyInteractiveRequest } from "@/lib/security/bot-id";
 
 /**
  * "admin" e singurul identificator disponibil azi: autentificarea foloseste
@@ -86,7 +87,12 @@ async function assertAdmin() {
 export async function adminLoginAction(
   secret: string,
 ): Promise<{ ok: false; error: string } | void> {
-  if (!verifyAdminSecret(secret)) {
+  const bot = await verifyInteractiveRequest("deepAnalysis");
+  if (!bot.allowed) {
+    return { ok: false as const, error: "Solicitare automata respinsa." };
+  }
+
+  if (secret.length > 256 || !verifyAdminSecret(secret)) {
     return { ok: false as const, error: "Parola admin incorecta." };
   }
   await setAdminSession();

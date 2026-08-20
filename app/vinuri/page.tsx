@@ -12,13 +12,21 @@ import { Button } from "@/components/ui/button";
 import { localizedHref } from "@/i18n/paths";
 import { getDiscoveryI18n } from "@/lib/i18n/discovery";
 import { buildLocalizedPublicWineCatalogItem } from "@/lib/public-wine-card";
-import { getCatalogWines } from "@/lib/queries";
+import {
+  parsePublicWineCatalogRequest,
+  type PublicCatalogSearchParams,
+} from "@/lib/public-wine-card-types";
+import { getCatalogWinePage } from "@/lib/queries";
 import {
   absoluteUrl,
   buildBreadcrumbJsonLd,
   buildFaqJsonLd,
   SITE,
 } from "@/lib/seo";
+import {
+  MIN_RECOMMENDED_VALUE_SCORE,
+  VALUE_SCORE_EXCEPTIONAL_MIN,
+} from "@/lib/value-score-thresholds";
 
 export const revalidate = 3600;
 
@@ -70,12 +78,20 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function VinuriCatalogPage() {
-  const [{ locale, t }, catalogWines] = await Promise.all([
+interface VinuriCatalogPageProps {
+  searchParams?: Promise<PublicCatalogSearchParams>;
+}
+
+export default async function VinuriCatalogPage({
+  searchParams,
+}: VinuriCatalogPageProps) {
+  const params = (await searchParams) ?? {};
+  const request = parsePublicWineCatalogRequest(params);
+  const [{ locale, t }, catalog] = await Promise.all([
     getDiscoveryI18n(),
-    getCatalogWines(),
+    getCatalogWinePage(request),
   ]);
-  const publicCatalog = catalogWines.map((wine) =>
+  const publicCatalog = catalog.items.map((wine) =>
     buildLocalizedPublicWineCatalogItem(wine, locale),
   );
   const path = localizedHref(locale, "wines");
@@ -99,25 +115,21 @@ export default async function VinuriCatalogPage() {
     typeLabel: t("Catalog.directory.typeLabel"),
     sweetnessLabel: t("Catalog.directory.sweetnessLabel"),
     sortAria: t("Catalog.directory.sortAria"),
-    sortPlaceholder: t("Catalog.directory.sortPlaceholder"),
     priceAria: t("Catalog.directory.priceAria"),
-    pricePlaceholder: t("Catalog.directory.pricePlaceholder"),
     scoreAria: t("Catalog.directory.scoreAria"),
-    scorePlaceholder: t("Catalog.directory.scorePlaceholder"),
+    apply: t("Catalog.directory.apply"),
     reset: t("Catalog.directory.reset"),
     foundOne: t("Catalog.directory.foundOne"),
     foundMany: t("Catalog.directory.foundMany"),
-    removeFilter: t("Catalog.directory.removeFilter", { label: "{label}" }),
-    recommendedNote: t("Catalog.directory.recommendedNote", {
-      score: "{score}",
-    }),
-    exceptionalNote: t("Catalog.directory.exceptionalNote", {
-      score: "{score}",
-    }),
     noResults: t("Catalog.directory.noResults"),
     noResultsHint: t("Catalog.directory.noResultsHint"),
     resetFilters: t("Catalog.directory.resetFilters"),
-    viewOnly: t("Catalog.directory.viewOnly", { type: "{type}" }),
+    previous: t("Catalog.directory.pagination.previous"),
+    next: t("Catalog.directory.pagination.next"),
+    page: t("Catalog.directory.pagination.page", {
+      page: "{page}",
+      totalPages: "{totalPages}",
+    }),
     types: {
       all: t("Catalog.directory.types.all"),
       red: t("Catalog.directory.types.red"),
@@ -149,27 +161,10 @@ export default async function VinuriCatalogPage() {
     scores: {
       all: t("Catalog.directory.scores.all"),
       recommended: t("Catalog.directory.scores.recommended", {
-        score: "{score}",
+        score: MIN_RECOMMENDED_VALUE_SCORE,
       }),
       exceptional: t("Catalog.directory.scores.exceptional", {
-        score: "{score}",
-      }),
-      recommendedChip: t("Catalog.directory.scores.recommendedChip"),
-      exceptionalChip: t("Catalog.directory.scores.exceptionalChip"),
-    },
-    sections: {
-      red: t("Catalog.directory.sections.red"),
-      white: t("Catalog.directory.sections.white"),
-      rose: t("Catalog.directory.sections.rose"),
-      sparkling: t("Catalog.directory.sections.sparkling"),
-      orange: t("Catalog.directory.sections.orange"),
-      dessert: t("Catalog.directory.sections.dessert"),
-    },
-    sectionDescriptions: {
-      sparkling: t("Catalog.directory.sectionDescriptions.sparkling"),
-      orange: t("Catalog.directory.sectionDescriptions.orange"),
-      default: t("Catalog.directory.sectionDescriptions.default", {
-        type: "{type}",
+        score: VALUE_SCORE_EXCEPTIONAL_MIN,
       }),
     },
   };
@@ -183,10 +178,10 @@ export default async function VinuriCatalogPage() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: t("Catalog.listName"),
-    numberOfItems: catalogWines.length,
-    itemListElement: catalogWines.slice(0, 50).map((wine, index) => ({
+    numberOfItems: catalog.items.length,
+    itemListElement: catalog.items.map((wine, index) => ({
       "@type": "ListItem",
-      position: index + 1,
+      position: (catalog.page - 1) * catalog.pageSize + index + 1,
       url: absoluteUrl(localizedHref(locale, "wine", { slug: wine.slug })),
       name: wine.name,
     })),
@@ -209,7 +204,7 @@ export default async function VinuriCatalogPage() {
             <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
                 <Wine className="h-4 w-4" aria-hidden="true" />
-                {t("Catalog.verified", { count: catalogWines.length })}
+                {t("Catalog.verified", { count: catalog.total })}
               </span>
               <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
                 {t("Catalog.heading")}
@@ -241,9 +236,15 @@ export default async function VinuriCatalogPage() {
         </section>
 
         <div className="mx-auto max-w-6xl px-6 py-10 lg:py-12">
-          {catalogWines.length > 0 ? (
+          {catalog.items.length > 0 || catalog.total === 0 ? (
             <WineCatalogDirectory
-              wines={publicCatalog}
+              wines={publicCatalog.map((item) => item.card)}
+              filters={request.filters}
+              facets={catalog.facets}
+              total={catalog.total}
+              page={catalog.page}
+              totalPages={catalog.totalPages}
+              basePath={path}
               locale={locale}
               copy={directoryCopy}
             />

@@ -209,7 +209,7 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
               </p>
               <div className="mt-3">
                 <WineReportButton
-                  wineId={wine.id}
+                  wineSlug={wine.slug}
                   labels={{
                     trigger: reportT("trigger"),
                     title: reportT("title"),

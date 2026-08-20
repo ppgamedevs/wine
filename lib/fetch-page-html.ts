@@ -1,3 +1,5 @@
+import { isResolvablePublicWineUrl } from "@/lib/security/public-url";
+
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 VinIntelBot/1.0";
 
@@ -6,6 +8,36 @@ const BROWSER_USER_AGENT =
 
 const MAX_REDIRECT_HOPS = 10;
 const JINA_READER_BASE = "https://r.jina.ai/";
+const MAX_HTML_BYTES = 5 * 1024 * 1024;
+
+async function readBoundedText(
+  response: Response,
+  maxBytes = MAX_HTML_BYTES,
+): Promise<string> {
+  const contentLength = Number(response.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > maxBytes) {
+    throw new Error("Pagina este prea mare pentru analiza.");
+  }
+  if (!response.body) return "";
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let text = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await reader.cancel();
+      throw new Error("Pagina este prea mare pentru analiza.");
+    }
+    text += decoder.decode(value, { stream: true });
+  }
+
+  return text + decoder.decode();
+}
 
 function isBudureascaHost(url: string): boolean {
   try {
@@ -87,7 +119,7 @@ async function fetchViaJinaReader(url: string): Promise<string | null> {
 
   if (!response.ok) return null;
 
-  const markdown = await response.text();
+  const markdown = await readBoundedText(response);
   return buildBudureascaHtmlFromJina(markdown);
 }
 
@@ -96,15 +128,15 @@ async function fetchBudureascaDocument(url: string): Promise<{
   finalUrl: string;
 }> {
   try {
-    const response = await fetch(url, {
-      ...buildFetchInit(url),
-      redirect: "follow",
-    });
+    const { response, finalUrl } = await fetchWithValidatedRedirects(
+      url,
+      buildFetchInit(url),
+    );
 
     if (response.ok) {
-      const html = await response.text();
+      const html = await readBoundedText(response);
       if (!isCloudflareChallenge(html)) {
-        return { html, finalUrl: response.url || url };
+        return { html, finalUrl };
       }
     }
   } catch {
@@ -190,6 +222,41 @@ function normalizeRedirectTarget(raw: string, baseUrl: string): string | null {
   } catch {
     return null;
   }
+}
+
+async function fetchWithValidatedRedirects(
+  sourceUrl: string,
+  init: RequestInit,
+): Promise<{ response: Response; finalUrl: string; redirectChain: string[] }> {
+  let currentUrl = sourceUrl;
+  const redirectChain = [sourceUrl];
+
+  for (let hop = 0; hop <= MAX_REDIRECT_HOPS; hop += 1) {
+    if (!(await isResolvablePublicWineUrl(currentUrl))) {
+      throw new Error("Adresa URL nu poate fi accesata in siguranta.");
+    }
+
+    const response = await fetch(currentUrl, {
+      ...init,
+      redirect: "manual",
+    });
+    if (response.status < 300 || response.status >= 400) {
+      return { response, finalUrl: currentUrl, redirectChain };
+    }
+
+    const location = response.headers.get("location");
+    const nextUrl = location
+      ? normalizeRedirectTarget(location, currentUrl)
+      : null;
+    if (!nextUrl) {
+      throw new Error("Redirect invalid.");
+    }
+
+    currentUrl = nextUrl;
+    redirectChain.push(currentUrl);
+  }
+
+  throw new Error("Prea multe redirect-uri.");
 }
 
 function extractHtmlRedirectTarget(html: string, baseUrl: string): string | null {
@@ -299,7 +366,6 @@ function parseEmagSlugMetadata(url: string): {
       return { title, producer: "Recas" };
     }
 
-    const color = tokens[1] ?? "alb";
     const producerToken = tokens[2];
     if (!producerToken) return null;
 
@@ -356,13 +422,13 @@ async function fetchEmagWithFallback(url: string): Promise<{
   );
   const producerUrl = inferRecasProducerPageUrl("", url);
   if (producerUrl) {
-    const producer = await fetch(producerUrl, {
-      ...buildFetchInit(producerUrl),
-      redirect: "follow",
-    });
+    const { response: producer } = await fetchWithValidatedRedirects(
+      producerUrl,
+      buildFetchInit(producerUrl),
+    );
     if (producer.ok) {
       return {
-        html: await producer.text(),
+        html: await readBoundedText(producer),
         finalUrl: url,
       };
     }
@@ -380,10 +446,10 @@ async function fetchRetailerDocument(url: string): Promise<{
   html: string;
   finalUrl: string;
 }> {
-  const response = await fetch(url, {
-    ...buildFetchInit(url),
-    redirect: "follow",
-  });
+  const { response, finalUrl } = await fetchWithValidatedRedirects(
+    url,
+    buildFetchInit(url),
+  );
 
   if (!response.ok) {
     if (isEmagUrl(url) && (response.status === 511 || response.status === 403)) {
@@ -398,14 +464,14 @@ async function fetchRetailerDocument(url: string): Promise<{
     throw new Error(`Pagina nu a putut fi accesata (${response.status}).`);
   }
 
-  const html = await response.text();
+  const html = await readBoundedText(response);
   if (isBudureascaHost(url) && isCloudflareChallenge(html)) {
     return fetchBudureascaDocument(url);
   }
 
   return {
     html,
-    finalUrl: response.url || url,
+    finalUrl,
   };
 }
 
@@ -416,6 +482,10 @@ async function resolveProfitshareUrl(
   const redirectChain = [sourceUrl];
 
   for (let hop = 0; hop < MAX_REDIRECT_HOPS; hop += 1) {
+    if (!(await isResolvablePublicWineUrl(currentUrl))) {
+      throw new Error("Adresa URL nu poate fi accesata in siguranta.");
+    }
+
     const response = await fetch(currentUrl, {
       ...buildFetchInit(currentUrl),
       redirect: "manual",
@@ -450,7 +520,7 @@ async function resolveProfitshareUrl(
       throw new Error(`Pagina nu a putut fi accesata (${response.status}).`);
     }
 
-    const html = await response.text();
+    const html = await readBoundedText(response);
     const htmlTarget = extractHtmlRedirectTarget(html, currentUrl);
 
     if (htmlTarget && htmlTarget !== currentUrl) {
@@ -490,21 +560,15 @@ export async function fetchPageWithResolution(
     return fetchBudureascaPageWithResolution(sourceUrl);
   }
 
-  const response = await fetch(sourceUrl, {
-    ...buildFetchInit(sourceUrl),
-    redirect: "follow",
-  });
+  const { response, finalUrl, redirectChain } =
+    await fetchWithValidatedRedirects(sourceUrl, buildFetchInit(sourceUrl));
 
   if (!response.ok) {
     throw new Error(`Pagina nu a putut fi accesata (${response.status}).`);
   }
 
-  const finalUrl = response.url || sourceUrl;
-  const redirectChain =
-    finalUrl !== sourceUrl ? [sourceUrl, finalUrl] : [sourceUrl];
-
   return {
-    html: await response.text(),
+    html: await readBoundedText(response),
     finalUrl,
     sourceUrl,
     redirectChain,

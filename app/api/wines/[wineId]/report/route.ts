@@ -3,6 +3,9 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { notifyWineReport } from "@/lib/notifications";
 import { wineReports, wines } from "@/lib/schema";
+import { guardInteractiveApi } from "@/lib/security/api-guard";
+import { readBoundedJson } from "@/lib/security/request-body";
+import { RATE_LIMIT_POLICIES } from "@/lib/security/route-policy";
 
 const requestSchema = z.object({
   reason: z.string().max(500).optional(),
@@ -13,17 +16,22 @@ interface RouteContext {
   params: Promise<{ wineId: string }>;
 }
 
+function wineSlugCondition(slug: string) {
+  return eq(wines.slug, slug);
+}
+
 export async function POST(req: Request, context: RouteContext) {
   try {
-    const { wineId: wineIdParam } = await context.params;
-    const wineId = Number(wineIdParam);
+    const denied = await guardInteractiveApi(req, {
+      checkLevel: "basic",
+      rateLimit: RATE_LIMIT_POLICIES.wineReport,
+    });
+    if (denied) return denied;
 
-    if (!Number.isInteger(wineId) || wineId <= 0) {
-      return Response.json({ error: "ID vin invalid." }, { status: 400 });
-    }
+    const { wineId: wineReference } = await context.params;
 
     const wine = await db.query.wines.findFirst({
-      where: eq(wines.id, wineId),
+      where: wineSlugCondition(wineReference),
       columns: { id: true, name: true, slug: true, reportCount: true },
       with: {
         winery: {
@@ -36,20 +44,16 @@ export async function POST(req: Request, context: RouteContext) {
       return Response.json({ error: "Vin negasit." }, { status: 404 });
     }
 
-    const body = await req.json().catch(() => ({}));
-    const parsed = requestSchema.safeParse(body);
+    const parsedBody = await readBoundedJson(req, requestSchema, 2_048);
+    if (!parsedBody.ok) return parsedBody.response;
 
-    if (!parsed.success) {
-      return Response.json({ error: "Date invalide." }, { status: 400 });
-    }
-
-    const submittedBy = parsed.data.submittedBy ?? "anonymous";
+    const submittedBy = parsedBody.data.submittedBy ?? "anonymous";
 
     const [insertedReport] = await db
       .insert(wineReports)
       .values({
         wineId: wine.id,
-        reason: parsed.data.reason,
+        reason: parsedBody.data.reason,
         submittedBy,
       })
       .returning({

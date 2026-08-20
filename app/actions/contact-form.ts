@@ -5,6 +5,7 @@ import {
   type ContactFormKind,
   type ContactFormSubmission,
 } from "@/lib/contact-form-email";
+import { verifyInteractiveRequest } from "@/lib/security/bot-id";
 
 export interface SubmitContactFormResult {
   ok: boolean;
@@ -23,6 +24,14 @@ export async function submitContactForm(
   kind: ContactFormKind,
   formData: FormData,
 ): Promise<SubmitContactFormResult> {
+  const bot = await verifyInteractiveRequest("deepAnalysis");
+  if (!bot.allowed) {
+    return {
+      ok: false,
+      error: "Solicitarea automata nu este permisa.",
+    };
+  }
+
   const contactName = clean(formData.get("contactName") ?? formData.get("name"));
   const email = clean(formData.get("email"));
   const wineryName = clean(formData.get("winery") ?? formData.get("wineryName"));

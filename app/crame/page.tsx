@@ -10,7 +10,12 @@ import {
 } from "@/components/wineries/winery-directory";
 import { localizedHref } from "@/i18n/paths";
 import { getDiscoveryI18n } from "@/lib/i18n/discovery";
-import { getFeaturedRegions, getWineriesIndex } from "@/lib/queries";
+import { buildPublicWineryDirectoryItem } from "@/lib/public-wine-card";
+import {
+  parsePublicWineryDirectoryRequest,
+  type PublicCatalogSearchParams,
+} from "@/lib/public-wine-card-types";
+import { getFeaturedRegions, getWineryDirectoryPage } from "@/lib/queries";
 import {
   absoluteUrl,
   buildBreadcrumbJsonLd,
@@ -56,12 +61,21 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function WineriesIndexPage() {
-  const [{ locale, t }, wineries, featuredRegions] = await Promise.all([
+interface WineriesIndexPageProps {
+  searchParams?: Promise<PublicCatalogSearchParams>;
+}
+
+export default async function WineriesIndexPage({
+  searchParams,
+}: WineriesIndexPageProps) {
+  const params = (await searchParams) ?? {};
+  const request = parsePublicWineryDirectoryRequest(params);
+  const [{ locale, t }, directory, featuredRegions] = await Promise.all([
     getDiscoveryI18n(),
-    getWineriesIndex(),
+    getWineryDirectoryPage(request),
     getFeaturedRegions(6),
   ]);
+  const publicWineries = directory.items.map(buildPublicWineryDirectoryItem);
   const path = localizedHref(locale, "wineries");
   const faq = [
     {
@@ -80,9 +94,17 @@ export default async function WineriesIndexPage() {
   const directoryCopy: WineryDirectoryCopy = {
     searchPlaceholder: t("Wineries.directory.searchPlaceholder"),
     searchAria: t("Wineries.directory.searchAria"),
+    apply: t("Wineries.directory.apply"),
+    reset: t("Wineries.directory.reset"),
     foundOne: t("Wineries.directory.foundOne"),
     foundMany: t("Wineries.directory.foundMany"),
     noResults: t("Wineries.directory.noResults"),
+    previous: t("Wineries.directory.pagination.previous"),
+    next: t("Wineries.directory.pagination.next"),
+    page: t("Wineries.directory.pagination.page", {
+      page: "{page}",
+      totalPages: "{totalPages}",
+    }),
     card: {
       country: t("Wineries.card.country"),
       verified: t("Wineries.card.verified"),
@@ -109,10 +131,10 @@ export default async function WineriesIndexPage() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: t("Wineries.listName"),
-    numberOfItems: wineries.length,
-    itemListElement: wineries.map((winery, index) => ({
+    numberOfItems: directory.items.length,
+    itemListElement: directory.items.map((winery, index) => ({
       "@type": "ListItem",
-      position: index + 1,
+      position: (directory.page - 1) * directory.pageSize + index + 1,
       url: absoluteUrl(localizedHref(locale, "winery", { slug: winery.slug })),
       name: winery.name,
     })),
@@ -130,7 +152,7 @@ export default async function WineriesIndexPage() {
           <div className="mx-auto max-w-4xl px-6 py-12 text-center lg:py-16">
             <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
               <Building2 className="h-4 w-4" aria-hidden="true" />
-              {t("Wineries.count", { count: wineries.length })}
+              {t("Wineries.count", { count: directory.total })}
             </span>
             <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
               {t("Wineries.heading")}
@@ -177,9 +199,14 @@ export default async function WineriesIndexPage() {
             </section>
           ) : null}
 
-          {wineries.length > 0 ? (
+          {directory.items.length > 0 || directory.total === 0 ? (
             <WineryDirectory
-              wineries={wineries}
+              wineries={publicWineries}
+              query={request.query}
+              total={directory.total}
+              page={directory.page}
+              totalPages={directory.totalPages}
+              basePath={path}
               locale={locale}
               copy={directoryCopy}
             />

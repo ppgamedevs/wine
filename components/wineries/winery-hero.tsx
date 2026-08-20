@@ -1,6 +1,5 @@
 import {
   CalendarDays,
-  BarChart3,
   CheckCircle2,
   ChevronRight,
   ExternalLink,
@@ -8,7 +7,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { PremiumBadge } from "@/components/wineries/premium-badge";
 import { WineryLogo } from "@/components/wineries/winery-logo";
 import {
@@ -35,7 +33,6 @@ export interface WineryHeroCopy {
   listedWines: string;
   averageValueScore: string;
   priceRange: string;
-  dashboard: string;
   visit: WineryVisitLinkCopy;
 }
 
@@ -43,7 +40,6 @@ export interface WineryHeroLinks {
   home: string;
   wineries: string;
   region: string | null;
-  dashboard: string;
 }
 
 interface WineryHeroProps {
@@ -182,7 +178,7 @@ export function WineryHero({
             {enrichment?.visitUrl ? (
               <div className="mt-6 flex flex-col items-start gap-2">
                 <WineryVisitLink
-                  wineryId={winery.id}
+                  winerySlug={winery.slug}
                   visitUrl={enrichment.visitUrl}
                   verified={winery.verified}
                   trackAnalytics={trackAnalytics}
@@ -229,21 +225,6 @@ export function WineryHero({
               ) : null}
             </dl>
 
-            {premium ? (
-              <div className="mt-5">
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto px-0 text-wine hover:bg-transparent hover:text-wine/80"
-                >
-                  <Link href={links.dashboard}>
-                    <BarChart3 className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                    {copy.dashboard}
-                  </Link>
-                </Button>
-              </div>
-            ) : null}
           </div>
         </div>
       </div>

@@ -1,7 +1,38 @@
 import type { NextConfig } from "next";
+import { withBotId } from "botid/next/config";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
+const contentSecurityPolicy = [
+  "object-src 'none'",
+  "base-uri 'self'",
+  "frame-ancestors 'none'",
+  "form-action 'self' https://checkout.stripe.com",
+  ...(process.env.NODE_ENV === "production"
+    ? ["upgrade-insecure-requests"]
+    : []),
+].join("; ");
+
+const securityHeaders = [
+  { key: "Content-Security-Policy", value: contentSecurityPolicy },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-DNS-Prefetch-Control", value: "on" },
+  { key: "X-Frame-Options", value: "DENY" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), geolocation=(), microphone=(self)",
+  },
+  ...(process.env.NODE_ENV === "production"
+    ? [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains; preload",
+        },
+      ]
+    : []),
+] as const;
 
 const nextConfig: NextConfig = {
   // Journal metadata is read from Markdown during sitemap ISR regeneration.
@@ -16,6 +47,14 @@ const nextConfig: NextConfig = {
         destination:
           "/journal/recolta-2026-in-moldova-ce-inseamna-pentru-tine",
         permanent: true,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [...securityHeaders],
       },
     ];
   },
@@ -68,4 +107,4 @@ const nextConfig: NextConfig = {
   compress: true,
 };
 
-export default withNextIntl(nextConfig);
+export default withBotId(withNextIntl(nextConfig));

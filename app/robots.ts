@@ -1,22 +1,30 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/seo";
 
-// AI/LLM crawlers explicitly welcomed (GEO transparency). The wildcard "*"
-// rule below already allows everyone, these entries just make intent clear.
-const AI_CRAWLER_USER_AGENTS = [
-  "GPTBot",
+const PRIVATE_PATHS = [
+  "/api/",
+  "/admin/",
+  "/wineries/premium/",
+  "/wineries/*/dashboard",
+] as const;
+
+const AI_SEARCH_USER_AGENTS = [
   "ChatGPT-User",
   "OAI-SearchBot",
-  "ClaudeBot",
   "Claude-Web",
-  "anthropic-ai",
   "PerplexityBot",
   "Perplexity-User",
+] as const;
+
+const AI_TRAINING_USER_AGENTS = [
+  "GPTBot",
+  "ClaudeBot",
+  "anthropic-ai",
   "Google-Extended",
   "CCBot",
   "Bytespider",
   "Applebot-Extended",
-];
+] as const;
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -24,12 +32,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/"],
+        disallow: [...PRIVATE_PATHS],
       },
-      ...AI_CRAWLER_USER_AGENTS.map((userAgent) => ({
+      ...AI_SEARCH_USER_AGENTS.map((userAgent) => ({
         userAgent,
         allow: "/",
-        disallow: ["/api/"],
+        disallow: [...PRIVATE_PATHS],
+      })),
+      ...AI_TRAINING_USER_AGENTS.map((userAgent) => ({
+        userAgent,
+        disallow: "/",
       })),
     ],
     sitemap: `${SITE.url}/sitemap.xml`,

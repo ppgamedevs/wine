@@ -4,13 +4,15 @@ import { useEffect } from "react";
 import { trackWineryEvent } from "@/lib/winery-analytics-client";
 
 interface WineryPageViewTrackerProps {
-  wineryId: number;
+  winerySlug: string;
 }
 
-export function WineryPageViewTracker({ wineryId }: WineryPageViewTrackerProps) {
+export function WineryPageViewTracker({
+  winerySlug,
+}: WineryPageViewTrackerProps) {
   useEffect(() => {
-    void trackWineryEvent(wineryId, "page_view");
-  }, [wineryId]);
+    void trackWineryEvent(winerySlug, "page_view");
+  }, [winerySlug]);
 
   return null;
 }

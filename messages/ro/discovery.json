@@ -1,7 +1,7 @@
 {
   "Home": {
     "metadata": {
-      "title": "VinIntel - Ghid de vinuri romanesti, preturi si recomandari",
+      "title": "VinIntel: Ghid de vinuri romanesti, preturi si recomandari",
       "description": "Ghidul inteligent al vinurilor romanesti: catalog cu preturi in RON, Value Score, topuri pe bugete si somelier AI pentru orice ocazie.",
       "openGraphDescription": "Ghidul inteligent al vinurilor romanesti: catalog, topuri si somelier AI."
     },
@@ -167,6 +167,7 @@
       "pricePlaceholder": "Pret",
       "scoreAria": "Recomandare",
       "scorePlaceholder": "Recomandare",
+      "apply": "Aplica filtrele",
       "reset": "Reseteaza",
       "foundOne": "vin gasit",
       "foundMany": "vinuri gasite",
@@ -177,6 +178,11 @@
       "noResultsHint": "Incearca alta dulceata, culoare sau un buget mai larg.",
       "resetFilters": "Reseteaza filtrele",
       "viewOnly": "Vezi doar {type}",
+      "pagination": {
+        "previous": "Pagina anterioara",
+        "next": "Pagina urmatoare",
+        "page": "Pagina {page} din {totalPages}"
+      },
       "types": {
         "all": "Toate",
         "red": "Rosu",
@@ -261,9 +267,16 @@
     "directory": {
       "searchPlaceholder": "Cauta dupa nume sau regiune...",
       "searchAria": "Cauta crame",
+      "apply": "Cauta",
+      "reset": "Reseteaza",
       "foundOne": "crama gasita",
       "foundMany": "crame gasite",
-      "noResults": "Nicio crama nu corespunde cautarii"
+      "noResults": "Nicio crama nu corespunde cautarii",
+      "pagination": {
+        "previous": "Pagina anterioara",
+        "next": "Pagina urmatoare",
+        "page": "Pagina {page} din {totalPages}"
+      }
     },
     "card": {
       "country": "Romania",

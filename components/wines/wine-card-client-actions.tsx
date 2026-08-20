@@ -28,8 +28,8 @@ export function TrackedWineCardLink({
       href={href}
       className={className}
       onClick={() => {
-        void trackWineryEvent(analytics.wineryId, "wine_click", {
-          wineId: analytics.wineId,
+        void trackWineryEvent(analytics.winerySlug, "wine_click", {
+          wineSlug: analytics.wineSlug,
           metadata: { wineSlug: slug },
         });
       }}
@@ -56,8 +56,8 @@ export function WineCardPurchaseAction({
 }) {
   const trackPurchase = analytics
     ? () => {
-        void trackWineryEvent(analytics.wineryId, "purchase_click", {
-          wineId: analytics.wineId,
+        void trackWineryEvent(analytics.winerySlug, "purchase_click", {
+          wineSlug: analytics.wineSlug,
           metadata: { wineSlug: slug },
         });
       }

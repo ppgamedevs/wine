@@ -10,7 +10,7 @@ export interface WineryVisitLinkCopy {
 }
 
 interface WineryVisitLinkProps {
-  wineryId: number;
+  winerySlug: string;
   visitUrl: string;
   verified: boolean;
   trackAnalytics: boolean;
@@ -18,7 +18,7 @@ interface WineryVisitLinkProps {
 }
 
 export function WineryVisitLink({
-  wineryId,
+  winerySlug,
   visitUrl,
   verified,
   trackAnalytics,
@@ -56,7 +56,7 @@ export function WineryVisitLink({
         rel="noopener noreferrer"
         onClick={() => {
           if (trackAnalytics) {
-            void trackWineryEvent(wineryId, "visit_click");
+            void trackWineryEvent(winerySlug, "visit_click");
           }
         }}
       >

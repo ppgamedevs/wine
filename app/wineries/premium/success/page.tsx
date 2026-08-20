@@ -5,10 +5,9 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { PremiumBadge } from "@/components/wineries/premium-badge";
-import { WineryBillingPortalButton } from "@/components/wineries/winery-billing-portal-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { absoluteUrl, SITE } from "@/lib/seo";
+import { SITE } from "@/lib/seo";
 import { fulfillPremiumCheckout } from "@/lib/stripe/premium-checkout";
 import { getPremiumPlan } from "@/lib/stripe/premium-plans";
 import { isStripeConfigured } from "@/lib/stripe/config";
@@ -64,8 +63,7 @@ export default async function PremiumSuccessPage({
                 <strong>{result.wineryName}</strong> este activ la Stripe.
               </p>
               <p className="text-sm text-muted-foreground">
-                Am trimis confirmarea la{" "}
-                <span className="font-medium text-foreground">{result.email}</span>.
+                Confirmarea a fost trimisa la adresa folosita la plata.
                 {result.alreadyProcessed
                   ? " Aceasta sesiune fusese deja procesata."
                   : null}
@@ -86,36 +84,20 @@ export default async function PremiumSuccessPage({
 
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
                 {result.winerySlug ? (
-                  <>
-                    <Button
-                      asChild
-                      className="bg-wine text-wine-foreground hover:bg-wine/90"
-                    >
-                      <Link href={`/wineries/${result.winerySlug}/dashboard`}>
-                        Deschide dashboard-ul
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline">
-                      <Link href={`/wineries/${result.winerySlug}`}>
-                        Vezi profilul cramei
-                      </Link>
-                    </Button>
-                  </>
+                  <Button
+                    asChild
+                    className="bg-wine text-wine-foreground hover:bg-wine/90"
+                  >
+                    <Link href={`/wineries/${result.winerySlug}`}>
+                      Vezi profilul cramei
+                    </Link>
+                  </Button>
                 ) : (
                   <Button asChild variant="outline">
                     <Link href="/wineries/premium">Inapoi la Premium</Link>
                   </Button>
                 )}
               </div>
-
-              {result.winerySlug && result.stripeCustomerId ? (
-                <div className="flex justify-center pt-2">
-                  <WineryBillingPortalButton
-                    winerySlug={result.winerySlug}
-                    label="Gestioneaza abonamentul in Stripe"
-                  />
-                </div>
-              ) : null}
             </CardContent>
           </Card>
         </div>

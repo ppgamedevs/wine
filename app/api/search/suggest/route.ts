@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
 import { getSearchSuggestions } from "@/lib/queries";
+import { guardInteractiveApi } from "@/lib/security/api-guard";
+import { RATE_LIMIT_POLICIES } from "@/lib/security/route-policy";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const query = searchParams.get("q") ?? "";
+  const denied = await guardInteractiveApi(request, {
+    checkLevel: "basic",
+    rateLimit: RATE_LIMIT_POLICIES.searchSuggest,
+  });
+  if (denied) return denied;
 
-  const suggestions = await getSearchSuggestions(query);
+  const { searchParams } = new URL(request.url);
+  const query = (searchParams.get("q") ?? "").trim().slice(0, 80);
+
+  const suggestions = await getSearchSuggestions(query, 6);
 
   return NextResponse.json(
     { suggestions },
