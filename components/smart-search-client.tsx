@@ -11,7 +11,7 @@ import { localizedHref } from "@/i18n/paths";
 import { EASE_OUT } from "@/lib/motion";
 import type { SearchSuggestion } from "@/lib/queries";
 import { isWineUrl, looksLikeUrlAttempt } from "@/lib/wine-url";
-import { isSommelierQuery, sommelierPageHref } from "@/lib/search-intent";
+import { classifySearchQuery, isSommelierQuery, sommelierPageHref } from "@/lib/search-intent";
 import { storeSommelierPrompt } from "@/lib/sommelier-handoff";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +46,7 @@ export function SmartSearchClient({
   locale,
   className,
   placeholder = copy.placeholder,
-  enableLinkAnalysis = true,
+  enableLinkAnalysis = false,
 }: SmartSearchClientProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,7 +61,7 @@ export function SmartSearchClient({
 
   useEffect(() => {
     const trimmed = query.trim();
-    if (trimmed.length < 2 || isWineUrl(trimmed)) {
+    if (trimmed.length < 2 || looksLikeUrlAttempt(trimmed)) {
       setSuggestions([]);
       setLoading(false);
       return;
@@ -171,7 +171,14 @@ export function SmartSearchClient({
       return;
     }
 
-    if (isSommelierQuery(trimmed, locale)) {
+    const intent = classifySearchQuery(trimmed, locale);
+    if (intent === "link") {
+      setOpen(false);
+      setAnalysisError(copy.linkHelper);
+      return;
+    }
+
+    if (intent === "sommelier") {
       setOpen(false);
       storeSommelierPrompt(trimmed);
       router.push(sommelierPageHref(locale));
@@ -191,11 +198,11 @@ export function SmartSearchClient({
   }
 
   const trimmed = query.trim();
+  const isLinkAttempt = looksLikeUrlAttempt(trimmed);
   const isUrl = enableLinkAnalysis && isWineUrl(trimmed);
-  const isSommelier = !isUrl && isSommelierQuery(trimmed, locale);
-  const showLinkHelper =
-    enableLinkAnalysis && !analysisSuccess && looksLikeUrlAttempt(trimmed);
-  const showDropdown = open && trimmed.length >= 2 && !isUrl;
+  const isSommelier = !isLinkAttempt && isSommelierQuery(trimmed, locale);
+  const showLinkHelper = isLinkAttempt && !analysisSuccess;
+  const showDropdown = open && trimmed.length >= 2 && !isLinkAttempt && !analyzing;
 
   return (
     <motion.div
@@ -268,8 +275,10 @@ export function SmartSearchClient({
         </div>
       </form>
 
-      {analysisError && isUrl ? (
-        <p className="mt-2 text-left text-sm text-destructive">{analysisError}</p>
+      {analysisError ? (
+        <p role="alert" className="mt-2 text-left text-sm text-destructive">
+          {analysisError}
+        </p>
       ) : null}
 
       {analysisSuccess ? (
@@ -281,8 +290,11 @@ export function SmartSearchClient({
         </p>
       ) : null}
 
-      {showLinkHelper ? (
-        <p className="mt-2 text-left text-sm text-muted-foreground">
+      {showLinkHelper && !analysisError ? (
+        <p
+          role="status"
+          className="mt-2 rounded-xl border border-border/70 bg-card px-4 py-3 text-left text-sm text-foreground"
+        >
           {copy.linkHelper}
         </p>
       ) : null}

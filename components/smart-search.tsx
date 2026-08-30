@@ -9,7 +9,7 @@ import {
 } from "@/lib/wine-submission-messages";
 
 export const WINE_LINK_HELPER_TEXT =
-  "Adauga un link de vin romanesc (eMag, site crama etc.)";
+  "Nu preluam vinuri din link momentan. Cauta dupa numele vinului sau al cramei, ori intreaba somelierul.";
 
 export const WINE_SUBMITTED_FOR_REVIEW_MESSAGE = WINE_PENDING_REVIEW_MESSAGE;
 

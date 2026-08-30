@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  classifySearchQuery,
+  echoableCatalogQuery,
   isSommelierQuery,
+  searchPageHref,
   sommelierPageHref,
-  sommelierQueryHref,
 } from "@/lib/search-intent";
 
 describe("locale-aware search intent", () => {
@@ -29,6 +31,12 @@ describe("locale-aware search intent", () => {
         "ro",
       ),
     ).toBe(true);
+    expect(
+      isSommelierQuery(
+        "vreau un vin sa mearga bine cu cranati de casa de porc",
+        "ro",
+      ),
+    ).toBe(true);
     expect(isSommelierQuery("vin pentru mamaliga cu branza", "ro")).toBe(true);
     expect(isSommelierQuery("as vrea un vin la mici", "ro")).toBe(true);
     expect(
@@ -45,15 +53,21 @@ describe("locale-aware search intent", () => {
     );
     expect(isSommelierQuery("Davino", "ro")).toBe(false);
     expect(isSommelierQuery("Feteasca Neagra", "ro")).toBe(false);
+    expect(classifySearchQuery("Davino", "ro")).toBe("catalog");
   });
 
-  it("keeps Sommelier links free of the prompt query string", () => {
+  it("does not treat shop URLs as catalog names or sommelier questions", () => {
+    const shopUrl =
+      "https://shop.dancinglobster.ro/products/vin-rosu-carm-douro?country=RO";
+    expect(classifySearchQuery(shopUrl, "ro")).toBe("link");
+    expect(isSommelierQuery(shopUrl, "ro")).toBe(false);
+    expect(echoableCatalogQuery(shopUrl)).toBe(null);
+  });
+
+  it("keeps Sommelier and search notice links free of the prompt query string", () => {
     expect(sommelierPageHref("en")).toBe("/en/ai-sommelier");
-    expect(sommelierQueryHref("wine for sarmale", "en")).toBe(
-      "/en/ai-sommelier",
-    );
-    expect(sommelierQueryHref("vin pentru sarmale", "ro")).toBe(
-      "/ai-sommelier",
-    );
+    expect(sommelierPageHref("ro")).toBe("/ai-sommelier");
+    expect(searchPageHref("ro", "link")).toBe("/cauta?notice=link");
+    expect(searchPageHref("en", "link")).toBe("/en/search?notice=link");
   });
 });

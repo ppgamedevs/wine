@@ -4,11 +4,15 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SmartSearch } from "@/components/smart-search";
-import { SommelierHandoffLink } from "@/components/sommelier/sommelier-handoff-link";
+import { SommelierAutoHandoff } from "@/components/sommelier/sommelier-auto-handoff";
 import { WineCard } from "@/components/wine-card";
 import { Button } from "@/components/ui/button";
 import { searchCatalog } from "@/lib/queries";
-import { sommelierPageHref } from "@/lib/search-intent";
+import {
+  classifySearchQuery,
+  echoableCatalogQuery,
+  sommelierPageHref,
+} from "@/lib/search-intent";
 import { absoluteUrl, SITE } from "@/lib/seo";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { AppLocale } from "@/i18n/locale";
@@ -17,17 +21,21 @@ import { localizedHref } from "@/i18n/paths";
 export const dynamic = "force-dynamic";
 
 interface SearchPageProps {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; notice?: string }>;
 }
 
 export async function generateMetadata({
   searchParams,
 }: SearchPageProps): Promise<Metadata> {
-  const { q } = await searchParams;
+  const { q, notice } = await searchParams;
   const query = q?.trim() ?? "";
   const locale = (await getLocale()) as AppLocale;
   const t = await getTranslations({ locale, namespace: "SearchPage" });
-  const title = query ? t("metaResults", { query }) : t("metaTitle");
+  const echo = echoableCatalogQuery(query);
+  const title =
+    notice === "link" || !echo
+      ? t("metaTitle")
+      : t("metaResults", { query: echo });
   const canonicalPath = localizedHref(locale, "search");
 
   return {
@@ -52,20 +60,35 @@ export async function generateMetadata({
       card: "summary",
       title: `${title} | VinIntel`,
     },
-    robots: query ? { index: false, follow: true } : undefined,
+    robots: query || notice ? { index: false, follow: true } : undefined,
   };
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q } = await searchParams;
+  const { q, notice } = await searchParams;
   const query = q?.trim() ?? "";
-  const hasQuery = query.length >= 2;
   const locale = (await getLocale()) as AppLocale;
   const t = await getTranslations({ locale, namespace: "SearchPage" });
+  const intent = query.length >= 2 ? classifySearchQuery(query, locale) : "catalog";
+  const isLinkNotice = notice === "link" || intent === "link";
+  const isSommelierHandoff = !isLinkNotice && intent === "sommelier";
+  const echo = echoableCatalogQuery(query);
+  const hasCatalogQuery =
+    !isLinkNotice && !isSommelierHandoff && query.length >= 2;
 
-  const results = hasQuery ? await searchCatalog(query) : null;
+  const results = hasCatalogQuery ? await searchCatalog(query) : null;
   const totalResults =
     (results?.wines.length ?? 0) + (results?.wineries.length ?? 0);
+
+  const heading = isLinkNotice
+    ? t("linkBlockedTitle")
+    : isSommelierHandoff
+      ? t("title")
+      : echo
+        ? t("resultsTitle", { query: echo })
+        : t("title");
+
+  const intro = isLinkNotice ? t("linkBlockedDescription") : t("description");
 
   return (
     <>
@@ -78,17 +101,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               {t("eyebrow")}
             </span>
             <h1 className="mt-5 break-words font-serif text-3xl font-bold tracking-tight text-foreground sm:text-5xl">
-              {hasQuery ? t("resultsTitle", { query }) : t("title")}
+              {heading}
             </h1>
             <p className="mx-auto mt-4 max-w-2xl break-words text-muted-foreground">
-              {t("descriptionBefore")}{" "}
-              <Link
-                href={localizedHref(locale, "addWine")}
-                className="text-wine underline-offset-4 hover:underline"
-              >
-                {t("addWine")}
-              </Link>
-              .
+              {intro}
             </p>
             <div className="mx-auto mt-8 w-full min-w-0 max-w-2xl text-left">
               <SmartSearch enableLinkAnalysis={false} />
@@ -97,31 +113,41 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </section>
 
         <section className="mx-auto w-full min-w-0 max-w-4xl px-4 py-10 sm:px-6">
-          {!hasQuery ? (
-            <p className="text-center text-muted-foreground">
-              {t("instructions")}
-            </p>
+          {isSommelierHandoff ? (
+            <SommelierAutoHandoff
+              href={sommelierPageHref(locale)}
+              prompt={query}
+              message={t("redirectingSommelier")}
+            />
+          ) : isLinkNotice ? (
+            <div className="rounded-2xl border border-border/70 bg-card px-4 py-10 text-center sm:px-6">
+              <p className="font-serif text-2xl font-semibold text-foreground">
+                {t("linkBlockedTitle")}
+              </p>
+              <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+                {t("linkBlockedDescription")}
+              </p>
+              <div className="mt-6">
+                <Button asChild className="bg-wine text-wine-foreground">
+                  <Link href={sommelierPageHref(locale)}>{t("askSommelier")}</Link>
+                </Button>
+              </div>
+            </div>
+          ) : !hasCatalogQuery ? (
+            <p className="text-center text-muted-foreground">{t("instructions")}</p>
           ) : totalResults === 0 ? (
             <div className="rounded-2xl border border-border/70 bg-card px-4 py-10 text-center sm:px-6">
               <p className="break-words font-serif text-2xl font-semibold text-foreground">
-                {t("emptyTitle", { query })}
+                {echo
+                  ? t("emptyTitle", { query: echo })
+                  : t("emptyTitleGeneric")}
               </p>
               <p className="mx-auto mt-3 max-w-xl break-words text-muted-foreground">
                 {t("emptyDescription")}
               </p>
-              <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-                <Button asChild className="bg-wine text-wine-foreground">
-                  <SommelierHandoffLink
-                    href={sommelierPageHref(locale)}
-                    prompt={query}
-                  >
-                    {t("askSommelier")}
-                  </SommelierHandoffLink>
-                </Button>
+              <div className="mt-6">
                 <Button asChild variant="outline">
-                  <Link href={localizedHref(locale, "addWine")}>
-                    {t("addByLink")}
-                  </Link>
+                  <Link href={sommelierPageHref(locale)}>{t("askSommelier")}</Link>
                 </Button>
               </div>
             </div>

@@ -61,6 +61,7 @@ export default async function AddWinePage() {
           <div className="mt-10 text-left">
             <SmartSearch
               locale={locale}
+              enableLinkAnalysis={false}
               placeholder={t("AddWine.placeholder")}
               copy={{
                 placeholder: t("AddWine.placeholder"),

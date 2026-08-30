@@ -1,6 +1,22 @@
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
 
+function looksLikeUrlQuery(raw: string): boolean {
+  const trimmed = raw.trim();
+  if (!trimmed) return false;
+  if (/^https?:\/\//i.test(trimmed)) return true;
+  if (
+    /^[a-z0-9][a-z0-9-]*(?:\.[a-z0-9][a-z0-9-]*)+\.[a-z]{2,}(?:\/[^\s]*)?$/i.test(
+      trimmed,
+    )
+  ) {
+    return true;
+  }
+  return /^(?:www\.)?[a-z0-9-]+\.(?:ro|com|eu|net|org)(?:\/|\s|$)/i.test(
+    trimmed,
+  );
+}
+
 function normalizeForIntent(text: string): string {
   return text
     .normalize("NFD")
@@ -14,7 +30,7 @@ const QUESTION_START =
   /^(ce|cum|de ce|cat|cate|care|unde|cand|pot|poti|exista|este|sunt|ai|am|as|de unde|in ce|la ce)\b/;
 
 const FOOD_WORDS =
-  "mamaliga|branza|smantana|mici|mititei|sarmale|gratar|cozonac|desert|nunta|cina|cadou|peste|carne|miel|pui|vita|porc|paste|pizza|ciorba|tocana|tocanita|friptura|salata|omleta|burger|steak|creveti|somon|pastrav|crap|sunca|carnati|varza|fasole|cartofi|telemea|burduf|bulz|mujdei|tochitura|papanasi|clatite|placinta|zacusca|ghiveci|iahnie|drob|pasca|icre|scrumbie|hamsii|ciuperci|ardei|polenta|cheese|cheesecake|chec|tort|prajitura|tiramisu|inghetata|ciocolata|cake|seafood|chicken|pasta|lamb|pork|bbq|barbecue|wedding|dinner|sushi|risotto|turkey|duck|sausage|cabbage|beans";
+  "mamaliga|branza|smantana|mici|mititei|sarmale|gratar|cozonac|desert|nunta|cina|cadou|peste|carne|miel|pui|vita|porc|paste|pizza|ciorba|tocana|tocanita|friptura|salata|omleta|burger|steak|creveti|somon|pastrav|crap|sunca|carnati|cranati|varza|fasole|cartofi|telemea|burduf|bulz|mujdei|tochitura|papanasi|clatite|placinta|zacusca|ghiveci|iahnie|drob|pasca|icre|scrumbie|hamsii|ciuperci|ardei|polenta|cheese|cheesecake|chec|tort|prajitura|tiramisu|inghetata|ciocolata|cake|seafood|chicken|pasta|lamb|pork|bbq|barbecue|wedding|dinner|sushi|risotto|turkey|duck|sausage|cabbage|beans";
 
 const FOOD_TOKEN = new RegExp(`\\b(?:${FOOD_WORDS})\\b`);
 const PAIRING_PREPOSITION_FOOD = new RegExp(
@@ -124,11 +140,23 @@ function hasAdviceSignal(query: string): boolean {
   return isConversationalWineAdvice(query);
 }
 
+export type SearchQueryIntent = "link" | "sommelier" | "catalog";
+
+export function classifySearchQuery(
+  raw: string,
+  locale: AppLocale = "ro",
+): SearchQueryIntent {
+  if (looksLikeUrlQuery(raw)) return "link";
+  if (isSommelierQuery(raw, locale)) return "sommelier";
+  return "catalog";
+}
+
 /** True when the user asks a wine question rather than searching the catalog by name. */
 export function isSommelierQuery(
   raw: string,
   locale: AppLocale = "ro",
 ): boolean {
+  if (looksLikeUrlQuery(raw)) return false;
   const query = normalizeForIntent(raw);
   if (query.length < 3) return false;
 
@@ -141,9 +169,18 @@ export function sommelierPageHref(locale: AppLocale = "ro"): string {
   return localizedHref(locale, "aiSommelier");
 }
 
-export function sommelierQueryHref(
-  _raw: string,
+export function searchPageHref(
   locale: AppLocale = "ro",
+  notice?: "link",
 ): string {
-  return sommelierPageHref(locale);
+  const path = localizedHref(locale, "search");
+  return notice ? `${path}?notice=${notice}` : path;
+}
+
+/** Short catalog names are safe to echo in titles. Long sentences and URLs are not. */
+export function echoableCatalogQuery(raw: string): string | null {
+  const query = raw.trim();
+  if (query.length < 2 || query.length > 64) return null;
+  if (looksLikeUrlQuery(query)) return null;
+  return query;
 }

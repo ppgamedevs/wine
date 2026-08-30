@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { AppLocale } from "@/i18n/locale";
 import { routing } from "@/i18n/routing";
 import { isEnglishIndexingEnabled } from "@/lib/i18n/indexing";
-import { isSommelierQuery } from "@/lib/search-intent";
+import { classifySearchQuery, searchPageHref } from "@/lib/search-intent";
 import {
   encodeSommelierPromptCookie,
   SOMMELIER_PROMPT_COOKIE,
@@ -41,11 +41,35 @@ function searchPathLocale(pathname: string): AppLocale | null {
   return null;
 }
 
-function sommelierSearchRedirect(request: NextRequest): NextResponse | null {
+function catalogSearchIntentRedirect(
+  request: NextRequest,
+): NextResponse | null {
   const locale = searchPathLocale(request.nextUrl.pathname);
   if (!locale) return null;
+
   const query = request.nextUrl.searchParams.get("q")?.trim() ?? "";
-  if (query.length < 2 || !isSommelierQuery(query, locale)) return null;
+  const notice = request.nextUrl.searchParams.get("notice")?.trim() ?? "";
+
+  if (notice === "link") {
+    if (!query) return null;
+    return NextResponse.redirect(
+      new URL(searchPageHref(locale, "link"), request.url),
+      307,
+    );
+  }
+
+  if (query.length < 2) return null;
+
+  const intent = classifySearchQuery(query, locale);
+  if (intent === "link") {
+    return NextResponse.redirect(
+      new URL(searchPageHref(locale, "link"), request.url),
+      307,
+    );
+  }
+
+  if (intent !== "sommelier") return null;
+
   const response = NextResponse.redirect(
     new URL(sommelierPageHref(locale), request.url),
     307,
@@ -70,8 +94,8 @@ export default function middleware(request: NextRequest) {
     return NextResponse.redirect(destination, 308);
   }
 
-  const sommelierRedirect = sommelierSearchRedirect(request);
-  if (sommelierRedirect) return sommelierRedirect;
+  const searchIntentRedirect = catalogSearchIntentRedirect(request);
+  if (searchIntentRedirect) return searchIntentRedirect;
 
   if (
     PRIVATE_WINERY_PATHS.some((pattern) =>

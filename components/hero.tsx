@@ -120,7 +120,11 @@ export function Hero({
           </motion.p>
 
           <motion.div variants={item} className="mt-9 w-full min-w-0 max-w-2xl">
-            <SmartSearchClient copy={copy.search} locale={locale} />
+            <SmartSearchClient
+              copy={copy.search}
+              locale={locale}
+              enableLinkAnalysis={false}
+            />
           </motion.div>
 
           <motion.div
