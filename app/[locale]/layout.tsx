@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { SUPPORTED_LOCALES, isAppLocale } from "@/i18n/locale";
+import { DocumentLocale } from "@/components/document-locale";
 import type { Metadata } from "next";
 import { localizedRobots } from "@/lib/i18n/indexing";
 
@@ -30,5 +32,18 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
 
-  return children;
+  const messages = await getMessages({ locale });
+  const clientMessages = {
+    Navigation: messages.Navigation,
+    Route: messages.Route,
+    Error: messages.Error,
+    Search: messages.Search,
+  };
+
+  return (
+    <NextIntlClientProvider locale={locale} messages={clientMessages}>
+      <DocumentLocale locale={locale} />
+      {children}
+    </NextIntlClientProvider>
+  );
 }

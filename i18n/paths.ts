@@ -1,4 +1,4 @@
-import type { AppLocale } from "@/i18n/locale";
+import { isAppLocale, type AppLocale } from "@/i18n/locale";
 
 export interface LocalizedRouteParams {
   home: undefined;
@@ -193,8 +193,38 @@ function splitLocale(pathname: string): {
   if (normalized.startsWith("/en/")) {
     return { locale: "en", pathname: normalized.slice(3) };
   }
+  if (normalized === "/ro" || normalized.startsWith("/ro/")) {
+    return {
+      locale: "ro",
+      pathname: normalized === "/ro" ? "/" : normalized.slice(3),
+    };
+  }
 
   return { locale: "ro", pathname: normalized || "/" };
+}
+
+export function localeFromPathname(pathname: string): AppLocale {
+  return splitLocale(pathname).locale;
+}
+
+export function pathnameWithLocale(
+  pathname: string,
+  locale: AppLocale,
+): string {
+  const unprefixed = splitLocale(pathname).pathname;
+  if (locale === "en") {
+    return unprefixed === "/" ? "/en" : `/en${unprefixed}`;
+  }
+  return unprefixed;
+}
+
+export function activeAppLocale(
+  pathname: string,
+  paramLocale?: string | string[],
+): AppLocale {
+  const fromParam = Array.isArray(paramLocale) ? paramLocale[0] : paramLocale;
+  if (isAppLocale(fromParam)) return fromParam;
+  return localeFromPathname(pathname);
 }
 
 export function resolveLocalizedPath(

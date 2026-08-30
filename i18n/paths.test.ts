@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  activeAppLocale,
   alternateLocaleHref,
   localizedHref,
+  pathnameWithLocale,
   resolveLocalizedPath,
 } from "@/i18n/paths";
 import {
@@ -17,6 +19,28 @@ describe("Prompt 27B locale configuration", () => {
     expect(isAppLocale("ro")).toBe(true);
     expect(isAppLocale("en")).toBe(true);
     expect(isAppLocale("de")).toBe(false);
+  });
+});
+
+describe("activeAppLocale", () => {
+  it("prefers the [locale] route param over a stripped pathname", () => {
+    expect(activeAppLocale("/wines", "en")).toBe("en");
+    expect(activeAppLocale("/", "en")).toBe("en");
+    expect(activeAppLocale("/vinuri", "ro")).toBe("ro");
+  });
+
+  it("reads the public URL prefix when the route param is missing", () => {
+    expect(activeAppLocale("/en")).toBe("en");
+    expect(activeAppLocale("/en/wines")).toBe("en");
+    expect(activeAppLocale("/ro/vinuri")).toBe("ro");
+    expect(activeAppLocale("/vinuri")).toBe("ro");
+  });
+
+  it("rebuilds a prefixed path from a stripped next-intl pathname", () => {
+    expect(pathnameWithLocale("/wines", "en")).toBe("/en/wines");
+    expect(pathnameWithLocale("/", "en")).toBe("/en");
+    expect(pathnameWithLocale("/en/wines", "en")).toBe("/en/wines");
+    expect(pathnameWithLocale("/vinuri", "ro")).toBe("/vinuri");
   });
 });
 
