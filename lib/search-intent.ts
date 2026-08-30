@@ -14,7 +14,7 @@ const QUESTION_START =
   /^(ce|cum|de ce|cat|cate|care|unde|cand|pot|poti|exista|este|sunt|ai|am|as|de unde|in ce|la ce)\b/;
 
 const FOOD_WORDS =
-  "mamaliga|branza|smantana|mici|mititei|sarmale|gratar|cozonac|desert|nunta|cina|cadou|peste|carne|miel|pui|vita|porc|paste|pizza|ciorba|tocana|tocanita|friptura|salata|omleta|burger|steak|creveti|somon|pastrav|crap|sunca|carnati|varza|fasole|cartofi|telemea|burduf|bulz|mujdei|tochitura|papanasi|clatite|placinta|zacusca|ghiveci|iahnie|drob|pasca|icre|scrumbie|hamsii|ciuperci|ardei|polenta|cheese|seafood|chicken|pasta|lamb|pork|bbq|barbecue|wedding|dinner|sushi|risotto|turkey|duck|sausage|cabbage|beans";
+  "mamaliga|branza|smantana|mici|mititei|sarmale|gratar|cozonac|desert|nunta|cina|cadou|peste|carne|miel|pui|vita|porc|paste|pizza|ciorba|tocana|tocanita|friptura|salata|omleta|burger|steak|creveti|somon|pastrav|crap|sunca|carnati|varza|fasole|cartofi|telemea|burduf|bulz|mujdei|tochitura|papanasi|clatite|placinta|zacusca|ghiveci|iahnie|drob|pasca|icre|scrumbie|hamsii|ciuperci|ardei|polenta|cheese|cheesecake|chec|tort|prajitura|tiramisu|inghetata|ciocolata|cake|seafood|chicken|pasta|lamb|pork|bbq|barbecue|wedding|dinner|sushi|risotto|turkey|duck|sausage|cabbage|beans";
 
 const FOOD_TOKEN = new RegExp(`\\b(?:${FOOD_WORDS})\\b`);
 const PAIRING_PREPOSITION_FOOD = new RegExp(
@@ -40,7 +40,10 @@ const SOMMELIER_PHRASES: RegExp[] = [
   /\bcare vin\b/,
   /\bvin (bun|potrivit|recomandat|pentru)\b/,
   /\bvinuri (pentru|sub)\b/,
+  /\b(mearga|merge) bine\b/,
   /\bmerge (cu|la|pentru)\b/,
+  /\bun vin sa\b/,
+  /\bse potriveste\b/,
   /\bpotrivit pentr/,
   /\basocier(e|i|ea)\b/,
   /\bpairing\b/,
@@ -57,7 +60,7 @@ const SOMMELIER_PHRASES: RegExp[] = [
   /\bce (soi|sort|tip|stil)\b/,
   /\bcare (soi|sort|tip|stil)\b/,
   /\b(vreau|as vrea|as dori|imi trebuie|imi doresc)\b/,
-  /\b(sa beau|de baut|sa mananc)\b/,
+  /\b(sa beau|de baut|sa mananc|sa mearga)\b/,
   /\bcaut (un |o |niste )?(vin|vinuri)\b/,
   /\b(da-mi|gaseste(-mi)?)\b/,
 ];
@@ -72,19 +75,20 @@ const ENGLISH_SOMMELIER_PHRASES: RegExp[] = [
   /\blooking for\b/,
   /\bwine to drink\b/,
   /\bdrink with\b/,
+  /\bgoes (?:well )?with\b/,
   /\brecommend(?:ation)?\b/,
   /\bbest value\b/,
   /\bunder \d+\s*(?:ron|lei)\b/,
   /\b(?:pair|pairing|serve) (?:with|for)\b/,
   /\b(?:gift|wedding|romantic dinner|party|christmas)\b/,
-  /\b(?:sarmale|mici|stuffed cabbage|grilled meat|bbq|polenta|sour cream)\b/,
+  /\b(?:sarmale|mici|stuffed cabbage|grilled meat|bbq|polenta|sour cream|cheesecake)\b/,
   /\b(?:red|white|rose|sparkling) wine\b/,
   /\b(?:dry|medium-dry|medium-sweet|sweet) wine\b/,
   /\b(?:budget|sommelier|decant|tannin|barrel)\b/,
 ];
 
 const ADVICE_VERB =
-  /\b(vreau|beau|baut|caut|recomand|want|drink|pair|looking|need|should)\b/;
+  /\b(vreau|beau|baut|caut|recomand|mearga|merge|potriveste|want|drink|pair|looking|need|should)\b/;
 const WINE_TOKEN = /\b(vin|vinuri|wine|wines|somelier|sommelier)\b/;
 const VINTAGE_YEAR = /\b(?:19|20)\d{2}\b/;
 
@@ -98,7 +102,7 @@ function hasFoodPairingCue(query: string): boolean {
 }
 
 function isConversationalWineAdvice(query: string): boolean {
-  if (wordCount(query) < 6) return false;
+  if (wordCount(query) < 5) return false;
   return WINE_TOKEN.test(query) && ADVICE_VERB.test(query);
 }
 
@@ -133,9 +137,13 @@ export function isSommelierQuery(
   return hasAdviceSignal(query);
 }
 
+export function sommelierPageHref(locale: AppLocale = "ro"): string {
+  return localizedHref(locale, "aiSommelier");
+}
+
 export function sommelierQueryHref(
-  raw: string,
+  _raw: string,
   locale: AppLocale = "ro",
 ): string {
-  return `${localizedHref(locale, "aiSommelier")}?q=${encodeURIComponent(raw.trim())}`;
+  return sommelierPageHref(locale);
 }

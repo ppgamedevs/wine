@@ -2,6 +2,7 @@
 
 import { useParams, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useSyncExternalStore } from "react";
 import { activeAppLocale, alternateLocaleHref, pathnameWithLocale } from "@/i18n/paths";
 import { SUPPORTED_LOCALES, type AppLocale } from "@/i18n/locale";
 import {
@@ -30,8 +31,16 @@ const LOCALE_LABELS: Record<AppLocale, "RO" | "EN"> = {
 export function LanguageSwitcher() {
   const pathname = usePathname();
   const params = useParams();
-  const currentLocale = activeAppLocale(pathname, params.locale);
-  const pathForAlternates = pathnameWithLocale(pathname, currentLocale);
+  const browserPath = useSyncExternalStore(
+    (onChange) => {
+      window.addEventListener("popstate", onChange);
+      return () => window.removeEventListener("popstate", onChange);
+    },
+    () => window.location.pathname,
+    () => pathname,
+  );
+  const currentLocale = activeAppLocale(browserPath, params.locale);
+  const pathForAlternates = pathnameWithLocale(browserPath, currentLocale);
   const t = useTranslations("Navigation");
   const alternatives = SUPPORTED_LOCALES.map((locale) => ({
     locale,

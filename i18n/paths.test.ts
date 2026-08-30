@@ -23,7 +23,9 @@ describe("Prompt 27B locale configuration", () => {
 });
 
 describe("activeAppLocale", () => {
-  it("prefers the [locale] route param over a stripped pathname", () => {
+  it("prefers the public /en prefix even if the route param is stale", () => {
+    expect(activeAppLocale("/en", "ro")).toBe("en");
+    expect(activeAppLocale("/en/wines", "ro")).toBe("en");
     expect(activeAppLocale("/wines", "en")).toBe("en");
     expect(activeAppLocale("/", "en")).toBe("en");
     expect(activeAppLocale("/vinuri", "ro")).toBe("ro");

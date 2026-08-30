@@ -8,6 +8,10 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChatWineCard } from "@/components/sommelier/chat-wine-card";
 import { Button } from "@/components/ui/button";
+import { sommelierPageHref } from "@/lib/search-intent";
+import {
+  consumeSommelierHandoff,
+} from "@/lib/sommelier-handoff";
 import { EASE_OUT } from "@/lib/motion";
 import type { ChatWineRecommendation } from "@/lib/sommelier-chat-types";
 import { sanitizeAssistantChatText } from "@/lib/sommelier-chat-utils";
@@ -371,8 +375,10 @@ function ChatComposer({
 
 export function SommelierChat({
   locale = "ro",
+  initialPrompt = "",
 }: {
   locale?: AppLocale;
+  initialPrompt?: string;
 }) {
   const copy = SOMMELIER_CHAT_COPY[locale];
   const [input, setInput] = useState("");
@@ -447,11 +453,18 @@ export function SommelierChat({
   }, [input]);
 
   useEffect(() => {
-    const q = searchParams.get("q")?.trim();
-    if (!q || initialQuerySent.current || isBusy || messages.length > 0) return;
+    if (initialQuerySent.current || isBusy || messages.length > 0) return;
+
+    const fromUrl = searchParams.get("q")?.trim() ?? "";
+    const prompt = fromUrl || consumeSommelierHandoff(initialPrompt);
+    if (!prompt) return;
+
     initialQuerySent.current = true;
-    void sendMessage({ text: q });
-  }, [searchParams, isBusy, messages.length, sendMessage]);
+    if (fromUrl) {
+      window.history.replaceState(null, "", sommelierPageHref(locale));
+    }
+    void sendMessage({ text: prompt });
+  }, [searchParams, isBusy, messages.length, sendMessage, initialPrompt, locale]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

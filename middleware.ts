@@ -3,7 +3,13 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { AppLocale } from "@/i18n/locale";
 import { routing } from "@/i18n/routing";
 import { isEnglishIndexingEnabled } from "@/lib/i18n/indexing";
-import { isSommelierQuery, sommelierQueryHref } from "@/lib/search-intent";
+import { isSommelierQuery } from "@/lib/search-intent";
+import {
+  encodeSommelierPromptCookie,
+  SOMMELIER_PROMPT_COOKIE,
+  SOMMELIER_PROMPT_MAX_AGE,
+  sommelierPageHref,
+} from "@/lib/sommelier-handoff";
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -40,10 +46,18 @@ function sommelierSearchRedirect(request: NextRequest): NextResponse | null {
   if (!locale) return null;
   const query = request.nextUrl.searchParams.get("q")?.trim() ?? "";
   if (query.length < 2 || !isSommelierQuery(query, locale)) return null;
-  return NextResponse.redirect(
-    new URL(sommelierQueryHref(query, locale), request.url),
+  const response = NextResponse.redirect(
+    new URL(sommelierPageHref(locale), request.url),
     307,
   );
+  response.cookies.set({
+    name: SOMMELIER_PROMPT_COOKIE,
+    value: encodeSommelierPromptCookie(query),
+    path: "/",
+    maxAge: SOMMELIER_PROMPT_MAX_AGE,
+    sameSite: "lax",
+  });
+  return response;
 }
 
 export default function middleware(request: NextRequest) {

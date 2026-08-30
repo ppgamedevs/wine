@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   isSommelierQuery,
+  sommelierPageHref,
   sommelierQueryHref,
 } from "@/lib/search-intent";
 
@@ -22,6 +23,12 @@ describe("locale-aware search intent", () => {
         "ro",
       ),
     ).toBe(true);
+    expect(
+      isSommelierQuery(
+        "vreau un vin sa mearga bine cu cheesecake",
+        "ro",
+      ),
+    ).toBe(true);
     expect(isSommelierQuery("vin pentru mamaliga cu branza", "ro")).toBe(true);
     expect(isSommelierQuery("as vrea un vin la mici", "ro")).toBe(true);
     expect(
@@ -40,12 +47,13 @@ describe("locale-aware search intent", () => {
     expect(isSommelierQuery("Feteasca Neagra", "ro")).toBe(false);
   });
 
-  it("preserves the explicit locale in Sommelier links", () => {
+  it("keeps Sommelier links free of the prompt query string", () => {
+    expect(sommelierPageHref("en")).toBe("/en/ai-sommelier");
     expect(sommelierQueryHref("wine for sarmale", "en")).toBe(
-      "/en/ai-sommelier?q=wine%20for%20sarmale",
+      "/en/ai-sommelier",
     );
     expect(sommelierQueryHref("vin pentru sarmale", "ro")).toBe(
-      "/ai-sommelier?q=vin%20pentru%20sarmale",
+      "/ai-sommelier",
     );
   });
 });

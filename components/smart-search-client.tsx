@@ -11,7 +11,8 @@ import { localizedHref } from "@/i18n/paths";
 import { EASE_OUT } from "@/lib/motion";
 import type { SearchSuggestion } from "@/lib/queries";
 import { isWineUrl, looksLikeUrlAttempt } from "@/lib/wine-url";
-import { isSommelierQuery } from "@/lib/search-intent";
+import { isSommelierQuery, sommelierPageHref } from "@/lib/search-intent";
+import { storeSommelierPrompt } from "@/lib/sommelier-handoff";
 import { cn } from "@/lib/utils";
 
 export interface SmartSearchCopy {
@@ -172,9 +173,8 @@ export function SmartSearchClient({
 
     if (isSommelierQuery(trimmed, locale)) {
       setOpen(false);
-      router.push(
-        `${localizedHref(locale, "aiSommelier")}?q=${encodeURIComponent(trimmed)}`,
-      );
+      storeSommelierPrompt(trimmed);
+      router.push(sommelierPageHref(locale));
       return;
     }
 

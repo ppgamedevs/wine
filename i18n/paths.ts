@@ -1,4 +1,4 @@
-import { isAppLocale, type AppLocale } from "@/i18n/locale";
+import type { AppLocale } from "@/i18n/locale";
 
 export interface LocalizedRouteParams {
   home: undefined;
@@ -222,9 +222,12 @@ export function activeAppLocale(
   pathname: string,
   paramLocale?: string | string[],
 ): AppLocale {
+  const fromPath = localeFromPathname(pathname);
+  if (fromPath === "en") return "en";
   const fromParam = Array.isArray(paramLocale) ? paramLocale[0] : paramLocale;
-  if (isAppLocale(fromParam)) return fromParam;
-  return localeFromPathname(pathname);
+  if (fromParam === "en") return "en";
+  if (fromParam === "ro") return "ro";
+  return fromPath;
 }
 
 export function resolveLocalizedPath(

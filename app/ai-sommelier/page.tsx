@@ -6,8 +6,13 @@ import { SommelierChat } from "@/components/sommelier/sommelier-chat";
 import { absoluteUrl } from "@/lib/seo";
 import AiSommelierLoading from "./loading";
 import { getLocale } from "next-intl/server";
+import { cookies } from "next/headers";
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
+import {
+  decodeSommelierPromptCookie,
+  SOMMELIER_PROMPT_COOKIE,
+} from "@/lib/sommelier-handoff";
 
 export const revalidate = 3600;
 
@@ -76,6 +81,8 @@ export default async function AiSommelierPage() {
   const locale = (await getLocale()) as AppLocale;
   const copy = pageCopy(locale);
   const url = absoluteUrl(localizedHref(locale, "aiSommelier"));
+  const handoffCookie = (await cookies()).get(SOMMELIER_PROMPT_COOKIE)?.value;
+  const initialPrompt = decodeSommelierPromptCookie(handoffCookie);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
@@ -100,7 +107,7 @@ export default async function AiSommelierPage() {
       <SiteHeader />
       <main className="flex-1">
         <Suspense fallback={<AiSommelierLoading />}>
-          <SommelierChat locale={locale} />
+          <SommelierChat locale={locale} initialPrompt={initialPrompt} />
         </Suspense>
       </main>
       <SiteFooter />

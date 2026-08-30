@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { Building2, Search, Wine } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SmartSearch } from "@/components/smart-search";
+import { SommelierHandoffLink } from "@/components/sommelier/sommelier-handoff-link";
 import { WineCard } from "@/components/wine-card";
 import { Button } from "@/components/ui/button";
 import { searchCatalog } from "@/lib/queries";
-import { isSommelierQuery, sommelierQueryHref } from "@/lib/search-intent";
+import { sommelierPageHref } from "@/lib/search-intent";
 import { absoluteUrl, SITE } from "@/lib/seo";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { AppLocale } from "@/i18n/locale";
@@ -63,10 +63,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const locale = (await getLocale()) as AppLocale;
   const t = await getTranslations({ locale, namespace: "SearchPage" });
 
-  if (hasQuery && isSommelierQuery(query, locale)) {
-    redirect(sommelierQueryHref(query, locale));
-  }
-
   const results = hasQuery ? await searchCatalog(query) : null;
   const totalResults =
     (results?.wines.length ?? 0) + (results?.wineries.length ?? 0);
@@ -115,9 +111,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </p>
               <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
                 <Button asChild className="bg-wine text-wine-foreground">
-                  <Link href={sommelierQueryHref(query, locale)}>
+                  <SommelierHandoffLink
+                    href={sommelierPageHref(locale)}
+                    prompt={query}
+                  >
                     {t("askSommelier")}
-                  </Link>
+                  </SommelierHandoffLink>
                 </Button>
                 <Button asChild variant="outline">
                   <Link href={localizedHref(locale, "addWine")}>
