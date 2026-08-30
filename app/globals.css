@@ -120,4 +120,7 @@
     overflow-x: clip;
     scroll-behavior: smooth;
   }
+  body {
+    overflow-x: clip;
+  }
 }

@@ -2,6 +2,7 @@ import { sommelierPageHref } from "@/lib/search-intent";
 
 export const SOMMELIER_PROMPT_COOKIE = "vinintel_sommelier_q";
 export const SOMMELIER_PROMPT_STORAGE = "vinintel:sommelier-prompt";
+export const SOMMELIER_SENT_STORAGE = "vinintel:sommelier-sent";
 export const SOMMELIER_PROMPT_MAX_AGE = 120;
 const SOMMELIER_PROMPT_MAX_CHARS = 1500;
 
@@ -24,6 +25,7 @@ export function storeSommelierPrompt(prompt: string): void {
   const trimmed = prompt.trim();
   if (!trimmed || typeof window === "undefined") return;
   window.sessionStorage.setItem(SOMMELIER_PROMPT_STORAGE, trimmed);
+  window.sessionStorage.removeItem(SOMMELIER_SENT_STORAGE);
 }
 
 export function takeStoredSommelierPrompt(): string {
@@ -45,11 +47,13 @@ export function takeStoredSommelierPrompt(): string {
   return stored || fromCookie;
 }
 
-let consumedHandoff = false;
-
 export function consumeSommelierHandoff(serverPrompt = ""): string {
-  if (consumedHandoff) return "";
   const prompt = takeStoredSommelierPrompt() || serverPrompt.trim();
-  if (prompt) consumedHandoff = true;
+  if (!prompt) return "";
+  if (typeof window === "undefined") return prompt;
+
+  const alreadySent = window.sessionStorage.getItem(SOMMELIER_SENT_STORAGE);
+  if (alreadySent === prompt) return "";
+  window.sessionStorage.setItem(SOMMELIER_SENT_STORAGE, prompt);
   return prompt;
 }
