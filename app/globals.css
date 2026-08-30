@@ -117,6 +117,7 @@
   }
   html {
     @apply font-sans antialiased;
+    overflow-x: clip;
     scroll-behavior: smooth;
   }
 }

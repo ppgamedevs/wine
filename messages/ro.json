@@ -50,8 +50,9 @@
     "addWine": "Adauga vin",
     "instructions": "Scrie numele unui vin, al unei crame sau al unui soi, apoi apasa Cauta.",
     "emptyTitle": "Nu am gasit „{query}” in catalog",
-    "emptyDescription": "Vinul nu pare sa fie inca pe VinIntel. Poti adauga un link de produs si il verificam.",
+    "emptyDescription": "Daca ai cautat un nume de vin, poti adauga un link de produs. Daca vrei o recomandare dupa mancare, ocazie sau buget, intreaba somelierul AI.",
     "addByLink": "Adauga vin prin link",
+    "askSommelier": "Intreaba somelierul AI",
     "wineries": "Crame",
     "wines": "Vinuri"
   }

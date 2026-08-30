@@ -50,8 +50,9 @@
     "addWine": "Add a wine",
     "instructions": "Enter a wine, winery, or grape variety, then press Search.",
     "emptyTitle": "We could not find “{query}” in the catalog",
-    "emptyDescription": "This wine may not be on VinIntel yet. Add a product URL and we will review it.",
+    "emptyDescription": "If you searched for a wine by name, add a product URL. If you want a recommendation by food, occasion, or budget, ask the AI Sommelier.",
     "addByLink": "Add wine by URL",
+    "askSommelier": "Ask the AI Sommelier",
     "wineries": "Wineries",
     "wines": "Wines"
   }

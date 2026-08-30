@@ -89,7 +89,7 @@ export function Hero({
         <div className="absolute bottom-[-10rem] right-[-6rem] h-[24rem] w-[24rem] rounded-full bg-gold/10 blur-3xl" />
       </div>
 
-      <div className="mx-auto flex max-w-4xl flex-col items-center px-6 pb-20 pt-20 text-center sm:pt-28">
+      <div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center px-4 pb-20 pt-20 text-center sm:px-6 sm:pt-28">
         <motion.div
           variants={container}
           initial="hidden"
@@ -119,7 +119,7 @@ export function Hero({
             {copy.description}
           </motion.p>
 
-          <motion.div variants={item} className="mt-9 w-full max-w-2xl">
+          <motion.div variants={item} className="mt-9 w-full min-w-0 max-w-2xl">
             <SmartSearchClient copy={copy.search} locale={locale} />
           </motion.div>
 

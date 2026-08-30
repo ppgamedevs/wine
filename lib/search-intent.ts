@@ -13,6 +13,14 @@ function normalizeForIntent(text: string): string {
 const QUESTION_START =
   /^(ce|cum|de ce|cat|cate|care|unde|cand|pot|poti|exista|este|sunt|ai|am|as|de unde|in ce|la ce)\b/;
 
+const FOOD_WORDS =
+  "mamaliga|branza|smantana|mici|mititei|sarmale|gratar|cozonac|desert|nunta|cina|cadou|peste|carne|miel|pui|vita|porc|paste|pizza|ciorba|tocana|tocanita|friptura|salata|omleta|burger|steak|creveti|somon|pastrav|crap|sunca|carnati|varza|fasole|cartofi|telemea|burduf|bulz|mujdei|tochitura|papanasi|clatite|placinta|zacusca|ghiveci|iahnie|drob|pasca|icre|scrumbie|hamsii|ciuperci|ardei|polenta|cheese|seafood|chicken|pasta|lamb|pork|bbq|barbecue|wedding|dinner|sushi|risotto|turkey|duck|sausage|cabbage|beans";
+
+const FOOD_TOKEN = new RegExp(`\\b(?:${FOOD_WORDS})\\b`);
+const PAIRING_PREPOSITION_FOOD = new RegExp(
+  `\\b(?:pentru|la|cu|langa|with|for)\\s+(?:${FOOD_WORDS})\\b`,
+);
+
 const SOMMELIER_PHRASES: RegExp[] = [
   /\bce inseamna\b/,
   /\bce este\b/,
@@ -32,15 +40,14 @@ const SOMMELIER_PHRASES: RegExp[] = [
   /\bcare vin\b/,
   /\bvin (bun|potrivit|recomandat|pentru)\b/,
   /\bvinuri (pentru|sub)\b/,
-  /\b(pentru|la|cu) (sarmale|gratar|cozonac|desert|nunta|cina|cadou|peste|carne|miel)\b/,
   /\bmerge (cu|la|pentru)\b/,
   /\bpotrivit pentr/,
-  /\basocier(e|i|ea|i)\b/,
+  /\basocier(e|i|ea)\b/,
   /\bpairing\b/,
   /\bsomelier\b/,
   /\bbuget\b/,
   /\bsub \d+\s*(lei|ron)\b/,
-  /\bintre \d+\s*(si|\u2013|-)\s*\d+\s*(lei|ron)\b/,
+  /\bintre \d+\s*(si|-)\s*\d+\s*(lei|ron)\b/,
   /\bocazie\b/,
   /\btemperatur(a|i)\b/,
   /\bdecant/,
@@ -49,6 +56,10 @@ const SOMMELIER_PHRASES: RegExp[] = [
   /\bfermentat/,
   /\bce (soi|sort|tip|stil)\b/,
   /\bcare (soi|sort|tip|stil)\b/,
+  /\b(vreau|as vrea|as dori|imi trebuie|imi doresc)\b/,
+  /\b(sa beau|de baut|sa mananc)\b/,
+  /\bcaut (un |o |niste )?(vin|vinuri)\b/,
+  /\b(da-mi|gaseste(-mi)?)\b/,
 ];
 
 const ENGLISH_QUESTION_START =
@@ -57,16 +68,57 @@ const ENGLISH_QUESTION_START =
 const ENGLISH_SOMMELIER_PHRASES: RegExp[] = [
   /\bwhat (wine|should i drink|goes with)\b/,
   /\bwhich wine\b/,
+  /\bi (?:want|need|would like|'d like)\b/,
+  /\blooking for\b/,
+  /\bwine to drink\b/,
+  /\bdrink with\b/,
   /\brecommend(?:ation)?\b/,
   /\bbest value\b/,
   /\bunder \d+\s*(?:ron|lei)\b/,
   /\b(?:pair|pairing|serve) (?:with|for)\b/,
   /\b(?:gift|wedding|romantic dinner|party|christmas)\b/,
-  /\b(?:sarmale|mici|stuffed cabbage|grilled meat|bbq)\b/,
+  /\b(?:sarmale|mici|stuffed cabbage|grilled meat|bbq|polenta|sour cream)\b/,
   /\b(?:red|white|rose|sparkling) wine\b/,
   /\b(?:dry|medium-dry|medium-sweet|sweet) wine\b/,
   /\b(?:budget|sommelier|decant|tannin|barrel)\b/,
 ];
+
+const ADVICE_VERB =
+  /\b(vreau|beau|baut|caut|recomand|want|drink|pair|looking|need|should)\b/;
+const WINE_TOKEN = /\b(vin|vinuri|wine|wines|somelier|sommelier)\b/;
+const VINTAGE_YEAR = /\b(?:19|20)\d{2}\b/;
+
+function wordCount(query: string): number {
+  return query.split(" ").filter(Boolean).length;
+}
+
+function hasFoodPairingCue(query: string): boolean {
+  if (PAIRING_PREPOSITION_FOOD.test(query)) return true;
+  return FOOD_TOKEN.test(query) && WINE_TOKEN.test(query);
+}
+
+function isConversationalWineAdvice(query: string): boolean {
+  if (wordCount(query) < 6) return false;
+  return WINE_TOKEN.test(query) && ADVICE_VERB.test(query);
+}
+
+function looksLikeVintageCatalogName(query: string): boolean {
+  if (!VINTAGE_YEAR.test(query)) return false;
+  if (wordCount(query) > 6) return false;
+  return !ADVICE_VERB.test(query) && !hasFoodPairingCue(query);
+}
+
+function hasAdviceSignal(query: string): boolean {
+  if (QUESTION_START.test(query) || ENGLISH_QUESTION_START.test(query)) {
+    return true;
+  }
+  if (SOMMELIER_PHRASES.some((pattern) => pattern.test(query))) return true;
+  if (ENGLISH_SOMMELIER_PHRASES.some((pattern) => pattern.test(query))) {
+    return true;
+  }
+  if (hasFoodPairingCue(query)) return true;
+  return isConversationalWineAdvice(query);
+}
 
 /** True when the user asks a wine question rather than searching the catalog by name. */
 export function isSommelierQuery(
@@ -77,13 +129,8 @@ export function isSommelierQuery(
   if (query.length < 3) return false;
 
   if (query.endsWith("?")) return true;
-  if (locale === "en") {
-    if (ENGLISH_QUESTION_START.test(query)) return true;
-    return ENGLISH_SOMMELIER_PHRASES.some((pattern) => pattern.test(query));
-  }
-  if (QUESTION_START.test(query)) return true;
-
-  return SOMMELIER_PHRASES.some((pattern) => pattern.test(query));
+  if (looksLikeVintageCatalogName(query)) return false;
+  return hasAdviceSignal(query);
 }
 
 export function sommelierQueryHref(

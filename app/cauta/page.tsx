@@ -14,7 +14,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
@@ -74,17 +74,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <>
       <SiteHeader />
-      <main className="flex-1">
+      <main className="min-w-0 flex-1 overflow-x-clip">
         <section className="border-b border-border/60 bg-secondary/20">
-          <div className="mx-auto max-w-4xl px-6 py-12 text-center lg:py-16">
+          <div className="mx-auto w-full min-w-0 max-w-4xl px-4 py-12 text-center sm:px-6 lg:py-16">
             <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
               <Search className="h-4 w-4" aria-hidden="true" />
               {t("eyebrow")}
             </span>
-            <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="mt-5 break-words font-serif text-3xl font-bold tracking-tight text-foreground sm:text-5xl">
               {hasQuery ? t("resultsTitle", { query }) : t("title")}
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+            <p className="mx-auto mt-4 max-w-2xl break-words text-muted-foreground">
               {t("descriptionBefore")}{" "}
               <Link
                 href={localizedHref(locale, "addWine")}
@@ -94,30 +94,37 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </Link>
               .
             </p>
-            <div className="mx-auto mt-8 max-w-2xl text-left">
+            <div className="mx-auto mt-8 w-full min-w-0 max-w-2xl text-left">
               <SmartSearch enableLinkAnalysis={false} />
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-4xl px-6 py-10">
+        <section className="mx-auto w-full min-w-0 max-w-4xl px-4 py-10 sm:px-6">
           {!hasQuery ? (
             <p className="text-center text-muted-foreground">
               {t("instructions")}
             </p>
           ) : totalResults === 0 ? (
-            <div className="rounded-2xl border border-border/70 bg-card px-6 py-10 text-center">
-              <p className="font-serif text-2xl font-semibold text-foreground">
+            <div className="rounded-2xl border border-border/70 bg-card px-4 py-10 text-center sm:px-6">
+              <p className="break-words font-serif text-2xl font-semibold text-foreground">
                 {t("emptyTitle", { query })}
               </p>
-              <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+              <p className="mx-auto mt-3 max-w-xl break-words text-muted-foreground">
                 {t("emptyDescription")}
               </p>
-              <Button asChild className="mt-6 bg-wine text-wine-foreground">
-                <Link href={localizedHref(locale, "addWine")}>
-                  {t("addByLink")}
-                </Link>
-              </Button>
+              <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+                <Button asChild className="bg-wine text-wine-foreground">
+                  <Link href={sommelierQueryHref(query, locale)}>
+                    {t("askSommelier")}
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={localizedHref(locale, "addWine")}>
+                    {t("addByLink")}
+                  </Link>
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="space-y-10">

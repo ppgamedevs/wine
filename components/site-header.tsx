@@ -15,11 +15,11 @@ export function SiteHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/65">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+    <header className="sticky top-0 z-50 w-full overflow-x-clip border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/65">
+      <div className="mx-auto flex h-16 w-full min-w-0 max-w-6xl items-center justify-between gap-2 px-4 sm:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2"
+          className="flex min-w-0 shrink-0 items-center gap-2"
           aria-label={t("home")}
         >
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-wine text-wine-foreground shadow-sm">
@@ -45,11 +45,11 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
           <Button
             asChild
-            className="hidden bg-wine text-wine-foreground hover:bg-wine/90 sm:inline-flex"
+            className="hidden bg-wine text-wine-foreground hover:bg-wine/90 md:inline-flex"
           >
             <Link href="/ai-sommelier">{t("sommelier")}</Link>
           </Button>

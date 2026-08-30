@@ -203,54 +203,56 @@ export function SmartSearchClient({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.25, ease: EASE_OUT }}
-      className={cn("relative w-full", className)}
+      className={cn("relative w-full min-w-0", className)}
     >
       <form
         onSubmit={handleSubmit}
         role="search"
         className={cn(
-          "flex w-full flex-col gap-2 rounded-2xl border bg-card/80 p-2 shadow-sm backdrop-blur transition-all duration-300",
+          "flex w-full min-w-0 flex-col gap-2 overflow-hidden rounded-2xl border bg-card/80 p-2 shadow-sm backdrop-blur transition-all duration-300",
           focused
             ? "border-wine/60 shadow-lg ring-4 ring-wine/10"
             : "border-border hover:border-wine/40",
         )}
       >
-        <div className="flex w-full items-center gap-2">
-          <Search
-            aria-hidden="true"
-            className={cn(
-              "ml-2 h-5 w-5 shrink-0 transition-colors",
-              focused ? "text-wine" : "text-muted-foreground",
-            )}
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              setAnalysisError(null);
-              setAnalysisSuccess(null);
-              setOpen(true);
-            }}
-            onFocus={() => {
-              setFocused(true);
-              setOpen(true);
-            }}
-            onBlur={() => setFocused(false)}
-            placeholder={placeholder}
-            aria-label={copy.ariaLabel}
-            aria-expanded={showDropdown}
-            aria-autocomplete="list"
-            role="combobox"
-            aria-controls="search-suggestions"
-            disabled={analyzing}
-            className="h-11 w-full flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground/80 disabled:opacity-60"
-          />
+        <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Search
+              aria-hidden="true"
+              className={cn(
+                "ml-2 h-5 w-5 shrink-0 transition-colors",
+                focused ? "text-wine" : "text-muted-foreground",
+              )}
+            />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setAnalysisError(null);
+                setAnalysisSuccess(null);
+                setOpen(true);
+              }}
+              onFocus={() => {
+                setFocused(true);
+                setOpen(true);
+              }}
+              onBlur={() => setFocused(false)}
+              placeholder={placeholder}
+              aria-label={copy.ariaLabel}
+              aria-expanded={showDropdown}
+              aria-autocomplete="list"
+              role="combobox"
+              aria-controls="search-suggestions"
+              disabled={analyzing}
+              className="h-11 min-w-0 w-full flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground/80 disabled:opacity-60"
+            />
+          </div>
           <Button
             type="submit"
             size="lg"
             disabled={analyzing}
-            className="shrink-0 rounded-xl bg-wine px-6 text-wine-foreground hover:bg-wine/90"
+            className="w-full shrink-0 rounded-xl bg-wine px-4 text-wine-foreground hover:bg-wine/90 sm:w-auto sm:px-6"
           >
             {analyzing ? (
               <>

@@ -1,2 +1,3 @@
-export { default } from "@/app/cauta/page";
-export * from "@/app/cauta/page";
+export { default, generateMetadata } from "@/app/cauta/page";
+
+export const dynamic = "force-dynamic";

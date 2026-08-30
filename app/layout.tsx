@@ -135,9 +135,9 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full overflow-x-clip`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full max-w-full flex-col">
         <JsonLd
           data={[
             buildOrganizationJsonLd(locale),
