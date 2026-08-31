@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 import { withBotId } from "botid/next/config";
 import createNextIntlPlugin from "next-intl/plugin";
+import {
+  BOTID_PROXY_SEGMENT,
+  withBotIdRewritesBeforeFiles,
+} from "./lib/security/botid-proxy";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const contentSecurityPolicy = [
@@ -53,7 +57,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path*",
+        source: `/((?!${BOTID_PROXY_SEGMENT}).*)`,
         headers: [...securityHeaders],
       },
     ];
@@ -107,4 +111,6 @@ const nextConfig: NextConfig = {
   compress: true,
 };
 
-export default withBotId(withNextIntl(nextConfig));
+export default withBotIdRewritesBeforeFiles(
+  withBotId(withNextIntl(nextConfig)),
+);

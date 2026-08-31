@@ -4,6 +4,7 @@ import type { AppLocale } from "@/i18n/locale";
 import { routing } from "@/i18n/routing";
 import { isEnglishIndexingEnabled } from "@/lib/i18n/indexing";
 import { classifySearchQuery, searchPageHref } from "@/lib/search-intent";
+import { isBotIdProxyPath } from "@/lib/security/botid-proxy";
 import {
   encodeSommelierPromptCookie,
   SOMMELIER_PROMPT_COOKIE,
@@ -85,6 +86,10 @@ function catalogSearchIntentRedirect(
 }
 
 export default function middleware(request: NextRequest) {
+  if (isBotIdProxyPath(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   const aliasDestination = getRomanianAliasDestination(
     request.nextUrl.pathname,
   );
@@ -117,5 +122,7 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/((?!api|admin|embed|_next|_vercel|.*\\..*).*)",
+  // Keep the BotID UUID in this literal. Next.js analyzes matcher statically.
+  matcher:
+    "/((?!api|admin|embed|_next|_vercel|149e9513-01fa-4fb0-aad4-566afd725d1b|.*\\..*).*)",
 };
