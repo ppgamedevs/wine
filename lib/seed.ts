@@ -265,6 +265,62 @@ const grapeSeed: {
     description:
       "Soi alb cu corp mediu, fructe albe coapte, miere fina si textura catifelata.",
   },
+  {
+    slug: "sarba",
+    name: "Sarba",
+    color: "white",
+    isIndigenous: true,
+    description:
+      "Soi alb semi-aromat din Vrancea, creat la Odobesti, cu flori, citrice si un muscat discret.",
+  },
+  {
+    slug: "babeasca-neagra",
+    name: "Babeasca Neagra",
+    color: "red",
+    isIndigenous: true,
+    description:
+      "Soi rosu autohton, usor si acid, cu fructe rosii, potrivit pentru mese de zi cu zi.",
+  },
+  {
+    slug: "mustoasa-de-maderat",
+    name: "Mustoasa de Maderat",
+    color: "white",
+    isIndigenous: true,
+    description:
+      "Soi alb din Minis-Maderat, cu aciditate crocanta si prospetime de Banat.",
+  },
+  {
+    slug: "cabernet-franc",
+    name: "Cabernet Franc",
+    color: "red",
+    isIndigenous: false,
+    description:
+      "Soi rosu mai fin decat Cabernet Sauvignon, cu piper verde, fructe rosii si taninuri mai blande.",
+  },
+  {
+    slug: "muscat-ottonel",
+    name: "Muscat Ottonel",
+    color: "white",
+    isIndigenous: false,
+    description:
+      "Soi aromat international, cu flori albe si strugure de masa, des intalnit in vinuri demidulci.",
+  },
+  {
+    slug: "traminer",
+    name: "Traminer",
+    color: "white",
+    isIndigenous: false,
+    description:
+      "Soi aromat, cu trandafir, litchi si condiment, vinificat sec sau demisec in Transilvania.",
+  },
+  {
+    slug: "riesling-italian",
+    name: "Riesling Italian",
+    color: "white",
+    isIndigenous: false,
+    description:
+      "Welschriesling, nu Riesling de Rin: citric, usor, des plantat in Romania si usor de confundat pe eticheta.",
+  },
 ];
 
 const winerySeed = [

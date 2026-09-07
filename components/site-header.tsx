@@ -9,6 +9,7 @@ export function SiteHeader() {
   const t = useTranslations("Navigation");
   const navLinks = [
     { label: t("wines"), href: "/vinuri" as const },
+    { label: t("grapes"), href: "/soiuri" as const },
     { label: t("wineries"), href: "/crame" as const },
     { label: t("journal"), href: "/journal" as const },
     { label: t("topWines"), href: "/topuri" as const },
@@ -32,7 +33,7 @@ export function SiteHeader() {
 
         <nav
           aria-label={t("primaryLabel")}
-          className="hidden items-center gap-8 md:flex"
+          className="hidden items-center gap-5 lg:gap-8 md:flex"
         >
           {navLinks.map((link) => (
             <Link

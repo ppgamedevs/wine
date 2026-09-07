@@ -1,4 +1,4 @@
-import { Building2, ChevronRight, MapPin } from "lucide-react";
+import { Building2, ChevronRight, Grape, MapPin } from "lucide-react";
 import Link from "next/link";
 import { WineBuyingDecision } from "@/components/wines/wine-buying-decision";
 import { WineImage } from "@/components/wines/wine-image";
@@ -8,6 +8,7 @@ import {
   getWineTypeLabel,
 } from "@/lib/format";
 import { localizedHref } from "@/i18n/paths";
+import { grapeGuidesForWine } from "@/lib/oenology";
 import {
   getVerifiedTechnicalValue,
   type PublicTechnicalTrust,
@@ -27,6 +28,7 @@ export async function WineHero({
   const t = await getTranslations("Wine.hero");
   const displayVintage = resolveWineVintage(wine);
   const displayName = stripEmbeddedVintageFromName(wine.name, displayVintage);
+  const grapeGuides = grapeGuidesForWine(wine);
   const verifiedSweetness = getVerifiedTechnicalValue(
     technicalTrust,
     "sweetness",
@@ -115,6 +117,18 @@ export async function WineHero({
                 {wine.region.name}
               </Link>
             ) : null}
+            {grapeGuides.map((guide) => (
+              <Link
+                key={guide.slug}
+                href={localizedHref(locale, "grapeVariety", {
+                  slug: guide.slug,
+                })}
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-wine"
+              >
+                <Grape className="h-4 w-4" aria-hidden="true" />
+                {guide.copy[locale].name}
+              </Link>
+            ))}
           </div>
 
           <WineBuyingDecision wine={wine} />

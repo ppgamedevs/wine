@@ -61,6 +61,8 @@ describe("localizedHref", () => {
     expect(localizedHref("en", "privacyPolicy")).toBe("/en/privacy-policy");
     expect(localizedHref("en", "cookiePolicy")).toBe("/en/cookie-policy");
     expect(localizedHref("en", "search")).toBe("/en/search");
+    expect(localizedHref("ro", "grapeVarieties")).toBe("/soiuri");
+    expect(localizedHref("en", "grapeVarieties")).toBe("/en/grape-varieties");
   });
 
   it("keeps canonical entity identity stable", () => {
@@ -86,6 +88,7 @@ describe("alternateLocaleHref", () => {
     ["/en/wineries/cramele-recas", "/wineries/cramele-recas"],
     ["/vin-pentru/sarmale", "/en/wine-for/sarmale"],
     ["/en/grape-varieties/feteasca-neagra", "/soiuri/feteasca-neagra"],
+    ["/en/grape-varieties", "/soiuri"],
     ["/en/regions/dealu-mare", "/regiuni/dealu-mare"],
   ])("round-trips %s to %s", (source, expected) => {
     const targetLocale = source.startsWith("/en") ? "ro" : "en";

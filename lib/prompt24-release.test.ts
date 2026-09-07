@@ -142,6 +142,20 @@ describe("Prompt 24 canonical grape and sitemap truth", () => {
     ]);
   });
 
+  it("matches grape aliases when the wine JSON has no slug", () => {
+    const wines = [
+      { grapeVarieties: [{ name: "Șarbă" }] },
+      { grapeVarieties: [{ name: "Riesling de Rin" }] },
+    ] as WineWithRelations[];
+    const grape = {
+      slug: "sarba",
+      name: "Sarba",
+      aliases: ["șarbă", "sarbă"],
+    };
+
+    expect(filterWinesByGrapeVariety(wines, grape)).toHaveLength(1);
+  });
+
   it("fails when an eligible sitemap family is unexpectedly empty", () => {
     const families: SitemapRouteFamilies = {
       static: [{ url: "https://www.vinintel.ro/" }],

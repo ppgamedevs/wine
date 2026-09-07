@@ -13,6 +13,7 @@ export async function LocalizedSiteFooter() {
     copyright: t("Footer.copyright", { year: new Date().getFullYear() }),
     links: {
       wines: t("Footer.links.wines"),
+      grapes: t("Footer.links.grapes"),
       wineries: t("Footer.links.wineries"),
       top: t("Footer.links.top"),
       studies: t("Footer.links.studies"),

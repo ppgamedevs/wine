@@ -6,7 +6,7 @@ import {
   getWineSitemapEntries,
   getWinesForSommelier,
 } from "@/lib/queries";
-import { getIndexableGrapeVarieties } from "@/lib/grape-variety-index";
+import { getAllGrapeGuideSlugs } from "@/lib/oenology";
 import {
   getAllDishPairingSlugs,
   getDishPairingPage,
@@ -25,6 +25,7 @@ const STATIC_ENGLISH_PATHS: Record<string, string> = {
   "/vinuri": "/en/wines",
   "/topuri": "/en/top-wines",
   "/journal": "/en/journal",
+  "/soiuri": "/en/grape-varieties",
   "/crame": "/en/wineries",
   "/cum-functioneaza-scorurile": "/en/how-scores-work",
   "/claim-your-winery": "/en/claim-your-winery",
@@ -127,6 +128,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     },
     {
+      url: absoluteUrl("/soiuri"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: absoluteUrl("/crame"),
       lastModified: now,
       changeFrequency: "weekly",
@@ -211,19 +218,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.65,
   }));
 
-  const indexableGrapes = getIndexableGrapeVarieties(
-    allWines,
-    grapeCatalog,
-    MIN_INDEXABLE_TOP_LIST_WINES,
-  );
-  const soiuriRoutes: MetadataRoute.Sitemap = indexableGrapes.map(
-    ({ slug }) => ({
-      url: absoluteUrl(`/soiuri/${slug}`),
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.65,
-    }),
-  );
+  const grapeGuideSlugs = getAllGrapeGuideSlugs();
+  const soiuriRoutes: MetadataRoute.Sitemap = grapeGuideSlugs.map((slug) => ({
+    url: absoluteUrl(`/soiuri/${slug}`),
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.65,
+  }));
 
   const vinPentruRoutes: MetadataRoute.Sitemap = getAllDishPairingSlugs()
     .filter((slug) => {
@@ -265,10 +266,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     wineries: { expected: "nonempty" },
     topLists: { expected: "nonempty" },
     regions: { expected: "nonempty" },
-    soiuri:
-      indexableGrapes.length > 0
-        ? { expected: "nonempty", count: indexableGrapes.length }
-        : { expected: "empty" },
+    soiuri: { expected: "nonempty", count: grapeGuideSlugs.length },
     vinPentru: { expected: "nonempty" },
     studii: { expected: "nonempty" },
     journal: { expected: "nonempty" },

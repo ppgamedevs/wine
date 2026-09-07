@@ -15,6 +15,7 @@ export interface FooterCopy {
   copyright: string;
   links: {
     wines: string;
+    grapes: string;
     wineries: string;
     top: string;
     studies: string;
@@ -43,6 +44,7 @@ const FOOTER_COPY: Record<"ro" | "en", FooterCopy> = {
     copyright: `${new Date().getFullYear()} VinIntel. Vinuri romanesti, clar si onest.`,
     links: {
       wines: "Vinuri",
+      grapes: "Soiuri",
       wineries: "Crame",
       top: "Topuri",
       studies: "Studii",
@@ -69,6 +71,7 @@ const FOOTER_COPY: Record<"ro" | "en", FooterCopy> = {
     copyright: `${new Date().getFullYear()} VinIntel. Romanian wine, clearly and honestly.`,
     links: {
       wines: "Wines",
+      grapes: "Grapes",
       wineries: "Wineries",
       top: "Top wines",
       studies: "Studies",
@@ -103,6 +106,7 @@ export function SiteFooter({ copy }: { copy?: FooterCopy }) {
     copy ?? FOOTER_COPY[isEnglish ? "en" : "ro"];
   const footerLinks = [
     { label: content.links.wines, href: "/vinuri" as const },
+    { label: content.links.grapes, href: "/soiuri" as const },
     { label: content.links.wineries, href: "/crame" as const },
     { label: content.links.top, href: "/topuri" as const },
     {

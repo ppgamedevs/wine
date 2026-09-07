@@ -27,6 +27,10 @@ export const pathnames = {
     ro: "/regiuni/[slug]",
     en: "/regions/[slug]",
   },
+  "/soiuri": {
+    ro: "/soiuri",
+    en: "/grape-varieties",
+  },
   "/soiuri/[slug]": {
     ro: "/soiuri/[slug]",
     en: "/grape-varieties/[slug]",

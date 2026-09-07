@@ -200,6 +200,7 @@ export function scheduleIndexNowRegion(slug: string): void {
 
 export function scheduleIndexNowGrapeVariety(slug: string): void {
   scheduleIndexNowPaths([
+    "/soiuri",
     `/soiuri/${slug}`,
     `/topuri/cele-mai-bune-${slug}`,
     "/sitemap.xml",

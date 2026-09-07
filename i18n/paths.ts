@@ -11,6 +11,7 @@ export interface LocalizedRouteParams {
   journal: undefined;
   journalArticle: { slug: string };
   region: { slug: string };
+  grapeVarieties: undefined;
   grapeVariety: { slug: string };
   wineFor: { dish: string };
   study: { slug: string };
@@ -70,6 +71,7 @@ const STATIC_PATHS: Record<
   journal: { ro: "/journal", en: "/journal" },
   search: { ro: "/cauta", en: "/search" },
   aiSommelier: { ro: "/ai-sommelier", en: "/ai-sommelier" },
+  grapeVarieties: { ro: "/soiuri", en: "/grape-varieties" },
   howScoresWork: {
     ro: "/cum-functioneaza-scorurile",
     en: "/how-scores-work",

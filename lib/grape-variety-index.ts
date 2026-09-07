@@ -6,6 +6,7 @@ export interface GrapeVarietyCatalogEntry {
   id?: number;
   description?: string | null;
   updatedAt?: string;
+  aliases?: readonly string[];
 }
 
 export interface IndexableGrapeVariety extends GrapeVarietyCatalogEntry {
@@ -24,12 +25,21 @@ export function normalizeGrapeIdentity(value: string): string {
     .trim();
 }
 
+export function grapeIdentityKeys(
+  grape: Pick<GrapeVarietyCatalogEntry, "slug" | "name" | "aliases">,
+): Set<string> {
+  return new Set(
+    [grape.slug, grape.name, ...(grape.aliases ?? [])]
+      .map((value) => normalizeGrapeIdentity(value))
+      .filter((value) => value.length > 0),
+  );
+}
+
 export function wineMatchesGrapeVariety(
   wine: WineWithGrapes,
   grape: GrapeVarietyCatalogEntry,
 ): boolean {
-  const canonicalSlug = normalizeGrapeIdentity(grape.slug);
-  const canonicalName = normalizeGrapeIdentity(grape.name);
+  const identities = grapeIdentityKeys(grape);
 
   return (wine.grapeVarieties ?? []).some((share) => {
     const shareSlug = share.slug
@@ -37,9 +47,8 @@ export function wineMatchesGrapeVariety(
       : null;
     const shareName = normalizeGrapeIdentity(share.name);
     return (
-      shareSlug === canonicalSlug ||
-      shareName === canonicalName ||
-      shareName === canonicalSlug
+      (shareSlug != null && identities.has(shareSlug)) ||
+      identities.has(shareName)
     );
   });
 }
