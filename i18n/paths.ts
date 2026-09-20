@@ -10,6 +10,7 @@ export interface LocalizedRouteParams {
   topWine: { slug: string };
   journal: undefined;
   journalArticle: { slug: string };
+  regions: undefined;
   region: { slug: string };
   grapeVarieties: undefined;
   grapeVariety: { slug: string };
@@ -72,6 +73,7 @@ const STATIC_PATHS: Record<
   search: { ro: "/cauta", en: "/search" },
   aiSommelier: { ro: "/ai-sommelier", en: "/ai-sommelier" },
   grapeVarieties: { ro: "/soiuri", en: "/grape-varieties" },
+  regions: { ro: "/regiuni", en: "/regions" },
   howScoresWork: {
     ro: "/cum-functioneaza-scorurile",
     en: "/how-scores-work",

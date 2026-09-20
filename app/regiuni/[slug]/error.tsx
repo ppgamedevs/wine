@@ -19,14 +19,14 @@ export default function RegionError({
           Nu am putut incarca regiunea
         </h1>
         <p className="mt-3 max-w-md text-muted-foreground">
-          Incearca din nou sau revino la directorul de crame.
+          Incearca din nou sau revino la zonele viticole.
         </p>
         <div className="mt-6 flex gap-3">
           <Button onClick={reset} variant="outline">
             Reincearca
           </Button>
           <Button asChild className="bg-wine text-wine-foreground hover:bg-wine/90">
-            <Link href="/crame">Crame</Link>
+            <Link href="/regiuni">Regiuni</Link>
           </Button>
         </div>
       </main>

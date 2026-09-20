@@ -15,7 +15,7 @@ import {
   parsePublicWineryDirectoryRequest,
   type PublicCatalogSearchParams,
 } from "@/lib/public-wine-card-types";
-import { getFeaturedRegions, getWineryDirectoryPage } from "@/lib/queries";
+import { getWineryDirectoryPage } from "@/lib/queries";
 import {
   absoluteUrl,
   buildBreadcrumbJsonLd,
@@ -70,10 +70,9 @@ export default async function WineriesIndexPage({
 }: WineriesIndexPageProps) {
   const params = (await searchParams) ?? {};
   const request = parsePublicWineryDirectoryRequest(params);
-  const [{ locale, t }, directory, featuredRegions] = await Promise.all([
+  const [{ locale, t }, directory] = await Promise.all([
     getDiscoveryI18n(),
     getWineryDirectoryPage(request),
-    getFeaturedRegions(6),
   ]);
   const publicWineries = directory.items.map(buildPublicWineryDirectoryItem);
   const path = localizedHref(locale, "wineries");
@@ -164,40 +163,31 @@ export default async function WineriesIndexPage({
         </section>
 
         <div className="mx-auto max-w-6xl space-y-14 px-6 py-12">
-          {featuredRegions.length > 0 ? (
-            <section aria-labelledby="regions-heading">
-              <h2
-                id="regions-heading"
-                className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
-              >
-                {t("Wineries.regionsHeading")}
-              </h2>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {featuredRegions.map((region) => (
-                  <Link
-                    key={region.slug}
-                    href={localizedHref(locale, "region", {
-                      slug: region.slug,
-                    })}
-                    className="group rounded-2xl border border-border/70 bg-card p-5 transition-all hover:border-wine/30 hover:shadow-sm"
-                  >
-                    <span className="inline-flex items-center gap-1.5 text-sm text-wine">
-                      <MapPin className="h-4 w-4" aria-hidden="true" />
-                      {t("Wineries.wineRegion")}
-                    </span>
-                    <h3 className="mt-2 font-serif text-lg font-semibold text-foreground group-hover:text-wine">
-                      {region.name}
-                    </h3>
-                    {region.description && locale === "ro" ? (
-                      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                        {region.description}
-                      </p>
-                    ) : null}
-                  </Link>
-                ))}
+          <section
+            aria-labelledby="regions-cta-heading"
+            className="rounded-2xl border border-wine/20 bg-wine/5 px-6 py-6 sm:px-8 sm:py-7"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="max-w-2xl">
+                <h2
+                  id="regions-cta-heading"
+                  className="inline-flex items-center gap-2 font-serif text-xl font-semibold text-foreground"
+                >
+                  <MapPin className="h-5 w-5 text-wine" aria-hidden="true" />
+                  {t("Wineries.regionsCtaHeading")}
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  {t("Wineries.regionsCtaBody")}
+                </p>
               </div>
-            </section>
-          ) : null}
+              <Link
+                href={localizedHref(locale, "regions")}
+                className="inline-flex shrink-0 items-center justify-center rounded-full bg-wine px-5 py-2.5 text-sm font-medium text-wine-foreground transition-colors hover:bg-wine/90"
+              >
+                {t("Wineries.regionsCta")}
+              </Link>
+            </div>
+          </section>
 
           {directory.items.length > 0 || directory.total === 0 ? (
             <WineryDirectory

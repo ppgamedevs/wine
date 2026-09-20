@@ -68,42 +68,49 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
+function interpolate(
+  template: string,
+  values: Record<string, string | number>,
+): string {
+  return Object.entries(values).reduce(
+    (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
+    template,
+  );
+}
+
 function buildRegionFaq(
   regionName: string,
-  wineCount: number,
   wineryCount: number,
   locale: AppLocale,
 ): FaqEntry[] {
   if (locale === "en") {
     return [
       {
-        question: `Which wines does VinIntel recommend from ${regionName}?`,
-        answer: `The catalog includes ${wineCount} wines from ${regionName}, ordered by Value Score with prices in RON.`,
+        question: `What is the ${regionName} wine region?`,
+        answer: `${regionName} is a vineyard area, not a single winery. Several producers can sit in the same region. Individual wineries have their own pages.`,
       },
       {
-        question: `How many wineries are listed in ${regionName}?`,
-        answer: `VinIntel lists ${wineryCount} wineries from ${regionName} with at least one analyzed wine.`,
+        question: `Which wineries are in the ${regionName} region?`,
+        answer: `VinIntel lists ${wineryCount} wineries from the ${regionName} region with at least one analyzed wine.`,
       },
       {
-        question: `How should I choose a wine from ${regionName}?`,
-        answer:
-          "Compare Value Score, price and food pairing information. Use the budget rankings or AI Sommelier for a specific occasion.",
+        question: `Are the wines from one winery only?`,
+        answer: `No. The wines from the ${regionName} region include bottles from several producers in that vineyard area.`,
       },
     ];
   }
   return [
     {
-      question: `Ce vinuri recomanda VinIntel din ${regionName}?`,
-      answer: `Avem ${wineCount} vinuri din ${regionName} in catalog, ordonate dupa Value Score, cu preturi in RON si pairing-uri pentru mancare romaneasca.`,
+      question: `Ce inseamna zona viticola ${regionName}?`,
+      answer: `${regionName} este o podgorie, nu o crama. In zona pot exista mai multi producatori. Cramele individuale au pagini separate in directorul de crame.`,
     },
     {
-      question: `Cate crame sunt in ${regionName}?`,
-      answer: `Listam ${wineryCount} crame din ${regionName} cu cel putin un vin analizat in baza noastra de date.`,
+      question: `Ce crame sunt in zona ${regionName}?`,
+      answer: `Listam ${wineryCount} crame din zona ${regionName} cu cel putin un vin analizat in catalog.`,
     },
     {
-      question: `Cum aleg un vin din ${regionName}?`,
-      answer:
-        "Compara Value Score-ul, pretul si pairing-urile. Pentru ocazii specifice, foloseste topurile noastre pe buget sau somelierul AI.",
+      question: `Vinurile din ${regionName} sunt de la o singura crama?`,
+      answer: `Nu. Lista de vinuri din zona ${regionName} include sticle de la mai multi producatori din podgorie.`,
     },
   ];
 }
@@ -118,20 +125,21 @@ export async function generateMetadata({ params }: RegionPageProps): Promise<Met
       robots: { index: false, follow: true },
     };
   }
+  const copy = getPseoMessages(locale).region;
   const translatedDescription =
     locale === "en"
       ? await englishRegionDescription(hub.region)
       : { value: null, ready: true };
 
-  const title =
-    locale === "en"
-      ? `Wines from ${hub.region.name}: wineries, rankings and prices`
-      : `Vinuri din ${hub.region.name}: crame, topuri si preturi`;
+  const title = interpolate(copy.metaTitle, { name: hub.region.name });
   const description =
-    locale === "en"
-      ? translatedDescription.value ??
-        `Explore ${hub.region.name} through ${hub.wines.length} wines and ${hub.wineries.length} wineries, with Value Scores and prices in RON.`
-      : `Descopera vinurile si cramele din ${hub.region.name}: ${hub.wines.length} vinuri, ${hub.wineries.length} crame, Value Score si preturi in RON.`;
+    locale === "en" && translatedDescription.value
+      ? translatedDescription.value
+      : interpolate(copy.metaDescription, {
+          name: hub.region.name,
+          wineries: hub.wineries.length,
+          wines: hub.wines.length,
+        });
   const path = localizedHref(locale, "region", { slug });
   const url = absoluteUrl(path);
 
@@ -172,28 +180,27 @@ export default async function RegionPage({ params }: RegionPageProps) {
     notFound();
   }
 
+  const regionCopy = messages.region;
   const { region, wineries, wines } = hub;
   const translatedDescription =
     locale === "en"
       ? await englishRegionDescription(region)
       : { value: null, ready: true };
-  const faq = buildRegionFaq(
-    region.name,
-    wines.length,
-    wineries.length,
-    locale,
-  );
+  const faq = buildRegionFaq(region.name, wineries.length, locale);
   const path = localizedHref(locale, "region", { slug });
   const url = absoluteUrl(path);
+  const nameVars = { name: region.name };
+  const countVars = {
+    name: region.name,
+    wineries: wineries.length,
+    wines: wines.length,
+  };
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     inLanguage: locale === "en" ? "en" : "ro",
-    name:
-      locale === "en"
-        ? `Wines from ${region.name}`
-        : `Vinuri din ${region.name}`,
+    name: interpolate(regionCopy.title, nameVars),
     url,
     numberOfItems: wines.length,
     itemListElement: wines.slice(0, 10).map((wine, index) => ({
@@ -207,8 +214,8 @@ export default async function RegionPage({ params }: RegionPageProps) {
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: messages.common.home, path: localizedHref(locale, "home") },
     {
-      name: messages.common.wineries,
-      path: localizedHref(locale, "wineries"),
+      name: messages.common.regions,
+      path: localizedHref(locale, "regions"),
     },
     { name: region.name, path },
   ]);
@@ -235,67 +242,67 @@ export default async function RegionPage({ params }: RegionPageProps) {
               </Link>
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               <Link
-                href={localizedHref(locale, "wineries")}
+                href={localizedHref(locale, "regions")}
                 className="hover:text-wine"
               >
-                {messages.common.wineries}
+                {messages.common.regions}
               </Link>
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="text-foreground">{region.name}</span>
             </nav>
             <span className="inline-flex items-center gap-2 rounded-full border border-wine/30 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
               <MapPin className="h-4 w-4" aria-hidden="true" />
-              {region.name}
+              {regionCopy.eyebrow}
             </span>
             <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              {locale === "en"
-                ? `Wines from ${region.name}`
-                : `Vinuri din ${region.name}`}
+              {interpolate(regionCopy.title, nameVars)}
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
               {locale === "en"
                 ? translatedDescription.value ??
-                  `A Romanian wine region with ${wineries.length} wineries and ${wines.length} wines analyzed in the VinIntel catalog.`
+                  interpolate(regionCopy.genericDescription, countVars)
                 : region.description ??
-                  `Regiune viticola din Romania cu ${wineries.length} crame si ${wines.length} vinuri analizate in catalogul VinIntel.`}
+                  interpolate(regionCopy.genericDescription, countVars)}
             </p>
           </div>
         </section>
 
         <div className="mx-auto max-w-5xl space-y-14 px-6 py-12">
-          <section aria-labelledby="region-wines-heading">
-            <h2
-              id="region-wines-heading"
-              className="font-serif text-2xl font-semibold text-foreground"
-            >
-              {locale === "en"
-                ? `Top wines from ${region.name}`
-                : `Top vinuri din ${region.name}`}
-            </h2>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {wines.slice(0, 6).map((wine) => (
-                <WineCard key={wine.id} wine={wine} minValueScore={null} />
-              ))}
-            </div>
-          </section>
-
           <section aria-labelledby="region-wineries-heading">
             <h2
               id="region-wineries-heading"
               className="font-serif text-2xl font-semibold text-foreground"
             >
-              {locale === "en"
-                ? `Wineries in ${region.name}`
-                : `Crame din ${region.name}`}
+              {interpolate(regionCopy.wineriesFrom, nameVars)}
             </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {regionCopy.wineriesLead}
+            </p>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {wineries.map((winery) => (
                 <WineryCard
                   key={winery.id}
                   winery={winery}
                   locale={locale}
-                  copy={messages.region.wineryCard}
+                  copy={regionCopy.wineryCard}
                 />
+              ))}
+            </div>
+          </section>
+
+          <section aria-labelledby="region-wines-heading">
+            <h2
+              id="region-wines-heading"
+              className="font-serif text-2xl font-semibold text-foreground"
+            >
+              {interpolate(regionCopy.winesFrom, nameVars)}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {regionCopy.winesLead}
+            </p>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {wines.slice(0, 6).map((wine) => (
+                <WineCard key={wine.id} wine={wine} minValueScore={null} />
               ))}
             </div>
           </section>

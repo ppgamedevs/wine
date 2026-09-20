@@ -235,19 +235,22 @@
   },
   "Wineries": {
     "metadata": {
-      "title": "Romanian wineries: regions, wines and rankings",
-      "description": "A directory of Romanian wineries with region, wine count, average Value Score, price range and each winery's best wine.",
-      "openGraphTitle": "Romanian wineries: regions, wines and rankings | VinIntel",
-      "openGraphDescription": "Romanian wineries in one place, with regions, wines, scores and prices."
+      "title": "Romanian wineries: producers, wines and prices",
+      "description": "A directory of Romanian wineries such as Gabai, Murfatlar and Budureasca, with wine count, average Value Score and price range.",
+      "openGraphTitle": "Romanian wineries: producers, wines and prices | VinIntel",
+      "openGraphDescription": "Romanian wineries in one place, with producers, wines, scores and prices."
     },
     "breadcrumbHome": "Home",
     "breadcrumbCurrent": "Wineries",
     "listName": "Romanian wineries",
     "count": "{count} wineries",
     "heading": "Romanian wineries",
-    "description": "Explore Romania's wine producers. See each winery's region, wine count, average Value Score and price range.",
+    "description": "Explore producers such as Gabai, Murfatlar and Budureasca. For wine regions (Dealu Mare, Recas, Murfatlar as a vineyard area), see the regions page.",
     "regionsHeading": "Explore by region",
     "wineRegion": "Wine region",
+    "regionsCtaHeading": "Looking for the wine region, not the winery?",
+    "regionsCtaBody": "Dealu Mare, Recas, Murfatlar and the other vineyard areas live on a separate page. This directory is producers only.",
+    "regionsCta": "See wine regions",
     "empty": "There are no listed wineries yet. Check back soon.",
     "faqHeading": "Frequently asked questions",
     "faq": {
@@ -257,7 +260,7 @@
       },
       "choose": {
         "question": "How do I choose a winery?",
-        "answer": "Compare the average Value Score, price range and available wines. You can also explore wine regions for local context."
+        "answer": "Compare the average Value Score, price range and available wines. Wine regions (vineyard areas) are on the regions page, separate from this winery directory."
       },
       "claim": {
         "question": "Can I claim a winery profile?",
@@ -306,6 +309,7 @@
       "wines": "Wines",
       "grapes": "Grapes",
       "wineries": "Wineries",
+      "regions": "Regions",
       "top": "Top wines",
       "studies": "Studies",
       "journal": "Wine Journal",
@@ -317,7 +321,46 @@
       "catalog": "Romanian wines",
       "best": "Best Romanian wines",
       "budget": "Good value wines",
-      "wineryDirectory": "Romanian wineries"
+      "wineryDirectory": "Romanian wineries",
+      "regionDirectory": "Wine regions",
+      "allRegions": "All regions"
+    }
+  },
+  "Regions": {
+    "metadata": {
+      "title": "Romanian wine regions: areas, wineries and wines",
+      "description": "Romanian wine regions such as Dealu Mare, Recas and Murfatlar, with wineries, wines and Value Score. Individual producers are in the winery directory.",
+      "openGraphTitle": "Romanian wine regions | VinIntel",
+      "openGraphDescription": "Romania's vineyard areas, kept separate from individual wineries, with producers, wines and local context."
+    },
+    "breadcrumbHome": "Home",
+    "breadcrumbCurrent": "Regions",
+    "listName": "Romanian wine regions",
+    "count": "{count} wine regions",
+    "eyebrow": "Wine regions",
+    "heading": "Romanian wine regions",
+    "description": "Explore vineyard areas, not producers. Each region lists the wineries on the ground and the wines in the catalog. For Gabai, Murfatlar, Budureasca and other wineries, go to the winery directory.",
+    "wineriesCta": "See wineries",
+    "wineriesCtaAria": "Go to the winery directory",
+    "wineOne": "wine",
+    "wineMany": "wines",
+    "wineryOne": "winery",
+    "wineryMany": "wineries",
+    "empty": "There are no listed wine regions yet. Check back soon.",
+    "faqHeading": "Frequently asked questions",
+    "faq": {
+      "difference": {
+        "question": "What is the difference between a winery and a wine region?",
+        "answer": "A winery is a producer (Gabai, Budureasca, Crama Murfatlar). A wine region is the vineyard area: Dealu Mare, Murfatlar, Recas. The same region can include several wineries."
+      },
+      "count": {
+        "question": "Which regions appear here?",
+        "answer": "We list regions with enough analyzed wines in the catalog for a useful guide: wineries, wines and Value Score."
+      },
+      "choose": {
+        "question": "How do I choose a wine region?",
+        "answer": "Compare the number of wineries, the wines in the catalog and the region description. Then open the winery profile you care about."
+      }
     }
   },
   "Cookies": {

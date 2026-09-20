@@ -17,6 +17,7 @@ export interface FooterCopy {
     wines: string;
     grapes: string;
     wineries: string;
+    regions: string;
     top: string;
     studies: string;
     journal: string;
@@ -29,6 +30,8 @@ export interface FooterCopy {
     best: string;
     budget: string;
     wineryDirectory: string;
+    regionDirectory: string;
+    allRegions: string;
   };
 }
 
@@ -46,6 +49,7 @@ const FOOTER_COPY: Record<"ro" | "en", FooterCopy> = {
       wines: "Vinuri",
       grapes: "Soiuri",
       wineries: "Crame",
+      regions: "Regiuni",
       top: "Topuri",
       studies: "Studii",
       journal: "Wine Journal",
@@ -58,6 +62,8 @@ const FOOTER_COPY: Record<"ro" | "en", FooterCopy> = {
       best: "Cele mai bune vinuri romanesti",
       budget: "Vinuri ieftine si bune",
       wineryDirectory: "Crame din Romania",
+      regionDirectory: "Regiuni viticole",
+      allRegions: "Toate regiunile",
     },
   },
   en: {
@@ -73,6 +79,7 @@ const FOOTER_COPY: Record<"ro" | "en", FooterCopy> = {
       wines: "Wines",
       grapes: "Grapes",
       wineries: "Wineries",
+      regions: "Regions",
       top: "Top wines",
       studies: "Studies",
       journal: "Wine Journal",
@@ -85,6 +92,8 @@ const FOOTER_COPY: Record<"ro" | "en", FooterCopy> = {
       best: "Best Romanian wines",
       budget: "Good value wines",
       wineryDirectory: "Romanian wineries",
+      regionDirectory: "Wine regions",
+      allRegions: "All regions",
     },
   },
 };
@@ -108,6 +117,7 @@ export function SiteFooter({ copy }: { copy?: FooterCopy }) {
     { label: content.links.wines, href: "/vinuri" as const },
     { label: content.links.grapes, href: "/soiuri" as const },
     { label: content.links.wineries, href: "/crame" as const },
+    { label: content.links.regions, href: "/regiuni" as const },
     { label: content.links.top, href: "/topuri" as const },
     {
       label: content.links.studies,
@@ -161,6 +171,10 @@ export function SiteFooter({ copy }: { copy?: FooterCopy }) {
       label: content.links.wineryDirectory,
       href: "/crame" as const,
     },
+    {
+      label: content.links.regionDirectory,
+      href: "/regiuni" as const,
+    },
   ] as const;
 
   return (
@@ -209,6 +223,12 @@ export function SiteFooter({ copy }: { copy?: FooterCopy }) {
               aria-label={content.regionsAria}
               className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2"
             >
+              <Link
+                href="/regiuni"
+                className="col-span-2 text-sm font-medium text-foreground transition-colors hover:text-wine"
+              >
+                {content.links.allRegions}
+              </Link>
               {REGION_HUB_LINKS.map((link) => (
                 <Link
                   key={link.href}

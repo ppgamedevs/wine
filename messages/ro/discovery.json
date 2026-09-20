@@ -235,19 +235,22 @@
   },
   "Wineries": {
     "metadata": {
-      "title": "Crame din Romania: regiuni, vinuri si clasamente",
-      "description": "Director de crame romanesti: regiune, numar de vinuri, Value Score mediu, interval de pret si cel mai bun vin al fiecarei crame.",
-      "openGraphTitle": "Crame din Romania: regiuni, vinuri si clasamente | VinIntel",
-      "openGraphDescription": "Toate cramele romanesti intr-un singur loc: regiune, vinuri, scoruri si preturi."
+      "title": "Crame din Romania: producatori, vinuri si preturi",
+      "description": "Director de crame romanesti: Gabai, Murfatlar, Budureasca si alti producatori, cu numar de vinuri, Value Score mediu si interval de pret.",
+      "openGraphTitle": "Crame din Romania: producatori, vinuri si preturi | VinIntel",
+      "openGraphDescription": "Toate cramele romanesti intr-un singur loc: producatori, vinuri, scoruri si preturi."
     },
     "breadcrumbHome": "Acasa",
     "breadcrumbCurrent": "Crame",
     "listName": "Crame romanesti",
     "count": "{count} crame",
     "heading": "Crame din Romania",
-    "description": "Exploreaza producatorii de vin din Romania. Vezi regiunea, numarul de vinuri, Value Score-ul mediu si intervalul de pret pentru fiecare crama.",
+    "description": "Exploreaza producatorii de vin: Gabai, Murfatlar, Budureasca si restul catalogului. Pentru zone viticole (Dealu Mare, Recas, Murfatlar ca podgorie), vezi pagina de regiuni.",
     "regionsHeading": "Exploreaza pe regiuni",
     "wineRegion": "Regiune viticola",
+    "regionsCtaHeading": "Cauti zona viticola, nu crama?",
+    "regionsCtaBody": "Dealu Mare, Recas, Murfatlar si celelalte podgorii sunt pe o pagina separata. Aici raman doar producatorii.",
+    "regionsCta": "Vezi regiunile viticole",
     "empty": "Inca nu avem crame listate. Revino in curand.",
     "faqHeading": "Intrebari frecvente",
     "faq": {
@@ -257,7 +260,7 @@
       },
       "choose": {
         "question": "Cum aleg o crama potrivita?",
-        "answer": "Compara Value Score-ul mediu, intervalul de pret si vinurile disponibile. Poti explora si regiunile viticole pentru context local."
+        "answer": "Compara Value Score-ul mediu, intervalul de pret si vinurile disponibile. Zonele viticole (podgoriile) sunt pe pagina de regiuni, separata de acest director de crame."
       },
       "claim": {
         "question": "Pot revendica profilul cramei?",
@@ -306,6 +309,7 @@
       "wines": "Vinuri",
       "grapes": "Soiuri",
       "wineries": "Crame",
+      "regions": "Regiuni",
       "top": "Topuri",
       "studies": "Studii",
       "journal": "Wine Journal",
@@ -317,7 +321,46 @@
       "catalog": "Vinuri romanesti",
       "best": "Cele mai bune vinuri romanesti",
       "budget": "Vinuri ieftine si bune",
-      "wineryDirectory": "Crame din Romania"
+      "wineryDirectory": "Crame din Romania",
+      "regionDirectory": "Regiuni viticole",
+      "allRegions": "Toate regiunile"
+    }
+  },
+  "Regions": {
+    "metadata": {
+      "title": "Regiuni viticole din Romania: zone, crame si vinuri",
+      "description": "Zone viticole din Romania: Dealu Mare, Recas, Murfatlar si celelalte podgorii, cu crame, vinuri si Value Score. Producatorii individuali sunt in directorul de crame.",
+      "openGraphTitle": "Regiuni viticole din Romania | VinIntel",
+      "openGraphDescription": "Podgoriile Romaniei, separate de cramele individuale: crame, vinuri si context local."
+    },
+    "breadcrumbHome": "Acasa",
+    "breadcrumbCurrent": "Regiuni",
+    "listName": "Regiuni viticole din Romania",
+    "count": "{count} zone viticole",
+    "eyebrow": "Zone viticole",
+    "heading": "Regiuni viticole din Romania",
+    "description": "Exploreaza podgoriile, nu producatorii. Fiecare zona include cramele din teren si vinurile analizate. Pentru Gabai, Murfatlar, Budureasca si celelalte crame, mergi la directorul de crame.",
+    "wineriesCta": "Vezi cramele",
+    "wineriesCtaAria": "Mergi la directorul de crame",
+    "wineOne": "vin",
+    "wineMany": "vinuri",
+    "wineryOne": "crama",
+    "wineryMany": "crame",
+    "empty": "Inca nu avem zone viticole listate. Revino in curand.",
+    "faqHeading": "Intrebari frecvente",
+    "faq": {
+      "difference": {
+        "question": "Care e diferenta dintre o crama si o zona viticola?",
+        "answer": "O crama este un producator (Gabai, Budureasca, Crama Murfatlar). O zona viticola este podgoria: Dealu Mare, Murfatlar, Recas. Aceeasi zona poate include mai multe crame."
+      },
+      "count": {
+        "question": "Ce regiuni apar aici?",
+        "answer": "Listam zonele cu destule vinuri analizate in catalog pentru un ghid util: crame, vinuri si Value Score."
+      },
+      "choose": {
+        "question": "Cum aleg o zona viticola?",
+        "answer": "Compara numarul de crame, vinurile din catalog si descrierea zonei. Apoi intra pe profilul cramei care te intereseaza."
+      }
     }
   },
   "Cookies": {

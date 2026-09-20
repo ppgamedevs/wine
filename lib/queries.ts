@@ -18,7 +18,7 @@ import {
 } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { grapeVarieties, regions, wineryEvents, wineries, wines } from "@/lib/schema";
-import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
+import { andCatalog, catalogWineCondition, wineryHasCatalogWinesCondition } from "@/lib/wine-catalog";
 import { normalizeWineRow, normalizeWineRows } from "@/lib/normalize-wine";
 import type { GrapeVarietyCatalogEntry } from "@/lib/grape-variety-index";
 import { MIN_INDEXABLE_TOP_LIST_WINES } from "@/lib/top-lists";
@@ -515,17 +515,12 @@ export async function getWineSitemapEntries(): Promise<
 }
 
 function wineryDirectoryCondition(query: string): SQL {
-  const visibleWineExists = sql`exists (
-    select 1 from ${wines}
-    where ${wines.wineryId} = ${wineries.id}
-      and ${catalogWineCondition()}
-  )`;
   const searchable = query.replace(/[%_]/g, "").trim();
-  if (!searchable) return visibleWineExists;
+  if (!searchable) return wineryHasCatalogWinesCondition();
   const pattern = `%${searchable}%`;
 
   return and(
-    visibleWineExists,
+    wineryHasCatalogWinesCondition(),
     or(
       like(wineries.name, pattern),
       inArray(
@@ -912,7 +907,7 @@ export async function getAllRegionSlugs(): Promise<{ slug: string }[]> {
 }
 
 /**
- * Regiuni "featured" pentru directoare publice (ex. /crame). Filtram strict la
+ * Regiuni featured pe hub-ul /regiuni. Filtram la
  * regiuni indexabile (>= MIN_INDEXABLE_TOP_LIST_WINES vinuri verificate), altfel
  * am afisa carduri catre pagini /regiuni/[slug] care dau notFound() - o regiune
  * nou creata (fara vinuri legate inca) nu are voie sa arate ca fiind "explorabila".
@@ -943,6 +938,42 @@ export async function getFeaturedRegions(
     return rows;
   } catch (error) {
     console.error("getFeaturedRegions failed", error);
+    return [];
+  }
+}
+
+export interface RegionDirectoryItem {
+  slug: string;
+  name: string;
+  description: string | null;
+  wineCount: number;
+  wineryCount: number;
+}
+
+export async function getRegionDirectory(): Promise<RegionDirectoryItem[]> {
+  try {
+    const wineCount = count(wines.id);
+    const rows = await db
+      .select({
+        slug: regions.slug,
+        name: regions.name,
+        description: regions.description,
+        wineCount,
+        wineryCount: sql<number>`count(distinct ${wines.wineryId})`.mapWith(
+          Number,
+        ),
+      })
+      .from(regions)
+      .innerJoin(
+        wines,
+        and(eq(wines.regionId, regions.id), catalogWineCondition()),
+      )
+      .groupBy(regions.id, regions.slug, regions.name, regions.description)
+      .having(gte(wineCount, MIN_INDEXABLE_TOP_LIST_WINES))
+      .orderBy(desc(wineCount), asc(regions.name));
+    return rows;
+  } catch (error) {
+    console.error("getRegionDirectory failed", error);
     return [];
   }
 }

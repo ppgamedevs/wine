@@ -9,6 +9,7 @@ const englishRoutes = [
   "/en/grape-varieties",
   "/en/grape-varieties/feteasca-neagra",
   "/en/grape-varieties/sarba",
+  "/en/regions",
   "/en/regions/dealu-mare",
   "/en/studies/cele-mai-bune-vinuri-sub-50-lei-2026",
   "/en/journal",

@@ -3,6 +3,7 @@
     "home": "Home",
     "wines": "Wines",
     "wineries": "Wineries",
+    "regions": "Regions",
     "topLists": "Top wines",
     "studies": "Studies",
     "faq": "Frequently asked questions",
@@ -162,9 +163,15 @@
     "breadcrumbGrapes": "Grapes"
   },
   "region": {
-    "winesFrom": "Wines from",
-    "topWinesFrom": "Top wines from",
-    "wineriesFrom": "Wineries in",
+    "eyebrow": "Wine region",
+    "title": "{name} wine region",
+    "metaTitle": "{name} wine region: wineries and wines",
+    "metaDescription": "The {name} wine region: {wineries} wineries, {wines} wines, Value Scores and prices in RON. Individual producers have their own pages.",
+    "winesFrom": "Wines from the {name} region",
+    "topWinesFrom": "Wines from the {name} region",
+    "wineriesFrom": "Wineries in the {name} region",
+    "winesLead": "Bottles from the region, from several producers, not from a single winery.",
+    "wineriesLead": "Producers from this region, each with its own winery page.",
     "genericDescription": "A Romanian wine region with {wineries} wineries and {wines} wines analyzed in the VinIntel catalog.",
     "wineryCard": {
       "country": "Romania",

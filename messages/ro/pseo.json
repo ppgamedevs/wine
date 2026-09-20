@@ -3,6 +3,7 @@
     "home": "Acasa",
     "wines": "Vinuri",
     "wineries": "Crame",
+    "regions": "Regiuni",
     "topLists": "Topuri",
     "studies": "Studii",
     "faq": "Intrebari frecvente",
@@ -162,10 +163,16 @@
     "breadcrumbGrapes": "Soiuri"
   },
   "region": {
-    "winesFrom": "Vinuri din",
-    "topWinesFrom": "Top vinuri din",
-    "wineriesFrom": "Crame din",
-    "genericDescription": "Regiune viticola din Romania cu {wineries} crame si {wines} vinuri analizate in catalogul VinIntel.",
+    "eyebrow": "Zona viticola",
+    "title": "Zona viticola {name}",
+    "metaTitle": "{name}: zona viticola, crame si vinuri",
+    "metaDescription": "Zona viticola {name}: {wineries} crame, {wines} vinuri, Value Score si preturi in RON. Cramele individuale au pagini separate.",
+    "winesFrom": "Vinuri din zona {name}",
+    "topWinesFrom": "Vinuri din zona {name}",
+    "wineriesFrom": "Crame din zona {name}",
+    "winesLead": "Sticle din podgorie, de la mai multi producatori, nu de la o singura crama.",
+    "wineriesLead": "Producatorii din zona, fiecare cu pagina proprie in directorul de crame.",
+    "genericDescription": "Zona viticola din Romania cu {wineries} crame si {wines} vinuri analizate in catalogul VinIntel.",
     "wineryCard": {
       "country": "Romania",
       "verified": "Verificata",

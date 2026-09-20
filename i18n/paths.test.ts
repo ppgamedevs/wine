@@ -63,6 +63,8 @@ describe("localizedHref", () => {
     expect(localizedHref("en", "search")).toBe("/en/search");
     expect(localizedHref("ro", "grapeVarieties")).toBe("/soiuri");
     expect(localizedHref("en", "grapeVarieties")).toBe("/en/grape-varieties");
+    expect(localizedHref("ro", "regions")).toBe("/regiuni");
+    expect(localizedHref("en", "regions")).toBe("/en/regions");
   });
 
   it("keeps canonical entity identity stable", () => {
@@ -89,6 +91,7 @@ describe("alternateLocaleHref", () => {
     ["/vin-pentru/sarmale", "/en/wine-for/sarmale"],
     ["/en/grape-varieties/feteasca-neagra", "/soiuri/feteasca-neagra"],
     ["/en/grape-varieties", "/soiuri"],
+    ["/en/regions", "/regiuni"],
     ["/en/regions/dealu-mare", "/regiuni/dealu-mare"],
   ])("round-trips %s to %s", (source, expected) => {
     const targetLocale = source.startsWith("/en") ? "ro" : "en";

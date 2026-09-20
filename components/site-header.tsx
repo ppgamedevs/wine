@@ -11,6 +11,7 @@ export function SiteHeader() {
     { label: t("wines"), href: "/vinuri" as const },
     { label: t("grapes"), href: "/soiuri" as const },
     { label: t("wineries"), href: "/crame" as const },
+    { label: t("regions"), href: "/regiuni" as const },
     { label: t("journal"), href: "/journal" as const },
     { label: t("topWines"), href: "/topuri" as const },
   ];

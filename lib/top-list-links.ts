@@ -18,15 +18,20 @@ export const SEO_PIVOT_LINKS = [
     description: "Sub 50 lei",
   },
   { title: "Crame din Romania", href: "/crame", description: "Director crame" },
+  {
+    title: "Regiuni viticole",
+    href: "/regiuni",
+    description: "Zone viticole",
+  },
 ] as const;
 
 export const REGION_HUB_LINKS = [
   { title: "Dealu Mare", href: "/regiuni/dealu-mare" },
   { title: "Dragasani", href: "/regiuni/dragasani" },
-  { title: "Dobrogea", href: "/regiuni/dobrogea" },
-  { title: "Transilvania", href: "/regiuni/transilvania" },
-  { title: "Moldova", href: "/regiuni/moldova" },
+  { title: "Murfatlar", href: "/regiuni/murfatlar" },
+  { title: "Recas", href: "/regiuni/recas" },
   { title: "Banat", href: "/regiuni/banat" },
+  { title: "Minis", href: "/regiuni/minis" },
 ] as const;
 
 export const TOP_LIST_INDEX_LINKS: TopListLink[] = [
