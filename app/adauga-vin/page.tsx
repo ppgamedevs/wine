@@ -74,6 +74,7 @@ export default async function AddWinePage() {
                 emptyHint: t("AddWine.search.empty"),
                 wineType: t("AddWine.search.wine"),
                 wineryType: t("AddWine.search.winery"),
+                grapeType: t("AddWine.search.grape"),
                 linkHelper: t("AddWine.search.helper"),
                 analysisFailed: t("AddWine.search.analysisFailed"),
                 invalidResult: t("AddWine.search.invalidResult"),

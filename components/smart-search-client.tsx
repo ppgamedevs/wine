@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Building2, Loader2, Search, Wine } from "lucide-react";
+import { Building2, Grape, Loader2, Search, Wine } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -26,6 +26,7 @@ export interface SmartSearchCopy {
   emptyHint: string;
   wineType: string;
   wineryType: string;
+  grapeType: string;
   linkHelper: string;
   analysisFailed: string;
   invalidResult: string;
@@ -192,9 +193,19 @@ export function SmartSearchClient({
   }
 
   function hrefFor(suggestion: SearchSuggestion) {
-    return suggestion.type === "wine"
-      ? localizedHref(locale, "wine", { slug: suggestion.slug })
-      : localizedHref(locale, "winery", { slug: suggestion.slug });
+    if (suggestion.type === "wine") {
+      return localizedHref(locale, "wine", { slug: suggestion.slug });
+    }
+    if (suggestion.type === "grape") {
+      return localizedHref(locale, "grapeVariety", { slug: suggestion.slug });
+    }
+    return localizedHref(locale, "winery", { slug: suggestion.slug });
+  }
+
+  function suggestionLabel(suggestion: SearchSuggestion): string {
+    if (suggestion.type === "wine") return copy.wineType;
+    if (suggestion.type === "grape") return copy.grapeType;
+    return copy.wineryType;
   }
 
   const trimmed = query.trim();
@@ -336,11 +347,15 @@ export function SmartSearchClient({
                         "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md",
                         suggestion.type === "wine"
                           ? "bg-wine/10 text-wine"
-                          : "bg-gold/15 text-gold",
+                          : suggestion.type === "grape"
+                            ? "bg-secondary text-wine"
+                            : "bg-gold/15 text-gold",
                       )}
                     >
                       {suggestion.type === "wine" ? (
                         <Wine className="h-4 w-4" />
+                      ) : suggestion.type === "grape" ? (
+                        <Grape className="h-4 w-4" />
                       ) : (
                         <Building2 className="h-4 w-4" />
                       )}
@@ -356,9 +371,7 @@ export function SmartSearchClient({
                         ) : null}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {suggestion.type === "wine"
-                          ? copy.wineType
-                          : copy.wineryType}
+                        {suggestionLabel(suggestion)}
                       </span>
                     </span>
                   </Link>

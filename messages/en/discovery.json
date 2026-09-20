@@ -109,7 +109,7 @@
   },
   "SmartSearch": {
     "placeholder": "Search for a wine, winery, or grape variety",
-    "ariaLabel": "Search wines and wineries in the catalog",
+    "ariaLabel": "Search wines, wineries and grape varieties in the catalog",
     "analyzing": "Analyzing...",
     "submitLink": "Submit",
     "search": "Search",
@@ -118,6 +118,7 @@
     "emptyHint": "No matches in the catalog. Press Enter for a full search.",
     "wineType": "Wine",
     "wineryType": "Winery",
+    "grapeType": "Grape",
     "linkHelper": "We cannot import wines from a link yet. Search by wine or winery name, or ask the sommelier.",
     "analysisFailed": "Analysis failed.",
     "invalidResult": "No valid result was returned.",

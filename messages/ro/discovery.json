@@ -109,7 +109,7 @@
   },
   "SmartSearch": {
     "placeholder": "Cauta un vin, o crama sau un soi",
-    "ariaLabel": "Cauta vinuri si crame din catalog",
+    "ariaLabel": "Cauta vinuri, crame si soiuri din catalog",
     "analyzing": "Analizez...",
     "submitLink": "Trimite",
     "search": "Cauta",
@@ -118,6 +118,7 @@
     "emptyHint": "Niciun rezultat in catalog. Apasa Enter pentru cautare completa.",
     "wineType": "Vin",
     "wineryType": "Crama",
+    "grapeType": "Soi",
     "linkHelper": "Nu preluam vinuri din link momentan. Cauta dupa numele vinului sau al cramei, ori intreaba somelierul.",
     "analysisFailed": "Analiza a esuat.",
     "invalidResult": "Nu am primit un rezultat valid.",
