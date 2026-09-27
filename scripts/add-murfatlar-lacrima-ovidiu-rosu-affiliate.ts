@@ -152,14 +152,7 @@ async function main() {
 
   await updatePrice(created.id, PRICE, EMAG_URL);
 
-  try {
-    await generateAndApplyFullEditorial(created.id);
-  } catch (error) {
-    console.warn(
-      "[add-murfatlar-lacrima-ovidiu-rosu] editorial skip:",
-      error instanceof Error ? error.message : error,
-    );
-  }
+  await generateAndApplyFullEditorial(created.id);
 
   const wine = await db.query.wines.findFirst({
     where: eq(wines.id, created.id),
@@ -172,13 +165,24 @@ async function main() {
       alcohol: true,
       priceAvg: true,
       valueScore: true,
+      descriptionEditorial: true,
       sourceUrl: true,
       producerPageUrl: true,
       affiliateLinks: true,
     },
   });
 
-  console.log(JSON.stringify({ status: "created", ...wine }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        status: "created",
+        ...wine,
+        hasEditorial: Boolean(wine?.descriptionEditorial?.trim()),
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 main()

@@ -77,6 +77,7 @@ async function main() {
       type: "white",
       sweetness: "sec",
       grapeVarieties: GRAPE_VARIETIES,
+      alcohol: 13,
       tastingNotes: TASTING_NOTES,
       sourceUrl: SOURCE_URL,
       producerPageUrl: PRODUCER_PAGE_URL,
@@ -104,14 +105,7 @@ async function main() {
     })
     .returning({ id: wines.id, slug: wines.slug });
 
-  try {
-    await generateAndApplyFullEditorial(created.id);
-  } catch (error) {
-    console.warn(
-      "[add-murfatlar-sable-noble-alb] editorial skip:",
-      error instanceof Error ? error.message : error,
-    );
-  }
+  await generateAndApplyFullEditorial(created.id);
 
   const wine = await db.query.wines.findFirst({
     where: eq(wines.id, created.id),
@@ -121,14 +115,27 @@ async function main() {
       name: true,
       type: true,
       sweetness: true,
+      alcohol: true,
       grapeVarieties: true,
+      valueScore: true,
+      descriptionEditorial: true,
       affiliateLinks: true,
       producerPageUrl: true,
       imageUrl: true,
     },
   });
 
-  console.log(JSON.stringify({ status: "created", ...wine }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        status: "created",
+        ...wine,
+        hasEditorial: Boolean(wine?.descriptionEditorial?.trim()),
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 main()

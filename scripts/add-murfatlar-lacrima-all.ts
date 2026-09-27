@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 
 const scripts = [
+  "add-murfatlar-sable-noble-alb.ts",
   "add-murfatlar-lacrima-ovidiu-rosu-affiliate.ts",
   "add-murfatlar-lacrima-ovidiu-roze-affiliate.ts",
   "add-murfatlar-lacrima-ovidiu-alb-affiliate.ts",
