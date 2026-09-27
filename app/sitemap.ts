@@ -26,6 +26,7 @@ const STATIC_ENGLISH_PATHS: Record<string, string> = {
   "/topuri": "/en/top-wines",
   "/journal": "/en/journal",
   "/soiuri": "/en/grape-varieties",
+  "/regiuni": "/en/regions",
   "/crame": "/en/wineries",
   "/cum-functioneaza-scorurile": "/en/how-scores-work",
   "/claim-your-winery": "/en/claim-your-winery",
@@ -129,6 +130,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: absoluteUrl("/soiuri"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: absoluteUrl("/regiuni"),
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,

@@ -288,6 +288,7 @@
       "empty": "No matches in the catalog. Press Enter for a full search.",
       "wine": "Wine",
       "winery": "Winery",
+      "grape": "Grape",
       "analysisFailed": "The analysis failed.",
       "invalidResult": "The service did not return a valid result.",
       "pending": "This wine is not in our database. It was submitted for verification and will appear after approval.",

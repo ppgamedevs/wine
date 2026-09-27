@@ -7,6 +7,7 @@
     "wines": "Vinuri",
     "grapes": "Soiuri",
     "wineries": "Crame",
+    "regions": "Regiuni",
     "journal": "Journal",
     "topWines": "Topuri",
     "sommelier": "Intreaba somelierul",
@@ -41,9 +42,9 @@
     "invalidResult": "Nu am primit un rezultat valid."
   },
   "SearchPage": {
-    "metaTitle": "Cauta vinuri si crame",
+    "metaTitle": "Cauta vinuri, crame si soiuri",
     "metaResults": "Rezultate pentru \"{query}\"",
-    "metaDescription": "Cauta vinuri si crame romanesti in catalogul VinIntel.",
+    "metaDescription": "Cauta vinuri, crame si soiuri romanesti in catalogul VinIntel.",
     "eyebrow": "Cautare catalog",
     "title": "Cauta in VinIntel",
     "resultsTitle": "Rezultate pentru „{query}”",
@@ -51,12 +52,13 @@
     "instructions": "Scrie numele unui vin, al unei crame sau al unui soi, apoi apasa Cauta.",
     "emptyTitle": "Nu am gasit „{query}” in catalog",
     "emptyTitleGeneric": "Nu am gasit asta in catalog",
-    "emptyDescription": "Cautarea este doar pentru vinuri si crame din VinIntel. Incearca un alt nume. Daca vrei o recomandare, somelierul te poate ajuta.",
+    "emptyDescription": "Cautarea e pentru vinuri, crame si soiuri din VinIntel. Incearca un alt nume. Daca vrei o recomandare, somelierul te poate ajuta.",
     "linkBlockedTitle": "Nu preluam vinuri din link momentan",
     "linkBlockedDescription": "Lipeste numele vinului sau al cramei, nu adresa paginii. Pentru o recomandare de asociere, intreaba somelierul.",
     "redirectingSommelier": "Te ducem la somelier...",
     "askSommelier": "Intreaba somelierul AI",
     "wineries": "Crame",
+    "grapes": "Soiuri",
     "wines": "Vinuri"
   }
 }

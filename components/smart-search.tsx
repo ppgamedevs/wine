@@ -35,6 +35,7 @@ export function buildSmartSearchCopy(
     emptyHint: t("SmartSearch.emptyHint"),
     wineType: t("SmartSearch.wineType"),
     wineryType: t("SmartSearch.wineryType"),
+    grapeType: t("SmartSearch.grapeType"),
     linkHelper: t("SmartSearch.linkHelper"),
     analysisFailed: t("SmartSearch.analysisFailed"),
     invalidResult: t("SmartSearch.invalidResult"),

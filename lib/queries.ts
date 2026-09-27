@@ -18,7 +18,16 @@ import {
 } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { grapeVarieties, regions, wineryEvents, wineries, wines } from "@/lib/schema";
-import { andCatalog, catalogWineCondition } from "@/lib/wine-catalog";
+import { andCatalog, catalogWineCondition, wineryHasCatalogWinesCondition } from "@/lib/wine-catalog";
+import { GRAPE_GUIDES } from "@/lib/oenology";
+import {
+  catalogSearchIntent,
+  grapeSearchHaystack,
+  matchesCatalogSearch,
+  searchCatalogHits,
+  significantCatalogSearchTokens,
+} from "@/lib/catalog-search";
+import type { AppLocale } from "@/i18n/locale";
 import { normalizeWineRow, normalizeWineRows } from "@/lib/normalize-wine";
 import type { GrapeVarietyCatalogEntry } from "@/lib/grape-variety-index";
 import { MIN_INDEXABLE_TOP_LIST_WINES } from "@/lib/top-lists";
@@ -152,7 +161,7 @@ function mapWineryToListItem(
 }
 
 export interface SearchSuggestion {
-  type: "wine" | "winery";
+  type: "wine" | "winery" | "grape";
   name: string;
   slug: string;
   vintage?: number | null;
@@ -163,94 +172,127 @@ export interface CatalogSearchWinery {
   slug: string;
 }
 
+export interface CatalogSearchGrape {
+  name: string;
+  slug: string;
+}
+
 export interface CatalogSearchResult {
   wines: WineWithRelations[];
   wineries: CatalogSearchWinery[];
+  grapes: CatalogSearchGrape[];
   query: string;
 }
 
-function normalizeSearchText(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
+function likePattern(token: string): string {
+  return `%${token.replace(/[%_]/g, "")}%`;
 }
 
-function searchTokens(query: string): string[] {
-  return normalizeSearchText(query)
-    .split(/\s+/)
-    .filter((token) => token.length >= 2);
+function wineMatchesSearchToken(
+  token: string,
+  options: { includeRegion?: boolean } = {},
+): SQL {
+  const pattern = likePattern(token);
+  const includeRegion = options.includeRegion !== false;
+  const filters: SQL[] = [
+    like(wines.name, pattern),
+    like(wines.slug, pattern),
+    like(wines.grapeVarieties, pattern),
+    inArray(
+      wines.wineryId,
+      db
+        .select({ id: wineries.id })
+        .from(wineries)
+        .where(
+          or(like(wineries.name, pattern), like(wineries.slug, pattern)),
+        ),
+    ),
+  ];
+  if (includeRegion) {
+    filters.push(
+      inArray(
+        wines.regionId,
+        db
+          .select({ id: regions.id })
+          .from(regions)
+          .where(or(like(regions.name, pattern), like(regions.slug, pattern))),
+      ),
+    );
+  }
+  return or(...filters) as SQL;
 }
 
-function matchesSearchTokens(haystack: string, tokens: string[]): boolean {
-  if (tokens.length === 0) return false;
-  const normalized = normalizeSearchText(haystack);
-  return tokens.every((token) => normalized.includes(token));
+function grapeCatalogEntries(locale: AppLocale = "ro") {
+  return GRAPE_GUIDES.map((guide) => ({
+    slug: guide.slug,
+    name: guide.copy[locale].name,
+    aliases: [
+      ...guide.aliases,
+      guide.copy.ro.name,
+      guide.copy.en.name,
+      ...guide.copy.ro.alsoKnownAs,
+      ...guide.copy.en.alsoKnownAs,
+    ],
+  }));
 }
 
 /**
- * Full catalog search for the /cauta page (wines + wineries).
+ * Full catalog search for the /cauta page (wines, wineries, grape varieties).
  */
 export async function searchCatalog(
   query: string,
   limit = 24,
+  locale: AppLocale = "ro",
 ): Promise<CatalogSearchResult> {
   const trimmed = query.trim();
-  const tokens = searchTokens(trimmed);
+  const tokens = significantCatalogSearchTokens(trimmed);
 
   if (tokens.length === 0) {
-    return { wines: [], wineries: [], query: trimmed };
+    return { wines: [], wineries: [], grapes: [], query: trimmed };
   }
 
-  const pattern = `%${trimmed.replace(/\s+/g, "%")}%`;
-
   try {
-    const [wineRows, wineryRows] = await Promise.all([
-      db.query.wines.findMany({
-        with: { winery: true, region: true },
-        where: and(catalogWineCondition(), like(wines.name, pattern)),
-        orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
-        limit: limit * 2,
-      }),
-      db.query.wineries.findMany({
-        where: like(wineries.name, pattern),
-        orderBy: (table, { asc: orderAsc }) => [orderAsc(table.name)],
-        limit: 12,
-      }),
+    const [catalogWines, extraWineries] = await Promise.all([
+      getWinesForSommelier(),
+      db
+        .select({ name: wineries.name, slug: wineries.slug })
+        .from(wineries)
+        .where(
+          and(
+            wineryHasCatalogWinesCondition(),
+            or(
+              ...tokens.flatMap((token) => [
+                like(wineries.name, likePattern(token)),
+                like(wineries.slug, likePattern(token)),
+              ]),
+            ),
+          ),
+        )
+        .orderBy(asc(wineries.name))
+        .limit(16),
     ]);
-
-    const normalizedWines = normalizeWineRows(wineRows as WineWithRelations[]);
-    const matchedWines = normalizedWines
-      .filter((wine) =>
-        matchesSearchTokens(
-          [
-            wine.name,
-            wine.winery?.name ?? "",
-            wine.region?.name ?? "",
-            wine.grapeVarieties.map((grape) => grape.name).join(" "),
-          ].join(" "),
-          tokens,
-        ),
-      )
-      .slice(0, limit);
-
-    const matchedWineries = wineryRows
-      .filter((winery) => matchesSearchTokens(winery.name, tokens))
-      .slice(0, 8)
-      .map((winery) => ({
-        name: winery.name,
-        slug: winery.slug,
-      }));
+    const hits = searchCatalogHits(
+      catalogWines,
+      grapeCatalogEntries(locale),
+      trimmed,
+      { wineLimit: limit, wineryLimit: 8, grapeLimit: 8 },
+      extraWineries,
+    );
+    const winesBySlug = new Map(
+      catalogWines.map((wine) => [wine.slug, wine] as const),
+    );
 
     return {
-      wines: matchedWines,
-      wineries: matchedWineries,
+      wines: hits.wines
+        .map((hit) => winesBySlug.get(hit.slug))
+        .filter((wine): wine is WineWithRelations => wine != null),
+      wineries: hits.wineries,
+      grapes: hits.grapes,
       query: trimmed,
     };
   } catch (error) {
     console.error("searchCatalog failed", error);
-    return { wines: [], wineries: [], query: trimmed };
+    return { wines: [], wineries: [], grapes: [], query: trimmed };
   }
 }
 
@@ -515,17 +557,12 @@ export async function getWineSitemapEntries(): Promise<
 }
 
 function wineryDirectoryCondition(query: string): SQL {
-  const visibleWineExists = sql`exists (
-    select 1 from ${wines}
-    where ${wines.wineryId} = ${wineries.id}
-      and ${catalogWineCondition()}
-  )`;
   const searchable = query.replace(/[%_]/g, "").trim();
-  if (!searchable) return visibleWineExists;
+  if (!searchable) return wineryHasCatalogWinesCondition();
   const pattern = `%${searchable}%`;
 
   return and(
-    visibleWineExists,
+    wineryHasCatalogWinesCondition(),
     or(
       like(wineries.name, pattern),
       inArray(
@@ -840,7 +877,7 @@ export async function getRecommendedWines(
 }
 
 /**
- * Lightweight autocomplete over wine and winery names.
+ * Lightweight autocomplete over wines, wineries, and grape varieties.
  */
 export async function getSearchSuggestions(
   query: string,
@@ -848,44 +885,112 @@ export async function getSearchSuggestions(
 ): Promise<SearchSuggestion[]> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return [];
+  const tokens = significantCatalogSearchTokens(trimmed);
+  if (tokens.length === 0) return [];
+
   const normalizedLimit = Number.isFinite(limit) ? Math.trunc(limit) : 6;
   const cappedLimit = Math.max(1, Math.min(normalizedLimit, 8));
-
-  const pattern = `%${trimmed}%`;
+  const leadToken = tokens[0];
+  if (!leadToken) return [];
+  const includeRegion = catalogSearchIntent(trimmed) !== "winery";
+  const grapePool = grapeCatalogEntries();
+  const grapeMatches = grapePool.filter((grape) =>
+    matchesCatalogSearch(grapeSearchHaystack(grape), tokens),
+  );
+  const grapeWineFilters = grapeMatches.map((grape) =>
+    like(wines.grapeVarieties, likePattern(grape.slug)),
+  );
 
   try {
     const [wineRows, wineryRows] = await Promise.all([
+      db.query.wines.findMany({
+        with: { winery: true, region: true },
+        where: and(
+          catalogWineCondition(),
+          grapeWineFilters.length > 0
+            ? or(
+                wineMatchesSearchToken(leadToken, { includeRegion }),
+                ...grapeWineFilters,
+              )
+            : wineMatchesSearchToken(leadToken, { includeRegion }),
+        ),
+        orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
+        limit: cappedLimit * 6,
+      }),
       db
         .select({
-          name: wines.name,
-          slug: wines.slug,
-          vintage: wines.vintage,
+          id: wineries.id,
+          name: wineries.name,
+          slug: wineries.slug,
         })
-        .from(wines)
-        .where(and(catalogWineCondition(), like(wines.name, pattern)))
-        .orderBy(desc(wines.valueScore))
-        .limit(cappedLimit),
-      db
-        .select({ name: wineries.name, slug: wineries.slug })
         .from(wineries)
-        .where(like(wineries.name, pattern))
-        .limit(cappedLimit),
+        .where(
+          and(
+            wineryHasCatalogWinesCondition(),
+            or(
+              like(wineries.name, likePattern(leadToken)),
+              like(wineries.slug, likePattern(leadToken)),
+            ),
+          ),
+        )
+        .orderBy(asc(wineries.name))
+        .limit(cappedLimit * 2),
     ]);
 
-    const wineSuggestions: SearchSuggestion[] = wineRows.map((row) => ({
-      type: "wine",
-      name: row.name,
-      slug: row.slug,
-      vintage: row.vintage,
-    }));
+    const producerWines =
+      wineryRows.length === 0
+        ? []
+        : await db.query.wines.findMany({
+            with: { winery: true, region: true },
+            where: and(
+              catalogWineCondition(),
+              inArray(
+                wines.wineryId,
+                wineryRows.map((winery) => winery.id),
+              ),
+            ),
+            orderBy: (table, { desc: orderDesc }) => [
+              orderDesc(table.valueScore),
+            ],
+            limit: cappedLimit * 4,
+          });
 
-    const winerySuggestions: SearchSuggestion[] = wineryRows.map((row) => ({
-      type: "winery",
-      name: row.name,
-      slug: row.slug,
-    }));
+    const winesBySlug = new Map<string, WineWithRelations>();
+    for (const row of [...wineRows, ...producerWines] as WineWithRelations[]) {
+      if (!winesBySlug.has(row.slug)) winesBySlug.set(row.slug, row);
+    }
 
-    return [...wineSuggestions, ...winerySuggestions].slice(0, cappedLimit);
+    const hits = searchCatalogHits(
+      normalizeWineRows([...winesBySlug.values()]),
+      grapePool,
+      trimmed,
+      {
+        wineLimit: cappedLimit,
+        wineryLimit: cappedLimit,
+        grapeLimit: cappedLimit,
+      },
+      wineryRows.map((winery) => ({ name: winery.name, slug: winery.slug })),
+    );
+
+    const suggestions: SearchSuggestion[] = [
+      ...hits.wineries.map((winery) => ({
+        type: "winery" as const,
+        name: winery.name,
+        slug: winery.slug,
+      })),
+      ...hits.grapes.map((grape) => ({
+        type: "grape" as const,
+        name: grape.name,
+        slug: grape.slug,
+      })),
+      ...hits.wines.map((wine) => ({
+        type: "wine" as const,
+        name: wine.name,
+        slug: wine.slug,
+      })),
+    ];
+
+    return suggestions.slice(0, cappedLimit);
   } catch (error) {
     console.error("getSearchSuggestions failed", error);
     return [];
@@ -912,7 +1017,7 @@ export async function getAllRegionSlugs(): Promise<{ slug: string }[]> {
 }
 
 /**
- * Regiuni "featured" pentru directoare publice (ex. /crame). Filtram strict la
+ * Regiuni featured pe hub-ul /regiuni. Filtram la
  * regiuni indexabile (>= MIN_INDEXABLE_TOP_LIST_WINES vinuri verificate), altfel
  * am afisa carduri catre pagini /regiuni/[slug] care dau notFound() - o regiune
  * nou creata (fara vinuri legate inca) nu are voie sa arate ca fiind "explorabila".
@@ -943,6 +1048,42 @@ export async function getFeaturedRegions(
     return rows;
   } catch (error) {
     console.error("getFeaturedRegions failed", error);
+    return [];
+  }
+}
+
+export interface RegionDirectoryItem {
+  slug: string;
+  name: string;
+  description: string | null;
+  wineCount: number;
+  wineryCount: number;
+}
+
+export async function getRegionDirectory(): Promise<RegionDirectoryItem[]> {
+  try {
+    const wineCount = count(wines.id);
+    const rows = await db
+      .select({
+        slug: regions.slug,
+        name: regions.name,
+        description: regions.description,
+        wineCount,
+        wineryCount: sql<number>`count(distinct ${wines.wineryId})`.mapWith(
+          Number,
+        ),
+      })
+      .from(regions)
+      .innerJoin(
+        wines,
+        and(eq(wines.regionId, regions.id), catalogWineCondition()),
+      )
+      .groupBy(regions.id, regions.slug, regions.name, regions.description)
+      .having(gte(wineCount, MIN_INDEXABLE_TOP_LIST_WINES))
+      .orderBy(desc(wineCount), asc(regions.name));
+    return rows;
+  } catch (error) {
+    console.error("getRegionDirectory failed", error);
     return [];
   }
 }

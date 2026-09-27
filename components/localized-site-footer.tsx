@@ -27,6 +27,9 @@ export async function LocalizedSiteFooter() {
       best: t("Footer.links.best"),
       budget: t("Footer.links.budget"),
       wineryDirectory: t("Footer.links.wineryDirectory"),
+      regionDirectory: t("Footer.links.regionDirectory"),
+      allRegions: t("Footer.links.allRegions"),
+      regions: t("Footer.links.regions"),
     },
   };
 

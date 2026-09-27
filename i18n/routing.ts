@@ -23,6 +23,10 @@ export const pathnames = {
   },
   "/journal": "/journal",
   "/journal/[slug]": "/journal/[slug]",
+  "/regiuni": {
+    ro: "/regiuni",
+    en: "/regions",
+  },
   "/regiuni/[slug]": {
     ro: "/regiuni/[slug]",
     en: "/regions/[slug]",

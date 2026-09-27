@@ -7,6 +7,7 @@
     "wines": "Wines",
     "grapes": "Grapes",
     "wineries": "Wineries",
+    "regions": "Regions",
     "journal": "Journal",
     "topWines": "Top wines",
     "sommelier": "Ask the sommelier",
@@ -41,9 +42,9 @@
     "invalidResult": "The analysis did not return a valid result."
   },
   "SearchPage": {
-    "metaTitle": "Search wines and wineries",
+    "metaTitle": "Search wines, wineries and grapes",
     "metaResults": "Results for \"{query}\"",
-    "metaDescription": "Search the VinIntel catalog for Romanian wines and wineries.",
+    "metaDescription": "Search the VinIntel catalog for Romanian wines, wineries and grape varieties.",
     "eyebrow": "Catalog search",
     "title": "Search VinIntel",
     "resultsTitle": "Results for “{query}”",
@@ -51,12 +52,13 @@
     "instructions": "Enter a wine, winery, or grape variety, then press Search.",
     "emptyTitle": "We could not find “{query}” in the catalog",
     "emptyTitleGeneric": "We could not find that in the catalog",
-    "emptyDescription": "Search is for wines and wineries already on VinIntel. Try another name. If you want a recommendation, the sommelier can help.",
+    "emptyDescription": "Search is for wines, wineries and grape varieties already on VinIntel. Try another name. If you want a recommendation, the sommelier can help.",
     "linkBlockedTitle": "We cannot import wines from a link yet",
     "linkBlockedDescription": "Search by the wine or winery name, not a shop URL. For a pairing recommendation, ask the sommelier.",
     "redirectingSommelier": "Taking you to the sommelier...",
     "askSommelier": "Ask the AI Sommelier",
     "wineries": "Wineries",
+    "grapes": "Grapes",
     "wines": "Wines"
   }
 }

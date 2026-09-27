@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Building2, Search, Wine } from "lucide-react";
+import { Building2, Grape, Search, Wine } from "lucide-react";
 import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -76,9 +76,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const hasCatalogQuery =
     !isLinkNotice && !isSommelierHandoff && query.length >= 2;
 
-  const results = hasCatalogQuery ? await searchCatalog(query) : null;
+  const results = hasCatalogQuery
+    ? await searchCatalog(query, 24, locale)
+    : null;
   const totalResults =
-    (results?.wines.length ?? 0) + (results?.wineries.length ?? 0);
+    (results?.wines.length ?? 0) +
+    (results?.wineries.length ?? 0) +
+    (results?.grapes.length ?? 0);
 
   const heading = isLinkNotice
     ? t("linkBlockedTitle")
@@ -179,6 +183,32 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </div>
               ) : null}
 
+              {results!.grapes.length > 0 ? (
+                <div>
+                  <h2 className="mb-4 flex items-center gap-2 font-serif text-2xl font-semibold text-foreground">
+                    <Grape className="h-5 w-5 text-wine" aria-hidden="true" />
+                    {t("grapes")} ({results!.grapes.length})
+                  </h2>
+                  <ul className="grid gap-3 sm:grid-cols-2">
+                    {results!.grapes.map((grape) => (
+                      <li key={grape.slug}>
+                        <Link
+                          href={localizedHref(locale, "grapeVariety", {
+                            slug: grape.slug,
+                          })}
+                          className="flex items-center gap-3 rounded-xl border border-border/70 bg-card px-4 py-3 transition-colors hover:border-wine/30 hover:bg-wine/5"
+                        >
+                          <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-wine/10 text-wine">
+                            <Grape className="h-5 w-5" aria-hidden="true" />
+                          </span>
+                          <span className="font-medium text-foreground">{grape.name}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
               {results!.wines.length > 0 ? (
                 <div>
                   <h2 className="mb-4 flex items-center gap-2 font-serif text-2xl font-semibold text-foreground">
@@ -187,7 +217,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   </h2>
                   <div className="grid gap-5 sm:grid-cols-2">
                     {results!.wines.map((wine, index) => (
-                      <WineCard key={wine.slug} wine={wine} priority={index < 2} />
+                      <WineCard
+                        key={wine.slug}
+                        wine={wine}
+                        priority={index < 2}
+                        minValueScore={null}
+                      />
                     ))}
                   </div>
                 </div>

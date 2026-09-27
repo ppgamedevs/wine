@@ -195,7 +195,7 @@ export function scheduleIndexNowWinery(slug: string): void {
 }
 
 export function scheduleIndexNowRegion(slug: string): void {
-  scheduleIndexNowPaths([`/regiuni/${slug}`, "/crame", "/sitemap.xml"]);
+  scheduleIndexNowPaths([`/regiuni/${slug}`, "/regiuni", "/sitemap.xml"]);
 }
 
 export function scheduleIndexNowGrapeVariety(slug: string): void {

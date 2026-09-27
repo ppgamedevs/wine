@@ -10,6 +10,7 @@ describe("localized sitemap", () => {
   it("maps canonical Romanian route families to English", () => {
     expect(englishPath("/vinuri", [])).toBe("/en/wines");
     expect(englishPath("/soiuri", [])).toBe("/en/grape-varieties");
+    expect(englishPath("/regiuni", [])).toBe("/en/regions");
     expect(englishPath("/soiuri/sarba", [])).toBe("/en/grape-varieties/sarba");
     expect(englishPath("/wines/example", [])).toBe("/en/wines/example");
     expect(englishPath("/regiuni/dealu-mare", [])).toBe(
