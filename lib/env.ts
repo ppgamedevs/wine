@@ -3,6 +3,9 @@ const EMPTY_ENV_KEYS = [
   "TURSO_AUTH_TOKEN",
   "XAI_API_KEY",
   "HF_TOKEN",
+  "TYPESAFE_API_KEY",
+  "JEV_MODE",
+  "JEV_MODEL",
 ] as const;
 
 /** Treat blank Vercel-pulled values as unset so fallbacks work. */

@@ -5,6 +5,7 @@ import {
   BOTID_PROXY_SEGMENT,
   withBotIdRewritesBeforeFiles,
 } from "./lib/security/botid-proxy";
+import { IMAGE_REMOTE_HOSTS } from "./lib/image-hosts";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const contentSecurityPolicy = [
@@ -60,52 +61,30 @@ const nextConfig: NextConfig = {
         source: `/((?!${BOTID_PROXY_SEGMENT}).*)`,
         headers: [...securityHeaders],
       },
+      {
+        // Self-hosted LCP font: immutable so the preload and the @font-face
+        // request share one cached response instead of revalidating.
+        source: "/fonts/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
     ];
   },
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30,
-    remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "picsum.photos" },
-      { protocol: "https", hostname: "**.vinintel.ro" },
-      { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
-      // Romanian winery sites (replace with real URLs as crame submit photos)
-      { protocol: "https", hostname: "www.davino.ro" },
-      { protocol: "https", hostname: "davino.ro" },
-      { protocol: "https", hostname: "www.cramelerecas.ro" },
-      { protocol: "https", hostname: "cramelerecas.ro" },
-      { protocol: "https", hostname: "www.avincis.ro" },
-      { protocol: "https", hostname: "www.budureasca.ro" },
-      { protocol: "https", hostname: "budureasca.ro" },
-      { protocol: "https", hostname: "cramagabai.ro" },
-      { protocol: "https", hostname: "www.cramagabai.ro" },
-      { protocol: "https", hostname: "murfatlar-vinul.ro" },
-      { protocol: "https", hostname: "www.murfatlar-vinul.ro" },
-      { protocol: "https", hostname: "www.lacertawinery.ro" },
-      { protocol: "https", hostname: "www.jidvei.ro" },
-      { protocol: "https", hostname: "**.emag.ro" },
-      { protocol: "https", hostname: "serve.ro" },
-      { protocol: "https", hostname: "www.serve.ro" },
-      { protocol: "https", hostname: "cramaoprisor.ro" },
-      { protocol: "https", hostname: "liliac.com" },
-      { protocol: "https", hostname: "www.liliac.com" },
-      { protocol: "https", hostname: "casadevinuricotnari.ro" },
-      { protocol: "https", hostname: "domeniulcoroanei.ro" },
-      { protocol: "https", hostname: "tohani.ro" },
-      { protocol: "https", hostname: "www.tohani.ro" },
-      { protocol: "https", hostname: "petrovaselo.com" },
-      { protocol: "https", hostname: "cramagirboiu.ro" },
-      { protocol: "https", hostname: "cramabasilescu.ro" },
-      { protocol: "https", hostname: "domeniilesamburesti.ro" },
-      { protocol: "https", hostname: "www.ballageza.com" },
-      { protocol: "https", hostname: "corcova.ro" },
-      { protocol: "https", hostname: "stirbey.com" },
-      { protocol: "https", hostname: "vinarte.ro" },
-      { protocol: "https", hostname: "halewood.com.ro" },
-      { protocol: "https", hostname: "villavinea.com" },
-      { protocol: "https", hostname: "purcariwineries.com" },
-    ],
+    // Wine labels are text-heavy; keep a sharper variant alongside the default.
+    qualities: [75, 85],
+    // Keep the optimizer allowlist in sync with the runtime decision in
+    // lib/wine-images.ts through one shared list.
+    remotePatterns: IMAGE_REMOTE_HOSTS.map((hostname) => ({
+      protocol: "https" as const,
+      hostname,
+    })),
   },
   poweredByHeader: false,
   compress: true,

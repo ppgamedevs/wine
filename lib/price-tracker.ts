@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { recalculateSingleWineValueScore } from "@/lib/recalculate-value-scores";
 import { wines, type PriceHistoryEntry } from "@/lib/schema";
+import { isQualifyingProfitshareUrl } from "@/lib/retailer-links";
 
 const HISTORY_RETENTION_DAYS = 90;
 const LOWEST_PRICE_WINDOW_DAYS = 30;
@@ -94,12 +95,26 @@ export async function updatePrice(
     columns: {
       id: true,
       priceHistory: true,
+      affiliateLinks: true,
     },
   });
 
   if (!wine) {
     throw new Error("Vin negasit.");
   }
+
+  const affiliateLinks = isQualifyingProfitshareUrl(source)
+    ? wine.affiliateLinks.map((link) =>
+        link.url === source
+          ? {
+              ...link,
+              priceRon: normalizedPrice,
+              checkedAt: observedAt.toISOString(),
+              inStock: true,
+            }
+          : link,
+      )
+    : wine.affiliateLinks;
 
   const entry: PriceHistoryEntry = {
     date: toIsoDate(observedAt),
@@ -124,6 +139,7 @@ export async function updatePrice(
       lowestPrice30d,
       priceHistory: history,
       priceAvg: normalizedPrice,
+      ...(affiliateLinks !== wine.affiliateLinks ? { affiliateLinks } : {}),
     })
     .where(eq(wines.id, wineId));
 

@@ -17,6 +17,12 @@ export type OccasionId =
   | "sarbatori"
   | "pentru-desert";
 
+export interface SommelierExclusions {
+  colors: ColorPreference[];
+  sweetness: SweetnessPreference[];
+  avoidStyles: string[];
+}
+
 export interface SommelierInput {
   budgetMin: number;
   budgetMax: number;
@@ -28,6 +34,21 @@ export interface SommelierInput {
   absurdRequest: boolean;
   budgetConstraint?: BudgetConstraint;
   dish?: string | null;
+
+  /* Optional deterministic signals added by the grounding layer. */
+  /** The requested cap is exclusive ("sub 70 lei"). */
+  budgetExclusiveMax?: boolean;
+  exclusions?: SommelierExclusions;
+  /** Requested acidity, including through "not too acidic". */
+  acidityPreference?: "low" | "medium" | "high" | null;
+  /** Requested body. */
+  bodyPreference?: "light" | "medium" | "full" | null;
+  /** Style words the user wants to avoid. */
+  avoidStyles?: string[];
+  /** Both red and white were requested: do not pretend one was chosen. */
+  contradictoryColor?: boolean;
+  /** Which layer contributed the structured intent. */
+  intentSource?: "deterministic" | "deterministic+jev";
 }
 
 export interface OccasionConfig {

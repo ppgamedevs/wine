@@ -13,13 +13,8 @@ export async function WineAvailability({ wine }: { wine: WineWithRelations }) {
   const locale = await getLocale();
   const t = await getTranslations("Wine.availability");
   const pricing = buildWinePriceViewModel(wine);
-  const hasPrice = pricing.displayPrice != null;
-  const isVerified = pricing.isVerifiedRecent;
-  const priceLabel = isVerified ? t("currentPrice") : t("estimatedPrice");
-  const retailer =
-    pricing.purchaseLink?.retailer ??
-    wine.availability?.find((entry) => entry.retailer.trim())?.retailer ??
-    "retailer";
+  const hasPrice = pricing.displayPrice != null && pricing.purchaseLink != null;
+  const retailer = pricing.purchaseLink?.retailer ?? "retailer";
 
   return (
     <section id="disponibilitate" aria-labelledby="price-heading" className="scroll-mt-24">
@@ -42,26 +37,17 @@ export async function WineAvailability({ wine }: { wine: WineWithRelations }) {
             <div>
               {hasPrice ? (
                 <div className="flex flex-wrap items-center gap-2">
-                  {isVerified ? (
                   <Badge className="gap-1 bg-emerald-600/10 text-emerald-800 hover:bg-emerald-600/15">
                     <BadgeCheck className="h-3 w-3" aria-hidden="true" />
                     {t("verifiedPrice")}
                   </Badge>
-                  ) : (
-                  <Badge
-                    variant="outline"
-                    className="border-amber-500/40 bg-amber-500/10 text-amber-900"
-                  >
-                    {t("estimatedBadge")}
-                  </Badge>
-                  )}
                 </div>
               ) : null}
               {hasPrice ? (
                 <>
                   <p className="mt-3 text-3xl font-bold leading-none text-foreground">
                     <span className="mr-2 text-base font-medium text-muted-foreground">
-                      {priceLabel}:
+                      {t("currentPrice")}:
                     </span>
                     {formatRon(pricing.displayPrice, locale)}
                   </p>

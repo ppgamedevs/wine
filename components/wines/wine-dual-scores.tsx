@@ -11,6 +11,7 @@ import {
   buildValueScoreBreakdown,
   valueScoreInputFromWine,
 } from "@/lib/scoring";
+import { resolveWineDisplayPrice } from "@/lib/wine-price";
 import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
@@ -100,7 +101,12 @@ async function BreakdownTable({
 }) {
   const locale = await getLocale();
   const t = await getTranslations("Wine.valueBreakdown");
-  const input = valueScoreInputFromWine(wine);
+  const publicPrice = resolveWineDisplayPrice(wine);
+  const input = valueScoreInputFromWine({
+    ...wine,
+    currentPrice: publicPrice,
+    priceAvg: null,
+  });
   const breakdown = buildValueScoreBreakdown(input);
   const storedScore = wine.valueScore;
   const editorialSummary = wine.valueExplanation?.trim()
@@ -242,7 +248,8 @@ export async function WineDualScores({ wine }: { wine: WineWithRelations }) {
   const t = await getTranslations("Wine.community");
   const breakdown = await getTranslations("Wine.valueBreakdown");
   const community = getCommunityScoreDisplay(wine);
-  const hasVinIntelScore = wine.valueScore != null;
+  const hasVinIntelScore =
+    wine.valueScore != null && resolveWineDisplayPrice(wine) != null;
 
   if (!hasVinIntelScore && community.score == null) {
     return null;

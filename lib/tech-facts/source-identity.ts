@@ -14,6 +14,8 @@ export interface SourceWineIdentity {
   sourceProducer: string | null;
   sourceVintage: number | null;
   sourceType: string | null;
+  /** Explicit source sweetness, e.g. "demisec" or "demidulce". */
+  sourceSweetness?: string | null;
   sourceGrapes: string[];
   sourceBottleSize: number | null;
   sourceSku: string | null;
@@ -21,6 +23,69 @@ export interface SourceWineIdentity {
   nameClass: SourceNameClass;
   vintageClass: SourceVintageClass;
   identityEvidence: string[];
+}
+
+const KNOWN_GRAPES = [
+  "Muscat Ottonel",
+  "Riesling Italian",
+  "Sauvignon Blanc",
+  "Cabernet Sauvignon",
+  "Fetească Neagră",
+  "Fetească Regală",
+  "Fetească Albă",
+  "Pinot Noir",
+  "Pinot Gris",
+  "Pinot Grigio",
+  "Chardonnay",
+  "Merlot",
+  "Syrah",
+  "Tămâioasă Românească",
+  "Negru de Drăgășani",
+  "Băbească Neagră",
+  "Busuioacă de Bohotin",
+  "Grasă de Cotnari",
+];
+
+function normalizeHintText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function inferSourceType(text: string): string | null {
+  const norm = normalizeHintText(text);
+  if (/\bspumant\b|\bsparkling\b|\bbrut\b/.test(norm)) return "sparkling";
+  if (/\broze\b|\brose\b|\broz\b/.test(norm)) return "rose";
+  if (/\brosu\b|\brosii\b|\bred\b/.test(norm)) return "red";
+  if (/\balb\b|\balbe\b|\bwhite\b/.test(norm)) return "white";
+  return null;
+}
+
+function inferSourceSweetness(text: string): string | null {
+  const norm = normalizeHintText(text);
+  if (/\bdemisec\b|\bdemi sec\b/.test(norm)) return "demisec";
+  if (/\bdemidulce\b|\bmedium sweet\b/.test(norm)) return "demidulce";
+  if (/\bdulce\b|\bsweet\b|\blicoros\b/.test(norm)) return "dulce";
+  if (/\bsec\b|\bdry\b/.test(norm)) return "sec";
+  return null;
+}
+
+function inferSourceGrapes(text: string): string[] {
+  const norm = normalizeHintText(text);
+  return KNOWN_GRAPES.filter((grape) =>
+    norm.includes(normalizeHintText(grape)),
+  );
+}
+
+function inferSourceBottleSize(text: string): number | null {
+  const match = text
+    .replace(/&nbsp;/gi, " ")
+    .match(/(\d+(?:[.,]\d+)?)\s*(ml|l)\b/i);
+  if (!match?.[1]) return null;
+  const amount = Number.parseFloat(match[1].replace(",", "."));
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return Math.round((match[2] ?? "ml").toLowerCase() === "l" ? amount * 1000 : amount);
 }
 
 function decode(value: string): string {
@@ -40,6 +105,28 @@ function usableName(value: string | null | undefined): string | null {
   if (/fisa\s*(tehnica|degustare)|tasting sheet|technical sheet/i.test(cleaned)) return null;
   if (GENERIC_TITLE.test(cleaned) && cleaned.split(" ").length <= 3) return null;
   return cleaned.replace(/\s+(19\d{2}|20[0-3]\d)\s*$/, "").trim() || cleaned;
+}
+
+function findProductLine(text: string): string | null {
+  const candidates = text
+    .split(/\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length >= 4 && line.length <= 220);
+  for (const candidate of candidates) {
+    const norm = normalizeHintText(candidate);
+    const hasGrape = KNOWN_GRAPES.some((grape) =>
+      norm.includes(normalizeHintText(grape)),
+    );
+    const hasProductMarker =
+      /\b(?:demisec|demidulce|dulce|sec|dry|sweet)\b/.test(norm) ||
+      /\b\d+(?:[.,]\d+)?\s*(?:ml|l)\b/.test(norm);
+    if (!hasGrape || !hasProductMarker) continue;
+    const stripped = candidate
+      .replace(/^[^\n]*?%\s*(?:vol\.?|alcool)\s*[.:]?\s*/i, "")
+      .trim();
+    return stripped.length >= 4 ? stripped : candidate;
+  }
+  return null;
 }
 
 function jsonLdProductName(html: string): string | null {
@@ -69,6 +156,8 @@ function jsonLdProductName(html: string): string | null {
 export function extractSourceIdentityFromHtml(html: string): SourceWineIdentity {
   const evidence: string[] = [];
   const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1];
+  const h2 = html.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i)?.[1];
+  const headingHtml = h1 ?? h2;
   const og = html.match(/property=["']og:title["'][^>]*content=["']([^"']+)/i)?.[1];
   const jsonLd = jsonLdProductName(html);
   const sku =
@@ -76,24 +165,36 @@ export function extractSourceIdentityFromHtml(html: string): SourceWineIdentity 
     html.match(/["']sku["']\s*:\s*["']([^"']+)/i)?.[1] ??
     null;
 
-  const name = jsonLd ?? usableName(h1 ? h1.replace(/<[^>]+>/g, " ") : null) ?? usableName(og);
+  const name =
+    jsonLd ??
+    usableName(headingHtml ? headingHtml.replace(/<[^>]+>/g, " ") : null) ??
+    usableName(og);
   if (jsonLd) evidence.push("json-ld Product.name");
   else if (h1) evidence.push("h1");
+  else if (h2) evidence.push("h2");
   else if (og) evidence.push("og:title");
 
+  const pageText = decode(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " "),
+  ).slice(0, 20_000);
+  const productText = `${name ?? ""} ${pageText}`;
   const vintage = extractTechnicalSourceVintage({
-    text: html.replace(/<[^>]+>/g, " ").slice(0, 4000),
+    text: productText.slice(0, 4000),
     title: name,
-    heading: h1 ? h1.replace(/<[^>]+>/g, " ") : name,
+    heading: headingHtml ? headingHtml.replace(/<[^>]+>/g, " ") : name,
   });
 
   return {
     sourceWineName: name,
     sourceProducer: null,
     sourceVintage: vintage,
-    sourceType: null,
-    sourceGrapes: [],
-    sourceBottleSize: null,
+    sourceType: inferSourceType(productText),
+    sourceSweetness: inferSourceSweetness(productText),
+    sourceGrapes: inferSourceGrapes(productText),
+    sourceBottleSize: inferSourceBottleSize(productText),
     sourceSku: sku?.trim() || null,
     sourceLine: null,
     nameClass: name ? "SOURCE_NAME_EXACT" : "SOURCE_NAME_MISSING",
@@ -117,8 +218,12 @@ export function extractSourceIdentityFromText(input: {
   const titleName = usableName(input.title);
   const heading = input.text.split("\n").map((line) => line.trim()).find((line) => line.length >= 4 && line.length <= 80);
   const headingName = usableName(heading);
-  const name = titleName ?? headingName;
-  if (titleName) evidence.push("document title");
+  const productLineName = usableName(findProductLine(input.text));
+  // A product line with grape/sweetness/volume is stronger identity evidence
+  // than a generic document title such as "Official A".
+  const name = productLineName ?? titleName ?? headingName;
+  if (productLineName) evidence.push("product line");
+  else if (titleName) evidence.push("document title");
   else if (headingName) evidence.push("first heading");
 
   const explicitVintage = extractTechnicalSourceVintage({
@@ -134,14 +239,16 @@ export function extractSourceIdentityFromText(input: {
       : filenameVintage != null
         ? "SOURCE_VINTAGE_FILENAME_ONLY"
         : "SOURCE_VINTAGE_MISSING";
+  const productText = `${input.title ?? ""} ${input.text}`;
 
   return {
     sourceWineName: name,
     sourceProducer: null,
     sourceVintage: vintage,
-    sourceType: null,
-    sourceGrapes: [],
-    sourceBottleSize: null,
+    sourceType: inferSourceType(productText),
+    sourceSweetness: inferSourceSweetness(productText),
+    sourceGrapes: inferSourceGrapes(productText),
+    sourceBottleSize: inferSourceBottleSize(productText),
     sourceSku: null,
     sourceLine: null,
     nameClass: name ? "SOURCE_NAME_EXACT" : "SOURCE_NAME_MISSING",

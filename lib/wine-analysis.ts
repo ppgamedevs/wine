@@ -37,10 +37,23 @@ function englishWorthItAnalysis(wine: WineWithRelations): WorthItAnalysis {
       verdict: "partial",
       headline: "Price currently unavailable",
       summary:
-        "We cannot confirm current value without a current price. The historical Value Score remains indicative.",
+        "We cannot confirm current value without a qualified Profitshare offer. No price-based recommendation is shown.",
       bullets: [
-        "We do not assume a price when no offer is available.",
-        "Compare alternatives with a verifiable price before buying.",
+        "We do not assume a price when no qualified offer is available.",
+        "Compare alternatives with a verifiable Profitshare price before buying.",
+      ],
+    };
+  }
+
+  if (wine.valueScore == null) {
+    return {
+      verdict: "partial",
+      headline: "Value Score unavailable",
+      summary:
+        "We have a qualified Profitshare offer, but not enough evidence to calculate a reliable Value Score.",
+      bullets: [
+        "We do not substitute an invented score when price or quality evidence is insufficient.",
+        "Compare the qualified offer with similar wines before buying.",
       ],
     };
   }
@@ -94,10 +107,23 @@ export function buildWorthItAnalysis(
       verdict: "partial",
       headline: "Preț indisponibil momentan",
       summary:
-        "Nu putem confirma dacă merită cumpărat acum fără un preț curent. Value Score-ul istoric rămâne orientativ.",
+        "Nu putem confirma dacă merită cumpărat acum fără o ofertă Profitshare calificată. Nu afișăm o recomandare bazată pe preț.",
       bullets: [
         "Nu presupunem un preț atunci când oferta nu este disponibilă.",
-        "Compară alternativele cu preț verificabil înainte de cumpărare.",
+        "Compară alternativele cu preț Profitshare verificabil înainte de cumpărare.",
+      ],
+    };
+  }
+
+  if (wine.valueScore == null) {
+    return {
+      verdict: "partial",
+      headline: "Value Score indisponibil",
+      summary:
+        "Avem o ofertă Profitshare calificată, dar nu avem suficiente dovezi pentru un Value Score fiabil.",
+      bullets: [
+        "Nu înlocuim scorul cu o valoare inventată când datele sunt insuficiente.",
+        "Compară oferta calificată cu vinuri similare înainte de cumpărare.",
       ],
     };
   }
@@ -113,7 +139,7 @@ export function buildWorthItAnalysis(
         (() => {
           const cellar = resolveCellarDisplay({
             type: wine.type,
-            price: wine.currentPrice ?? wine.priceAvg,
+            price: resolveWineDisplayPrice(wine),
             cellarPotential: wine.cellarPotential,
             drinkabilityStart: wine.drinkabilityStart,
             drinkabilityEnd: wine.drinkabilityEnd,
@@ -173,7 +199,13 @@ export function buildWineFaq(
 ): WineFaqItem[] {
   const wineryName = wine.winery?.name ?? "crama producatoare";
   const regionName = wine.region?.name ?? "Romania";
-  const price = formatRon(wine.priceAvg, locale);
+  const publicPrice = resolveWineDisplayPrice(wine);
+  const price =
+    publicPrice != null
+      ? formatRon(publicPrice, locale)
+      : locale === "en"
+        ? "Price currently unavailable"
+        : "Preț indisponibil";
   const topPairing = resolvePublicWinePairings(wine, 1, locale)[0] ?? null;
   if (locale === "en") {
     const foodAnswer =
@@ -185,7 +217,10 @@ export function buildWineFaq(
     return [
       {
         question: `How much does ${wine.name} cost?`,
-        answer: `The current average price is ${price}. Prices can vary by retailer and promotion.`,
+        answer:
+          publicPrice != null
+            ? `The current qualified Profitshare price is ${price}. Prices can vary by offer and promotion.`
+            : `We do not currently have a qualified Profitshare offer for ${wine.name}, so no public price is shown.`,
       },
       {
         question: `What food pairs with ${wine.name}?`,
@@ -200,8 +235,11 @@ export function buildWineFaq(
         answer: `${wine.name} is made by ${wine.winery?.name ?? "the producer"}, in ${regionName}. ${wine.winery?.verified ? "The winery is verified in our database." : "The winery is not yet officially verified by VinIntel."}`,
       },
       {
-        question: `What does a Value Score of ${wine.valueScore ?? "N/A"} mean?`,
-        answer: `Value Score is VinIntel's value-for-money score from 0 to 100. A score above ${MIN_RECOMMENDED_VALUE_SCORE} indicates good value at the tracked price.`,
+        question: `What does a Value Score of ${publicPrice != null && wine.valueScore != null ? wine.valueScore : "N/A"} mean?`,
+        answer:
+          publicPrice != null && wine.valueScore != null
+            ? `Value Score is VinIntel's value-for-money score from 0 to 100. A score above ${MIN_RECOMMENDED_VALUE_SCORE} indicates good value at the tracked price.`
+            : "Value Score is price-dependent. Without a qualified Profitshare offer and sufficient evidence we show an insufficient-data state instead of a value recommendation.",
       },
     ];
   }
@@ -215,7 +253,10 @@ export function buildWineFaq(
   return [
     {
       question: `Cat costa ${wine.name}?`,
-      answer: `Pretul mediu actual este ${price}, urmarit in magazine din Romania. Preturile pot varia in functie de retailer si promotii.`,
+      answer:
+        publicPrice != null
+          ? `Pretul curent din oferta Profitshare calificata este ${price}. Preturile pot varia in functie de oferta si promotie.`
+          : `Nu avem momentan o oferta Profitshare calificata pentru ${wine.name}, asa ca nu afisam un pret public.`,
     },
     {
       question: `Ce mancare se potriveste cu ${wine.name}?`,
@@ -230,8 +271,11 @@ export function buildWineFaq(
       answer: `${wine.name} este produs de ${wineryName}, din regiunea ${regionName}. ${wine.winery?.verified ? "Crama este verificata in baza noastra de date." : "Crama nu este inca verificata oficial de VinIntel."}`,
     },
     {
-      question: `Ce inseamna Value Score ${wine.valueScore ?? "N/A"}?`,
-      answer: `Value Score masoara raportul calitate-pret de la 0 la 100. Peste ${MIN_RECOMMENDED_VALUE_SCORE} inseamna ca merita banii, intre ${VALUE_SCORE_NEUTRAL_MIN} si ${MIN_RECOMMENDED_VALUE_SCORE - 1} este pret mediu, sub ${VALUE_SCORE_NEUTRAL_MIN} recomandam alternative.`,
+      question: `Ce inseamna Value Score ${publicPrice != null && wine.valueScore != null ? wine.valueScore : "N/A"}?`,
+      answer:
+        publicPrice != null && wine.valueScore != null
+          ? `Value Score masoara raportul calitate-pret de la 0 la 100. Peste ${MIN_RECOMMENDED_VALUE_SCORE} inseamna ca merita banii, intre ${VALUE_SCORE_NEUTRAL_MIN} si ${MIN_RECOMMENDED_VALUE_SCORE - 1} este pret mediu, sub ${VALUE_SCORE_NEUTRAL_MIN} recomandam alternative.`
+          : "Value Score depinde de pret si de dovezi suficiente. Fara o oferta Profitshare calificata si date suficiente afisam starea de date insuficiente, nu o recomandare de valoare.",
     },
   ];
 }
@@ -272,7 +316,8 @@ export function buildProgrammaticLinks(
     }),
   });
 
-  if (wine.priceAvg && wine.priceAvg <= 50) {
+  const publicPrice = resolveWineDisplayPrice(wine);
+  if (publicPrice != null && publicPrice <= 50) {
     links.push({
       label:
         locale === "en"
@@ -313,26 +358,31 @@ export function buildWineProsCons(
   const pros: string[] = [];
   const cons: string[] = [];
   const value = wine.valueScore ?? 0;
+  const hasPublicPrice = resolveWineDisplayPrice(wine) != null;
+  const hasValueScore = wine.valueScore != null;
 
   if (locale === "en") {
-    if (value >= MIN_RECOMMENDED_VALUE_SCORE) {
+    if (hasPublicPrice && hasValueScore && value >= MIN_RECOMMENDED_VALUE_SCORE) {
       pros.push(`Value Score ${value}/100: a clear value recommendation.`);
-    } else if (value >= VALUE_SCORE_NEUTRAL_MIN) {
+    } else if (hasPublicPrice && hasValueScore && value >= VALUE_SCORE_NEUTRAL_MIN) {
       pros.push(`Value Score ${value}/100: a reasonable choice.`);
     }
     if (wine.beginnerFriendly) {
       pros.push("An approachable profile for wine beginners.");
     }
-    if (wine.overpricedRisk === "high") {
+    if (hasPublicPrice && hasValueScore && wine.overpricedRisk === "high") {
       cons.push("High overpricing risk compared with similar alternatives.");
     }
-    if (value < VALUE_SCORE_NEUTRAL_MIN) {
+    if (hasPublicPrice && hasValueScore && value < VALUE_SCORE_NEUTRAL_MIN) {
       cons.push(
         `Value Score below ${VALUE_SCORE_NEUTRAL_MIN}/100: compare alternatives.`,
       );
     }
-    if (!wine.priceAvg) {
-      cons.push("Price unavailable: check a verified source before buying.");
+    if (hasPublicPrice && !hasValueScore) {
+      cons.push("Value Score unavailable: insufficient pricing/quality evidence.");
+    }
+    if (!hasPublicPrice) {
+      cons.push("Price unavailable: check a qualified Profitshare offer before buying.");
     }
     if (pros.length === 0) {
       pros.push("Limited data: prices and scores are still being updated.");
@@ -340,9 +390,9 @@ export function buildWineProsCons(
     return { pros: pros.slice(0, 4), cons: cons.slice(0, 4) };
   }
 
-  if (value >= MIN_RECOMMENDED_VALUE_SCORE) {
+  if (hasPublicPrice && hasValueScore && value >= MIN_RECOMMENDED_VALUE_SCORE) {
     pros.push(`Value Score ${value}/100: recomandare clara la acest pret.`);
-  } else if (value >= VALUE_SCORE_NEUTRAL_MIN) {
+  } else if (hasPublicPrice && hasValueScore && value >= VALUE_SCORE_NEUTRAL_MIN) {
     pros.push(`Value Score ${value}/100: alegere acceptabila, fara surprize majore.`);
   }
 
@@ -352,7 +402,7 @@ export function buildWineProsCons(
 
   const cellar = resolveCellarDisplay({
     type: wine.type,
-    price: wine.currentPrice ?? wine.priceAvg,
+    price: resolveWineDisplayPrice(wine),
     cellarPotential: wine.cellarPotential,
     drinkabilityStart: wine.drinkabilityStart,
     drinkabilityEnd: wine.drinkabilityEnd,
@@ -363,9 +413,14 @@ export function buildWineProsCons(
   }
 
   const risk = wine.overpricedRisk ?? "medium";
-  if (risk === "high") {
+  if (hasPublicPrice && hasValueScore && risk === "high") {
     cons.push("Risc ridicat de suprapret fata de alternative similare.");
-  } else if (risk === "medium" && value < MIN_RECOMMENDED_VALUE_SCORE) {
+  } else if (
+    hasPublicPrice &&
+    hasValueScore &&
+    risk === "medium" &&
+    value < MIN_RECOMMENDED_VALUE_SCORE
+  ) {
     cons.push("Pretul poate fi optimizat: exista optiuni cu scor mai bun.");
   }
 
@@ -379,12 +434,16 @@ export function buildWineProsCons(
     );
   }
 
-  if (value < VALUE_SCORE_NEUTRAL_MIN) {
+  if (hasPublicPrice && hasValueScore && value < VALUE_SCORE_NEUTRAL_MIN) {
     cons.push(`Value Score sub ${VALUE_SCORE_NEUTRAL_MIN}/100: recomandam alternative.`);
   }
 
-  if (!wine.priceAvg) {
-    cons.push("Pret indisponibil: verifica sursa inainte de cumparare.");
+  if (hasPublicPrice && !hasValueScore) {
+    cons.push("Value Score indisponibil: date insuficiente despre pret si calitate.");
+  }
+
+  if (!hasPublicPrice) {
+    cons.push("Pret indisponibil: verifica o oferta Profitshare calificata inainte de cumparare.");
   }
 
   if (pros.length === 0) {

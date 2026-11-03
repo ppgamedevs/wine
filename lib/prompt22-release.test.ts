@@ -9,6 +9,7 @@ import {
   sanitizePublicSecondaryCopy,
 } from "@/lib/scoring-v2/public-secondary-display";
 import { setSecondaryScoringModeForTests } from "@/lib/scoring-v2/secondary-scoring-mode";
+import { setOccasionMatchModeForTests } from "@/lib/recommendation/occasion-match-mode";
 import {
   countSitemapRouteFamilies,
   flattenSitemapRouteFamilies,
@@ -36,7 +37,7 @@ function wine(
   overrides: Partial<WineWithRelations> & { id: number; slug: string },
 ): WineWithRelations {
   return {
-    name: overrides.slug,
+    name: `${overrides.slug} 0.75L`,
     type: "white",
     sweetness: null,
     priceAvg: 48,
@@ -57,7 +58,20 @@ function wine(
     recommendedOccasions: [],
     thingsYouShouldKnow: [],
     availability: [],
-    affiliateLinks: [],
+    affiliateLinks:
+      overrides.priceAvg === null
+        ? []
+        : [
+            {
+              retailer: "eMAG.ro",
+              url: `https://l.profitshare.ro/l/${100000 + overrides.id}`,
+              wineSlug: overrides.slug,
+              bottleSizeMl: 750,
+              priceRon: overrides.priceAvg ?? 48,
+              checkedAt: new Date().toISOString(),
+              inStock: true,
+            },
+          ],
     priceHistory: [],
     winery: null,
     region: null,
@@ -79,6 +93,7 @@ const SOMMELIER_INPUT: SommelierInput = {
 
 afterEach(() => {
   setSecondaryScoringModeForTests(null);
+  setOccasionMatchModeForTests(null);
 });
 
 describe("Prompt 22 public secondary semantic contract", () => {
@@ -150,12 +165,19 @@ describe("Prompt 22 public secondary semantic contract", () => {
 
   it("does not relabel a hidden legacy Food score as top-list relevance", () => {
     setSecondaryScoringModeForTests("display");
-    const hidden = wine({ id: 1, slug: "hidden-food", foodMatchScore: 85 });
+    setOccasionMatchModeForTests("internal");
+    const hidden = wine({
+      id: 1,
+      slug: "hidden-food",
+      foodMatchScore: 85,
+      foodPairings: [{ dish: "Sarmale" }],
+    });
     const list = resolveTopList(
       "vinuri-sub-100-lei-pentru-sarmale",
       [hidden],
     );
 
+    expect(list).not.toBeNull();
     expect(list?.rankScores[0]).toBe(85);
     expect(
       topListRankScore(
@@ -163,8 +185,8 @@ describe("Prompt 22 public secondary semantic contract", () => {
         list!.rankMetric,
         list!.rankScores[0],
       ),
-    ).toBeNull();
-    expect(JSON.stringify(list?.faq)).not.toContain("85/100");
+    ).not.toBe(85);
+    expect(JSON.stringify(list?.faq ?? [])).not.toContain("85/100");
   });
 
   it("preserves shadow score behavior while keeping FAQ dish specific", () => {

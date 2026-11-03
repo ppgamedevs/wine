@@ -112,6 +112,10 @@ export async function recalculateSingleWineValueScore(
     drinkabilityEnd: wine.drinkabilityEnd,
   });
 
+  if (input.priceDataStatus === "insufficient") {
+    return null;
+  }
+
   const breakdown = buildValueScoreBreakdown(input);
   const resolvedQuality = breakdown.quality ?? wine.estimatedQuality ?? undefined;
 
@@ -180,7 +184,13 @@ export async function recalculateAllValueScores(
     },
   });
 
-  const passOneSamples = rows.map((wine) => {
+  const scoreableRows = rows.filter(
+    (wine) =>
+      (wine.currentPrice ?? wine.priceAvg) != null &&
+      (wine.currentPrice ?? wine.priceAvg)! > 0,
+  );
+
+  const passOneSamples = scoreableRows.map((wine) => {
     const input = valueScoreInputFromWine({
       priceAvg: wine.priceAvg,
       currentPrice: wine.currentPrice,

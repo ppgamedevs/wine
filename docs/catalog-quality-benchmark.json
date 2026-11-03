@@ -1,0 +1,830 @@
+{
+  "vinintel": {
+    "label": "VinIntel V2 source-backed answers",
+    "provenance": {
+      "kind": "vinintel",
+      "generatedAt": "2026-11-03T19:15:01.098Z",
+      "notes": "Generated deterministically from the V2 report and its source URLs; no AI answer generation."
+    },
+    "answers": {
+      "style": {
+        "text": "Wine type: alb; sweetness: demisec.",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "type"
+        ],
+        "unsupportedAssertions": []
+      },
+      "grape": {
+        "text": "grape_varieties: Muscat Ottonel",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": []
+      },
+      "taste": {
+        "text": "taste_descriptors: echilibrat, o aciditate medie cu caracteristică de fructe verzi, Octuozitate delicată, cu gust final remanent savuros; aroma_descriptors: caracteristic soiului, plăcut, îmbietor",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [
+          "taste_descriptors",
+          "aroma_descriptors"
+        ],
+        "unsupportedAssertions": []
+      },
+      "temperature": {
+        "text": "serving_temperature: 7-8",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [
+          "serving_temperature"
+        ],
+        "unsupportedAssertions": []
+      },
+      "food": {
+        "text": "food_pairing: se poate servi ca aperitiv sau alaturi de preparate din pește, carne albă, preparate vegetariene, brânzeturi, diverse antreuri",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [
+          "food_pairing"
+        ],
+        "unsupportedAssertions": []
+      },
+      "origin": {
+        "text": "region: Murfatlar; country: Romania; appellation: DOC - CMD Murfatlar",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [
+          "region",
+          "country",
+          "appellation"
+        ],
+        "unsupportedAssertions": []
+      },
+      "variety": {
+        "text": "No general variety-knowledge field is claimed by this V2 report.",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [],
+        "unsupportedAssertions": []
+      },
+      "compare": {
+        "text": "acidity_perception: medie; sweetness: demisec",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [
+          "acidity_perception",
+          "sweetness"
+        ],
+        "unsupportedAssertions": []
+      },
+      "confirmed": {
+        "text": "36 source claims; 2 distinct source URL(s); conflicts are preserved rather than guessed.",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [
+          "verification"
+        ],
+        "unsupportedAssertions": []
+      },
+      "offer": {
+        "text": "V2 carries no price and no qualifying affiliate offer; public price policy is shown separately.",
+        "citations": [
+          "https://murfatlar-vinul.ro/zestrea/",
+          "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p"
+        ],
+        "supportedFields": [],
+        "unsupportedAssertions": []
+      }
+    }
+  },
+  "fixture": {
+    "label": "Fixture baseline — hand-authored synthetic negative control",
+    "provenance": {
+      "kind": "fixture",
+      "promptVersion": "fixture-negative-control-v1",
+      "notes": "Synthetic negative control used only to test the scoring rubric. It is not an independently generated answer and is not a model comparison."
+    },
+    "answers": {
+      "style": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      },
+      "grape": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      },
+      "taste": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      },
+      "temperature": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      },
+      "food": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      },
+      "origin": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      },
+      "variety": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      },
+      "compare": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      },
+      "confirmed": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      },
+      "offer": {
+        "text": "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. It likely comes from a famous region and should be served around 10-12°C. This answer sounds detailed but several statements are not supported by the source.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "sweetness",
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": [
+          "13.5% alcohol",
+          "gold medals",
+          "orange blossom",
+          "served around 10-12°C"
+        ]
+      }
+    }
+  },
+  "independent": {
+    "label": "Independent Grok baseline",
+    "provenance": {
+      "kind": "independent_model",
+      "model": "grok-4.20-0309-non-reasoning",
+      "generatedAt": "2026-11-03T19:10:00.000Z",
+      "generator": "scripts/generate-independent-benchmark-answers.ts",
+      "promptVersion": "independent-label-blind-v1",
+      "notes": "One independent model response to the ten frozen questions, generated from the public label facts only. No VinIntel claims or sources were provided. Field annotations are a frozen manual review of that response."
+    },
+    "answers": {
+      "style": {
+        "text": "Medium-dry white wine from the Muscat Ottonel grape.",
+        "citations": [],
+        "supportedFields": [
+          "wine_color",
+          "type",
+          "sweetness"
+        ],
+        "unsupportedAssertions": []
+      },
+      "grape": {
+        "text": "Muscat Ottonel.",
+        "citations": [],
+        "supportedFields": [
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": []
+      },
+      "taste": {
+        "text": "Uncertain. Muscat Ottonel typically shows floral and grapey notes; label gives no specific descriptors.",
+        "citations": [],
+        "supportedFields": [],
+        "unsupportedAssertions": [
+          "floral and grapey notes"
+        ]
+      },
+      "temperature": {
+        "text": "Chilled, around 8-10°C.",
+        "citations": [],
+        "supportedFields": [],
+        "unsupportedAssertions": [
+          "8-10°C"
+        ]
+      },
+      "food": {
+        "text": "Suitable with light appetizers, mild cheeses or fruit-based desserts.",
+        "citations": [],
+        "supportedFields": [],
+        "unsupportedAssertions": [
+          "light appetizers, mild cheeses or fruit-based desserts"
+        ]
+      },
+      "origin": {
+        "text": "Murfatlar, Romania.",
+        "citations": [],
+        "supportedFields": [
+          "region",
+          "country"
+        ],
+        "unsupportedAssertions": []
+      },
+      "variety": {
+        "text": "Single-varietal Muscat Ottonel.",
+        "citations": [],
+        "supportedFields": [
+          "grape_varieties"
+        ],
+        "unsupportedAssertions": []
+      },
+      "compare": {
+        "text": "Similar to other medium-dry Muscat wines from Eastern Europe.",
+        "citations": [],
+        "supportedFields": [],
+        "unsupportedAssertions": [
+          "similar to other medium-dry Muscat wines from Eastern Europe"
+        ]
+      },
+      "confirmed": {
+        "text": "Producer Murfatlar, region Murfatlar Romania, grape Muscat Ottonel, medium-dry white.",
+        "citations": [],
+        "supportedFields": [
+          "verification"
+        ],
+        "unsupportedAssertions": []
+      },
+      "offer": {
+        "text": "Affordable everyday Romanian white wine.",
+        "citations": [],
+        "supportedFields": [],
+        "unsupportedAssertions": [
+          "affordable everyday Romanian white wine"
+        ]
+      }
+    }
+  },
+  "fixtureResult": {
+    "cases": [
+      {
+        "questionId": "style",
+        "vinintel": {
+          "questionId": "style",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "style",
+          "factualCorrectness": 27,
+          "evidenceQuality": 0,
+          "usefulness": 20,
+          "completeness": 13,
+          "unsupportedPenalty": 60,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "grape",
+        "vinintel": {
+          "questionId": "grape",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "grape",
+          "factualCorrectness": 40,
+          "evidenceQuality": 0,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 60,
+          "total": 20
+        }
+      },
+      {
+        "questionId": "taste",
+        "vinintel": {
+          "questionId": "taste",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "taste",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 60,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "temperature",
+        "vinintel": {
+          "questionId": "temperature",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "temperature",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 60,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "food",
+        "vinintel": {
+          "questionId": "food",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "food",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 60,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "origin",
+        "vinintel": {
+          "questionId": "origin",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "origin",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 60,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "variety",
+        "vinintel": {
+          "questionId": "variety",
+          "factualCorrectness": 0,
+          "evidenceQuality": 14,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 0,
+          "total": 26
+        },
+        "baseline": {
+          "questionId": "variety",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 60,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "compare",
+        "vinintel": {
+          "questionId": "compare",
+          "factualCorrectness": 27,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 13,
+          "unsupportedPenalty": 0,
+          "total": 74
+        },
+        "baseline": {
+          "questionId": "compare",
+          "factualCorrectness": 13,
+          "evidenceQuality": 0,
+          "usefulness": 20,
+          "completeness": 7,
+          "unsupportedPenalty": 60,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "confirmed",
+        "vinintel": {
+          "questionId": "confirmed",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "confirmed",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 60,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "offer",
+        "vinintel": {
+          "questionId": "offer",
+          "factualCorrectness": 0,
+          "evidenceQuality": 14,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 0,
+          "total": 26
+        },
+        "baseline": {
+          "questionId": "offer",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 60,
+          "total": 0
+        }
+      }
+    ],
+    "vinintelTotal": 78,
+    "baselineTotal": 2,
+    "baselineLabel": "Fixture baseline — hand-authored synthetic negative control",
+    "baselineKind": "fixture",
+    "winner": "vinintel",
+    "notes": [
+      "Answer length does not add score.",
+      "Unsupported assertions lose 15 points each.",
+      "Evidence quality rewards cited, source-backed claims.",
+      "The fixture baseline is a hand-authored negative control, not a ChatGPT comparison."
+    ]
+  },
+  "independentResult": {
+    "cases": [
+      {
+        "questionId": "style",
+        "vinintel": {
+          "questionId": "style",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "style",
+          "factualCorrectness": 40,
+          "evidenceQuality": 0,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 80
+        }
+      },
+      {
+        "questionId": "grape",
+        "vinintel": {
+          "questionId": "grape",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "grape",
+          "factualCorrectness": 40,
+          "evidenceQuality": 0,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 80
+        }
+      },
+      {
+        "questionId": "taste",
+        "vinintel": {
+          "questionId": "taste",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "taste",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 15,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "temperature",
+        "vinintel": {
+          "questionId": "temperature",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "temperature",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 15,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "food",
+        "vinintel": {
+          "questionId": "food",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "food",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 15,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "origin",
+        "vinintel": {
+          "questionId": "origin",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "origin",
+          "factualCorrectness": 27,
+          "evidenceQuality": 0,
+          "usefulness": 20,
+          "completeness": 13,
+          "unsupportedPenalty": 0,
+          "total": 60
+        }
+      },
+      {
+        "questionId": "variety",
+        "vinintel": {
+          "questionId": "variety",
+          "factualCorrectness": 0,
+          "evidenceQuality": 14,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 0,
+          "total": 26
+        },
+        "baseline": {
+          "questionId": "variety",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 0,
+          "total": 12
+        }
+      },
+      {
+        "questionId": "compare",
+        "vinintel": {
+          "questionId": "compare",
+          "factualCorrectness": 27,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 13,
+          "unsupportedPenalty": 0,
+          "total": 74
+        },
+        "baseline": {
+          "questionId": "compare",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 15,
+          "total": 0
+        }
+      },
+      {
+        "questionId": "confirmed",
+        "vinintel": {
+          "questionId": "confirmed",
+          "factualCorrectness": 40,
+          "evidenceQuality": 14,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 94
+        },
+        "baseline": {
+          "questionId": "confirmed",
+          "factualCorrectness": 40,
+          "evidenceQuality": 0,
+          "usefulness": 20,
+          "completeness": 20,
+          "unsupportedPenalty": 0,
+          "total": 80
+        }
+      },
+      {
+        "questionId": "offer",
+        "vinintel": {
+          "questionId": "offer",
+          "factualCorrectness": 0,
+          "evidenceQuality": 14,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 0,
+          "total": 26
+        },
+        "baseline": {
+          "questionId": "offer",
+          "factualCorrectness": 0,
+          "evidenceQuality": 0,
+          "usefulness": 12,
+          "completeness": 0,
+          "unsupportedPenalty": 15,
+          "total": 0
+        }
+      }
+    ],
+    "vinintelTotal": 78,
+    "baselineTotal": 31,
+    "baselineLabel": "Independent Grok baseline",
+    "baselineKind": "independent_model",
+    "winner": "vinintel",
+    "notes": [
+      "Answer length does not add score.",
+      "Unsupported assertions lose 15 points each.",
+      "Evidence quality rewards cited, source-backed claims.",
+      "The fixture baseline is a hand-authored negative control, not a ChatGPT comparison."
+    ]
+  }
+}

@@ -1,14 +1,11 @@
 import "../lib/load-env";
-import { eq, inArray } from "drizzle-orm";
-import { analyzeAndSaveWineFromUrl } from "@/lib/analyze-wine-service";
 import { fetchPageWithResolution } from "@/lib/fetch-page-html";
+import { ingestMurfatlarVariant } from "@/lib/murfatlar-ingest";
 import {
   fetchMurfatlarCatalogItems,
   parseMurfatlarProductVariants,
+  type MurfatlarWineVariant,
 } from "@/lib/murfatlar-producer";
-import { findWineBySourceUrl } from "@/lib/wine-duplicate-detection";
-import { db } from "@/lib/db";
-import { regions, wines } from "@/lib/schema";
 
 const DELAY_MS = 2000;
 
@@ -31,17 +28,16 @@ async function main() {
         ? catalogItems.slice(0, limit)
         : catalogItems;
 
-  const importJobs: Array<{ range: string; sourceUrl: string; name: string }> = [];
+  const importJobs: Array<{
+    range: string;
+    variant: MurfatlarWineVariant;
+  }> = [];
 
   for (const item of selectedRanges) {
     const page = await fetchPageWithResolution(item.url);
     const variants = parseMurfatlarProductVariants(page.html, page.finalUrl);
     for (const variant of variants) {
-      importJobs.push({
-        range: item.slug,
-        sourceUrl: variant.sourceUrl,
-        name: variant.name,
-      });
+      importJobs.push({ range: item.slug, variant });
     }
     await sleep(800);
   }
@@ -51,71 +47,69 @@ async function main() {
   );
 
   if (dryRun) {
-    console.table(importJobs);
+    console.table(
+      importJobs.map(({ range, variant }) => ({
+        range,
+        key: variant.variantKey,
+        name: variant.name,
+        sweetness: variant.sweetness,
+        grapes: variant.grapeVarieties.map((grape) => grape.name).join(" + "),
+        volumeMl: variant.volumeMl,
+        sourceUrl: variant.sourceUrl,
+      })),
+    );
     return;
   }
 
   const results: Array<{
     sourceUrl: string;
+    canonicalKey: string;
     status: string;
     slug?: string;
     wineId?: number;
+    message?: string;
   }> = [];
 
   for (const job of importJobs) {
-    console.log(`\n=== ${job.name} ===`);
-    console.log(job.sourceUrl);
-
-    const existing = await findWineBySourceUrl(job.sourceUrl);
-    if (existing) {
-      results.push({
-        sourceUrl: job.sourceUrl,
-        status: "existing",
-        slug: existing.slug,
-        wineId: existing.id,
-      });
-      console.log("existing", existing.slug);
-      continue;
-    }
+    const { variant } = job;
+    console.log(`\n=== ${variant.name} ===`);
+    console.log(`key: ${variant.variantKey}`);
+    console.log(variant.sourceUrl);
 
     try {
-      const result = await analyzeAndSaveWineFromUrl(job.sourceUrl, "admin-cli");
+      const result = await ingestMurfatlarVariant({ variant });
       results.push({
-        sourceUrl: job.sourceUrl,
+        sourceUrl: variant.sourceUrl,
+        canonicalKey: result.canonicalKey,
         status: result.status,
         slug: result.slug,
         wineId: result.wineId,
+        message: result.message,
       });
-      console.log(result.status, result.slug ?? result.message);
+      console.log(result.status, result.slug ?? result.message ?? "");
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      results.push({ sourceUrl: job.sourceUrl, status: `error: ${message}` });
+      results.push({
+        sourceUrl: variant.sourceUrl,
+        canonicalKey: variant.variantKey,
+        status: `error: ${message}`,
+      });
       console.error("FAILED", message);
     }
 
     await sleep(DELAY_MS);
   }
 
-  const murfatlar = await db.query.regions.findFirst({
-    where: eq(regions.slug, "murfatlar"),
-    columns: { id: true },
-  });
-
-  const createdIds = results
-    .filter((item) => item.status === "created")
-    .map((item) => item.wineId)
-    .filter((id): id is number => id != null);
-
-  if (murfatlar && createdIds.length > 0) {
-    await db
-      .update(wines)
-      .set({ regionId: murfatlar.id })
-      .where(inArray(wines.id, createdIds));
-    console.log(`[import-murfatlar] region set Murfatlar for ${createdIds.length} wines`);
-  }
-
   console.log("\n=== summary ===");
   console.table(results);
+  const reviewCount = results.filter((item) =>
+    item.status.startsWith("review_"),
+  ).length;
+  if (reviewCount > 0) {
+    console.warn(
+      `[import-murfatlar] ${reviewCount} variant(s) require manual reconciliation; nothing was merged.`,
+    );
+  }
 }
 
 main().catch((error) => {

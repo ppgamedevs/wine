@@ -7,6 +7,7 @@ import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { buildSub50Study2026 } from "@/lib/data-insights";
+import { sanitizeWinesForPublic } from "@/lib/public-price";
 import { formatRon } from "@/lib/format";
 import { getWinesForSommelier } from "@/lib/queries";
 import {
@@ -125,7 +126,7 @@ export default async function StudiiPage({ params }: StudiiPageProps) {
   if (slug !== STUDY_SLUG) notFound();
 
   const allWines = await getWinesForSommelier();
-  const study = buildSub50Study2026(allWines);
+  const study = buildSub50Study2026(sanitizeWinesForPublic(allWines));
   const faq = buildStudyFaq(study, locale);
   const updatedLabel = new Date(study.generatedAt).toLocaleDateString(
     locale === "en" ? "en-GB" : "ro-RO",

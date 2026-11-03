@@ -40,14 +40,12 @@ export async function WineBuyingDecision({ wine }: { wine: WineWithRelations }) 
       <CardContent className="space-y-5 p-5 sm:p-6">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {pricing.status === "verified"
-              ? t("currentPrice")
-              : pricing.status === "estimated"
-                ? t("estimatedPrice")
-                : t("price")}
+            {pricing.status === "verified" ? t("currentPrice") : t("price")}
           </p>
           <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
-            {formatRon(pricing.displayPrice, locale)}
+            {pricing.displayPrice != null
+              ? formatRon(pricing.displayPrice, locale)
+              : t("unavailable")}
           </p>
         </div>
         <div className="flex items-start justify-between gap-5">
@@ -62,7 +60,7 @@ export async function WineBuyingDecision({ wine }: { wine: WineWithRelations }) 
               {analysis.summary}
             </p>
           </div>
-          {wine.valueScore != null ? (
+          {wine.valueScore != null && pricing.status === "verified" ? (
             <div className="shrink-0 text-center">
               <VinScoreBadge
                 score={wine.valueScore}

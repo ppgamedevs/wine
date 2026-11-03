@@ -25,7 +25,7 @@ function catalogWine(
   overrides: Partial<WineWithRelations> & { slug: string; id: number },
 ): WineWithRelations {
   return {
-    name: overrides.name ?? overrides.slug,
+    name: overrides.name ?? `${overrides.slug} 0.75L`,
     type: "red",
     sweetness: "sec",
     priceAvg: 45,
@@ -40,7 +40,17 @@ function catalogWine(
     recommendedOccasions: [],
     thingsYouShouldKnow: [],
     availability: [],
-    affiliateLinks: [],
+    affiliateLinks: [
+      {
+        retailer: "eMAG.ro",
+        url: `https://l.profitshare.ro/l/${100000 + overrides.id}`,
+        wineSlug: overrides.slug,
+        bottleSizeMl: 750,
+        priceRon: overrides.priceAvg ?? 45,
+        checkedAt: new Date().toISOString(),
+        inStock: true,
+      },
+    ],
     priceHistory: [],
     winery: { id: 1, name: "Crama Test", slug: "crama-test" },
     region: { id: 1, name: "Dealu Mare", slug: "dealu-mare" },

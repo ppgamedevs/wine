@@ -160,7 +160,7 @@ export interface WineCardAnalyticsViewModel {
 }
 
 export interface WineCardPriceViewModel {
-  status: "verified" | "estimated" | "unavailable";
+  status: "verified" | "unavailable";
   displayPrice: number | null;
   isVerifiedRecent: boolean;
   purchaseLink: {

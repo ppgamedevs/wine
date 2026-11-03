@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
 import { resolveWineImage } from "@/lib/wine-images";
@@ -51,6 +50,7 @@ export function WineImage({
 }: WineImageProps) {
   const locale = useLocale();
   const [failed, setFailed] = useState(false);
+  const [optimizerFailed, setOptimizerFailed] = useState(false);
   const { src, alt, fromExternalSource, unoptimized } = resolveWineImage({
     slug,
     imageUrl,
@@ -61,6 +61,18 @@ export function WineImage({
     type,
     winery: wineryName ? { name: wineryName } : null,
   });
+
+  // If the optimizer cannot fetch an external host (hotlink protection, 5xx),
+  // retry the original file once before falling back to the placeholder. This
+  // keeps the card functional while still optimising hosts that allow it.
+  const finalUnoptimized = unoptimized || optimizerFailed;
+  const handleImageError = () => {
+    if (!finalUnoptimized) {
+      setOptimizerFailed(true);
+      return;
+    }
+    setFailed(true);
+  };
 
   const showFallback = !src || failed;
   const isHero = variant === "hero";
@@ -81,11 +93,7 @@ export function WineImage({
       {showFallback ? (
         <WineImageFallback type={type} />
       ) : isHero ? (
-        <motion.div
-          className="relative h-full w-full overflow-hidden"
-          whileHover={{ scale: 1.008 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div className="relative h-full w-full overflow-hidden transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-[1.008]">
           <div
             aria-hidden="true"
             className={cn(
@@ -107,8 +115,9 @@ export function WineImage({
               fill
               priority={priority}
               sizes={sizes}
-              unoptimized={unoptimized}
-              onError={() => setFailed(true)}
+              quality={85}
+              unoptimized={finalUnoptimized}
+              onError={handleImageError}
               className={cn(
                 "object-contain transition-transform duration-700",
                 heroExternal
@@ -118,15 +127,16 @@ export function WineImage({
               )}
             />
           </div>
-        </motion.div>
+        </div>
       ) : (
-        <motion.div
+        <div
           className={cn(
-            "relative h-full w-full",
+            "relative h-full w-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
+            objectFit === "contain"
+              ? "hover:scale-[1.02] group-hover:scale-[1.02]"
+              : "hover:scale-[1.03] group-hover:scale-[1.03]",
             objectFit === "contain" && containPaddingClass,
           )}
-          whileHover={{ scale: objectFit === "contain" ? 1.02 : 1.03 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           <Image
             src={src}
@@ -134,8 +144,9 @@ export function WineImage({
             fill
             priority={priority}
             sizes={sizes}
-            unoptimized={unoptimized}
-            onError={() => setFailed(true)}
+            quality={85}
+            unoptimized={finalUnoptimized}
+            onError={handleImageError}
             className={cn(
               "transition-transform duration-700",
               objectFit === "contain"
@@ -153,7 +164,7 @@ export function WineImage({
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           />
-        </motion.div>
+        </div>
       )}
     </div>
   );

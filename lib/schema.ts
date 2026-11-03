@@ -56,7 +56,25 @@ export interface AvailabilityEntry {
 export interface AffiliateLink {
   retailer: string;
   url: string;
+  /**
+   * Price observed for THIS offer, from the merchant behind this exact
+   * Profitshare link. Public display requires a fresh `checkedAt`.
+   */
   priceRon?: number;
+  /** ISO timestamp of the observation for this exact offer. */
+  checkedAt?: string;
+  /** False only when the offer is known to be unavailable. */
+  inStock?: boolean;
+  /** Profitshare campaign token, when explicitly stored. */
+  offerId?: string;
+  /** Retailer-side product/variant key used to prove offer identity. */
+  productKey?: string;
+  /** Bottle size in ml; compared with the wine name when present. */
+  bottleSizeMl?: number;
+  /** Offer vintage; compared with the wine vintage when both exist. */
+  vintage?: number | null;
+  /** Wine slug this offer was explicitly attached to. */
+  wineSlug?: string;
 }
 
 /** Tracked retail price observation for a wine. */
@@ -1252,3 +1270,228 @@ export const wineryAnalyticsRelations = relations(wineryAnalytics, ({ one }) => 
     references: [wineryEvents.id],
   }),
 }));
+
+/* -------------------------------------------------------------------------- */
+/*                    Multi-source wine intelligence V2                       */
+/* -------------------------------------------------------------------------- */
+
+export const WINE_CLAIM_FIELDS = [
+  "producer",
+  "range",
+  "product_name",
+  "grape_varieties",
+  "grape_percentages",
+  "vintage",
+  "bottle_volume",
+  "wine_color",
+  "sweetness",
+  "alcohol",
+  "appellation",
+  "region",
+  "country",
+  "serving_temperature",
+  "visual_appearance",
+  "aroma_descriptors",
+  "taste_descriptors",
+  "body",
+  "acidity_perception",
+  "tannin_perception",
+  "finish",
+  "winemaking_method",
+  "oak_treatment",
+  "food_pairing",
+  "awards",
+  "cellaring",
+  "allergens",
+  "other_product_info",
+] as const;
+
+export type WineClaimField = (typeof WINE_CLAIM_FIELDS)[number];
+
+export const WINE_SOURCE_CLASSES = [
+  "official_technical_sheet",
+  "official_producer_page",
+  "official_catalog",
+  "producer_general",
+  "retailer",
+  "specialist",
+  "education",
+  "editorial",
+  "existing_record",
+  "unknown",
+] as const;
+
+export type WineSourceClass = (typeof WINE_SOURCE_CLASSES)[number];
+
+export const WINE_CLAIM_VERIFICATION_STATUSES = [
+  "verified_official",
+  "attributed_retailer",
+  "attributed_specialist",
+  "attributed_editorial",
+  "corroborated",
+  "unverified",
+  "conflict",
+  "identity_mismatch",
+] as const;
+
+export type WineClaimVerificationStatus =
+  (typeof WINE_CLAIM_VERIFICATION_STATUSES)[number];
+
+/** V2 evidence ledger. Technical claims may also be mirrored into wine_fact_evidence. */
+export const wineClaimEvidence = sqliteTable(
+  "wine_claim_evidence",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    canonicalIdentityKey: text("canonical_identity_key").notNull(),
+    field: text("field").$type<WineClaimField>().notNull(),
+    valueJson: text("value_json", { mode: "json" })
+      .$type<string | number | string[] | Record<string, unknown>>()
+      .notNull(),
+    normalizedValue: text("normalized_value").notNull(),
+    unit: text("unit"),
+    sourceUrl: text("source_url").notNull(),
+    sourceTitle: text("source_title"),
+    sourceClass: text("source_class").$type<WineSourceClass>().notNull(),
+    excerpt: text("excerpt").notNull(),
+    observedAt: text("observed_at").notNull(),
+    extractionMethod: text("extraction_method").notNull(),
+    identityMatchStatus: text("identity_match_status").notNull(),
+    verificationStatus: text("verification_status")
+      .$type<WineClaimVerificationStatus>()
+      .notNull(),
+    confidence: real("confidence").notNull(),
+    conflictJson: text("conflict_json", { mode: "json" }).$type<Record<
+      string,
+      unknown
+    > | null>(),
+    sourceHash: text("source_hash").notNull(),
+    claimHash: text("claim_hash").notNull(),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("wine_claim_evidence_wine_idx").on(table.wineId),
+    index("wine_claim_evidence_field_idx").on(table.field),
+    index("wine_claim_evidence_source_idx").on(table.sourceUrl),
+    uniqueIndex("wine_claim_evidence_wine_field_hash_uidx").on(
+      table.wineId,
+      table.field,
+      table.sourceHash,
+    ),
+  ],
+);
+
+/** General variety knowledge is deliberately independent from bottle notes. */
+export const grapeVarietyKnowledge = sqliteTable(
+  "grape_variety_knowledge",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    history: text("history"),
+    typicalAromas: text("typical_aromas", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    regions: text("regions", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    styles: text("styles", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    foodCompatibility: text("food_compatibility", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    winemaking: text("winemaking", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    sources: text("sources", { mode: "json" })
+      .$type<Array<{ url: string; title: string }>>()
+      .notNull()
+      .default(sql`'[]'`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [uniqueIndex("grape_variety_knowledge_slug_uidx").on(table.slug)],
+);
+
+/** AI interpretation is stored separately from source-backed claims. */
+export const wineAiInterpretations = sqliteTable(
+  "wine_ai_interpretations",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    runId: text("run_id").notNull(),
+    model: text("model").notNull(),
+    text: text("text").notNull(),
+    supportedClaimHashes: text("supported_claim_hashes", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    inputTokens: integer("input_tokens").notNull().default(0),
+    outputTokens: integer("output_tokens").notNull().default(0),
+    estimatedCostUsd: real("estimated_cost_usd").notNull().default(0),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("wine_ai_interpretations_wine_idx").on(table.wineId),
+    uniqueIndex("wine_ai_interpretations_wine_run_uidx").on(
+      table.wineId,
+      table.runId,
+    ),
+  ],
+);
+
+/** Idempotency and cost/request reporting per enrichment run. */
+export const wineEnrichmentRuns = sqliteTable(
+  "wine_enrichment_runs",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    wineId: integer("wine_id")
+      .notNull()
+      .references(() => wines.id, { onDelete: "cascade" }),
+    fingerprint: text("fingerprint").notNull(),
+    status: text("status").notNull(),
+    dryRun: integer("dry_run", { mode: "boolean" }).notNull().default(false),
+    sourceCount: integer("source_count").notNull().default(0),
+    requestCount: integer("request_count").notNull().default(0),
+    claimCount: integer("claim_count").notNull().default(0),
+    conflictCount: integer("conflict_count").notNull().default(0),
+    aiRequestCount: integer("ai_request_count").notNull().default(0),
+    aiInputTokens: integer("ai_input_tokens").notNull().default(0),
+    aiOutputTokens: integer("ai_output_tokens").notNull().default(0),
+    estimatedCostUsd: real("estimated_cost_usd").notNull().default(0),
+    completenessJson: text("completeness_json", { mode: "json" })
+      .$type<Record<string, unknown>>()
+      .notNull(),
+    errorJson: text("error_json", { mode: "json" })
+      .$type<Record<string, unknown>[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    startedAt: text("started_at").notNull(),
+    finishedAt: text("finished_at"),
+  },
+  (table) => [
+    index("wine_enrichment_runs_wine_idx").on(table.wineId),
+    uniqueIndex("wine_enrichment_runs_wine_fingerprint_uidx").on(
+      table.wineId,
+      table.fingerprint,
+    ),
+  ],
+);

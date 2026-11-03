@@ -10,7 +10,7 @@ import { getSommelierModel } from "@/lib/ai/model";
 import { envOrUndefined } from "@/lib/env";
 import { getResendFromEmail } from "@/lib/site-email";
 import { absoluteUrl } from "@/lib/seo";
-import { resolveAffiliatePurchaseUrl } from "@/lib/retailer-links";
+import { resolveApprovalPurchaseUrl } from "@/lib/wine-approval-cta";
 import type { AffiliateLink, AvailabilityEntry } from "@/lib/schema";
 import { sanitizeEditorialText } from "@/lib/editorial-text";
 
@@ -164,11 +164,7 @@ export async function sendWineApprovalEmail(
 
   const summary = await generateWineApprovalEmailSummary(wine);
   const winePageUrl = buildWinePageUrl(wine.slug);
-  const purchaseUrl = resolveAffiliatePurchaseUrl({
-    sourceUrl: wine.sourceUrl,
-    affiliateLinks: wine.affiliateLinks,
-    availability: wine.availability,
-  });
+  const purchaseUrl = resolveApprovalPurchaseUrl(wine);
 
   const resend = new Resend(apiKey);
   const subject = `Vinul tau este live: ${formatWineTitle(wine)} | VinIntel.ro`;

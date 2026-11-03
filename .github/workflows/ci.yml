@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master, "review/**", "feature/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, types, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CI: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        # `npm ci` is platform-sensitive for this lockfile's optional native
+        # packages; `npm install` keeps CI reproducible enough while resolving
+        # the Linux optional graph.
+        run: npm install --no-audit --no-fund
+
+      - name: Create local CI database
+        run: |
+          rm -f local.db
+          # Test-fixture setup only. Migration 0028 itself is validated through
+          # the actual Drizzle migrator in the step below, not via push.
+          npx drizzle-kit push --force
+          npm run db:seed
+
+      - name: Lint
+        run: npm run lint
+
+      - name: TypeScript
+        run: npx tsc --noEmit
+
+      - name: Migration 0028 actual path
+        run: npx vitest run lib/migrations/0028-migration.test.ts --pool=forks
+
+      - name: Tests
+        run: npm test -- --pool=forks
+
+      - name: Production build
+        run: npm run build
+
+      - name: Security audit
+        run: npm run security:audit
+
+      - name: Quality release gate
+        run: npx tsx scripts/quality-release-gate.ts
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser smoke checks
+        env:
+          BROWSER_BASE_URL: http://127.0.0.1:3114
+          BROWSER_WINE_SLUG: davino-domaine-ceptura-rosu-2019
+        run: |
+          npm run start -- -p 3114 > /tmp/vinintel-next.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:3114/soiuri > /dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/browser-check.mjs
+
+      - name: Jev configuration tests
+        run: npx vitest run lib/jev --pool=forks

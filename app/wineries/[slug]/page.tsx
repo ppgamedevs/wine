@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
 import { formatRon } from "@/lib/format";
+import { sanitizeWinesForPublic } from "@/lib/public-price";
+import { resolveWineDisplayPrice } from "@/lib/wine-price";
 import {
   buildWineryProfileJsonLd,
   getWineryProfileI18n,
@@ -56,7 +58,7 @@ function computeStats(winery: WineryWithWines) {
       : null;
 
   const prices = winery.wines
-    .map((w) => w.priceAvg)
+    .map((w) => resolveWineDisplayPrice(w))
     .filter((p): p is number => p !== null && p !== undefined);
   const priceRange =
     prices.length > 0
@@ -78,7 +80,7 @@ function buildRomanianWineryFaq(winery: WineryWithWines): FaqEntry[] {
     {
       question: `Care este cel mai bun vin de la ${winery.name}?`,
       answer: top
-        ? `In acest moment, ${top.name} conduce, cu Value Score ${top.valueScore ?? "N/A"}/100 la ${formatRon(top.priceAvg)}.`
+        ? `In acest moment, ${top.name} conduce, cu Value Score ${top.valueScore ?? "N/A"}/100 la ${formatRon(resolveWineDisplayPrice(top))}.`
         : `Actualizam constant lista de vinuri de la ${winery.name}.`,
     },
     {
@@ -125,7 +127,7 @@ function buildLocalizedWineryFaq(
         ? t("faq.best.answer", {
             wine: top.name,
             score: top.valueScore ?? "N/A",
-            price: formatRon(top.priceAvg, locale),
+            price: formatRon(resolveWineDisplayPrice(top), locale),
           })
         : t("faq.best.empty", { name: winery.name }),
     },
@@ -247,7 +249,10 @@ export default async function WineryPage({ params }: WineryPageProps) {
     sourceEvents,
     locale,
   );
-  const winery = localized.winery;
+  const winery = {
+    ...localized.winery,
+    wines: sanitizeWinesForPublic(localized.winery.wines),
+  };
   const events = localized.events;
 
   const stats = computeStats(winery);

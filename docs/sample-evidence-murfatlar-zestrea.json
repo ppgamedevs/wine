@@ -1,0 +1,4325 @@
+{
+  "wineId": 418,
+  "wineName": "Zestrea Muscat Ottonel Demisec",
+  "generatedAt": "2026-11-03T13:23:25.904Z",
+  "dryRun": true,
+  "runId": "v2-418-9b5836f3b852",
+  "fingerprint": "9b5836f3b85284c5656010a8",
+  "sources": [
+    {
+      "source": {
+        "url": "vinintel://wine/418",
+        "title": "Existing VinIntel record",
+        "classification": "existing_record",
+        "discoveredFrom": "wine.id",
+        "priority": 100,
+        "contentKind": "json",
+        "fixture": null,
+        "availability": "available",
+        "availabilityReason": null
+      },
+      "status": "available",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "producer",
+          "value": "Murfatlar",
+          "normalizedValue": "murfatlar",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "1074abe6ad3c736db63fc710",
+          "claimHash": "28e735ecf7b914848ee2e6b2"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "range",
+          "value": "Zestrea",
+          "normalizedValue": "zestrea",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "29f573489b7ca489cd0e220d",
+          "claimHash": "74fda8b657ce2496ffef75db"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "product_name",
+          "value": "Muscat Ottonel",
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "8b04e5a942d2f3fa47852708",
+          "claimHash": "39fea9b00adf3f6ac24a6bf1"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "grape_varieties",
+          "value": [
+            "Muscat Ottonel"
+          ],
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "92fbf55fd56bc9956f13f942",
+          "claimHash": "3b393b2b4f4efecbe6a7f0e3"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "bottle_volume",
+          "value": 750,
+          "normalizedValue": "750",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "a83314d2e798c03e031e9d6a",
+          "claimHash": "0155a01ecf8cfd13700e658f"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "wine_color",
+          "value": "alb",
+          "normalizedValue": "alb",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "f3073461d70f230fcb5459db",
+          "claimHash": "9d158742a86a058ae72be512"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "sweetness",
+          "value": "demisec",
+          "normalizedValue": "demisec",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "01e3dec46c2a0234faab69a1",
+          "claimHash": "6c8549d967b39689db0559b8"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "serving_temperature",
+          "value": "7-8",
+          "normalizedValue": "7-8",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "8a6a74595140478016e34262",
+          "claimHash": "c32ee4ff31c4acca1ebd5ca0"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "visual_appearance",
+          "value": [
+            "galben-verzui"
+          ],
+          "normalizedValue": "galben-verzui",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "decc63d6791b4e2450bfe2f9",
+          "claimHash": "5313b77d15292b3b8077bfaf"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "aroma_descriptors",
+          "value": [
+            "caracteristic soiului",
+            "plăcut",
+            "îmbietor"
+          ],
+          "normalizedValue": "caracteristic soiului | plăcut | îmbietor",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "d17d26d8a425dcfadccf1759",
+          "claimHash": "792a4ebcaa7dd4751b2a3fc8"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "taste_descriptors",
+          "value": [
+            "echilibrat",
+            "aciditate medie",
+            "fructe verzi",
+            "final remanent savuros"
+          ],
+          "normalizedValue": "aciditate medie | echilibrat | final remanent savuros | fructe verzi",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "4d6084f5cbe771b77d8de867",
+          "claimHash": "bc50e7b3ca8c21d33e7bee16"
+        }
+      ],
+      "error": null,
+      "requestCount": 0,
+      "cached": false
+    },
+    {
+      "source": {
+        "url": "https://murfatlar-vinul.ro/zestrea/",
+        "title": "Murfatlar Zestrea — official producer page",
+        "classification": "official_producer_page",
+        "discoveredFrom": "wine.producerPageUrl",
+        "priority": 85,
+        "contentKind": "html",
+        "fixture": {
+          "url": "https://murfatlar-vinul.ro/zestrea/",
+          "title": "Murfatlar Zestrea — official producer page",
+          "kind": "html",
+          "body": "[source body omitted from evidence report; 169341 chars]",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "classification": "official_producer_page"
+        },
+        "availability": "available",
+        "availabilityReason": null
+      },
+      "status": "available",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "producer",
+          "value": "Murfatlar",
+          "normalizedValue": "murfatlar",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "producer page",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "51abc5447761a40af820df7a",
+          "claimHash": "476f9e43036a1a27330344a2"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "range",
+          "value": "Zestrea",
+          "normalizedValue": "zestrea",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Zestrea",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "a7961a429d243d4684606432",
+          "claimHash": "a83634f050dafc09e0a8597b"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "product_name",
+          "value": "Muscat Ottonel",
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Muscat Ottonel",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "9bfd1137658ece0a3e12fdb8",
+          "claimHash": "d28ee80dae56eba3e9af66a8"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "grape_varieties",
+          "value": [
+            "Muscat Ottonel"
+          ],
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Muscat Ottonel",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "75a8b6080daa27c3ff873993",
+          "claimHash": "330a54fd81ee367b2a591298"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "bottle_volume",
+          "value": 750,
+          "normalizedValue": "750",
+          "unit": "ml",
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "750 ml",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.95,
+          "sourceHash": "df815846e991fa84b7b295d0",
+          "claimHash": "19c407b86401dd3264f5d6af"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "wine_color",
+          "value": "alb",
+          "normalizedValue": "alb",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "alb",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "d314f88066a01c6237be11b7",
+          "claimHash": "4fad99cabc7705d0d387237c"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "sweetness",
+          "value": "demisec",
+          "normalizedValue": "demisec",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "demisec",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "de0f6f462ae76044beb8e116",
+          "claimHash": "56d30ee681c332f4b46e4dc9"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "appellation",
+          "value": "DOC - CMD Murfatlar",
+          "normalizedValue": "doc - cmd murfatlar",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "DOC - CMD Murfatlar",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.95,
+          "sourceHash": "9807d85a233a432548d05652",
+          "claimHash": "411a86b3afaa1ccb769a5fef"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "region",
+          "value": "Murfatlar",
+          "normalizedValue": "murfatlar",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "podgoria Murfatlar",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "ddd1350fb8d6b8ed9aaf96b6",
+          "claimHash": "1030f74142241e826cc0e684"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "country",
+          "value": "Romania",
+          "normalizedValue": "romania",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Murfatlar, Romania",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "fd2b9091e4e3ed572987ce72",
+          "claimHash": "ae98e1cf10f79f06fbad310b"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "serving_temperature",
+          "value": "7-8",
+          "normalizedValue": "7-8",
+          "unit": "C",
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Temperatura de servire: 7-8°C.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "49b6623bf531f035101b05d6",
+          "claimHash": "cc4565e5f1d5f9e5d45da3ae"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "visual_appearance",
+          "value": [
+            "galben-verzui"
+          ],
+          "normalizedValue": "galben-verzui",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "galben-verzui.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "eb984fb740c62f66d6c7bd6a",
+          "claimHash": "fa86c18d9a1e4d19c15bd76b"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "aroma_descriptors",
+          "value": [
+            "caracteristic soiului",
+            "plăcut",
+            "îmbietor"
+          ],
+          "normalizedValue": "caracteristic soiului | plăcut | îmbietor",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "caracteristic soiului, plăcut, îmbietor.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "e5ec0a0d4275024da5a57113",
+          "claimHash": "f2e180a4e90c7f07e56c9b94"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "taste_descriptors",
+          "value": [
+            "echilibrat",
+            "o aciditate medie cu caracteristică de fructe verzi",
+            "Octuozitate delicată",
+            "cu gust final remanent savuros"
+          ],
+          "normalizedValue": "cu gust final remanent savuros | echilibrat | o aciditate medie cu caracteristică de fructe verzi | octuozitate delicată",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "echilibrat, o aciditate medie cu caracteristică de fructe verzi. Octuozitate delicată, cu gust final remanent savuros.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "2e6e2c4ebd9d069b229fce13",
+          "claimHash": "d3507e678fb447305de9aa01"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "acidity_perception",
+          "value": "medie",
+          "normalizedValue": "medie",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "medie",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.85,
+          "sourceHash": "7c0abc65bf2467c85d71c444",
+          "claimHash": "f62af61130533910f48eab95"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "finish",
+          "value": "remanent savuros",
+          "normalizedValue": "remanent savuros",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "remanent savuros",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.85,
+          "sourceHash": "e687ed4cba63610378dec05d",
+          "claimHash": "186582ac77993d2dcee8999e"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "food_pairing",
+          "value": [
+            "se poate servi ca aperitiv sau alaturi de preparate din pește",
+            "carne albă",
+            "preparate vegetariene",
+            "brânzeturi",
+            "diverse antreuri"
+          ],
+          "normalizedValue": "brânzeturi | carne albă | diverse antreuri | preparate vegetariene | se poate servi ca aperitiv sau alaturi de preparate din pește",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "se poate servi ca aperitiv sau alaturi de preparate din pește, carne albă, preparate vegetariene, brânzeturi, diverse antreuri",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "7f3e59569e5088ed3973c20f",
+          "claimHash": "d00064b1447936603f731ec1"
+        }
+      ],
+      "error": null,
+      "requestCount": 0,
+      "cached": false
+    },
+    {
+      "source": {
+        "url": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+        "title": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+        "classification": "retailer",
+        "discoveredFrom": "fixture input",
+        "priority": 30,
+        "contentKind": "json",
+        "fixture": {
+          "url": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "title": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "kind": "json",
+          "body": "[source body omitted from evidence report; 815 chars]",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "classification": "retailer"
+        },
+        "availability": "available",
+        "availabilityReason": null
+      },
+      "status": "available",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "producer",
+          "value": "Murfatlar",
+          "normalizedValue": "murfatlar",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "72c636c1571d52ae15612daa",
+          "claimHash": "9a29eeeac8a45a72abc95ebf"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "range",
+          "value": "Zestrea",
+          "normalizedValue": "zestrea",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "be9060aa508f499fc5fe00d9",
+          "claimHash": "8b72769337c4e241a9b0e67b"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "product_name",
+          "value": "Muscat Ottonel",
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "3d256a0b741d9c262eda74cf",
+          "claimHash": "9a94f621cd9f6d9a39921756"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "grape_varieties",
+          "value": [
+            "Muscat Ottonel"
+          ],
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "c8c907dbc060f271cd18fb40",
+          "claimHash": "3ed732c3f828ee777326c5a2"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "sweetness",
+          "value": "demisec",
+          "normalizedValue": "demisec",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "6c17d8ecb06307db5f7ff4f8",
+          "claimHash": "44b2929aebca3a8e214da5e7"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "wine_color",
+          "value": "alb",
+          "normalizedValue": "alb",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "2fb264125e7f66d7449c22e1",
+          "claimHash": "2c8cb3b1929e5c5d0cb83f52"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "bottle_volume",
+          "value": 750,
+          "normalizedValue": "750",
+          "unit": "ml",
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "750 ml",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "6529d22506602aafae2cdea6",
+          "claimHash": "fd951c818ec89a6a72b45321"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "alcohol",
+          "value": 12.5,
+          "normalizedValue": "12.5",
+          "unit": "% vol",
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Concentratie alcoolica: 12,5% vol.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "cec4346931998868ae2fa607",
+          "claimHash": "6549d72956eff8c0cf993770"
+        }
+      ],
+      "error": null,
+      "requestCount": 0,
+      "cached": false
+    }
+  ],
+  "claims": [
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "producer",
+      "value": "Murfatlar",
+      "normalizedValue": "murfatlar",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.906Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "1074abe6ad3c736db63fc710",
+      "claimHash": "28e735ecf7b914848ee2e6b2"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "range",
+      "value": "Zestrea",
+      "normalizedValue": "zestrea",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.906Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "29f573489b7ca489cd0e220d",
+      "claimHash": "74fda8b657ce2496ffef75db"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "product_name",
+      "value": "Muscat Ottonel",
+      "normalizedValue": "muscat ottonel",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.906Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "8b04e5a942d2f3fa47852708",
+      "claimHash": "39fea9b00adf3f6ac24a6bf1"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "grape_varieties",
+      "value": [
+        "Muscat Ottonel"
+      ],
+      "normalizedValue": "muscat ottonel",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.906Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "92fbf55fd56bc9956f13f942",
+      "claimHash": "3b393b2b4f4efecbe6a7f0e3"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "bottle_volume",
+      "value": 750,
+      "normalizedValue": "750",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.906Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "a83314d2e798c03e031e9d6a",
+      "claimHash": "0155a01ecf8cfd13700e658f"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "wine_color",
+      "value": "alb",
+      "normalizedValue": "alb",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.907Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "f3073461d70f230fcb5459db",
+      "claimHash": "9d158742a86a058ae72be512"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "sweetness",
+      "value": "demisec",
+      "normalizedValue": "demisec",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.907Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "01e3dec46c2a0234faab69a1",
+      "claimHash": "6c8549d967b39689db0559b8"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "serving_temperature",
+      "value": "7-8",
+      "normalizedValue": "7-8",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.907Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "8a6a74595140478016e34262",
+      "claimHash": "c32ee4ff31c4acca1ebd5ca0"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "visual_appearance",
+      "value": [
+        "galben-verzui"
+      ],
+      "normalizedValue": "galben-verzui",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.907Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "decc63d6791b4e2450bfe2f9",
+      "claimHash": "5313b77d15292b3b8077bfaf"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "aroma_descriptors",
+      "value": [
+        "caracteristic soiului",
+        "plăcut",
+        "îmbietor"
+      ],
+      "normalizedValue": "caracteristic soiului | plăcut | îmbietor",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.907Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "d17d26d8a425dcfadccf1759",
+      "claimHash": "792a4ebcaa7dd4751b2a3fc8"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "taste_descriptors",
+      "value": [
+        "echilibrat",
+        "aciditate medie",
+        "fructe verzi",
+        "final remanent savuros"
+      ],
+      "normalizedValue": "aciditate medie | echilibrat | final remanent savuros | fructe verzi",
+      "unit": null,
+      "sourceUrl": "vinintel://wine/418",
+      "sourceTitle": "Existing VinIntel record",
+      "sourceClass": "existing_record",
+      "excerpt": "Existing VinIntel record",
+      "observedAt": "2026-11-03T13:23:25.907Z",
+      "extractionMethod": "existing_record",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.6,
+      "sourceHash": "4d6084f5cbe771b77d8de867",
+      "claimHash": "bc50e7b3ca8c21d33e7bee16"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "producer",
+      "value": "Murfatlar",
+      "normalizedValue": "murfatlar",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "producer page",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.98,
+      "sourceHash": "51abc5447761a40af820df7a",
+      "claimHash": "476f9e43036a1a27330344a2"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "range",
+      "value": "Zestrea",
+      "normalizedValue": "zestrea",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "Zestrea",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.98,
+      "sourceHash": "a7961a429d243d4684606432",
+      "claimHash": "a83634f050dafc09e0a8597b"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "product_name",
+      "value": "Muscat Ottonel",
+      "normalizedValue": "muscat ottonel",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "Muscat Ottonel",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.98,
+      "sourceHash": "9bfd1137658ece0a3e12fdb8",
+      "claimHash": "d28ee80dae56eba3e9af66a8"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "grape_varieties",
+      "value": [
+        "Muscat Ottonel"
+      ],
+      "normalizedValue": "muscat ottonel",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "Muscat Ottonel",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.98,
+      "sourceHash": "75a8b6080daa27c3ff873993",
+      "claimHash": "330a54fd81ee367b2a591298"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "bottle_volume",
+      "value": 750,
+      "normalizedValue": "750",
+      "unit": "ml",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "750 ml",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.95,
+      "sourceHash": "df815846e991fa84b7b295d0",
+      "claimHash": "19c407b86401dd3264f5d6af"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "wine_color",
+      "value": "alb",
+      "normalizedValue": "alb",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "alb",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.98,
+      "sourceHash": "d314f88066a01c6237be11b7",
+      "claimHash": "4fad99cabc7705d0d387237c"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "sweetness",
+      "value": "demisec",
+      "normalizedValue": "demisec",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "demisec",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.98,
+      "sourceHash": "de0f6f462ae76044beb8e116",
+      "claimHash": "56d30ee681c332f4b46e4dc9"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "appellation",
+      "value": "DOC - CMD Murfatlar",
+      "normalizedValue": "doc - cmd murfatlar",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "DOC - CMD Murfatlar",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.95,
+      "sourceHash": "9807d85a233a432548d05652",
+      "claimHash": "411a86b3afaa1ccb769a5fef"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "region",
+      "value": "Murfatlar",
+      "normalizedValue": "murfatlar",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "podgoria Murfatlar",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.9,
+      "sourceHash": "ddd1350fb8d6b8ed9aaf96b6",
+      "claimHash": "1030f74142241e826cc0e684"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "country",
+      "value": "Romania",
+      "normalizedValue": "romania",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "Murfatlar, Romania",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.9,
+      "sourceHash": "fd2b9091e4e3ed572987ce72",
+      "claimHash": "ae98e1cf10f79f06fbad310b"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "serving_temperature",
+      "value": "7-8",
+      "normalizedValue": "7-8",
+      "unit": "C",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "Temperatura de servire: 7-8°C.",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.9,
+      "sourceHash": "49b6623bf531f035101b05d6",
+      "claimHash": "cc4565e5f1d5f9e5d45da3ae"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "visual_appearance",
+      "value": [
+        "galben-verzui"
+      ],
+      "normalizedValue": "galben-verzui",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "galben-verzui.",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.9,
+      "sourceHash": "eb984fb740c62f66d6c7bd6a",
+      "claimHash": "fa86c18d9a1e4d19c15bd76b"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "aroma_descriptors",
+      "value": [
+        "caracteristic soiului",
+        "plăcut",
+        "îmbietor"
+      ],
+      "normalizedValue": "caracteristic soiului | plăcut | îmbietor",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "caracteristic soiului, plăcut, îmbietor.",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.9,
+      "sourceHash": "e5ec0a0d4275024da5a57113",
+      "claimHash": "f2e180a4e90c7f07e56c9b94"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "taste_descriptors",
+      "value": [
+        "echilibrat",
+        "o aciditate medie cu caracteristică de fructe verzi",
+        "Octuozitate delicată",
+        "cu gust final remanent savuros"
+      ],
+      "normalizedValue": "cu gust final remanent savuros | echilibrat | o aciditate medie cu caracteristică de fructe verzi | octuozitate delicată",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "echilibrat, o aciditate medie cu caracteristică de fructe verzi. Octuozitate delicată, cu gust final remanent savuros.",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.9,
+      "sourceHash": "2e6e2c4ebd9d069b229fce13",
+      "claimHash": "d3507e678fb447305de9aa01"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "acidity_perception",
+      "value": "medie",
+      "normalizedValue": "medie",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "medie",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.85,
+      "sourceHash": "7c0abc65bf2467c85d71c444",
+      "claimHash": "f62af61130533910f48eab95"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "finish",
+      "value": "remanent savuros",
+      "normalizedValue": "remanent savuros",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "remanent savuros",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.85,
+      "sourceHash": "e687ed4cba63610378dec05d",
+      "claimHash": "186582ac77993d2dcee8999e"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "food_pairing",
+      "value": [
+        "se poate servi ca aperitiv sau alaturi de preparate din pește",
+        "carne albă",
+        "preparate vegetariene",
+        "brânzeturi",
+        "diverse antreuri"
+      ],
+      "normalizedValue": "brânzeturi | carne albă | diverse antreuri | preparate vegetariene | se poate servi ca aperitiv sau alaturi de preparate din pește",
+      "unit": null,
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceTitle": "Murfatlar Zestrea — official producer page",
+      "sourceClass": "official_producer_page",
+      "excerpt": "se poate servi ca aperitiv sau alaturi de preparate din pește, carne albă, preparate vegetariene, brânzeturi, diverse antreuri",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.9,
+      "sourceHash": "7f3e59569e5088ed3973c20f",
+      "claimHash": "d00064b1447936603f731ec1"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "producer",
+      "value": "Murfatlar",
+      "normalizedValue": "murfatlar",
+      "unit": null,
+      "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+      "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "sourceClass": "retailer",
+      "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.7,
+      "sourceHash": "72c636c1571d52ae15612daa",
+      "claimHash": "9a29eeeac8a45a72abc95ebf"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "range",
+      "value": "Zestrea",
+      "normalizedValue": "zestrea",
+      "unit": null,
+      "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+      "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "sourceClass": "retailer",
+      "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.7,
+      "sourceHash": "be9060aa508f499fc5fe00d9",
+      "claimHash": "8b72769337c4e241a9b0e67b"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "product_name",
+      "value": "Muscat Ottonel",
+      "normalizedValue": "muscat ottonel",
+      "unit": null,
+      "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+      "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "sourceClass": "retailer",
+      "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.7,
+      "sourceHash": "3d256a0b741d9c262eda74cf",
+      "claimHash": "9a94f621cd9f6d9a39921756"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "grape_varieties",
+      "value": [
+        "Muscat Ottonel"
+      ],
+      "normalizedValue": "muscat ottonel",
+      "unit": null,
+      "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+      "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "sourceClass": "retailer",
+      "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.7,
+      "sourceHash": "c8c907dbc060f271cd18fb40",
+      "claimHash": "3ed732c3f828ee777326c5a2"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "sweetness",
+      "value": "demisec",
+      "normalizedValue": "demisec",
+      "unit": null,
+      "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+      "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "sourceClass": "retailer",
+      "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.7,
+      "sourceHash": "6c17d8ecb06307db5f7ff4f8",
+      "claimHash": "44b2929aebca3a8e214da5e7"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "wine_color",
+      "value": "alb",
+      "normalizedValue": "alb",
+      "unit": null,
+      "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+      "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "sourceClass": "retailer",
+      "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.7,
+      "sourceHash": "2fb264125e7f66d7449c22e1",
+      "claimHash": "2c8cb3b1929e5c5d0cb83f52"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "bottle_volume",
+      "value": 750,
+      "normalizedValue": "750",
+      "unit": "ml",
+      "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+      "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "sourceClass": "retailer",
+      "excerpt": "750 ml",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.7,
+      "sourceHash": "6529d22506602aafae2cdea6",
+      "claimHash": "fd951c818ec89a6a72b45321"
+    },
+    {
+      "wineId": 418,
+      "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+      "identity": {
+        "producer": "Murfatlar",
+        "range": "Zestrea",
+        "productName": "Zestrea Muscat Ottonel Demisec",
+        "grapeVarieties": [
+          "Muscat Ottonel"
+        ],
+        "color": "alb",
+        "sweetness": "demisec",
+        "bottleSizeMl": 750,
+        "vintage": null,
+        "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+      },
+      "field": "alcohol",
+      "value": 12.5,
+      "normalizedValue": "12.5",
+      "unit": "% vol",
+      "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+      "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+      "sourceClass": "retailer",
+      "excerpt": "Concentratie alcoolica: 12,5% vol.",
+      "observedAt": "2026-11-03T11:56:00.000Z",
+      "extractionMethod": "deterministic",
+      "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+      "confidence": 0.7,
+      "sourceHash": "cec4346931998868ae2fa607",
+      "claimHash": "6549d72956eff8c0cf993770"
+    }
+  ],
+  "reconciled": [
+    {
+      "field": "producer",
+      "value": "Murfatlar",
+      "normalizedValue": "murfatlar",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.98,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "producer",
+          "value": "Murfatlar",
+          "normalizedValue": "murfatlar",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "1074abe6ad3c736db63fc710",
+          "claimHash": "28e735ecf7b914848ee2e6b2"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "producer",
+          "value": "Murfatlar",
+          "normalizedValue": "murfatlar",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "producer page",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "51abc5447761a40af820df7a",
+          "claimHash": "476f9e43036a1a27330344a2"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "producer",
+          "value": "Murfatlar",
+          "normalizedValue": "murfatlar",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "72c636c1571d52ae15612daa",
+          "claimHash": "9a29eeeac8a45a72abc95ebf"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "range",
+      "value": "Zestrea",
+      "normalizedValue": "zestrea",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.98,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "range",
+          "value": "Zestrea",
+          "normalizedValue": "zestrea",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "29f573489b7ca489cd0e220d",
+          "claimHash": "74fda8b657ce2496ffef75db"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "range",
+          "value": "Zestrea",
+          "normalizedValue": "zestrea",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Zestrea",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "a7961a429d243d4684606432",
+          "claimHash": "a83634f050dafc09e0a8597b"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "range",
+          "value": "Zestrea",
+          "normalizedValue": "zestrea",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "be9060aa508f499fc5fe00d9",
+          "claimHash": "8b72769337c4e241a9b0e67b"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "product_name",
+      "value": "Muscat Ottonel",
+      "normalizedValue": "muscat ottonel",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.98,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "product_name",
+          "value": "Muscat Ottonel",
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "8b04e5a942d2f3fa47852708",
+          "claimHash": "39fea9b00adf3f6ac24a6bf1"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "product_name",
+          "value": "Muscat Ottonel",
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Muscat Ottonel",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "9bfd1137658ece0a3e12fdb8",
+          "claimHash": "d28ee80dae56eba3e9af66a8"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "product_name",
+          "value": "Muscat Ottonel",
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "3d256a0b741d9c262eda74cf",
+          "claimHash": "9a94f621cd9f6d9a39921756"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "grape_varieties",
+      "value": [
+        "Muscat Ottonel"
+      ],
+      "normalizedValue": "muscat ottonel",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.98,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "grape_varieties",
+          "value": [
+            "Muscat Ottonel"
+          ],
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "92fbf55fd56bc9956f13f942",
+          "claimHash": "3b393b2b4f4efecbe6a7f0e3"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "grape_varieties",
+          "value": [
+            "Muscat Ottonel"
+          ],
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Muscat Ottonel",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "75a8b6080daa27c3ff873993",
+          "claimHash": "330a54fd81ee367b2a591298"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "grape_varieties",
+          "value": [
+            "Muscat Ottonel"
+          ],
+          "normalizedValue": "muscat ottonel",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "c8c907dbc060f271cd18fb40",
+          "claimHash": "3ed732c3f828ee777326c5a2"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "vintage",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    },
+    {
+      "field": "bottle_volume",
+      "value": 750,
+      "normalizedValue": "750",
+      "unit": "ml",
+      "verificationStatus": "verified_official",
+      "confidence": 0.95,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "bottle_volume",
+          "value": 750,
+          "normalizedValue": "750",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.906Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "a83314d2e798c03e031e9d6a",
+          "claimHash": "0155a01ecf8cfd13700e658f"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "bottle_volume",
+          "value": 750,
+          "normalizedValue": "750",
+          "unit": "ml",
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "750 ml",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.95,
+          "sourceHash": "df815846e991fa84b7b295d0",
+          "claimHash": "19c407b86401dd3264f5d6af"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "bottle_volume",
+          "value": 750,
+          "normalizedValue": "750",
+          "unit": "ml",
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "750 ml",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "6529d22506602aafae2cdea6",
+          "claimHash": "fd951c818ec89a6a72b45321"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "wine_color",
+      "value": "alb",
+      "normalizedValue": "alb",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.98,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "wine_color",
+          "value": "alb",
+          "normalizedValue": "alb",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "f3073461d70f230fcb5459db",
+          "claimHash": "9d158742a86a058ae72be512"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "wine_color",
+          "value": "alb",
+          "normalizedValue": "alb",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "alb",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "d314f88066a01c6237be11b7",
+          "claimHash": "4fad99cabc7705d0d387237c"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "wine_color",
+          "value": "alb",
+          "normalizedValue": "alb",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "2fb264125e7f66d7449c22e1",
+          "claimHash": "2c8cb3b1929e5c5d0cb83f52"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "sweetness",
+      "value": "demisec",
+      "normalizedValue": "demisec",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.98,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "sweetness",
+          "value": "demisec",
+          "normalizedValue": "demisec",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "01e3dec46c2a0234faab69a1",
+          "claimHash": "6c8549d967b39689db0559b8"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "sweetness",
+          "value": "demisec",
+          "normalizedValue": "demisec",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "demisec",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.98,
+          "sourceHash": "de0f6f462ae76044beb8e116",
+          "claimHash": "56d30ee681c332f4b46e4dc9"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "sweetness",
+          "value": "demisec",
+          "normalizedValue": "demisec",
+          "unit": null,
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "6c17d8ecb06307db5f7ff4f8",
+          "claimHash": "44b2929aebca3a8e214da5e7"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "alcohol",
+      "value": 12.5,
+      "normalizedValue": "12.5",
+      "unit": "% vol",
+      "verificationStatus": "attributed_retailer",
+      "confidence": 0.7,
+      "sourceClass": "retailer",
+      "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "alcohol",
+          "value": 12.5,
+          "normalizedValue": "12.5",
+          "unit": "% vol",
+          "sourceUrl": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+          "sourceTitle": "Auchan — Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+          "sourceClass": "retailer",
+          "excerpt": "Concentratie alcoolica: 12,5% vol.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.7,
+          "sourceHash": "cec4346931998868ae2fa607",
+          "claimHash": "6549d72956eff8c0cf993770"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "appellation",
+      "value": "DOC - CMD Murfatlar",
+      "normalizedValue": "doc - cmd murfatlar",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.95,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "appellation",
+          "value": "DOC - CMD Murfatlar",
+          "normalizedValue": "doc - cmd murfatlar",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "DOC - CMD Murfatlar",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.95,
+          "sourceHash": "9807d85a233a432548d05652",
+          "claimHash": "411a86b3afaa1ccb769a5fef"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "region",
+      "value": "Murfatlar",
+      "normalizedValue": "murfatlar",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.9,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "region",
+          "value": "Murfatlar",
+          "normalizedValue": "murfatlar",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "podgoria Murfatlar",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "ddd1350fb8d6b8ed9aaf96b6",
+          "claimHash": "1030f74142241e826cc0e684"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "country",
+      "value": "Romania",
+      "normalizedValue": "romania",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.9,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "country",
+          "value": "Romania",
+          "normalizedValue": "romania",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Murfatlar, Romania",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "fd2b9091e4e3ed572987ce72",
+          "claimHash": "ae98e1cf10f79f06fbad310b"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "serving_temperature",
+      "value": "7-8",
+      "normalizedValue": "7-8",
+      "unit": "C",
+      "verificationStatus": "verified_official",
+      "confidence": 0.9,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "serving_temperature",
+          "value": "7-8",
+          "normalizedValue": "7-8",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "8a6a74595140478016e34262",
+          "claimHash": "c32ee4ff31c4acca1ebd5ca0"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "serving_temperature",
+          "value": "7-8",
+          "normalizedValue": "7-8",
+          "unit": "C",
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "Temperatura de servire: 7-8°C.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "49b6623bf531f035101b05d6",
+          "claimHash": "cc4565e5f1d5f9e5d45da3ae"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "visual_appearance",
+      "value": [
+        "galben-verzui"
+      ],
+      "normalizedValue": "galben-verzui",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.9,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "visual_appearance",
+          "value": [
+            "galben-verzui"
+          ],
+          "normalizedValue": "galben-verzui",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "decc63d6791b4e2450bfe2f9",
+          "claimHash": "5313b77d15292b3b8077bfaf"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "visual_appearance",
+          "value": [
+            "galben-verzui"
+          ],
+          "normalizedValue": "galben-verzui",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "galben-verzui.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "eb984fb740c62f66d6c7bd6a",
+          "claimHash": "fa86c18d9a1e4d19c15bd76b"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "aroma_descriptors",
+      "value": [
+        "caracteristic soiului",
+        "plăcut",
+        "îmbietor"
+      ],
+      "normalizedValue": "caracteristic soiului | plăcut | îmbietor",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.9,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "aroma_descriptors",
+          "value": [
+            "caracteristic soiului",
+            "plăcut",
+            "îmbietor"
+          ],
+          "normalizedValue": "caracteristic soiului | plăcut | îmbietor",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "d17d26d8a425dcfadccf1759",
+          "claimHash": "792a4ebcaa7dd4751b2a3fc8"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "aroma_descriptors",
+          "value": [
+            "caracteristic soiului",
+            "plăcut",
+            "îmbietor"
+          ],
+          "normalizedValue": "caracteristic soiului | plăcut | îmbietor",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "caracteristic soiului, plăcut, îmbietor.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "e5ec0a0d4275024da5a57113",
+          "claimHash": "f2e180a4e90c7f07e56c9b94"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "taste_descriptors",
+      "value": [
+        "echilibrat",
+        "o aciditate medie cu caracteristică de fructe verzi",
+        "Octuozitate delicată",
+        "cu gust final remanent savuros"
+      ],
+      "normalizedValue": "cu gust final remanent savuros | echilibrat | o aciditate medie cu caracteristică de fructe verzi | octuozitate delicată",
+      "unit": null,
+      "verificationStatus": "conflict",
+      "confidence": 0.9,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "taste_descriptors",
+          "value": [
+            "echilibrat",
+            "aciditate medie",
+            "fructe verzi",
+            "final remanent savuros"
+          ],
+          "normalizedValue": "aciditate medie | echilibrat | final remanent savuros | fructe verzi",
+          "unit": null,
+          "sourceUrl": "vinintel://wine/418",
+          "sourceTitle": "Existing VinIntel record",
+          "sourceClass": "existing_record",
+          "excerpt": "Existing VinIntel record",
+          "observedAt": "2026-11-03T13:23:25.907Z",
+          "extractionMethod": "existing_record",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.6,
+          "sourceHash": "4d6084f5cbe771b77d8de867",
+          "claimHash": "bc50e7b3ca8c21d33e7bee16"
+        },
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "taste_descriptors",
+          "value": [
+            "echilibrat",
+            "o aciditate medie cu caracteristică de fructe verzi",
+            "Octuozitate delicată",
+            "cu gust final remanent savuros"
+          ],
+          "normalizedValue": "cu gust final remanent savuros | echilibrat | o aciditate medie cu caracteristică de fructe verzi | octuozitate delicată",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "echilibrat, o aciditate medie cu caracteristică de fructe verzi. Octuozitate delicată, cu gust final remanent savuros.",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "2e6e2c4ebd9d069b229fce13",
+          "claimHash": "d3507e678fb447305de9aa01"
+        }
+      ],
+      "conflict": {
+        "status": "conflict",
+        "field": "taste_descriptors",
+        "values": [
+          {
+            "value": "aciditate medie | echilibrat | final remanent savuros | fructe verzi",
+            "sources": [
+              {
+                "url": "vinintel://wine/418",
+                "sourceClass": "existing_record"
+              }
+            ]
+          },
+          {
+            "value": "cu gust final remanent savuros | echilibrat | o aciditate medie cu caracteristică de fructe verzi | octuozitate delicată",
+            "sources": [
+              {
+                "url": "https://murfatlar-vinul.ro/zestrea/",
+                "sourceClass": "official_producer_page"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "field": "body",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    },
+    {
+      "field": "acidity_perception",
+      "value": "medie",
+      "normalizedValue": "medie",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.85,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "acidity_perception",
+          "value": "medie",
+          "normalizedValue": "medie",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "medie",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.85,
+          "sourceHash": "7c0abc65bf2467c85d71c444",
+          "claimHash": "f62af61130533910f48eab95"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "tannin_perception",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    },
+    {
+      "field": "finish",
+      "value": "remanent savuros",
+      "normalizedValue": "remanent savuros",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.85,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "finish",
+          "value": "remanent savuros",
+          "normalizedValue": "remanent savuros",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "remanent savuros",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.85,
+          "sourceHash": "e687ed4cba63610378dec05d",
+          "claimHash": "186582ac77993d2dcee8999e"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "grape_percentages",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    },
+    {
+      "field": "winemaking_method",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    },
+    {
+      "field": "oak_treatment",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    },
+    {
+      "field": "food_pairing",
+      "value": [
+        "se poate servi ca aperitiv sau alaturi de preparate din pește",
+        "carne albă",
+        "preparate vegetariene",
+        "brânzeturi",
+        "diverse antreuri"
+      ],
+      "normalizedValue": "brânzeturi | carne albă | diverse antreuri | preparate vegetariene | se poate servi ca aperitiv sau alaturi de preparate din pește",
+      "unit": null,
+      "verificationStatus": "verified_official",
+      "confidence": 0.9,
+      "sourceClass": "official_producer_page",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "claims": [
+        {
+          "wineId": 418,
+          "canonicalIdentityKey": "murfatlar|zestrea|zestrea muscat ottonel demisec|muscat ottonel|alb|demisec|750||https murfatlar ro zestrea",
+          "identity": {
+            "producer": "Murfatlar",
+            "range": "Zestrea",
+            "productName": "Zestrea Muscat Ottonel Demisec",
+            "grapeVarieties": [
+              "Muscat Ottonel"
+            ],
+            "color": "alb",
+            "sweetness": "demisec",
+            "bottleSizeMl": 750,
+            "vintage": null,
+            "sourceProductId": "https://murfatlar-vinul.ro/zestrea/"
+          },
+          "field": "food_pairing",
+          "value": [
+            "se poate servi ca aperitiv sau alaturi de preparate din pește",
+            "carne albă",
+            "preparate vegetariene",
+            "brânzeturi",
+            "diverse antreuri"
+          ],
+          "normalizedValue": "brânzeturi | carne albă | diverse antreuri | preparate vegetariene | se poate servi ca aperitiv sau alaturi de preparate din pește",
+          "unit": null,
+          "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+          "sourceTitle": "Murfatlar Zestrea — official producer page",
+          "sourceClass": "official_producer_page",
+          "excerpt": "se poate servi ca aperitiv sau alaturi de preparate din pește, carne albă, preparate vegetariene, brânzeturi, diverse antreuri",
+          "observedAt": "2026-11-03T11:56:00.000Z",
+          "extractionMethod": "deterministic",
+          "identityMatchStatus": "EXACT_WINE_UNDATED_SOURCE",
+          "confidence": 0.9,
+          "sourceHash": "7f3e59569e5088ed3973c20f",
+          "claimHash": "d00064b1447936603f731ec1"
+        }
+      ],
+      "conflict": null
+    },
+    {
+      "field": "awards",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    },
+    {
+      "field": "cellaring",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    },
+    {
+      "field": "allergens",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    },
+    {
+      "field": "other_product_info",
+      "value": null,
+      "normalizedValue": null,
+      "unit": null,
+      "verificationStatus": "unverified",
+      "confidence": 0,
+      "sourceClass": null,
+      "sourceUrl": null,
+      "claims": [],
+      "conflict": null
+    }
+  ],
+  "completeness": {
+    "wineId": 418,
+    "scorePercent": 100,
+    "presentCount": 18,
+    "requiredCount": 15,
+    "missingFields": [],
+    "unverifiedFields": [
+      "alcohol",
+      "taste_descriptors"
+    ],
+    "fields": [
+      {
+        "field": "producer",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": "Murfatlar",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "range",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": "Zestrea",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "product_name",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": "Muscat Ottonel",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "grape_varieties",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": [
+          "Muscat Ottonel"
+        ],
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "vintage",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      },
+      {
+        "field": "bottle_volume",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": 750,
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "wine_color",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": "alb",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "sweetness",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": "demisec",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "alcohol",
+        "required": true,
+        "present": true,
+        "verified": false,
+        "value": 12.5,
+        "verificationStatus": "attributed_retailer"
+      },
+      {
+        "field": "appellation",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": "DOC - CMD Murfatlar",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "region",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": "Murfatlar",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "country",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": "Romania",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "serving_temperature",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": "7-8",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "visual_appearance",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": [
+          "galben-verzui"
+        ],
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "aroma_descriptors",
+        "required": true,
+        "present": true,
+        "verified": true,
+        "value": [
+          "caracteristic soiului",
+          "plăcut",
+          "îmbietor"
+        ],
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "taste_descriptors",
+        "required": true,
+        "present": true,
+        "verified": false,
+        "value": [
+          "echilibrat",
+          "o aciditate medie cu caracteristică de fructe verzi",
+          "Octuozitate delicată",
+          "cu gust final remanent savuros"
+        ],
+        "verificationStatus": "conflict"
+      },
+      {
+        "field": "body",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      },
+      {
+        "field": "acidity_perception",
+        "required": false,
+        "present": true,
+        "verified": true,
+        "value": "medie",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "tannin_perception",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      },
+      {
+        "field": "finish",
+        "required": false,
+        "present": true,
+        "verified": true,
+        "value": "remanent savuros",
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "grape_percentages",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      },
+      {
+        "field": "winemaking_method",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      },
+      {
+        "field": "oak_treatment",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      },
+      {
+        "field": "food_pairing",
+        "required": false,
+        "present": true,
+        "verified": true,
+        "value": [
+          "se poate servi ca aperitiv sau alaturi de preparate din pește",
+          "carne albă",
+          "preparate vegetariene",
+          "brânzeturi",
+          "diverse antreuri"
+        ],
+        "verificationStatus": "verified_official"
+      },
+      {
+        "field": "awards",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      },
+      {
+        "field": "cellaring",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      },
+      {
+        "field": "allergens",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      },
+      {
+        "field": "other_product_info",
+        "required": false,
+        "present": false,
+        "verified": false,
+        "value": null,
+        "verificationStatus": "unverified"
+      }
+    ],
+    "byGroup": {
+      "core": {
+        "present": 12,
+        "total": 13,
+        "percent": 92
+      },
+      "sensory": {
+        "present": 5,
+        "total": 7,
+        "percent": 71
+      },
+      "production": {
+        "present": 0,
+        "total": 3,
+        "percent": 0
+      },
+      "commercial": {
+        "present": 1,
+        "total": 5,
+        "percent": 20
+      }
+    }
+  },
+  "aiEstimate": {
+    "requestCount": 1,
+    "inputTokens": 402,
+    "outputTokens": 420,
+    "estimatedCostUsd": 0.00017388,
+    "model": "deepseek-chat"
+  },
+  "aiInterpretation": null,
+  "errors": [],
+  "requestCount": 0,
+  "sourceCoverage": {
+    "existing_record": {
+      "available": 1,
+      "unavailable": 0,
+      "blocked": 0,
+      "requiresAuth": 0
+    },
+    "official_producer_page": {
+      "available": 1,
+      "unavailable": 0,
+      "blocked": 0,
+      "requiresAuth": 0
+    },
+    "retailer": {
+      "available": 1,
+      "unavailable": 0,
+      "blocked": 0,
+      "requiresAuth": 0
+    }
+  },
+  "beforeAfter": {
+    "before": {
+      "producer": "Murfatlar",
+      "range": "Zestrea",
+      "product_name": "Muscat Ottonel",
+      "grape_varieties": [
+        "Muscat Ottonel"
+      ],
+      "bottle_volume": 750,
+      "wine_color": "alb",
+      "sweetness": "demisec",
+      "serving_temperature": "7-8",
+      "visual_appearance": [
+        "galben-verzui"
+      ],
+      "aroma_descriptors": [
+        "caracteristic soiului",
+        "plăcut",
+        "îmbietor"
+      ],
+      "taste_descriptors": [
+        "echilibrat",
+        "aciditate medie",
+        "fructe verzi",
+        "final remanent savuros"
+      ]
+    },
+    "after": {
+      "producer": "Murfatlar",
+      "range": "Zestrea",
+      "product_name": "Muscat Ottonel",
+      "grape_varieties": [
+        "Muscat Ottonel"
+      ],
+      "bottle_volume": 750,
+      "wine_color": "alb",
+      "sweetness": "demisec",
+      "alcohol": 12.5,
+      "appellation": "DOC - CMD Murfatlar",
+      "region": "Murfatlar",
+      "country": "Romania",
+      "serving_temperature": "7-8",
+      "visual_appearance": [
+        "galben-verzui"
+      ],
+      "aroma_descriptors": [
+        "caracteristic soiului",
+        "plăcut",
+        "îmbietor"
+      ],
+      "taste_descriptors": [
+        "echilibrat",
+        "o aciditate medie cu caracteristică de fructe verzi",
+        "Octuozitate delicată",
+        "cu gust final remanent savuros"
+      ],
+      "acidity_perception": "medie",
+      "finish": "remanent savuros",
+      "food_pairing": [
+        "se poate servi ca aperitiv sau alaturi de preparate din pește",
+        "carne albă",
+        "preparate vegetariene",
+        "brânzeturi",
+        "diverse antreuri"
+      ]
+    },
+    "addedFields": [
+      "alcohol",
+      "appellation",
+      "region",
+      "country",
+      "acidity_perception",
+      "finish",
+      "food_pairing"
+    ],
+    "changedFields": [
+      "taste_descriptors"
+    ]
+  },
+  "mutationPlan": {
+    "claimsToInsert": 36,
+    "claimsToUpdate": 0,
+    "technicalMirrorCount": 5,
+    "aiInterpretationsToInsert": 0,
+    "runsToInsert": 1
+  }
+}

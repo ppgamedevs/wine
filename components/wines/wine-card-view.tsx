@@ -88,7 +88,6 @@ function WineCardPriceFooter({
   locale: AppLocale;
 }) {
   const { price } = card;
-  const isEstimated = price.status === "estimated";
   const copy = CARD_COPY[locale];
 
   return (
@@ -99,44 +98,16 @@ function WineCardPriceFooter({
         </p>
       ) : (
         <div className="space-y-2">
-          {price.isVerifiedRecent ? (
-            <Badge className="gap-1 bg-emerald-600/10 text-emerald-800 hover:bg-emerald-600/15">
-              <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-              {copy.verified}
-            </Badge>
-          ) : isEstimated ? (
-            <Badge
-              variant="outline"
-              className="border-amber-500/40 bg-amber-500/10 text-amber-900"
-            >
-              {copy.estimated}
-            </Badge>
-          ) : null}
-          <p
-            className={cn(
-              "text-lg font-bold leading-none",
-              price.isVerifiedRecent ? "text-foreground" : "text-amber-900",
-            )}
-          >
-            <span
-              className={cn(
-                "mr-1 text-sm font-medium",
-                isEstimated
-                  ? "text-amber-800/80"
-                  : "text-muted-foreground",
-              )}
-            >
+          <Badge className="gap-1 bg-emerald-600/10 text-emerald-800 hover:bg-emerald-600/15">
+            <BadgeCheck className="h-3 w-3" aria-hidden="true" />
+            {copy.verified}
+          </Badge>
+          <p className="text-lg font-bold leading-none text-foreground">
+            <span className="mr-1 text-sm font-medium text-muted-foreground">
               {copy.price}
             </span>
             {formatRon(price.displayPrice, locale)}
           </p>
-          {isEstimated ? (
-            <p className="text-xs text-muted-foreground">
-              {price.verifyPriceUrl
-                ? copy.verifySource
-                : copy.internalEstimate}
-            </p>
-          ) : null}
         </div>
       )}
 
@@ -186,7 +157,10 @@ export function WineCardView({
           vintage={card.vintage}
           wineryName={card.image.wineryName}
           priority={priority}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+          // The bottle is object-contain inside a 4:3 box, so it paints much
+          // narrower than the card. Asking for 100vw downloaded 1080px images
+          // for a ~100px bottle on mobile.
+          sizes="(max-width: 640px) 40vw, (max-width: 1024px) 24vw, 16vw"
           aspectClassName="relative aspect-[4/3] overflow-hidden bg-secondary/20"
           objectFit="contain"
         />

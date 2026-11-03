@@ -10,6 +10,7 @@ export interface DatabaseWineIdentity {
   wineryName?: string | null;
   vintage: number | null;
   type?: string | null;
+  sweetness?: string | null;
   grapes?: string[];
   bottleSizeMl?: number | null;
   sku?: string | null;
@@ -54,8 +55,17 @@ export function inferChannelToken(name: string, url?: string | null): string | n
 
 function grapeOverlap(left: string[] | undefined, right: string[] | undefined): boolean {
   if (!left?.length || !right?.length) return true;
-  const a = new Set(left.map((item) => foldRomanianText(item)));
-  return right.some((item) => a.has(foldRomanianText(item)));
+  const normalizeSet = (values: string[]) =>
+    [...new Set(values.map((item) => foldRomanianText(item)))].sort().join("|");
+  return normalizeSet(left) === normalizeSet(right);
+}
+
+function sweetnessCompatible(
+  left?: string | null,
+  right?: string | null,
+): boolean {
+  if (!left?.trim() || !right?.trim()) return true;
+  return foldRomanianText(left) === foldRomanianText(right);
 }
 
 function typeCompatible(left?: string | null, right?: string | null): boolean {
@@ -99,6 +109,9 @@ export function classifyProductIdentity(
     return "PRODUCT_MISMATCH";
   }
   if (!typeCompatible(wine.type, source.type)) {
+    return "PRODUCT_MISMATCH";
+  }
+  if (!sweetnessCompatible(wine.sweetness, source.sweetness)) {
     return "PRODUCT_MISMATCH";
   }
   if (!grapeOverlap(wine.grapes, source.grapes)) {
@@ -149,6 +162,7 @@ export function classifyAgainstSourceIdentity(
       wineName: source.sourceWineName ?? "",
       vintage: source.sourceVintage,
       type: source.sourceType,
+      sweetness: source.sourceSweetness,
       grapes: source.sourceGrapes,
       bottleSizeMl: source.sourceBottleSize,
       sku: source.sourceSku,

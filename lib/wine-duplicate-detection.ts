@@ -18,6 +18,100 @@ interface FindExistingWineInput {
   producer: string;
   vintage: number | null;
   wineryId: number | null;
+  /** Explicit facts, when the analyzer already resolved them. */
+  sweetness?: string | null;
+  grapes?: string[];
+  bottleSizeMl?: number | null;
+}
+
+const IDENTITY_GRAPES = [
+  "muscat ottonel",
+  "riesling italian",
+  "sauvignon blanc",
+  "cabernet sauvignon",
+  "feteasca neagra",
+  "feteasca regala",
+  "feteasca alba",
+  "pinot noir",
+  "pinot gris",
+  "chardonnay",
+  "merlot",
+  "syrah",
+];
+
+function extractIdentitySweetness(...values: Array<string | null | undefined>): string | null {
+  const text = normalizeIdentityText(values.filter(Boolean).join(" "));
+  if (/\bdemisec\b|\bdemi sec\b/.test(text)) return "demisec";
+  if (/\bdemidulce\b/.test(text)) return "demidulce";
+  if (/\bdulce\b/.test(text)) return "dulce";
+  if (/\bsec\b|\bdry\b/.test(text)) return "sec";
+  return null;
+}
+
+function extractIdentityGrapes(...values: Array<string | null | undefined>): string[] {
+  const text = normalizeIdentityText(values.filter(Boolean).join(" "));
+  return IDENTITY_GRAPES.filter((grape) => text.includes(grape));
+}
+
+function extractIdentityVolume(...values: Array<string | null | undefined>): number | null {
+  const text = values.filter(Boolean).join(" ");
+  const match = text.match(/(\d+(?:[.,]\d+)?)\s*(ml|l)\b/i);
+  if (!match?.[1]) return null;
+  const amount = Number.parseFloat(match[1].replace(",", "."));
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return Math.round((match[2] ?? "ml").toLowerCase() === "l" ? amount * 1000 : amount);
+}
+
+function identityFactsConflict(input: FindExistingWineInput, candidate: {
+  name: string;
+  slug: string;
+  sweetness?: string | null;
+  grapeVarieties?: Array<{ name: string }> | null;
+}): boolean {
+  const inputSweetness =
+    input.sweetness ?? extractIdentitySweetness(input.name, input.finalUrl);
+  const candidateSweetness =
+    candidate.sweetness ?? extractIdentitySweetness(candidate.name, candidate.slug);
+  if (
+    inputSweetness &&
+    candidateSweetness &&
+    inputSweetness !== candidateSweetness
+  ) {
+    return true;
+  }
+
+  const inputGrapes =
+    input.grapes?.length
+      ? input.grapes.map((grape) => normalizeIdentityText(grape))
+      : extractIdentityGrapes(input.name, input.finalUrl);
+  const candidateGrapes =
+    candidate.grapeVarieties?.length
+      ? candidate.grapeVarieties.map((grape) => normalizeIdentityText(grape.name))
+      : extractIdentityGrapes(candidate.name, candidate.slug);
+  if (
+    inputGrapes.length > 0 &&
+    candidateGrapes.length > 0 &&
+    !inputGrapes.some((left) =>
+      candidateGrapes.some(
+        (right) => left === right || left.includes(right) || right.includes(left),
+      ),
+    )
+  ) {
+    return true;
+  }
+
+  const inputVolume =
+    input.bottleSizeMl ?? extractIdentityVolume(input.name);
+  const candidateVolume = extractIdentityVolume(candidate.name);
+  if (
+    inputVolume != null &&
+    candidateVolume != null &&
+    inputVolume !== candidateVolume
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 function normalizeIdentityText(value: string): string {
@@ -178,7 +272,15 @@ async function findByIdentity(input: FindExistingWineInput): Promise<ExistingWin
 
   const candidates = await db.query.wines.findMany({
     where: and(eq(wines.wineryId, input.wineryId), ne(wines.status, "rejected")),
-    columns: { id: true, slug: true, name: true, vintage: true, status: true },
+    columns: {
+      id: true,
+      slug: true,
+      name: true,
+      vintage: true,
+      status: true,
+      sweetness: true,
+      grapeVarieties: true,
+    },
   });
 
   let best: ExistingWineMatch | null = null;
@@ -188,6 +290,7 @@ async function findByIdentity(input: FindExistingWineInput): Promise<ExistingWin
     const score = tokenSimilarity(input.name, candidate.name);
     if (score < 0.8) continue;
     if (!vintagesCompatible(input.vintage, candidate.vintage)) continue;
+    if (identityFactsConflict(input, candidate)) continue;
     if (
       identityColorsConflict(
         input.name,

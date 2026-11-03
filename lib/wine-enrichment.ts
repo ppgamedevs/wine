@@ -18,6 +18,7 @@ import {
   formatScoreProvenance,
   mergeAnalysisScores,
   VALUE_SCORE_ALGORITHM_VERSION,
+  type InitialScores,
   type MergedAnalysisScores,
 } from "@/lib/scoring";
 import { sanitizeEditorialText } from "@/lib/editorial-text";
@@ -51,11 +52,26 @@ export function mergeEditorialScoresForWine(
   editorial: WineEditorialOutput,
 ): MergedAnalysisScores {
   const category = mapWineTypeToScoreCategory(wine.type);
-  const price = wine.currentPrice ?? wine.priceAvg ?? 50;
+  const price = wine.currentPrice ?? wine.priceAvg;
+  if (price == null || !Number.isFinite(price) || price <= 0) {
+    const fallback: InitialScores = {
+      valueScore: wine.valueScore ?? 0,
+      giftScore: wine.giftScore ?? 0,
+      foodMatchScore: wine.foodMatchScore ?? 0,
+      overpricedRisk: wine.overpricedRisk ?? "medium",
+      beginnerFriendly: wine.beginnerFriendly ?? false,
+      cellarPotential: wine.cellarPotential ?? null,
+    };
+    return {
+      ...mergeAnalysisScores(fallback, 0),
+      priceDataStatus: "insufficient",
+      overpricedRisk: wine.overpricedRisk ?? "medium",
+    };
+  }
   const grapeVarieties = wine.grapeVarieties.map((grape) => grape.name);
 
   const ruleScores = calculateInitialScores({
-    price: price > 0 ? price : 50,
+    price,
     category,
     region: wine.region?.name,
     grapeVarieties,
@@ -72,11 +88,7 @@ export function mergeEditorialScoresForWine(
     wineryName: wine.winery?.name,
   });
 
-  return mergeAnalysisScores(
-    ruleScores,
-    price > 0 ? price : 50,
-    editorialScoresForMerge(),
-  );
+  return mergeAnalysisScores(ruleScores, price, editorialScoresForMerge());
 }
 
 function sanitizeEditorialOutput(
@@ -112,6 +124,7 @@ export async function applyEditorialAndScoresToWine(
   mergedScores: MergedAnalysisScores,
 ): Promise<void> {
   const clean = sanitizeEditorialOutput(editorial);
+  const hasMarketPrice = mergedScores.priceDataStatus !== "insufficient";
 
   await db
     .update(wines)
@@ -123,23 +136,29 @@ export async function applyEditorialAndScoresToWine(
       foodPairingNotes: clean.foodPairingNotes,
       dessertPairings: clean.dessertPairings,
       recommendedOccasions: clean.recommendedOccasions,
-      giftScore: mergedScores.giftScore,
-      foodMatchScore: mergedScores.foodMatchScore,
-      overpricedRisk: mergedScores.overpricedRisk,
-      beginnerFriendly: mergedScores.beginnerFriendly,
+      ...(hasMarketPrice
+        ? {
+            giftScore: mergedScores.giftScore,
+            foodMatchScore: mergedScores.foodMatchScore,
+            overpricedRisk: mergedScores.overpricedRisk,
+            beginnerFriendly: mergedScores.beginnerFriendly,
+          }
+        : {}),
     })
     .where(eq(wines.id, wineId));
 
-  await recordScoreSnapshot({
-    wineId,
-    valueScore: mergedScores.valueScore,
-    giftScore: mergedScores.giftScore,
-    foodMatchScore: mergedScores.foodMatchScore,
-    overpricedRisk: mergedScores.overpricedRisk,
-    algorithmVersion: VALUE_SCORE_ALGORITHM_VERSION,
-    changeReason: "editorial_regeneration",
-    changedBy: "system:editorial",
-  });
+  if (hasMarketPrice) {
+    await recordScoreSnapshot({
+      wineId,
+      valueScore: mergedScores.valueScore,
+      giftScore: mergedScores.giftScore,
+      foodMatchScore: mergedScores.foodMatchScore,
+      overpricedRisk: mergedScores.overpricedRisk,
+      algorithmVersion: VALUE_SCORE_ALGORITHM_VERSION,
+      changeReason: "editorial_regeneration",
+      changedBy: "system:editorial",
+    });
+  }
 }
 
 export async function generateAndApplyFullEditorialIfMissing(
@@ -172,11 +191,15 @@ export async function generateAndApplyFullEditorialIfMissing(
  */
 async function applyRuleBasedScoresOnly(wine: WineForEditorial): Promise<void> {
   const category = mapWineTypeToScoreCategory(wine.type);
-  const price = wine.currentPrice ?? wine.priceAvg ?? 50;
+  const price = wine.currentPrice ?? wine.priceAvg;
+  if (price == null || !Number.isFinite(price) || price <= 0) {
+    // No market price: preserve existing scores instead of inventing one.
+    return;
+  }
   const grapeVarieties = wine.grapeVarieties.map((grape) => grape.name);
 
   const ruleScores = calculateInitialScores({
-    price: price > 0 ? price : 50,
+    price,
     category,
     region: wine.region?.name,
     grapeVarieties,
@@ -193,7 +216,7 @@ async function applyRuleBasedScoresOnly(wine: WineForEditorial): Promise<void> {
     wineryName: wine.winery?.name,
   });
 
-  const mergedScores = mergeAnalysisScores(ruleScores, price > 0 ? price : 50);
+  const mergedScores = mergeAnalysisScores(ruleScores, price);
 
   await db
     .update(wines)

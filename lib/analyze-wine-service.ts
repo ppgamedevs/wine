@@ -17,7 +17,9 @@ import {
 import { updatePrice } from "@/lib/price-tracker";
 import {
   detectRetailerLabel,
+  getProfitshareOfferId,
   isProfitshareUrl,
+  isQualifyingProfitshareUrl,
   resolveCatalogProductUrl,
 } from "@/lib/retailer-links";
 import {
@@ -138,6 +140,24 @@ function applySourceProducerFacts<T extends { name: string }>(
           ? parseBudureascaProducerFacts(html, finalUrl)
           : parseRecasProducerFacts(html, finalUrl);
   if (!facts?.name) return product;
+
+  if (isMurfatlarUrl(finalUrl)) {
+    const exact = facts as unknown as {
+      name: string;
+      grapeVarieties: Array<{ name: string; percentage?: number | null }>;
+      sweetness: string | null;
+      tastingNotes: string | null;
+    };
+    return {
+      ...product,
+      name: exact.name,
+      ...(exact.grapeVarieties.length > 0
+        ? { grapeVarieties: exact.grapeVarieties }
+        : {}),
+      ...(exact.sweetness ? { sweetness: exact.sweetness } : {}),
+      ...(exact.tastingNotes ? { tastingNotes: exact.tastingNotes } : {}),
+    } as T;
+  }
 
   return { ...product, name: facts.name };
 }
@@ -309,6 +329,13 @@ function buildStoredRetailerLinks(
         retailer,
         url: affiliateUrl,
         priceRon: price ?? undefined,
+        ...(isQualifyingProfitshareUrl(affiliateUrl)
+          ? {
+              checkedAt,
+              inStock: true,
+              offerId: getProfitshareOfferId(affiliateUrl) ?? undefined,
+            }
+          : {}),
       },
     ],
   };
@@ -754,6 +781,8 @@ export async function analyzeAndSaveWineFromUrl(
     producer: detectedWineryName,
     vintage: display.vintage,
     wineryId,
+    sweetness: analysis.sweetness ?? null,
+    grapes: resolved.grapeVarieties.map((grape) => grape.name),
   });
 
   if (existingMatch) {
@@ -916,6 +945,8 @@ export async function analyzeWineSubmissionFromUrl(
       detectedWineryName,
     ),
     wineryId,
+    sweetness: analysis.sweetness ?? null,
+    grapes: resolved.grapeVarieties.map((grape) => grape.name),
   });
 
   if (existingMatch) {
