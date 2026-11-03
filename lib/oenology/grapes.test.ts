@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { getAllDishPairingSlugs } from "@/lib/dish-pairing-pages";
@@ -7,6 +7,8 @@ import {
   getGrapeGuide,
   grapeGuidesForWine,
   GRAPE_GUIDES,
+  GRAPE_IMAGE_SEEDS,
+  resolveGrapeImage,
 } from "@/lib/oenology";
 import { filterWinesByGrapeVariety } from "@/lib/grape-variety-index";
 import type { WineWithRelations } from "@/types";
@@ -115,5 +117,51 @@ describe("grape encyclopedia guides", () => {
         grapeVarieties: [{ name: "Riesling de Rin" }],
       }).map((guide) => guide.slug),
     ).toEqual(["riesling"]);
+  });
+
+  it("ships curated local grape images with bilingual alt text", () => {
+    const required = [
+      "feteasca-neagra",
+      "feteasca-alba",
+      "feteasca-regala",
+      "tamaioasa-romaneasca",
+      "grasa-de-cotnari",
+      "cramposie-selectionata",
+      "negru-de-dragasani",
+      "novac",
+      "busuioaca-de-bohotin",
+      "cadarca",
+    ];
+    expect(GRAPE_IMAGE_SEEDS.map((seed) => seed.slug)).toEqual(required);
+
+    for (const seed of GRAPE_IMAGE_SEEDS) {
+      const guide = getGrapeGuide(seed.slug);
+      expect(guide, seed.slug).toBeDefined();
+      if (!guide) continue;
+      expect(guide.imageUrl).toBe(`/images/grapes/${seed.slug}.webp`);
+      expect(guide.imageAlt?.ro?.length ?? 0).toBeGreaterThan(20);
+      expect(guide.imageAlt?.en?.length ?? 0).toBeGreaterThan(20);
+      expect(guide.imageSource).toContain("VinIntel");
+
+      const file = path.join(
+        process.cwd(),
+        "public",
+        guide.imageUrl!.replace(/^\//, ""),
+      );
+      expect(existsSync(file), file).toBe(true);
+      expect(statSync(file).size).toBeLessThan(80_000);
+      const resolved = resolveGrapeImage(guide, "ro");
+      expect(resolved.src).toBe(guide.imageUrl);
+      expect(resolved.alt).toBe(guide.imageAlt?.ro);
+    }
+  });
+
+  it("keeps the elegant fallback when an image is absent", () => {
+    const withoutImage = getGrapeGuide("sarba");
+    expect(withoutImage).toBeDefined();
+    const resolved = resolveGrapeImage(withoutImage!, "en");
+    expect(resolved.src).toBeNull();
+    expect(resolved.alt).toContain("sarba");
+    expect(resolved.source).toBeNull();
   });
 });

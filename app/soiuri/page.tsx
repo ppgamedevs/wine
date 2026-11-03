@@ -80,6 +80,7 @@ export default async function SoiuriIndexPage() {
         localizedHref(locale, "grapeVariety", { slug: guide.slug }),
       ),
       name: guide.copy[locale].name,
+      ...(guide.imageUrl ? { image: absoluteUrl(guide.imageUrl) } : {}),
     })),
   };
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([

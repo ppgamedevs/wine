@@ -44,4 +44,8 @@ export interface GrapeGuide {
   pairingDishSlugs: string[];
   journalSlugs: string[];
   copy: Record<AppLocale, GrapeGuideCopy>;
+  /** Optional curated card/guide image. Kept static with the encyclopedia. */
+  imageUrl?: string;
+  imageAlt?: Partial<Record<AppLocale, string>>;
+  imageSource?: string;
 }

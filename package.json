@@ -68,6 +68,7 @@
     "quality:release": "tsx scripts/quality-release-gate.ts",
     "quality:benchmark": "tsx scripts/quality-benchmark.ts",
     "security:audit": "tsx scripts/anti-scrape-audit.ts",
+    "images:grapes": "tsx scripts/generate-grape-images.ts",
     "i18n:public-audit": "tsx scripts/i18n-public-audit.ts",
     "i18n:translate": "node --conditions=react-server --import tsx scripts/translate-content.ts",
     "i18n:audit": "node --conditions=react-server --import tsx scripts/i18n-coverage-audit.ts",
