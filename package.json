@@ -17,6 +17,7 @@
     "db:expert-notes": "tsx lib/generateExpertNotes.ts",
     "db:editorial": "tsx lib/generateEditorial.ts",
     "db:import-wines": "tsx lib/importWines.ts",
+    "db:add-lacrima": "tsx scripts/add-murfatlar-lacrima-all.ts",
     "db:embeddings": "tsx lib/generateEmbeddings.ts",
     "jobs:update-prices": "tsx jobs/update-prices.ts",
     "jobs:premium-emails": "tsx jobs/premium-subscription-emails.ts",
