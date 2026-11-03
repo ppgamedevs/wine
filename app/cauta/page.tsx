@@ -220,7 +220,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       <WineCard
                         key={wine.slug}
                         wine={wine}
-                        priority={index < 2}
+                        priority={index === 0}
                         minValueScore={null}
                       />
                     ))}

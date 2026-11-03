@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Building2, Grape, Loader2, Search, Wine } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,7 +7,6 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
-import { EASE_OUT } from "@/lib/motion";
 import type { SearchSuggestion } from "@/lib/queries";
 import { isWineUrl, looksLikeUrlAttempt } from "@/lib/wine-url";
 import { classifySearchQuery, isSommelierQuery, sommelierPageHref } from "@/lib/search-intent";
@@ -216,13 +214,7 @@ export function SmartSearchClient({
   const showDropdown = open && trimmed.length >= 2 && !isLinkAttempt && !analyzing;
 
   return (
-    <motion.div
-      ref={containerRef}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.25, ease: EASE_OUT }}
-      className={cn("relative w-full min-w-0", className)}
-    >
+    <div ref={containerRef} className={cn("relative w-full min-w-0", className)}>
       <form
         onSubmit={handleSubmit}
         role="search"
@@ -381,6 +373,6 @@ export function SmartSearchClient({
           ) : null}
         </div>
       ) : null}
-    </motion.div>
+    </div>
   );
 }

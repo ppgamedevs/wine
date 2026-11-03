@@ -26,7 +26,7 @@ export function WinePriceDisplay({
   const pricing = buildWinePriceViewModel(wine);
   const isCard = variant === "card";
 
-  if (pricing.status === "unavailable") {
+  if (pricing.status === "unavailable" || pricing.displayPrice == null) {
     return (
       <div className={cn("space-y-2", className)}>
         <p
@@ -35,67 +35,41 @@ export function WinePriceDisplay({
             isCard ? "text-sm" : "text-base",
           )}
         >
-          Pret indisponibil
+          Preț indisponibil
         </p>
       </div>
     );
   }
 
-  const isEstimated = pricing.status === "estimated";
-  const priceLabel = isCard
-    ? "Pret:"
-    : isEstimated
-      ? "Pret aproximativ:"
-      : "Pret actual:";
-
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex flex-wrap items-center gap-2">
-        {pricing.isVerifiedRecent ? (
-          <Badge className="gap-1 bg-emerald-600/10 text-emerald-800 hover:bg-emerald-600/15">
-            <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-            Pret verificat
-          </Badge>
-        ) : isEstimated ? (
-          <Badge
-            variant="outline"
-            className="border-amber-500/40 bg-amber-500/10 text-amber-900"
-          >
-            Pret estimativ
-          </Badge>
-        ) : null}
+        <Badge className="gap-1 bg-emerald-600/10 text-emerald-800 hover:bg-emerald-600/15">
+          <BadgeCheck className="h-3 w-3" aria-hidden="true" />
+          Preț verificat
+        </Badge>
       </div>
 
       <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
         <div>
           <p
             className={cn(
-              "font-bold leading-none",
+              "font-bold leading-none text-foreground",
               isCard ? "text-lg" : "text-3xl",
-              pricing.isVerifiedRecent ? "text-foreground" : "text-amber-900",
             )}
           >
             <span
               className={cn(
-                "mr-1 font-medium",
-                isEstimated ? "text-amber-800/80" : "text-muted-foreground",
+                "mr-1 font-medium text-muted-foreground",
                 isCard ? "text-sm" : "text-base",
               )}
             >
-              {priceLabel}
+              {isCard ? "Preț:" : "Preț actual:"}
             </span>
             {formatRon(pricing.displayPrice)}
           </p>
         </div>
       </div>
-
-      {isEstimated ? (
-        <p className={cn("text-muted-foreground", isCard ? "text-xs" : "text-sm")}>
-          {pricing.verifyPriceUrl
-            ? "Pret aproximativ. Verifica sursa inainte de cumparare."
-            : "Pret aproximativ din datele noastre."}
-        </p>
-      ) : null}
 
       {showPurchaseButton && pricing.purchaseLink ? (
         <RetailerPurchaseLink

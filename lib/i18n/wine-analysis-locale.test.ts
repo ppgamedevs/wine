@@ -18,6 +18,16 @@ const wine = {
   valueScore: 82,
   priceAvg: 78,
   currentPrice: 78,
+  affiliateLinks: [
+    {
+      retailer: "eMAG.ro",
+      url: "https://l.profitshare.ro/l/100002",
+      priceRon: 78,
+      checkedAt: new Date().toISOString(),
+      inStock: true,
+    },
+  ],
+  priceHistory: [],
   grapeVarieties: [{ name: "Fetească Neagră" }],
   foodPairings: [
     {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider } from "next-intl";
@@ -18,23 +18,10 @@ import {
 } from "@/lib/seo";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["500", "600", "700", "800"],
 });
 
 const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
@@ -131,11 +118,14 @@ export default async function RootLayout({
     Error: messages.Error,
     Search: messages.Search,
   };
+  // Vercel injects these scripts only on Vercel; rendering them elsewhere
+  // produces 404s in the console and adds JS that cannot work.
+  const isVercel = process.env.VERCEL === "1";
 
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full overflow-x-clip`}
+      className={`${geistMono.variable} h-full overflow-x-clip`}
     >
       <body className="flex min-h-full max-w-full flex-col">
         <JsonLd
@@ -149,8 +139,8 @@ export default async function RootLayout({
           <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
         </NextIntlClientProvider>
         <CookieConsentRoot />
-        <Analytics />
-        <SpeedInsights />
+        {isVercel ? <Analytics /> : null}
+        {isVercel ? <SpeedInsights /> : null}
       </body>
     </html>
   );

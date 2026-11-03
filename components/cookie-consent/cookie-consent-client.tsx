@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { Cookie } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -15,7 +14,6 @@ import {
   readCookieConsentFromDocument,
   type CookieConsentStatus,
 } from "@/lib/cookie-consent";
-import { EASE_OUT } from "@/lib/motion";
 
 export interface CookieConsentCopy {
   ariaLabel: string;
@@ -54,18 +52,13 @@ export function CookieConsentClient({
     <>
       <ConsentAwareGoogleAnalytics consent={consent} />
 
-      <AnimatePresence>
-        {showBanner ? (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            transition={{ duration: 0.35, ease: EASE_OUT }}
-            className="fixed inset-x-0 bottom-0 z-[100] px-4 pb-4 sm:px-6 sm:pb-6"
-            role="dialog"
-            aria-live="polite"
-            aria-label={copy.ariaLabel}
-          >
+      {showBanner ? (
+        <div
+          className="fixed inset-x-0 bottom-0 z-[100] animate-in fade-in slide-in-from-bottom-6 px-4 pb-4 duration-300 sm:px-6 sm:pb-6"
+          role="dialog"
+          aria-live="polite"
+          aria-label={copy.ariaLabel}
+        >
             <Card className="mx-auto max-w-4xl border-wine/15 bg-card/95 py-0 shadow-xl shadow-wine/10 backdrop-blur-md">
               <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5">
                 <div className="flex min-w-0 flex-1 items-start gap-3">
@@ -103,9 +96,8 @@ export function CookieConsentClient({
                 </Button>
               </CardContent>
             </Card>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+        </div>
+      ) : null}
     </>
   );
 }

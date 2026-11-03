@@ -5,6 +5,7 @@ import type { OccasionId } from "@/lib/sommelier";
 import type { FaqEntry } from "@/lib/seo";
 import type { WineWithRelations } from "@/types";
 import { formatRon } from "@/lib/format";
+import { sanitizeWinesForPublic } from "@/lib/public-price";
 
 export interface DishPairingPageConfig {
   slug: string;
@@ -121,6 +122,7 @@ export function rankWinesForDishDetailed(
   config: DishPairingPageConfig,
   limit = 10,
 ): Array<{ wine: WineWithRelations; score: number; confidence: number }> {
+  wines = sanitizeWinesForPublic(wines);
   const budget = config.defaultBudget;
   const subset = wines.filter(
     (wine) =>
@@ -180,7 +182,7 @@ export function buildDishFaq(
     {
       question: "Preturile sunt in RON?",
       answer:
-        "Da. Afisam preturi in RON ca pret actual verificat sau pret aproximativ, in functie de sursa.",
+        "Da. Afisam preturi in RON doar din oferte Profitshare calificate pentru vinul respectiv; altfel pretul este indisponibil.",
     },
   ];
 }

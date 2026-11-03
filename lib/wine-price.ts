@@ -1,16 +1,15 @@
 import type { AffiliateLink, PriceHistoryEntry } from "@/lib/schema";
 import {
-  inferRetailerLabelFromStoredLinks,
-  isProfitshareUrl,
-  resolveAffiliatePurchaseUrl,
-  resolveCatalogProductUrl,
-} from "@/lib/retailer-links";
+  PUBLIC_PRICE_MAX_AGE_HOURS,
+  resolvePublicPrice,
+  type PublicPriceOffer,
+} from "@/lib/public-price";
 import type { WineWithRelations } from "@/types";
 
-/** Pret considerat verificat daca observatia e in ultimele 48h. */
-export const VERIFIED_PRICE_MAX_AGE_HOURS = 48;
+/** Pret public considerat verificat daca oferta Profitshare e in ultimele 48h. */
+export const VERIFIED_PRICE_MAX_AGE_HOURS = PUBLIC_PRICE_MAX_AGE_HOURS;
 
-export type WinePriceStatus = "verified" | "estimated" | "unavailable";
+export type WinePriceStatus = "verified" | "unavailable";
 
 export interface PriceChangeInfo {
   previousPrice: number;
@@ -22,18 +21,16 @@ export interface PriceChangeInfo {
 export interface WinePriceViewModel {
   displayPrice: number | null;
   status: WinePriceStatus;
-  lowestPrice30d: number | null;
+  lowestPrice30d: null;
   isVerifiedRecent: boolean;
-  priceChange: PriceChangeInfo | null;
-  comparison: {
-    lowest: number;
-    percentAboveLowest: number;
-    isAtLowest: boolean;
-  } | null;
-  purchaseLink: (AffiliateLink | { url: string; retailer: string }) & {
-    label: string;
-  } | null;
-  verifyPriceUrl: string | null;
+  priceChange: null;
+  comparison: null;
+  purchaseLink:
+    | (AffiliateLink & { label: string })
+    | null;
+  verifyPriceUrl: null;
+  /** All qualified Profitshare offers for this exact wine. */
+  offers: PublicPriceOffer[];
 }
 
 function getLatestPriceEntry(
@@ -51,40 +48,32 @@ function getPreviousPriceEntry(
   return sorted[1] ?? null;
 }
 
-export function isRecentVerifiedPrice(wine: WineWithRelations): boolean {
-  const latest = getLatestPriceEntry(wine.priceHistory ?? []);
-  if (!latest) return false;
-
-  const observedAt = new Date(latest.date);
-  if (Number.isNaN(observedAt.getTime())) return false;
-
-  const cutoff = new Date(
-    Date.now() - VERIFIED_PRICE_MAX_AGE_HOURS * 60 * 60 * 1000,
-  );
-  return observedAt >= cutoff;
+export function isRecentVerifiedPrice(
+  wine: WineWithRelations,
+  now: Date = new Date(),
+): boolean {
+  return resolvePublicPrice(wine, { now }).isVerifiedRecent;
 }
 
-export function resolveWineDisplayPrice(wine: WineWithRelations): number | null {
-  if (wine.currentPrice != null && wine.currentPrice > 0) {
-    return wine.currentPrice;
-  }
-  if (wine.priceAvg != null && wine.priceAvg > 0) {
-    return Math.round(wine.priceAvg);
-  }
-  return null;
+export function resolveWineDisplayPrice(
+  wine: WineWithRelations,
+  now: Date = new Date(),
+): number | null {
+  return resolvePublicPrice(wine, { now }).displayPrice;
 }
 
 export function resolveWinePriceStatus(
   wine: WineWithRelations,
+  now: Date = new Date(),
 ): WinePriceStatus {
-  const displayPrice = resolveWineDisplayPrice(wine);
-  if (displayPrice == null) return "unavailable";
-  if (isRecentVerifiedPrice(wine) && wine.currentPrice != null) {
-    return "verified";
-  }
-  return "estimated";
+  return resolvePublicPrice(wine, { now }).status;
 }
 
+/**
+ * Legacy helper retained for internal analysis only.
+ * Public components must use `buildWinePriceViewModel`; price history is not
+ * exposed under the Profitshare-only policy.
+ */
 export function getPriceChange(
   history: PriceHistoryEntry[],
   currentPrice: number | null,
@@ -122,99 +111,75 @@ export function getPriceComparison(
   currentPrice: number,
   lowestPrice30d: number | null | undefined,
 ): WinePriceViewModel["comparison"] {
-  if (lowestPrice30d == null || lowestPrice30d <= 0) return null;
-
-  const isAtLowest = currentPrice <= lowestPrice30d;
-  const percentAboveLowest = isAtLowest
-    ? 0
-    : Math.round(((currentPrice - lowestPrice30d) / currentPrice) * 100);
-
-  return {
-    lowest: lowestPrice30d,
-    percentAboveLowest,
-    isAtLowest,
-  };
+  void currentPrice;
+  void lowestPrice30d;
+  return null;
 }
 
 export function resolvePrimaryPurchaseLink(
   wine: WineWithRelations,
+  now: Date = new Date(),
 ): WinePriceViewModel["purchaseLink"] {
-  const affiliateUrl = resolveAffiliatePurchaseUrl({
-    sourceUrl: wine.sourceUrl,
-    affiliateLinks: wine.affiliateLinks,
-    availability: wine.availability,
-  });
-
-  if (!affiliateUrl) {
-    return null;
-  }
-
-  const retailer = inferRetailerLabelFromStoredLinks({
-    affiliateLinks: wine.affiliateLinks,
-    availability: wine.availability,
-    fallbackRetailer: wine.winery?.name ?? undefined,
-  });
-  const priceRon =
-    (wine.affiliateLinks ?? [])[0]?.priceRon ??
-    (wine.availability ?? [])[0]?.priceRon;
+  const offer = resolvePublicPrice(wine, { now }).bestOffer;
+  if (!offer) return null;
 
   return {
-    url: affiliateUrl,
-    retailer,
-    ...(priceRon != null ? { priceRon } : {}),
+    retailer: offer.retailer,
+    url: offer.url,
+    priceRon: offer.priceRon,
+    checkedAt: offer.observedAt,
+    offerId: offer.offerId,
+    ...(offer.productKey ? { productKey: offer.productKey } : {}),
+    ...(offer.bottleSizeMl != null
+      ? { bottleSizeMl: offer.bottleSizeMl }
+      : {}),
+    ...(offer.vintage != null ? { vintage: offer.vintage } : {}),
+    wineSlug: wine.slug,
     label: "Cumpara",
   };
 }
 
-export function resolveVerifyPriceUrl(wine: WineWithRelations): string | null {
-  for (const affiliate of wine.affiliateLinks ?? []) {
-    const trimmed = affiliate.url?.trim();
-    if (!trimmed || isProfitshareUrl(trimmed)) continue;
-    return resolveCatalogProductUrl(trimmed);
-  }
-
-  for (const store of wine.availability ?? []) {
-    const trimmed = store.url?.trim();
-    if (!trimmed || isProfitshareUrl(trimmed)) continue;
-    return resolveCatalogProductUrl(trimmed);
-  }
-
-  const sourceUrl = wine.sourceUrl?.trim();
-  if (sourceUrl && !isProfitshareUrl(sourceUrl)) {
-    return resolveCatalogProductUrl(sourceUrl);
-  }
-
+/**
+ * Public policy: do not surface a non-affiliate "verify price" CTA.
+ * Without a qualified Profitshare offer the price is simply unavailable.
+ */
+export function resolveVerifyPriceUrl(_wine: WineWithRelations): null {
+  void _wine;
   return null;
 }
 
 export function buildWinePriceViewModel(
   wine: WineWithRelations,
+  now: Date = new Date(),
 ): WinePriceViewModel {
-  const displayPrice = resolveWineDisplayPrice(wine);
-  const isVerifiedRecent = isRecentVerifiedPrice(wine);
-  const status = resolveWinePriceStatus(wine);
-  const lowestPrice30d =
-    wine.lowestPrice30d != null && wine.lowestPrice30d > 0
-      ? wine.lowestPrice30d
-      : null;
-
-  const priceChange =
-    status === "verified" && displayPrice != null
-      ? getPriceChange(wine.priceHistory ?? [], displayPrice)
-      : null;
+  const pricing = resolvePublicPrice(wine, { now });
+  const offer = pricing.bestOffer;
 
   return {
-    displayPrice,
-    status,
-    lowestPrice30d,
-    isVerifiedRecent,
-    priceChange,
-    comparison:
-      displayPrice != null && status === "verified"
-        ? getPriceComparison(displayPrice, lowestPrice30d)
-        : null,
-    purchaseLink: resolvePrimaryPurchaseLink(wine),
-    verifyPriceUrl: resolveVerifyPriceUrl(wine),
+    displayPrice: pricing.displayPrice,
+    status: pricing.status,
+    lowestPrice30d: null,
+    isVerifiedRecent: pricing.isVerifiedRecent,
+    priceChange: null,
+    comparison: null,
+    purchaseLink: offer
+      ? {
+          retailer: offer.retailer,
+          url: offer.url,
+          priceRon: offer.priceRon,
+          checkedAt: offer.observedAt,
+          offerId: offer.offerId,
+          ...(offer.productKey ? { productKey: offer.productKey } : {}),
+          ...(offer.bottleSizeMl != null
+            ? { bottleSizeMl: offer.bottleSizeMl }
+            : {}),
+          ...(offer.vintage != null ? { vintage: offer.vintage } : {}),
+          wineSlug: wine.slug,
+          label: "Cumpara",
+        }
+      : null,
+    verifyPriceUrl: null,
+    offers: pricing.offers,
   };
 }
 
@@ -222,8 +187,6 @@ export function getPriceStatusLabel(status: WinePriceStatus): string {
   switch (status) {
     case "verified":
       return "Pret actual";
-    case "estimated":
-      return "Pret estimativ";
     case "unavailable":
       return "Pret indisponibil";
   }

@@ -40,7 +40,15 @@ function catalogWine(
     recommendedOccasions: [],
     thingsYouShouldKnow: [],
     availability: [],
-    affiliateLinks: [],
+    affiliateLinks: [
+      {
+        retailer: "eMAG.ro",
+        url: `https://l.profitshare.ro/l/${100000 + overrides.id}`,
+        priceRon: overrides.priceAvg ?? 45,
+        checkedAt: new Date().toISOString(),
+        inStock: true,
+      },
+    ],
     priceHistory: [],
     winery: { id: 1, name: "Crama Test", slug: "crama-test" },
     region: { id: 1, name: "Dealu Mare", slug: "dealu-mare" },

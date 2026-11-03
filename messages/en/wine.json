@@ -28,6 +28,7 @@
   "buyingDecision": {
     "price": "Price",
     "currentPrice": "Current price",
+    "unavailable": "Price unavailable",
     "estimatedPrice": "Estimated price",
     "worthIt": "Is it worth the money?",
     "valueScore": "Value Score",

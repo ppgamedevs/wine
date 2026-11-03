@@ -274,7 +274,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     topLists: { expected: "nonempty" },
     regions: { expected: "nonempty" },
     soiuri: { expected: "nonempty", count: grapeGuideSlugs.length },
-    vinPentru: { expected: "nonempty" },
+    // Dish pages require a qualified public price for enough wines. With no
+    // eligible Profitshare offers they are legitimately absent from the sitemap.
+    vinPentru:
+      vinPentruRoutes.length > 0
+        ? { expected: "nonempty" }
+        : { expected: "empty" },
     studii: { expected: "nonempty" },
     journal: { expected: "nonempty" },
   });

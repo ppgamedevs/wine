@@ -64,7 +64,15 @@ function wine(id: number, type: WineType): WineWithRelations {
     ],
     foodPairingNotes: [],
     dessertPairings: [],
-    affiliateLinks: [],
+    affiliateLinks: [
+      {
+        retailer: "eMAG.ro",
+        url: `https://l.profitshare.ro/l/${100000 + id}`,
+        priceRon: 25,
+        checkedAt: new Date().toISOString(),
+        inStock: true,
+      },
+    ],
     availability: [],
     priceHistory: [],
     recommendedOccasions: [],

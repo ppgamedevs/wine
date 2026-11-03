@@ -261,6 +261,15 @@ export const API_ROUTE_EXPECTATIONS = [
     ],
     notes: "Vote reads are single item and vote writes are identity scoped.",
   },
+  {
+    route: "/api/admin/jev",
+    sourcePath: "app/api/admin/jev/route.ts",
+    classification: "private-account",
+    methods: ["GET"],
+    caps: {},
+    protections: ["account-authorization", "cache-policy"],
+    notes: "Admin-only read-only diagnostics; never returns API keys or messages.",
+  },
 ] as const satisfies readonly ApiRouteExpectation[];
 
 export const FORBIDDEN_PUBLIC_FIELDS = [
@@ -359,7 +368,7 @@ function hasProtectionEvidence(
     case "cache-policy":
       return /Cache-Control/i.test(content);
     case "account-authorization":
-      return /\b(?:requireAuth|requireSession|getServerSession|currentUser|assertOwnership|verifyOwnership|claimedBy)\b/.test(
+      return /\b(?:requireAuth|requireAdmin|isAdminAuthenticated|requireSession|getServerSession|currentUser|assertOwnership|verifyOwnership|claimedBy)\b/.test(
         content,
       );
     case "shared-secret":

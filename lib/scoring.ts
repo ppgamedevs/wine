@@ -60,6 +60,11 @@ export interface ScoreInput {
 
 export interface ValueScoreInput {
   price: number;
+  /**
+   * Explicit market-price availability. `insufficient` means the score must
+   * not be treated as a public value recommendation.
+   */
+  priceDataStatus?: "available" | "insufficient";
   isAutochthonous: boolean;
   region: string;
   /** 0-100 (din LLM, ML sau note degustare). */
@@ -100,6 +105,8 @@ export interface LlmScoreSuggestions {
 }
 
 export interface MergedAnalysisScores extends InitialScores {
+  /** `insufficient` means value/overpriced fields must not be persisted. */
+  priceDataStatus?: "available" | "insufficient";
   ruleBased: InitialScores;
   llmSuggestions: {
     valueScore: number | null;
@@ -133,6 +140,7 @@ export function mergeAnalysisScores(
   const foodMatchScore = ruleScores.foodMatchScore;
 
   return {
+    priceDataStatus: price > 0 ? "available" : "insufficient",
     valueScore,
     giftScore,
     foodMatchScore,
@@ -648,6 +656,7 @@ export interface ValueScoreBreakdownItem {
 
 export interface ValueScoreBreakdown {
   items: ValueScoreBreakdownItem[];
+  priceDataStatus: "available" | "insufficient";
   subtotal: number;
   penaltyNote: string | null;
   finalScore: number;
@@ -681,6 +690,8 @@ export function buildValueScoreBreakdown(
 
   return {
     items: result.items,
+    priceDataStatus:
+      wine.priceDataStatus ?? (wine.price > 0 ? "available" : "insufficient"),
     subtotal: Math.round(result.rawScore),
     penaltyNote: result.provisional
       ? "Scor provizoriu: date insuficiente pentru o estimare stabila a calitatii."
@@ -798,6 +809,8 @@ export function buildValueScoreV1Breakdown(
 
   return {
     items,
+    priceDataStatus:
+      wine.priceDataStatus ?? (wine.price > 0 ? "available" : "insufficient"),
     subtotal,
     penaltyNote,
     finalScore,
@@ -828,12 +841,17 @@ export function valueScoreInputFromWine(wine: {
   drinkabilityStart?: number | null;
   drinkabilityEnd?: number | null;
 }): ValueScoreInput {
-  const price = wine.currentPrice ?? wine.priceAvg ?? 0;
+  const rawPrice = wine.currentPrice ?? wine.priceAvg;
+  const price =
+    rawPrice != null && Number.isFinite(rawPrice) && rawPrice > 0
+      ? rawPrice
+      : 0;
   const grapes = (wine.grapeVarieties ?? []).map((g) =>
     typeof g === "string" ? g : g.name,
   );
   return {
     price,
+    priceDataStatus: price > 0 ? "available" : "insufficient",
     isAutochthonous: isAutochthonousGrapeMix(grapes),
     region: wine.region?.name ?? "",
     baseQuality: wine.estimatedQuality ?? defaultBaseQuality(price),

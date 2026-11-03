@@ -1,0 +1,172 @@
+[
+  {
+    "id": "ro-diacritics-romantic-pasta-budget",
+    "locale": "ro",
+    "message": "Vreau un vin pentru o cină romantică, mâncăm paste cu sos alb, nu vreau ceva foarte acid și am maxim 80 de lei.",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "occasion": "cina-romantica",
+      "color": "any",
+      "acidity": "low",
+      "budgetSpecified": true,
+      "budgetMin": 0,
+      "budgetMax": 80
+    },
+    "notes": "Reference label derived from the deterministic parser, not human approved."
+  },
+  {
+    "id": "ro-no-diacritics-white-pasta",
+    "locale": "ro",
+    "message": "Vreau un vin alb pentru paste, maxim 80 de lei",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "color": "white",
+      "occasion": "oricare",
+      "budgetSpecified": true,
+      "budgetMax": 80
+    }
+  },
+  {
+    "id": "ro-range-budget",
+    "locale": "ro",
+    "message": "Caut un vin rosu intre 50 si 100 lei",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "color": "red",
+      "budgetSpecified": true,
+      "budgetMin": 50,
+      "budgetMax": 100
+    }
+  },
+  {
+    "id": "ro-strict-sub-budget",
+    "locale": "ro",
+    "message": "Recomanda-mi ceva sub 70 de lei",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "budgetSpecified": true,
+      "budgetMax": 70
+    }
+  },
+  {
+    "id": "ro-pana-la-budget",
+    "locale": "ro",
+    "message": "Un vin bun pana la 60 de lei",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "budgetSpecified": true,
+      "budgetMax": 60
+    }
+  },
+  {
+    "id": "ro-budget-word",
+    "locale": "ro",
+    "message": "Am un buget de 100 de lei pentru o sticla",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "budgetSpecified": true,
+      "budgetMax": 100
+    }
+  },
+  {
+    "id": "ro-no-budget",
+    "locale": "ro",
+    "message": "Ce vin imi recomanzi pentru o cina in doi?",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "budgetSpecified": false,
+      "occasion": "cina-romantica"
+    }
+  },
+  {
+    "id": "ro-gift-business",
+    "locale": "ro",
+    "message": "Vreau un cadou pentru un client important",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "occasion": "cadou-business",
+      "budgetSpecified": false
+    }
+  },
+  {
+    "id": "ro-wedding",
+    "locale": "ro",
+    "message": "Vin pentru nunta, pentru multi invitati",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "occasion": "nunta"
+    }
+  },
+  {
+    "id": "ro-sarmale",
+    "locale": "ro",
+    "message": "Ce vin merge cu sarmale?",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "occasion": "sarmale",
+      "color": "any"
+    }
+  },
+  {
+    "id": "ro-dessert-sweetness",
+    "locale": "ro",
+    "message": "Vreau un vin demidulce pentru cozonac",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "occasion": "pentru-desert",
+      "sweetness": "demidulce"
+    }
+  },
+  {
+    "id": "ro-contradictory-color",
+    "locale": "ro",
+    "message": "Un vin rosu sau alb pentru gratar",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "color": "any",
+      "occasion": "gratar"
+    },
+    "notes": "Contradictory colour must not be silently resolved to red."
+  },
+  {
+    "id": "ro-fish-grill",
+    "locale": "ro",
+    "message": "Vin alb pentru peste la gratar",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "color": "white",
+      "occasion": "gratar"
+    }
+  },
+  {
+    "id": "ro-foreign-currency",
+    "locale": "ro",
+    "message": "Buget 500 de euro pentru o sticla",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "budgetSpecified": false
+    },
+    "notes": "Foreign currency is reported, never converted into RON."
+  },
+  {
+    "id": "ro-negated-sweetness",
+    "locale": "ro",
+    "message": "Nu vreau prea dulce, ce imi recomanzi?",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "budgetSpecified": false,
+      "sweetness": "any"
+    }
+  },
+  {
+    "id": "en-under-budget",
+    "locale": "en",
+    "message": "Recommend a red wine under 60 RON for a dinner",
+    "labelStatus": "deterministic_reference",
+    "expected": {
+      "color": "red",
+      "budgetSpecified": true,
+      "budgetMax": 60
+    }
+  }
+]

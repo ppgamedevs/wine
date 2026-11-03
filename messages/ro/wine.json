@@ -28,6 +28,7 @@
   "buyingDecision": {
     "price": "Pret",
     "currentPrice": "Pret actual",
+    "unavailable": "Pret indisponibil",
     "estimatedPrice": "Pret aproximativ",
     "worthIt": "Merita banii?",
     "valueScore": "Value Score",

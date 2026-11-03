@@ -18,6 +18,8 @@ import {
 } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { grapeVarieties, regions, wineryEvents, wineries, wines } from "@/lib/schema";
+import type { AffiliateLink, PriceHistoryEntry } from "@/lib/schema";
+import { resolvePublicPrice } from "@/lib/public-price";
 import { andCatalog, catalogWineCondition, wineryHasCatalogWinesCondition } from "@/lib/wine-catalog";
 import { GRAPE_GUIDES } from "@/lib/oenology";
 import {
@@ -58,11 +60,13 @@ import type {
 interface WineryWineSummaryRow {
   slug: string;
   name: string;
+  vintage: number | null;
   valueScore: number | null;
-  priceAvg: number | null;
   status: string;
   updatedAt: string;
   grapeVarieties: WineWithRelations["grapeVarieties"];
+  affiliateLinks: AffiliateLink[];
+  priceHistory: PriceHistoryEntry[];
 }
 
 function mapWineryToListItem(
@@ -72,7 +76,22 @@ function mapWineryToListItem(
 ): WineryListItem {
   const visibleWines = wineryWines.filter((wine) => wine.status !== "rejected");
 
-  const valueScores = visibleWines
+  // Public winery summaries are derived exclusively from qualified
+  // Profitshare offers; non-affiliate price fields are never exposed.
+  const pricedWines = visibleWines
+    .map((wine) => {
+      const pricing = resolvePublicPrice(wine);
+      return pricing.bestOffer
+        ? {
+            ...wine,
+            publicPrice: pricing.bestOffer.priceRon,
+            publicObservedAt: pricing.bestOffer.observedAt,
+          }
+        : null;
+    })
+    .filter((wine): wine is NonNullable<typeof wine> => wine != null);
+
+  const valueScores = pricedWines
     .map((w) => w.valueScore)
     .filter((v): v is number => v !== null && v !== undefined);
   const avgValueScore =
@@ -80,9 +99,7 @@ function mapWineryToListItem(
       ? Math.round(valueScores.reduce((a, b) => a + b, 0) / valueScores.length)
       : null;
 
-  const prices = visibleWines
-    .map((w) => w.priceAvg)
-    .filter((p): p is number => p !== null && p !== undefined);
+  const prices = pricedWines.map((w) => w.publicPrice);
   const priceRange =
     prices.length > 0
       ? {
@@ -91,7 +108,7 @@ function mapWineryToListItem(
         }
       : null;
 
-  const sortedByValue = [...visibleWines].sort(
+  const sortedByValue = [...pricedWines].sort(
     (a, b) => (b.valueScore ?? 0) - (a.valueScore ?? 0),
   );
   const bestWine = sortedByValue[0]
@@ -99,31 +116,31 @@ function mapWineryToListItem(
         slug: sortedByValue[0].slug,
         name: sortedByValue[0].name,
         valueScore: sortedByValue[0].valueScore,
-        priceAvg: sortedByValue[0].priceAvg,
+        priceAvg: sortedByValue[0].publicPrice,
       }
     : null;
 
-  const under50 = visibleWines
-    .filter((w) => w.priceAvg != null && w.priceAvg <= 50)
+  const under50 = pricedWines
+    .filter((w) => w.publicPrice <= 50)
     .sort((a, b) => (b.valueScore ?? 0) - (a.valueScore ?? 0))[0];
   const bestUnder50 = under50
     ? {
         slug: under50.slug,
         name: under50.name,
         valueScore: under50.valueScore,
-        priceAvg: under50.priceAvg,
+        priceAvg: under50.publicPrice,
       }
     : null;
 
-  const under100 = visibleWines
-    .filter((w) => w.priceAvg != null && w.priceAvg <= 100)
+  const under100 = pricedWines
+    .filter((w) => w.publicPrice <= 100)
     .sort((a, b) => (b.valueScore ?? 0) - (a.valueScore ?? 0))[0];
   const bestUnder100 = under100
     ? {
         slug: under100.slug,
         name: under100.name,
         valueScore: under100.valueScore,
-        priceAvg: under100.priceAvg,
+        priceAvg: under100.publicPrice,
       }
     : null;
 
@@ -141,8 +158,8 @@ function mapWineryToListItem(
     .map(([name]) => name);
 
   const lastPriceCheck =
-    visibleWines
-      .map((w) => w.updatedAt)
+    pricedWines
+      .map((w) => w.publicObservedAt)
       .filter(Boolean)
       .sort((a, b) => b.localeCompare(a))[0] ?? null;
 
@@ -611,11 +628,13 @@ export async function getWineryDirectoryPage(
           columns: {
             slug: true,
             name: true,
+            vintage: true,
             valueScore: true,
-            priceAvg: true,
             status: true,
             updatedAt: true,
             grapeVarieties: true,
+            affiliateLinks: true,
+            priceHistory: true,
           },
           where: catalogWineCondition(),
         },
@@ -781,6 +800,75 @@ export async function getWinesForSommelier(): Promise<WineWithRelations[]> {
     return normalizeWineRows(rows as WineWithRelations[]);
   } catch (error) {
     console.error("getWinesForSommelier failed", error);
+    return [];
+  }
+}
+
+/** Identity fields used by the Sommelier grounding gate. No prices, no editorial text. */
+export interface CatalogIdentityRow {
+  slug: string;
+  name: string;
+  type: string;
+  vintage: number | null;
+  wineryName: string | null;
+  regionName: string | null;
+  grapes: string[];
+}
+
+/**
+ * Lightweight index of the visible catalog used to verify that a wine the user
+ * named actually exists. Returns `null` when the index cannot be read, so the
+ * caller can avoid claiming a wine is missing without checking.
+ */
+export async function getCatalogIdentityIndex(
+  limit = 4_000,
+): Promise<CatalogIdentityRow[] | null> {
+  try {
+    const rows = await db.query.wines.findMany({
+      where: catalogWineCondition(),
+      columns: {
+        slug: true,
+        name: true,
+        type: true,
+        vintage: true,
+        grapeVarieties: true,
+      },
+      with: {
+        winery: { columns: { name: true } },
+        region: { columns: { name: true } },
+      },
+      limit,
+    });
+
+    return rows.map((row) => ({
+      slug: row.slug,
+      name: row.name,
+      type: row.type,
+      vintage: row.vintage ?? null,
+      wineryName: row.winery?.name ?? null,
+      regionName: row.region?.name ?? null,
+      grapes: (row.grapeVarieties ?? []).map((grape) => grape.name),
+    }));
+  } catch (error) {
+    console.error("getCatalogIdentityIndex failed", error);
+    return null;
+  }
+}
+
+/** Load catalog wines by slug, used when a request names specific bottles. */
+export async function getCatalogWinesBySlugs(
+  slugs: string[],
+): Promise<WineWithRelations[]> {
+  const unique = [...new Set(slugs.filter(Boolean))].slice(0, 6);
+  if (unique.length === 0) return [];
+  try {
+    const rows = await db.query.wines.findMany({
+      where: andCatalog(inArray(wines.slug, unique)),
+      with: { winery: true, region: true },
+    });
+    return normalizeWineRows(rows as WineWithRelations[]);
+  } catch (error) {
+    console.error("getCatalogWinesBySlugs failed", error);
     return [];
   }
 }
@@ -1114,11 +1202,13 @@ export async function getRegionHubData(slug: string): Promise<RegionHubData | nu
             columns: {
               slug: true,
               name: true,
+              vintage: true,
               valueScore: true,
-              priceAvg: true,
               status: true,
               updatedAt: true,
               grapeVarieties: true,
+              affiliateLinks: true,
+              priceHistory: true,
             },
           },
         },

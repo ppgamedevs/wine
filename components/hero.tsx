@@ -1,7 +1,3 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
-import type { Variants } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import {
@@ -10,7 +6,6 @@ import {
 } from "@/components/smart-search-client";
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
-import { EASE_OUT, staggerContainer } from "@/lib/motion";
 
 export interface HeroCopy {
   badge: string;
@@ -29,6 +24,14 @@ export interface HeroCopy {
   search: SmartSearchCopy;
 }
 
+/**
+ * Above-the-fold hero.
+ *
+ * This is deliberately a Server Component with no entrance animation: the H1 is
+ * the mobile LCP element, so it must be visible in the first HTML response.
+ * Wrapping it in a client `motion` tree with `opacity: 0` delayed LCP until
+ * hydration. The search field is the only interactive island.
+ */
 export function Hero({
   copy,
   locale,
@@ -36,9 +39,6 @@ export function Hero({
   copy: HeroCopy;
   locale: AppLocale;
 }) {
-  const reduceMotion = useReducedMotion();
-
-  const container = staggerContainer;
   const pivotLinks = [
     {
       label: copy.links.catalog,
@@ -70,15 +70,6 @@ export function Hero({
     },
   ];
 
-  const item: Variants = {
-    hidden: reduceMotion ? {} : { opacity: 0, y: 20 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: EASE_OUT },
-    },
-  };
-
   return (
     <section className="relative overflow-hidden">
       <div
@@ -86,51 +77,39 @@ export function Hero({
         className="pointer-events-none absolute inset-0 -z-10"
       >
         <div className="absolute left-1/2 top-[-12rem] h-[28rem] w-[48rem] -translate-x-1/2 rounded-full bg-wine/10 blur-3xl" />
-        <div className="absolute bottom-[-10rem] right-[-6rem] h-[24rem] w-[24rem] rounded-full bg-gold/10 blur-3xl" />
+        {/* Anchored to the top: a bottom-anchored decorative blob moved when the
+            hero text reflowed on web-font load, which counted as CLS. */}
+        <div className="absolute right-[-6rem] top-[34rem] h-[24rem] w-[24rem] rounded-full bg-gold/10 blur-3xl" />
       </div>
 
       <div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col items-center px-4 pb-20 pt-20 text-center sm:px-6 sm:pt-28">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="flex w-full flex-col items-center"
-        >
-          <motion.div variants={item}>
+        <div className="flex w-full flex-col items-center">
+          <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-wine/20 bg-wine/5 px-4 py-1.5 text-sm font-medium text-wine">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               {copy.badge}
             </span>
-          </motion.div>
+          </div>
 
-          <motion.h1
-            variants={item}
-            className="mt-6 font-serif text-5xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl"
-          >
+          <h1 className="mt-6 font-serif text-5xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl">
             {copy.title}
             <br />
             <span className="text-wine">{copy.titleAccent}</span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            variants={item}
-            className="mt-6 max-w-2xl text-balance text-lg text-muted-foreground sm:text-xl"
-          >
+          <p className="mt-6 max-w-2xl text-balance text-lg text-muted-foreground sm:text-xl">
             {copy.description}
-          </motion.p>
+          </p>
 
-          <motion.div variants={item} className="mt-9 w-full min-w-0 max-w-2xl">
+          <div className="mt-9 w-full min-w-0 max-w-2xl">
             <SmartSearchClient
               copy={copy.search}
               locale={locale}
               enableLinkAnalysis={false}
             />
-          </motion.div>
+          </div>
 
-          <motion.div
-            variants={item}
-            className="mt-6 flex flex-wrap items-center justify-center gap-2"
-          >
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             {pivotLinks.map((link) => (
               <Link
                 key={link.href}
@@ -140,12 +119,9 @@ export function Hero({
                 {link.label}
               </Link>
             ))}
-          </motion.div>
+          </div>
 
-          <motion.div
-            variants={item}
-            className="mt-4 flex flex-wrap items-center justify-center gap-2"
-          >
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <span className="text-sm text-muted-foreground">
               {copy.frequentSearches}
             </span>
@@ -158,8 +134,8 @@ export function Hero({
                 {suggestion.label}
               </Link>
             ))}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );

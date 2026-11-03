@@ -52,6 +52,7 @@ export function buildPublicWineCardViewModel(
   const locale = options.locale ?? "ro";
   const vintage = resolveWineVintage(wine);
   const pricing = buildWinePriceViewModel(wine);
+  const hasPublicPrice = pricing.status === "verified";
 
   return {
     slug: wine.slug,
@@ -60,12 +61,11 @@ export function buildPublicWineCardViewModel(
     type: wine.type,
     typeLabel: getWineTypeLabel(wine.type, locale),
     vintage,
-    valueScore: wine.valueScore,
-    displayedRankScore: topListRankScore(
-      wine,
-      highlightScore,
-      options.displayedScore,
-    ),
+    valueScore: hasPublicPrice ? wine.valueScore : null,
+    displayedRankScore:
+      highlightScore === "value" && !hasPublicPrice
+        ? null
+        : topListRankScore(wine, highlightScore, options.displayedScore),
     displayedRankLabel: rankLabel(highlightScore, locale),
     image: {
       url: wine.imageUrl,
@@ -85,8 +85,8 @@ export function buildPublicWineCardViewModel(
             retailer: pricing.purchaseLink.retailer,
           }
         : null,
-      verifyPriceUrl: pricing.verifyPriceUrl,
-      canVerifyPrice: wine.winery?.verified === true,
+      verifyPriceUrl: null,
+      canVerifyPrice: false,
     },
     analytics: options.analytics ?? null,
   };
@@ -97,12 +97,9 @@ function buildPublicWineCatalogItemForLocale(
   locale: AppLocale,
 ): PublicWineCatalogItem {
   const card = buildPublicWineCardViewModel(wine, { locale });
-  const filterPrice =
-    wine.currentPrice != null && wine.currentPrice > 0
-      ? wine.currentPrice
-      : wine.priceAvg != null && wine.priceAvg > 0
-        ? wine.priceAvg
-        : null;
+  const filterPrice = card.price.displayPrice;
+  const valueScore =
+    card.price.status === "verified" ? wine.valueScore : null;
   const searchText = [
     wine.name,
     wine.winery?.name ?? "",
@@ -121,7 +118,7 @@ function buildPublicWineCatalogItemForLocale(
   return {
     type: wine.type,
     sweetness: wine.sweetness,
-    valueScore: wine.valueScore,
+    valueScore,
     filterPrice,
     searchText,
     card,

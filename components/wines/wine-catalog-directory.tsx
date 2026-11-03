@@ -198,7 +198,9 @@ export function WineCatalogDirectory({
             <WineCardView
               key={wine.slug}
               card={wine}
-              priority={index < 4}
+              // Only the first card can plausibly be the LCP image; preloading
+              // four full-size bottles competes with it on mobile.
+              priority={index === 0}
               locale={locale}
             />
           ))}

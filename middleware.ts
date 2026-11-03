@@ -111,6 +111,16 @@ export default function middleware(request: NextRequest) {
   }
 
   const response = handleI18nRouting(request);
+  // The hero H1 is the mobile LCP text and the hero body copy uses Geist.
+  // Both are self-hosted at stable paths; preload them so the first paint uses
+  // the final faces instead of swapping/reflowing after hydration.
+  response.headers.set(
+    "Link",
+    [
+      '</fonts/playfair-display-latin.woff2>; rel=preload; as=font; type=font/woff2; crossorigin=anonymous',
+      '</fonts/geist-latin.woff2>; rel=preload; as=font; type=font/woff2; crossorigin=anonymous',
+    ].join(", "),
+  );
   if (
     !isEnglishIndexingEnabled() &&
     (request.nextUrl.pathname === "/en" ||

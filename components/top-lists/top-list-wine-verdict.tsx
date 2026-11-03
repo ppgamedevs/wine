@@ -5,6 +5,7 @@ import { localizedHref } from "@/i18n/paths";
 import { formatRon, valueScoreTone } from "@/lib/format";
 import { getPseoMessages } from "@/lib/i18n/pseo";
 import { buildWorthItAnalysis } from "@/lib/wine-analysis";
+import { buildWinePriceViewModel } from "@/lib/wine-price";
 import { resolveWineVintage, stripEmbeddedVintageFromName } from "@/lib/wine-vintage";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
@@ -22,14 +23,15 @@ function buildWhyInTop(
   locale: AppLocale,
 ): string {
   const parts: string[] = [];
-  if (wine.valueScore && wine.valueScore >= 75) {
+  const pricing = buildWinePriceViewModel(wine);
+  if (pricing.status === "verified" && wine.valueScore && wine.valueScore >= 75) {
     parts.push(`Value Score ${wine.valueScore}/100`);
   }
-  if (wine.priceAvg) {
+  if (pricing.displayPrice != null) {
     parts.push(
       locale === "en"
-        ? `good value at ${formatRon(wine.priceAvg, locale)}`
-        : `pret bun la ${formatRon(wine.priceAvg, locale)}`,
+        ? `good value at ${formatRon(pricing.displayPrice, locale)}`
+        : `pret bun la ${formatRon(pricing.displayPrice, locale)}`,
     );
   }
   return parts.length > 0
@@ -43,7 +45,7 @@ function buildMinus(
   wine: WineWithRelations,
   locale: AppLocale,
 ): string | null {
-  if (!wine.priceAvg) {
+  if (buildWinePriceViewModel(wine).displayPrice == null) {
     return locale === "en"
       ? "price currently unavailable"
       : "pret indisponibil momentan";
@@ -62,6 +64,9 @@ function buildMinus(
 }
 
 function englishVerdict(wine: WineWithRelations): string {
+  if (buildWinePriceViewModel(wine).displayPrice == null) {
+    return "Price currently unavailable; compare a qualified offer before buying.";
+  }
   if ((wine.valueScore ?? 0) >= 80) {
     return "A strong value choice at its current catalog price.";
   }
@@ -107,7 +112,9 @@ export function TopListWineVerdict({
           vintage={displayVintage}
           wineryName={wine.winery?.name}
           priority={priority}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          // Bottle is contained inside a 5:4 box, so it paints narrower than
+          // the card; 100vw requested needlessly large originals on mobile.
+          sizes="(max-width: 640px) 40vw, (max-width: 1024px) 22vw, 15vw"
           aspectClassName="relative aspect-[5/4] overflow-hidden"
           objectFit="contain"
           containPaddingClass="p-4 sm:p-5"
@@ -145,7 +152,7 @@ export function TopListWineVerdict({
             ) : null}
           </div>
           <p className="shrink-0 text-right text-sm font-semibold text-foreground">
-            {formatRon(wine.priceAvg, locale)}
+            {formatRon(buildWinePriceViewModel(wine).displayPrice, locale)}
           </p>
         </div>
 

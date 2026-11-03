@@ -26,6 +26,10 @@ import {
 import { buildWineFullTitle } from "@/lib/wine-vintage";
 import { buildWineFaq } from "@/lib/wine-analysis";
 import { buildWineJsonLd, buildWineMetadataDescription } from "@/lib/wine-json-ld";
+import {
+  sanitizeWineForPublic,
+  sanitizeWinesForPublic,
+} from "@/lib/public-price";
 import { absoluteUrl } from "@/lib/seo";
 import { resolveWineImage } from "@/lib/wine-images";
 import { EXISTING_WINE_CATALOG_MESSAGE } from "@/lib/wine-submission-messages";
@@ -71,7 +75,7 @@ export async function generateMetadata({
   }
 
   const localized = await localizedWineDetail(sourceWine, locale);
-  const wine = localized.wine;
+  const wine = sanitizeWineForPublic(localized.wine);
   const title = buildWineFullTitle(wine.name, wine.vintage);
   const description = buildWineMetadataDescription(wine, locale);
   const canonicalPath = localizedHref(locale, "wine", { slug: wine.slug });
@@ -159,7 +163,9 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
     ]);
 
   const localized = await localizedWineDetail(sourceWine, locale);
-  const wine = localized.wine;
+  const wine = sanitizeWineForPublic(localized.wine);
+  const publicSimilar = sanitizeWinesForPublic(similar);
+  const publicRecommended = sanitizeWinesForPublic(recommended);
   const faq = buildWineFaq(wine, locale);
   const jsonLd = buildWineJsonLd(wine, faq, technicalTrust, locale);
 
@@ -194,8 +200,8 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
           <WineScoreCards wine={wine} />
           <WineRelatedSections
             wine={wine}
-            similar={similar}
-            recommended={recommended}
+            similar={publicSimilar}
+            recommended={publicRecommended}
           />
           <WineDualScores wine={wine} />
 

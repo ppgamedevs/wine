@@ -1,27 +1,8 @@
 import type { WineType } from "@/types";
 import { upgradeBudureascaImageUrl } from "@/lib/budureasca-image-url";
+import { isOptimizableImageHost } from "@/lib/image-hosts";
 
 const PLACEHOLDER_HOSTS = ["images.unsplash.com", "picsum.photos"] as const;
-
-const KNOWN_OPTIMIZED_HOSTS = [
-  "images.unsplash.com",
-  "picsum.photos",
-  "vinintel.ro",
-  "public.blob.vercel-storage.com",
-  "davino.ro",
-  "cramele-recas.ro",
-  "cramelerecas.ro",
-  "cotnari.ro",
-  "avincis.ro",
-  "ballageza.com",
-  "www.ballageza.com",
-  "liliac.ro",
-  "budureasca.ro",
-  "cramagabai.ro",
-  "murfatlar-vinul.ro",
-  "lacertawinery.ro",
-  "jidvei.ro",
-] as const;
 
 export interface ResolvedWineImage {
   src: string | null;
@@ -61,19 +42,19 @@ export function isExternalSourceImage(
   return Boolean(source && source !== "manual");
 }
 
-function hostnameMatchesKnownOptimizedHost(hostname: string): boolean {
-  return KNOWN_OPTIMIZED_HOSTS.some(
-    (host) => hostname === host || hostname.endsWith(`.${host}`),
-  );
-}
-
-export function shouldUseUnoptimizedImage(
-  url: string,
-  fromExternalSource: boolean,
-): boolean {
-  if (fromExternalSource) return true;
+/**
+ * Wine photos are optimised whenever the host is allowlisted in
+ * `next.config.ts` (`images.remotePatterns`), even when the original file came
+ * from a retailer or winery CDN. Previously every external-source image was
+ * forced unoptimized, so cards downloaded 300-600 KB originals for a ~100 px
+ * bottle. Hosts outside the allowlist still bypass the optimizer.
+ *
+ * `fromExternalSource` is kept in the signature for call-site compatibility;
+ * the badge/attribution decision is separate from delivery.
+ */
+export function shouldUseUnoptimizedImage(url: string): boolean {
   try {
-    return !hostnameMatchesKnownOptimizedHost(new URL(url).hostname);
+    return !isOptimizableImageHost(new URL(url).hostname);
   } catch {
     return true;
   }
@@ -123,7 +104,7 @@ export function resolveWineImage(wine: {
       src: raw,
       alt,
       fromExternalSource,
-      unoptimized: shouldUseUnoptimizedImage(raw, fromExternalSource),
+      unoptimized: shouldUseUnoptimizedImage(raw),
     };
   }
 

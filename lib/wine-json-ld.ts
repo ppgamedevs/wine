@@ -1,5 +1,6 @@
 import { formatRon } from "@/lib/format";
 import { resolveWineImage } from "@/lib/wine-images";
+import { resolvePublicPrice } from "@/lib/public-price";
 import type { WineFaqItem } from "@/lib/wine-analysis";
 import { absoluteUrl } from "@/lib/seo";
 import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
@@ -22,9 +23,8 @@ export type WineStructuredDataInput = Pick<
   | "name"
   | "vintage"
   | "tastingNotes"
-  | "priceAvg"
-  | "currentPrice"
-  | "lowestPrice30d"
+  | "affiliateLinks"
+  | "priceHistory"
   | "ratingAvg"
   | "ratingCount"
   | "imageUrl"
@@ -46,31 +46,32 @@ function winePageUrl(slug: string, locale: AppLocale = "ro"): string {
   return absoluteUrl(localizedHref(locale, "wine", { slug }));
 }
 
-/** Best available catalog price for schema.org Offer nodes. */
+/**
+ * Schema.org Offer price is public only when it belongs to a fresh,
+ * qualified Profitshare offer for this exact wine.
+ */
 export function resolveWineOfferPrice(
   wine: Pick<
     WineStructuredDataInput,
-    "currentPrice" | "priceAvg" | "lowestPrice30d"
+    "slug" | "name" | "vintage" | "affiliateLinks" | "priceHistory"
   >,
 ): number | null {
-  const candidates = [wine.currentPrice, wine.priceAvg, wine.lowestPrice30d];
-  for (const value of candidates) {
-    if (typeof value === "number" && Number.isFinite(value) && value > 0) {
-      return value;
-    }
-  }
-  return null;
+  return resolvePublicPrice(wine).displayPrice;
 }
 
-function buildProductOffers(wine: WineStructuredDataInput, url: string) {
+function buildProductOffers(
+  wine: WineStructuredDataInput,
+  url: string,
+): Record<string, unknown> | null {
   const price = resolveWineOfferPrice(wine);
+  if (price == null) return null;
 
   return {
     "@type": "Offer" as const,
     url,
     priceCurrency: "RON",
     availability: "https://schema.org/InStock",
-    ...(price != null ? { price } : {}),
+    price,
   };
 }
 
@@ -114,7 +115,7 @@ export function buildWineProductNode(
     ...(imageUrl ? { image: imageUrl } : {}),
     ...(wineryName ? { brand: { "@type": "Brand", name: wineryName } } : {}),
     category: "Wine",
-    offers,
+    ...(offers ? { offers } : {}),
     ...(aggregateRating ? { aggregateRating } : {}),
     ...(wine.createdAt ? { releaseDate: wine.createdAt } : {}),
     ...(wine.updatedAt ? { dateModified: wine.updatedAt } : {}),
@@ -134,9 +135,10 @@ export function buildWineProductJsonLd(
 /** Offer entry for Winery.makesOffer with a valid nested Product. */
 export function buildWineryMakesOfferEntry(
   wine: WineStructuredDataInput,
-): Record<string, unknown> {
+): Record<string, unknown> | null {
   const url = winePageUrl(wine.slug);
   const price = resolveWineOfferPrice(wine);
+  if (price == null) return null;
   const productNode = buildWineProductNode(wine);
 
   return {
@@ -144,7 +146,7 @@ export function buildWineryMakesOfferEntry(
     url,
     priceCurrency: "RON",
     availability: "https://schema.org/InStock",
-    ...(price != null ? { price } : {}),
+    price,
     itemOffered: productNode,
   };
 }
@@ -203,7 +205,7 @@ export function buildWineJsonLd(
     producer: wineryName
       ? { "@type": "Organization", name: wineryName }
       : undefined,
-    offers,
+    ...(offers ? { offers } : {}),
     ...(aggregateRating ? { aggregateRating } : {}),
     ...(wine.createdAt ? { datePublished: wine.createdAt } : {}),
     ...(wine.updatedAt ? { dateModified: wine.updatedAt } : {}),
@@ -257,13 +259,16 @@ export function buildWineMetadataDescription(
   locale: AppLocale = "ro",
 ): string {
   const price = resolveWineOfferPrice(wine);
+  const hasPublicPrice = price != null;
   if (locale === "en") {
     const englishPairing = resolvePublicWinePairings(wine, 1, "en")[0];
     const parts = [
       buildWineFullTitle(wine.name, wine.vintage),
       wine.winery?.name ? `from ${wine.winery.name}` : null,
       price != null ? `at ${formatRon(price, "en")}` : null,
-      wine.valueScore ? `Value Score ${wine.valueScore}/100` : null,
+      hasPublicPrice && wine.valueScore
+        ? `Value Score ${wine.valueScore}/100`
+        : null,
       englishPairing?.dish
         ? `suited to ${englishPairing.dish.toLowerCase()}`
         : null,
@@ -275,7 +280,9 @@ export function buildWineMetadataDescription(
     `${buildWineFullTitle(wine.name, wine.vintage)}`,
     wine.winery?.name ? `de la ${wine.winery.name}` : null,
     price != null ? `la ${formatRon(price)}` : null,
-    wine.valueScore ? `Value Score ${wine.valueScore}/100` : null,
+    hasPublicPrice && wine.valueScore
+      ? `Value Score ${wine.valueScore}/100`
+      : null,
     wine.foodPairings?.[0]?.dish
       ? `potrivit pentru ${wine.foodPairings[0].dish.toLowerCase()}`
       : null,

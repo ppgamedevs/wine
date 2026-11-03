@@ -1,0 +1,21 @@
+{
+  "retailer": "Auchan.ro",
+  "url": "https://www.auchan.ro/vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr/p",
+  "sourceProductId": "auchan:vin-alb-demisec-murfatlar-zestrea-muscat-ottonel-0-75-l-sgr",
+  "title": "Vin alb demisec Murfatlar Zestrea, Muscat Ottonel, 0.75 l",
+  "producer": "Murfatlar",
+  "range": "Zestrea",
+  "productName": "Muscat Ottonel",
+  "displayName": "Zestrea Muscat Ottonel Demisec",
+  "grapeVarieties": ["Muscat Ottonel"],
+  "color": "alb",
+  "sweetness": "demisec",
+  "bottleSizeMl": 750,
+  "vintage": null,
+  "alcoholPercent": 12.5,
+  "alcoholProvenance": "retailer_specification",
+  "producerConfirmedAlcohol": false,
+  "alcoholEvidence": "Concentratie alcoolica: 12,5% vol.",
+  "officialProducerUrl": "https://murfatlar-vinul.ro/zestrea/",
+  "capturedAt": "2026-11-03"
+}

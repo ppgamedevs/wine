@@ -19,6 +19,39 @@ export function isProfitshareUrl(url: string): boolean {
   return parsed?.hostname.toLowerCase().includes("profitshare.ro") ?? false;
 }
 
+const PROFITSHARE_HOSTS = new Set([
+  "l.profitshare.ro",
+  "profitshare.ro",
+  "www.profitshare.ro",
+]);
+
+/**
+ * Strict Profitshare eligibility check.
+ *
+ * A tracking click-id, `ref=ps`, UTM tag or any other query parameter on a
+ * retailer URL is NOT proof of a Profitshare offer. The public price policy
+ * accepts only an actual Profitshare tracking link with a campaign token.
+ */
+export function isQualifyingProfitshareUrl(url: string): boolean {
+  const parsed = parseUrl(url);
+  if (!parsed) return false;
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
+
+  const host = parsed.hostname.toLowerCase();
+  if (!PROFITSHARE_HOSTS.has(host)) return false;
+
+  const path = parsed.pathname.replace(/\/+$/, "");
+  return /^\/(?:l|lr)\/[A-Za-z0-9_-]{4,}$/.test(path);
+}
+
+export function getProfitshareOfferId(url: string): string | null {
+  if (!isQualifyingProfitshareUrl(url)) return null;
+  const parsed = parseUrl(url);
+  if (!parsed) return null;
+  const match = parsed.pathname.match(/\/(?:l|lr)\/([A-Za-z0-9_-]{4,})\/?$/);
+  return match?.[1] ?? null;
+}
+
 export function detectRetailerLabel(url: string): string | null {
   const parsed = parseUrl(url);
   if (!parsed) return null;
@@ -28,19 +61,12 @@ export function detectRetailerLabel(url: string): string | null {
   return match?.label ?? null;
 }
 
+/**
+ * @deprecated Use `isQualifyingProfitshareUrl`. Kept as an alias so callers
+ * cannot accidentally reintroduce generic tracking-parameter heuristics.
+ */
 export function hasAffiliateTracking(url: string): boolean {
-  if (isProfitshareUrl(url)) return true;
-
-  const parsed = parseUrl(url);
-  if (!parsed) return false;
-
-  const params = parsed.searchParams;
-  if (params.get("ref") === "ps") return true;
-  if (params.has("emag_click_id")) return true;
-  if (params.get("utm_medium") === "profitshare") return true;
-  if (params.get("utm_source")?.includes("affiliate")) return true;
-
-  return false;
+  return isQualifyingProfitshareUrl(url);
 }
 
 /** Clean product URL for price checks and catalog references (no affiliate params). */

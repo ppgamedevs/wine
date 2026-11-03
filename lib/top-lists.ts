@@ -14,6 +14,7 @@ import {
   type OccasionId,
   type Recommendation,
 } from "@/lib/sommelier";
+import { sanitizeWinesForPublic } from "@/lib/public-price";
 import type { WineType, WineWithRelations } from "@/types";
 
 export type TopListRankMetric = "value" | "gift" | "relevance";
@@ -310,6 +311,9 @@ export function resolveTopList(
   slug: string,
   allWines: WineWithRelations[],
 ): ResolvedTopList | null {
+  // Every price-based list/filter must use the public Profitshare-only
+  // projection; wines without a qualified offer cannot enter budget lists.
+  allWines = sanitizeWinesForPublic(allWines);
   // Best overall by value score.
   if (slug === "cele-mai-bune-vinuri-romanesti") {
     const wines = getTopWinesByValue(allWines, 12);
@@ -527,6 +531,9 @@ export function topListRankScore(
         ? displayedScore ?? null
         : resolvePublicSecondaryScores(wine).food.score;
     default:
+      // Value Score is price-dependent; never surface a numeric value for a
+      // wine without a qualified public offer.
+      if (wine.valueScore == null) return null;
       return displayedScore ?? wine.valueScore ?? null;
   }
 }
@@ -626,7 +633,7 @@ function buildBudgetFaq(
     {
       question: "Preturile sunt actualizate?",
       answer:
-        "Afisam preturi in RON ca pret actual verificat sau pret aproximativ, in functie de sursa disponibila pentru fiecare vin.",
+        "Afisam preturi in RON doar din oferte Profitshare calificate pentru vinul respectiv; altfel pretul este indisponibil.",
     },
   ];
 }

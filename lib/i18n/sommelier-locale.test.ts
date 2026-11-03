@@ -51,8 +51,10 @@ describe("Sommelier locale propagation", () => {
     expect(component).toContain("body: { locale }");
     expect(component).toContain('locale === "en" ? "en-US" : "ro-RO"');
     expect(route).toContain("isAppLocale(body.locale)");
-    expect(route).toContain(
-      "buildChatSommelierSystemPrompt(wines, input, locale)",
+    // Locale must stay explicit in the prompt call; the call may carry extra
+    // grounding/intent options after the locale.
+    expect(route).toMatch(
+      /buildChatSommelierSystemPrompt\(\s*\w+,\s*input,\s*locale,?/,
     );
   });
 });

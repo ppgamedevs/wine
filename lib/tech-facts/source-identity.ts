@@ -14,6 +14,8 @@ export interface SourceWineIdentity {
   sourceProducer: string | null;
   sourceVintage: number | null;
   sourceType: string | null;
+  /** Explicit source sweetness, e.g. "demisec" or "demidulce". */
+  sourceSweetness?: string | null;
   sourceGrapes: string[];
   sourceBottleSize: number | null;
   sourceSku: string | null;
@@ -21,6 +23,69 @@ export interface SourceWineIdentity {
   nameClass: SourceNameClass;
   vintageClass: SourceVintageClass;
   identityEvidence: string[];
+}
+
+const KNOWN_GRAPES = [
+  "Muscat Ottonel",
+  "Riesling Italian",
+  "Sauvignon Blanc",
+  "Cabernet Sauvignon",
+  "Fetească Neagră",
+  "Fetească Regală",
+  "Fetească Albă",
+  "Pinot Noir",
+  "Pinot Gris",
+  "Pinot Grigio",
+  "Chardonnay",
+  "Merlot",
+  "Syrah",
+  "Tămâioasă Românească",
+  "Negru de Drăgășani",
+  "Băbească Neagră",
+  "Busuioacă de Bohotin",
+  "Grasă de Cotnari",
+];
+
+function normalizeHintText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function inferSourceType(text: string): string | null {
+  const norm = normalizeHintText(text);
+  if (/\bspumant\b|\bsparkling\b|\bbrut\b/.test(norm)) return "sparkling";
+  if (/\broze\b|\brose\b|\broz\b/.test(norm)) return "rose";
+  if (/\brosu\b|\brosii\b|\bred\b/.test(norm)) return "red";
+  if (/\balb\b|\balbe\b|\bwhite\b/.test(norm)) return "white";
+  return null;
+}
+
+function inferSourceSweetness(text: string): string | null {
+  const norm = normalizeHintText(text);
+  if (/\bdemisec\b|\bdemi sec\b/.test(norm)) return "demisec";
+  if (/\bdemidulce\b|\bmedium sweet\b/.test(norm)) return "demidulce";
+  if (/\bdulce\b|\bsweet\b|\blicoros\b/.test(norm)) return "dulce";
+  if (/\bsec\b|\bdry\b/.test(norm)) return "sec";
+  return null;
+}
+
+function inferSourceGrapes(text: string): string[] {
+  const norm = normalizeHintText(text);
+  return KNOWN_GRAPES.filter((grape) =>
+    norm.includes(normalizeHintText(grape)),
+  );
+}
+
+function inferSourceBottleSize(text: string): number | null {
+  const match = text
+    .replace(/&nbsp;/gi, " ")
+    .match(/(\d+(?:[.,]\d+)?)\s*(ml|l)\b/i);
+  if (!match?.[1]) return null;
+  const amount = Number.parseFloat(match[1].replace(",", "."));
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return Math.round((match[2] ?? "ml").toLowerCase() === "l" ? amount * 1000 : amount);
 }
 
 function decode(value: string): string {
@@ -81,8 +146,15 @@ export function extractSourceIdentityFromHtml(html: string): SourceWineIdentity 
   else if (h1) evidence.push("h1");
   else if (og) evidence.push("og:title");
 
+  const pageText = decode(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " "),
+  ).slice(0, 20_000);
+  const productText = `${name ?? ""} ${pageText}`;
   const vintage = extractTechnicalSourceVintage({
-    text: html.replace(/<[^>]+>/g, " ").slice(0, 4000),
+    text: productText.slice(0, 4000),
     title: name,
     heading: h1 ? h1.replace(/<[^>]+>/g, " ") : name,
   });
@@ -91,9 +163,10 @@ export function extractSourceIdentityFromHtml(html: string): SourceWineIdentity 
     sourceWineName: name,
     sourceProducer: null,
     sourceVintage: vintage,
-    sourceType: null,
-    sourceGrapes: [],
-    sourceBottleSize: null,
+    sourceType: inferSourceType(productText),
+    sourceSweetness: inferSourceSweetness(productText),
+    sourceGrapes: inferSourceGrapes(productText),
+    sourceBottleSize: inferSourceBottleSize(productText),
     sourceSku: sku?.trim() || null,
     sourceLine: null,
     nameClass: name ? "SOURCE_NAME_EXACT" : "SOURCE_NAME_MISSING",
@@ -134,14 +207,16 @@ export function extractSourceIdentityFromText(input: {
       : filenameVintage != null
         ? "SOURCE_VINTAGE_FILENAME_ONLY"
         : "SOURCE_VINTAGE_MISSING";
+  const productText = `${input.title ?? ""} ${input.text}`;
 
   return {
     sourceWineName: name,
     sourceProducer: null,
     sourceVintage: vintage,
-    sourceType: null,
-    sourceGrapes: [],
-    sourceBottleSize: null,
+    sourceType: inferSourceType(productText),
+    sourceSweetness: inferSourceSweetness(productText),
+    sourceGrapes: inferSourceGrapes(productText),
+    sourceBottleSize: inferSourceBottleSize(productText),
     sourceSku: null,
     sourceLine: null,
     nameClass: name ? "SOURCE_NAME_EXACT" : "SOURCE_NAME_MISSING",

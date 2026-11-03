@@ -190,6 +190,9 @@ export default async function AdminDataQualityPage({
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
+            <Link href="/admin/catalog-quality">Catalog quality</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
             <Link href="/admin/wines">Admin vinuri</Link>
           </Button>
           <Button asChild variant="outline" size="sm">

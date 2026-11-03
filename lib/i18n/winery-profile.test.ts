@@ -37,6 +37,16 @@ function winery(): WineryWithWines {
         priceAvg: 89,
         currentPrice: 87,
         lowestPrice30d: 84,
+        affiliateLinks: [
+          {
+            retailer: "eMAG.ro",
+            url: "https://l.profitshare.ro/l/100091",
+            priceRon: 89,
+            checkedAt: new Date().toISOString(),
+            inStock: true,
+          },
+        ],
+        priceHistory: [],
         valueScore: 82,
         tastingNotes: "Fructe negre si condimente.",
         type: "red",

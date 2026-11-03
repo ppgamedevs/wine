@@ -249,9 +249,10 @@ export function isWineryProfileIndexable(
 function buildLocalizedOffer(
   wine: WineryWithWines["wines"][number],
   locale: AppLocale,
-): Record<string, unknown> {
+): Record<string, unknown> | null {
   const url = absoluteUrl(localizedHref(locale, "wine", { slug: wine.slug }));
   const price = resolveWineOfferPrice(wine);
+  if (price == null) return null;
   const product = buildWineProductNode(wine, locale);
 
   return {
@@ -259,7 +260,7 @@ function buildLocalizedOffer(
     url,
     priceCurrency: "RON",
     availability: "https://schema.org/InStock",
-    ...(price != null ? { price } : {}),
+    price,
     itemOffered: {
       ...product,
       url,
@@ -271,7 +272,7 @@ function buildLocalizedOffer(
         url,
         priceCurrency: "RON",
         availability: "https://schema.org/InStock",
-        ...(price != null ? { price } : {}),
+        price,
       },
     },
   };
@@ -306,7 +307,8 @@ export function buildWineryProfileJsonLd(
       : undefined,
     makesOffer: winery.wines
       .slice(0, 10)
-      .map((wine) => buildLocalizedOffer(wine, locale)),
+      .map((wine) => buildLocalizedOffer(wine, locale))
+      .filter((offer): offer is Record<string, unknown> => offer != null),
   };
   const itemListJsonLd = {
     "@context": "https://schema.org",

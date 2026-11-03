@@ -11,6 +11,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
+      // Build-time server guard; Vitest runs without the react-server condition.
+      "server-only": path.resolve(__dirname, "tests/stubs/server-only.ts"),
     },
   },
   test: {

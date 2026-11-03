@@ -282,9 +282,25 @@ export async function applyFullEditorialToWine(
     throw new Error("Vin negasit.");
   }
 
-  const price = wine.currentPrice ?? wine.priceAvg ?? 50;
+  const price = wine.currentPrice ?? wine.priceAvg;
+  if (price == null || !Number.isFinite(price) || price <= 0) {
+    // Price-dependent scores are not recalculated without a real market price.
+    await db
+      .update(wines)
+      .set({
+        descriptionEditorial: editorial.descriptionEditorial,
+        valueExplanation: editorial.valueExplanation,
+        thingsYouShouldKnow: editorial.thingsYouShouldKnow,
+        tasteProfile: editorial.tasteProfile,
+        foodPairingNotes: editorial.foodPairingNotes,
+        dessertPairings: editorial.dessertPairings ?? [],
+        recommendedOccasions: editorial.recommendedOccasions,
+      })
+      .where(eq(wines.id, wineId));
+    return;
+  }
   const ruleScores = calculateInitialScores({
-    price: price > 0 ? price : 50,
+    price,
     category: mapWineTypeToScoreCategory(wine.type),
     region: wine.region?.name,
     grapeVarieties: wine.grapeVarieties.map((grape) => grape.name),
@@ -300,7 +316,7 @@ export async function applyFullEditorialToWine(
     criticScore: wine.criticScore ?? undefined,
     wineryName: wine.winery?.name,
   });
-  const merged = mergeAnalysisScores(ruleScores, price > 0 ? price : 50);
+  const merged = mergeAnalysisScores(ruleScores, price);
 
   await db
     .update(wines)

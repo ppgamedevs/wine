@@ -12,12 +12,12 @@ function resolveFreshness(
   date: string | undefined;
   isPriceDate: boolean;
 } {
-  const history = wine.priceHistory ?? [];
-  if (history.length > 0) {
-    const latest = [...history].sort((a, b) => b.date.localeCompare(a.date))[0];
-    if (latest?.date) {
-      return { date: formatLongDate(latest.date, locale), isPriceDate: true };
-    }
+  const pricing = buildWinePriceViewModel(wine);
+  if (pricing.status === "verified" && pricing.purchaseLink?.checkedAt) {
+    return {
+      date: formatLongDate(pricing.purchaseLink.checkedAt, locale),
+      isPriceDate: true,
+    };
   }
   return { date: formatLongDate(wine.updatedAt, locale), isPriceDate: false };
 }
@@ -48,11 +48,7 @@ export async function WineDataFreshness({ wine }: { wine: WineWithRelations }) {
               date: freshness.date,
             })}
           </p>
-          {pricing.status === "estimated" ? (
-            <p className="mt-1">
-              {t("estimatedWarning")}
-            </p>
-          ) : null}
+
         </div>
       </div>
     </section>
