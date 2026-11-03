@@ -3,8 +3,10 @@ import { loadTargetSources, loadTargetWine } from "@/lib/intelligence/fixtures";
 import { runWineIntelligence } from "@/lib/intelligence/pipeline";
 import {
   planStructuredClaims,
+  verificationForStructuredClaim,
   type ExistingStructuredClaim,
 } from "@/lib/intelligence/structured-claims-backfill";
+import type { IntelligenceReport, WineClaim } from "@/lib/intelligence/types";
 
 async function report() {
   return (
@@ -66,6 +68,137 @@ describe("structured claim backfill plan", () => {
     expect(second.writes).toEqual([]);
     expect(second.alreadyPresent).toBe(first.writes.length);
     expect(second.existingValueConflict).toBe(0);
+  });
+
+  it("keeps official and retailer verification on their own claims", async () => {
+    const base = await report();
+    const source = base.claims.find((claim) =>
+      ["food_pairing", "visual_appearance", "serving_temperature"].includes(
+        claim.field,
+      ),
+    );
+    expect(source).toBeDefined();
+    const official: WineClaim = {
+      ...source!,
+      sourceClass: "official_producer_page",
+      sourceUrl: "https://producer.example/technical",
+      sourceHash: "official-source",
+      claimHash: "official-claim",
+      excerpt: "Official producer evidence.",
+      identityMatchStatus: "EXACT_WINE_UNDATED_SOURCE",
+    };
+    const retailer: WineClaim = {
+      ...official,
+      sourceClass: "retailer",
+      sourceUrl: "https://retailer.example/technical",
+      sourceHash: "retailer-source",
+      claimHash: "retailer-claim",
+      sourceTitle: "Retailer listing",
+    };
+    const reportWithoutReconciliation: IntelligenceReport = {
+      ...base,
+      claims: [official, retailer],
+      reconciled: [],
+    };
+    const plan = planStructuredClaims({
+      report: reportWithoutReconciliation,
+      existing: [],
+    });
+    const byClass = new Map(
+      plan.writes.map((write) => [write.sourceClass, write.verificationStatus]),
+    );
+    expect(byClass.get("official_producer_page")).toBe("verified_official");
+    expect(byClass.get("retailer")).toBe("attributed_retailer");
+    expect(
+      plan.writes.find((write) => write.sourceClass === "retailer")
+        ?.verificationStatus,
+    ).not.toBe("corroborated");
+  });
+
+  it("marks matching official claims corroborated, never a retailer claim", () => {
+    const official = {
+      sourceClass: "official_producer_page",
+      identityMatchStatus: "EXACT_WINE_EXACT_VINTAGE",
+      sourceUrl: "https://a.example/tech",
+      normalizedValue: "12.5",
+      excerpt: "12.5%",
+    } as unknown as WineClaim;
+    const secondOfficial: WineClaim = {
+      ...official,
+      sourceUrl: "https://b.example/tech",
+    };
+    const retailer: WineClaim = {
+      ...official,
+      sourceClass: "retailer",
+      sourceUrl: "https://retailer.example/tech",
+    };
+    expect(verificationForStructuredClaim(official, [official, secondOfficial, retailer])).toBe(
+      "corroborated",
+    );
+    expect(verificationForStructuredClaim(retailer, [official, secondOfficial, retailer])).toBe(
+      "attributed_retailer",
+    );
+  });
+
+  it("requires manual review for LIKELY_WINE and never auto-publishes it", async () => {
+    const base = await report();
+    const source = base.claims.find((claim) => claim.field === "food_pairing") ?? base.claims[0]!;
+    const likely: WineClaim = {
+      ...source,
+      identityMatchStatus: "LIKELY_WINE",
+      sourceClass: "official_producer_page",
+    };
+    const plan = planStructuredClaims({
+      report: { ...base, claims: [likely], reconciled: [] },
+      existing: [],
+    });
+    expect(plan.writes).toEqual([]);
+    expect(plan.skipped.some((item) => item.reason === "manual_review_LIKELY_WINE")).toBe(
+      true,
+    );
+  });
+
+  it("does not auto-publish a conflicting field", async () => {
+    const base = await report();
+    const source = base.claims.find((claim) => claim.field === "food_pairing") ?? base.claims[0]!;
+    const official: WineClaim = {
+      ...source,
+      sourceClass: "official_producer_page",
+      normalizedValue: "fish",
+      value: "fish",
+    };
+    const retailer: WineClaim = {
+      ...official,
+      sourceClass: "retailer",
+      sourceUrl: "https://retailer.example/conflict",
+      normalizedValue: "chicken",
+      value: "chicken",
+    };
+    const plan = planStructuredClaims({
+      report: {
+        ...base,
+        claims: [official, retailer],
+        reconciled: [
+          {
+            field: official.field,
+            value: null,
+            normalizedValue: null,
+            unit: null,
+            verificationStatus: "conflict",
+            confidence: 0,
+            sourceClass: null,
+            sourceUrl: null,
+            claims: [official, retailer],
+            conflict: { status: "conflict", field: official.field, values: [] },
+          },
+        ],
+      },
+      existing: [],
+    });
+    expect(plan.writes).toEqual([]);
+    expect(plan.skipped.filter((item) => item.reason === "reconciled_conflict")).toHaveLength(
+      2,
+    );
   });
 
   it("does not overwrite an existing different value", async () => {

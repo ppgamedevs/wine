@@ -15,9 +15,17 @@ Free text is never converted into a claim. Every candidate must have:
 
 - an `http(s)` source URL;
 - a source excerpt;
-- a canonical identity key and a non-mismatching identity match;
-- a source hash/claim hash;
+- a canonical identity key and an **exact** wine identity match
+  (`EXACT_WINE_EXACT_VINTAGE` or `EXACT_WINE_UNDATED_SOURCE`);
+- a source hash/claim hash and a non-empty excerpt;
 - no unresolved reconciled conflict for the field.
+
+`LIKELY_WINE` is deliberately excluded: it is reported as
+`manual_review_LIKELY_WINE` and is never published automatically. Verification is
+computed for each individual claim from its own source class, identity match and
+excerpt. An official claim can be `verified_official`/`corroborated`; a retailer
+claim is always `attributed_retailer`, even if its value matches a preferred
+official value. A retailer claim never inherits another source's badge.
 
 ## Safety properties
 

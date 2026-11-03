@@ -16,10 +16,20 @@ const BACKFILL_FIELDS: WineClaimField[] = [
   "food_pairing",
 ];
 
-const ALLOWED_IDENTITY_MATCHES = new Set([
+/**
+ * Automatic backfill is only safe for an exact bottle identity. LIKELY_WINE is
+ * intentionally excluded: it must be reviewed by a human before publication.
+ */
+const AUTOMATIC_IDENTITY_MATCHES = new Set([
   "EXACT_WINE_EXACT_VINTAGE",
   "EXACT_WINE_UNDATED_SOURCE",
-  "LIKELY_WINE",
+]);
+
+const OFFICIAL_SOURCE_CLASSES = new Set([
+  "official_technical_sheet",
+  "official_producer_page",
+  "official_catalog",
+  "producer_general",
 ]);
 
 export interface ExistingStructuredClaim {
@@ -71,14 +81,48 @@ function key(wineId: number, field: string, sourceHash: string): string {
   return `${wineId}\u0000${field}\u0000${sourceHash}`;
 }
 
-function officialOrAttributed(
-  report: IntelligenceReport,
-  field: WineClaimField,
+function sourceHost(url: string): string {
+  try {
+    return new URL(url).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Verification belongs to the individual source claim, not to the reconciled
+ * field. A retailer claim stays attributed even when another source supplied the
+ * preferred reconciled value.
+ */
+export function verificationForStructuredClaim(
+  claim: WineClaim,
+  fieldClaims: WineClaim[],
 ): string {
-  return (
-    report.reconciled.find((item) => item.field === field)?.verificationStatus ??
-    "unverified"
-  );
+  if (!AUTOMATIC_IDENTITY_MATCHES.has(claim.identityMatchStatus)) {
+    return "unverified";
+  }
+  if (!claim.excerpt.trim()) return "unverified";
+
+  if (OFFICIAL_SOURCE_CLASSES.has(claim.sourceClass)) {
+    const corroboratingHosts = new Set(
+      fieldClaims
+        .filter(
+          (candidate) =>
+            candidate !== claim &&
+            OFFICIAL_SOURCE_CLASSES.has(candidate.sourceClass) &&
+            AUTOMATIC_IDENTITY_MATCHES.has(candidate.identityMatchStatus) &&
+            candidate.excerpt.trim().length > 0 &&
+            candidate.normalizedValue === claim.normalizedValue &&
+            sourceHost(candidate.sourceUrl) !== sourceHost(claim.sourceUrl),
+        )
+        .map((candidate) => sourceHost(candidate.sourceUrl)),
+    );
+    return corroboratingHosts.size > 0 ? "corroborated" : "verified_official";
+  }
+  if (claim.sourceClass === "specialist") return "attributed_specialist";
+  if (claim.sourceClass === "editorial") return "attributed_editorial";
+  if (claim.sourceClass === "retailer") return "attributed_retailer";
+  return "unverified";
 }
 
 /**
@@ -100,6 +144,12 @@ export function planStructuredClaims(input: {
       .filter((item) => item.conflict != null)
       .map((item) => String(item.field)),
   );
+  const claimsByField = new Map<string, WineClaim[]>();
+  for (const claim of report.claims) {
+    const bucket = claimsByField.get(claim.field) ?? [];
+    bucket.push(claim);
+    claimsByField.set(claim.field, bucket);
+  }
   const writes: StructuredClaimWrite[] = [];
   const skipped: StructuredBackfillPlan["skipped"] = [];
   const fields: Record<string, number> = {};
@@ -112,10 +162,21 @@ export function planStructuredClaims(input: {
       skipped.push({ field: claim.field, reason: "missing_http_source", sourceUrl: claim.sourceUrl });
       continue;
     }
-    if (!ALLOWED_IDENTITY_MATCHES.has(claim.identityMatchStatus)) {
+    if (!AUTOMATIC_IDENTITY_MATCHES.has(claim.identityMatchStatus)) {
       skipped.push({
         field: claim.field,
-        reason: `identity_${claim.identityMatchStatus}`,
+        reason:
+          claim.identityMatchStatus === "LIKELY_WINE"
+            ? "manual_review_LIKELY_WINE"
+            : `identity_${claim.identityMatchStatus}`,
+        sourceUrl: claim.sourceUrl,
+      });
+      continue;
+    }
+    if (!claim.excerpt.trim()) {
+      skipped.push({
+        field: claim.field,
+        reason: "missing_excerpt",
         sourceUrl: claim.sourceUrl,
       });
       continue;
@@ -152,7 +213,10 @@ export function planStructuredClaims(input: {
       observedAt: claim.observedAt,
       extractionMethod: claim.extractionMethod,
       identityMatchStatus: claim.identityMatchStatus,
-      verificationStatus: officialOrAttributed(report, claim.field),
+      verificationStatus: verificationForStructuredClaim(
+        claim,
+        claimsByField.get(claim.field) ?? [],
+      ),
       confidence: claim.confidence,
       sourceHash: claim.sourceHash,
       claimHash: claim.claimHash,
