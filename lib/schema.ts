@@ -1427,6 +1427,62 @@ export const grapeVarietyKnowledge = sqliteTable(
   (table) => [uniqueIndex("grape_variety_knowledge_slug_uidx").on(table.slug)],
 );
 
+/** Evidence for regional, appellation, variety, winery and bottle vintage context. */
+export const vintageEvidence = sqliteTable(
+  "vintage_evidence",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    scope: text("scope").notNull(),
+    region: text("region"),
+    appellation: text("appellation"),
+    grape: text("grape"),
+    wineryId: integer("winery_id").references(() => wineries.id, {
+      onDelete: "cascade",
+    }),
+    wineId: integer("wine_id").references(() => wines.id, {
+      onDelete: "cascade",
+    }),
+    familyKey: text("family_key"),
+    vintage: integer("vintage"),
+    evidenceType: text("evidence_type").notNull(),
+    impact: text("impact").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    sourceTitle: text("source_title").notNull(),
+    publisher: text("publisher").notNull(),
+    publishedAt: text("published_at"),
+    eventDate: text("event_date"),
+    excerpt: text("excerpt").notNull(),
+    confidence: real("confidence").notNull(),
+    producerClaim: integer("producer_claim", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    independent: integer("independent", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    regionalException: integer("regional_exception", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    maturity: text("maturity"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("vintage_evidence_scope_idx").on(table.scope),
+    index("vintage_evidence_vintage_idx").on(table.vintage),
+    index("vintage_evidence_region_idx").on(table.region),
+    index("vintage_evidence_wine_idx").on(table.wineId),
+    index("vintage_evidence_winery_idx").on(table.wineryId),
+    index("vintage_evidence_family_idx").on(table.familyKey),
+    uniqueIndex("vintage_evidence_source_scope_uidx").on(
+      table.sourceUrl,
+      table.scope,
+      table.evidenceType,
+      table.vintage,
+    ),
+  ],
+);
+
 /** AI interpretation is stored separately from source-backed claims. */
 export const wineAiInterpretations = sqliteTable(
   "wine_ai_interpretations",

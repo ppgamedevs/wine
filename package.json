@@ -70,6 +70,7 @@
     "migration:validate-0028": "tsx scripts/validate-migration-0028.ts",
     "claims:backfill-plan": "tsx scripts/structured-claims-backfill.ts --wine=418 --fixtures",
     "benchmark:independent-answers": "tsx scripts/generate-independent-benchmark-answers.ts",
+    "vintage:evidence": "tsx scripts/vintage-evidence.ts",
     "security:audit": "tsx scripts/anti-scrape-audit.ts",
     "images:grapes": "tsx scripts/generate-grape-images.ts",
     "browser:check": "node scripts/browser-check.mjs",

@@ -14,6 +14,7 @@ export function SiteHeader() {
     { label: t("regions"), href: "/regiuni" as const },
     { label: t("journal"), href: "/journal" as const },
     { label: t("topWines"), href: "/topuri" as const },
+    { label: t("vintageGuide"), href: "/ghid-recolte" as const },
   ];
 
   return (
