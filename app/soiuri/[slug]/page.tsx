@@ -76,11 +76,24 @@ export async function generateMetadata({
       siteName: SITE.name,
       title: `${copy.metaTitle} | VinIntel`,
       description: copy.metaDescription,
+      ...(guide.primaryImageUrl
+        ? {
+            images: [
+              {
+                url: absoluteUrl(guide.primaryImageUrl),
+                alt: guide.primaryImageAlt?.[locale] ?? copy.name,
+              },
+            ],
+          }
+        : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: `${copy.metaTitle} | VinIntel`,
       description: copy.metaDescription,
+      ...(guide.primaryImageUrl
+        ? { images: [absoluteUrl(guide.primaryImageUrl)] }
+        : {}),
     },
   };
 }

@@ -1,71 +1,77 @@
-# Soiuri grape cards: visual upgrade
+# Soiuri grape photos
 
 ## Before
 
-The `/soiuri` cards were text-only: color badge, optional `Autohton`, variety
+The `/soiuri` cards were text-only: colour badge, optional `Autohton`, variety
 name, three-line description and catalog wine count. The directory was legible
 but visually indistinguishable from a text directory.
 
 ## After
 
-Each curated variety now has a transparent-background botanical grape
-illustration on the right/top-right of the card:
+Cards now use real licensed grape-variety photos where available. The image sits
+in a fixed, premium image well on the right/top-right; badges, name, description
+and catalog count remain unchanged. The visible **Ilustrație / Illustration**
+label is removed for photos and remains only for fallback illustrations.
 
-- identical composition and soft neutral image well across cards;
-- color palette reflects the variety (dark berries for reds, green-gold for
-  whites, rose tones for Busuioaca);
-- text remains the dominant element and keeps its badges, name, description and
-  wine count;
-- mobile uses an 88 px image, desktop 128 px;
-- no layout shift: the image well has a fixed aspect ratio and
-  `next/image` `sizes`;
-- missing or failed images fall back to a restrained inline grape icon.
+- mobile: 88 px image well; desktop: 128 px;
+- fixed aspect ratio and `next/image` sizes prevent layout shift;
+- failed images fall back to a restrained inline grape icon;
+- `/soiuri/[slug]` now has a responsive hero image, optional gallery support and
+  a subtle credit/license/source block.
 
-Preview: [desktop card](soiuri-card-desktop.png) · [mobile card](soiuri-card-mobile.png)
+Before: [desktop](soiuri-card-before-desktop.png) · [mobile](soiuri-card-before-mobile.png)
+After: [desktop](soiuri-card-desktop.png) · [mobile](soiuri-card-mobile.png)
+Detail: [desktop](soiuri-detail-desktop.png) · [mobile](soiuri-detail-mobile.png)
 
 ## Data model
 
-`GrapeGuide` now supports optional:
+`GrapeGuide` stores:
 
-- `imageUrl`
-- `imageAlt` (RO/EN)
-- `imageSource`
+- `primaryImageUrl`
+- `primaryImageAlt` (RO/EN)
+- `imageCredit`
+- `imageSourceUrl`
 - `imageLicense`
-- `imageKind: "representative_illustration"`
+- `imageLicenseUrl` (optional, needed for CC links)
+- `imageKind: "photo" | "illustration"`
+- `galleryJson` (optional 1–3 additional images with alt/credit/source/license)
 
-The static encyclopedia remains the source of truth. `lib/oenology/grape-images.ts`
-holds the curated mapping; `GRAPE_GUIDES` merges it, and both
-`indigenousGrapeGuides()` and `internationalGrapeGuides()` return the enriched
-guides. No DB migration is required because the encyclopedia is file-backed.
+Legacy `imageUrl` / `imageAlt` / `imageSource` aliases remain populated for
+existing cards. The encyclopedia is file-backed; no database migration is
+required.
 
-Curated first pass: Feteasca Neagra, Feteasca Alba, Feteasca Regala, Tamaioasa
-Romaneasca, Grasa de Cotnari, Cramposie Selectionata, Negru de Dragasani, Novac,
-Busuioaca de Bohotin and Cadarca.
+## Seed coverage
 
-## Assets and performance
+Real photos are seeded for:
 
-- Original transparent 640×640 WebP illustrations, 21–32 KB each, licensed
-  internally by VinIntel (`© VinIntel`).
-- These are **representative artwork, not scientifically verified photographs
-  of exact cultivars**. The card shows a visible "Ilustrație / Illustration"
-  label; alt text begins "Ilustrație reprezentativă / Representative
-  illustration"; `imageKind` is set to `representative_illustration`.
-- Generated from `scripts/generate-grape-images.ts` (`npm run images:grapes`);
-  each palette and cluster follows the variety's documented berry colour,
-  cluster shape and relative berry size. No hotlinked or stock-photo assets are
-  used.
-- `imageSource` and `imageLicense` are carried in the grape guide data and
-  announced to assistive technology.
-- `next/image` with fixed dimensions, `quality={85}`, responsive `sizes`,
-  lazy loading; first card is priority.
-- Image source is announced to assistive technology via visually hidden text.
+- Feteasca Neagra
+- Feteasca Alba
+- Feteasca Regala
+- Babeasca Neagra (Rara Neagra synonym)
 
-## SEO and accessibility
+Fallback illustrations remain for Tamaioasa Romaneasca, Grasa de Cotnari,
+Cramposie Selectionata, Negru de Dragasani, Novac, Busuioaca de Bohotin,
+Cadarca, Mustoasa de Maderat and Sarba because no attributable species-specific
+photo was found. The ten requested varieties all have an image seed; the UI does
+not claim a fallback is a photograph.
 
-- Existing `/soiuri` metadata, canonical URLs and routing are unchanged.
-- ItemList JSON-LD now includes an absolute `image` URL where available.
-- Every image has meaningful localized alt text.
-- Fallback has a screen-reader label instead of an empty decorative box.
+## Photo provenance and licensing
+
+Photos are downloaded from Wikimedia Commons, converted/resized to local WebP
+files and never hotlinked. Full attribution and source links are in
+[`public/images/grapes/photos/README.md`](../public/images/grapes/photos/README.md).
+The hero displays author, license (linked) and source. CC BY-SA files require
+attribution and share-alike preservation on reuse; the WebP conversion is a
+modification noted in that README.
+
+- Feteasca Neagra — Ensenator, CC BY-SA 3.0
+- Feteasca Alba — SenatorulX, CC BY-SA 4.0
+- Feteasca Regala — SenatorulX, CC BY-SA 4.0
+- Babeasca Neagra / Rara Neagra — Lebowskyclone, CC BY-SA 3.0
+
+Fallback illustrations are original VinIntel assets with the internal licence
+described in `public/images/grapes/README.md`. They are representative artwork,
+not scientifically verified cultivar photographs.
 
 ## Verification
 
@@ -73,4 +79,5 @@ Busuioaca de Bohotin and Cadarca.
 - `npx vitest run lib/oenology/grapes.test.ts --pool=forks`
 - `npm run lint`
 - `npm run build`
-- Desktop/mobile Playwright screenshots from the production build.
+- Playwright: 25 cards, 13 images, 4 real-photo alt texts, 9 illustration
+  labels, detail hero credit visible, no desktop/mobile overflow.

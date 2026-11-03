@@ -12,8 +12,11 @@ interface GrapeVarietyImageProps {
   imageUrl?: string | null;
   imageAlt?: string | null;
   imageSource?: string | null;
+  imageCredit?: string | null;
+  imageSourceUrl?: string | null;
   imageLicense?: string | null;
-  imageKind?: "representative_illustration" | null;
+  imageLicenseUrl?: string | null;
+  imageKind?: "photo" | "illustration" | null;
   priority?: boolean;
   className?: string;
 }
@@ -74,7 +77,10 @@ export function GrapeVarietyImage({
   imageUrl,
   imageAlt,
   imageSource,
+  imageCredit,
+  imageSourceUrl,
   imageLicense,
+  imageLicenseUrl,
   imageKind,
   priority = false,
   className,
@@ -82,9 +88,13 @@ export function GrapeVarietyImage({
   const [failed, setFailed] = useState(false);
   const alt =
     imageAlt?.trim() ||
-    (locale === "ro"
-      ? `Ilustrație reprezentativă a soiului ${name}`
-      : `Representative illustration of ${name}`);
+    (imageKind === "photo"
+      ? locale === "ro"
+        ? `Fotografie a soiului ${name}`
+        : `Photograph of ${name}`
+      : locale === "ro"
+        ? `Ilustrație reprezentativă a soiului ${name}`
+        : `Representative illustration of ${name}`);
   const src = imageUrl?.trim();
 
   return (
@@ -103,21 +113,27 @@ export function GrapeVarietyImage({
           priority={priority}
           sizes="(max-width: 640px) 88px, 128px"
           quality={85}
-          className="object-contain p-1.5 transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          className={
+            imageKind === "photo"
+              ? "object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+              : "object-contain p-1.5 transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          }
           onError={() => setFailed(true)}
         />
       ) : (
         <GrapeFallback label={alt} />
       )}
-      {imageKind === "representative_illustration" ? (
+      {imageKind === "illustration" ? (
         <span className="pointer-events-none absolute inset-x-1 bottom-1 rounded-md border border-border/60 bg-background/92 px-1 py-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-muted-foreground shadow-sm">
           {locale === "ro" ? "Ilustrație" : "Illustration"}
         </span>
       ) : null}
-      {imageSource ? (
+      {imageSource || imageCredit ? (
         <span className="sr-only">
-          Sursa imaginii: {imageSource}
+          Sursa imaginii: {imageCredit ?? imageSource}
           {imageLicense ? `. Licență: ${imageLicense}` : ""}
+          {imageLicenseUrl ? ` (${imageLicenseUrl})` : ""}
+          {imageSourceUrl ? `. ${imageSourceUrl}` : ""}
         </span>
       ) : null}
     </div>

@@ -1,11 +1,12 @@
 import { ChevronRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { WineCard } from "@/components/wine-card";
 import { Button } from "@/components/ui/button";
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
 import { getDishPairingPage } from "@/lib/dish-pairing-pages";
-import type { GrapeGuide } from "@/lib/oenology";
+import { resolveGrapeImage, type GrapeGuide } from "@/lib/oenology";
 import type { DishPseoSlug, PseoMessages } from "@/lib/i18n/pseo";
 import type { WineWithRelations } from "@/types";
 
@@ -48,6 +49,7 @@ export async function GrapeEncyclopedia({
 }) {
   const copy = guide.copy[locale];
   const grapeCopy = messages.grape;
+  const image = resolveGrapeImage(guide, locale);
   const hubHref = localizedHref(locale, "grapeVarieties");
   const pairing = guide.pairingDishSlugs
     .map((slug) => {
@@ -93,18 +95,102 @@ export async function GrapeEncyclopedia({
             </span>
           </div>
 
-          <h1 className="mt-5 font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            {copy.name}
-          </h1>
+          <div className="mt-5 grid gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(280px,42%)] lg:items-start">
+            <div>
+              <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                {copy.name}
+              </h1>
 
-          <aside className="mt-8 max-w-3xl rounded-2xl border border-wine/15 bg-background/90 p-5 sm:p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-wine">
-              {grapeCopy.answerLabel}
-            </p>
-            <p className="mt-3 text-base leading-relaxed text-foreground sm:text-lg">
-              {copy.answer}
-            </p>
-          </aside>
+              <aside className="mt-8 rounded-2xl border border-wine/15 bg-background/90 p-5 sm:p-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-wine">
+                  {grapeCopy.answerLabel}
+                </p>
+                <p className="mt-3 text-base leading-relaxed text-foreground sm:text-lg">
+                  {copy.answer}
+                </p>
+              </aside>
+            </div>
+
+            {image.src ? (
+              <figure className="overflow-hidden rounded-3xl border border-border/70 bg-secondary/20 shadow-[0_24px_70px_-48px_rgba(43,24,14,0.55)]">
+                <div className="relative aspect-[4/3] w-full sm:aspect-[4/5]">
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 420px"
+                    className={
+                      image.kind === "photo"
+                        ? "object-cover"
+                        : "object-contain p-4"
+                    }
+                  />
+                  {image.kind === "illustration" ? (
+                    <span className="absolute bottom-3 left-3 rounded-md border border-border/60 bg-background/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {locale === "ro" ? "Ilustrație" : "Illustration"}
+                    </span>
+                  ) : null}
+                </div>
+                <figcaption className="space-y-1 border-t border-border/60 px-4 py-3 text-[11px] leading-relaxed text-muted-foreground">
+                  <p>
+                    {locale === "ro"
+                      ? image.kind === "photo"
+                        ? "Credit foto: "
+                        : "Credit imagine: "
+                      : "Image credit: "}
+                    {image.credit ?? "VinIntel"}
+                  </p>
+                  {image.license ? (
+                    <p>
+                      {locale === "ro" ? "Licență: " : "License: "}
+                      {image.licenseUrl ? (
+                        <a
+                          href={image.licenseUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline underline-offset-2 hover:text-wine"
+                        >
+                          {image.license}
+                        </a>
+                      ) : (
+                        image.license
+                      )}
+                    </p>
+                  ) : null}
+                  {image.sourceUrl ? (
+                    <a
+                      href={image.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block underline underline-offset-2 hover:text-wine"
+                    >
+                      {locale === "ro" ? "Sursa imaginii" : "Image source"}
+                    </a>
+                  ) : null}
+                </figcaption>
+              </figure>
+            ) : null}
+          </div>
+
+          {image.gallery.length > 0 ? (
+            <div className="mt-4 grid grid-cols-3 gap-2 sm:max-w-[42%] sm:justify-self-end">
+              {image.gallery.slice(0, 3).map((photo) => (
+                <div
+                  key={photo.url}
+                  className="relative aspect-square overflow-hidden rounded-xl border border-border/60 bg-secondary/20"
+                >
+                  <Image
+                    src={photo.url}
+                    alt={photo.alt[locale] ?? copy.name}
+                    fill
+                    sizes="140px"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
       </section>
 

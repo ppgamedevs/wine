@@ -29,6 +29,7 @@ const imageAlts = await images.evaluateAll((nodes) =>
 const loadedImages = await images.evaluateAll((nodes) =>
   nodes.filter((node) => node.naturalWidth > 0).length,
 );
+const photoAlts = imageAlts.filter((alt) => /^(Fotografie|Photograph)/.test(alt)).length;
 const illustrationLabels = await page
   .locator("a[href*='/soiuri/']")
   .getByText("Ilustrație", { exact: true })
@@ -60,12 +61,25 @@ await profileHeading.scrollIntoViewIfNeeded();
 await page.waitForTimeout(300);
 await page.screenshot({ path: "docs/wine-universal-profile-desktop.png", fullPage: false });
 
+await page.goto(`${baseUrl}/soiuri/feteasca-neagra`, { waitUntil: "networkidle" });
+const detail = page.locator("main figure").first();
+const detailVisible = await detail.isVisible();
+const detailCredit = await page.getByText(/Credit foto|Image credit/i).first().isVisible();
+await page.screenshot({ path: "docs/soiuri-detail-desktop.png", fullPage: false });
+await page.setViewportSize({ width: 390, height: 844 });
+await page.reload({ waitUntil: "networkidle" });
+await page.waitForTimeout(300);
+await page.screenshot({ path: "docs/soiuri-detail-mobile.png", fullPage: false });
+
 const result = {
   baseUrl,
   cardCount,
   imageCount,
   loadedImages,
+  photoAlts,
   illustrationLabels,
+  detailVisible,
+  detailCredit,
   allImagesHaveAlt: imageAlts.every((alt) => alt.trim().length > 10),
   overflow,
   mobileOverflow,
@@ -78,9 +92,12 @@ console.log(JSON.stringify(result, null, 2));
 await browser.close();
 if (
   cardCount < 10 ||
-  imageCount < 10 ||
-  loadedImages < 10 ||
-  illustrationLabels < 10 ||
+  imageCount < 13 ||
+  loadedImages < 13 ||
+  photoAlts < 4 ||
+  illustrationLabels < 8 ||
+  !detailVisible ||
+  !detailCredit ||
   !result.allImagesHaveAlt ||
   overflow ||
   mobileOverflow ||

@@ -34,6 +34,15 @@ export interface GrapeGuideCopy {
   sources: GrapeSource[];
 }
 
+export interface GrapeGalleryImage {
+  url: string;
+  alt: Partial<Record<AppLocale, string>>;
+  credit: string;
+  sourceUrl: string;
+  license: string;
+  licenseUrl?: string;
+}
+
 export interface GrapeGuide {
   slug: string;
   color: GrapeColor;
@@ -44,11 +53,16 @@ export interface GrapeGuide {
   pairingDishSlugs: string[];
   journalSlugs: string[];
   copy: Record<AppLocale, GrapeGuideCopy>;
-  /** Optional curated card/guide image. Kept static with the encyclopedia. */
+  primaryImageUrl?: string;
+  primaryImageAlt?: Partial<Record<AppLocale, string>>;
+  imageCredit?: string;
+  imageSourceUrl?: string;
+  imageLicense?: string;
+  imageLicenseUrl?: string;
+  imageKind?: "photo" | "illustration";
+  galleryJson?: GrapeGalleryImage[];
+  /** Legacy aliases kept for existing cards. Prefer primary* above. */
   imageUrl?: string;
   imageAlt?: Partial<Record<AppLocale, string>>;
   imageSource?: string;
-  imageLicense?: string;
-  /** Representative artwork, not a verified photograph of the cultivar. */
-  imageKind?: "representative_illustration";
 }

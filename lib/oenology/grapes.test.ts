@@ -131,6 +131,9 @@ describe("grape encyclopedia guides", () => {
       "novac",
       "busuioaca-de-bohotin",
       "cadarca",
+      "mustoasa-de-maderat",
+      "babeasca-neagra",
+      "sarba",
     ];
     expect(GRAPE_IMAGE_SEEDS.map((seed) => seed.slug)).toEqual(required);
 
@@ -138,35 +141,44 @@ describe("grape encyclopedia guides", () => {
       const guide = getGrapeGuide(seed.slug);
       expect(guide, seed.slug).toBeDefined();
       if (!guide) continue;
-      expect(guide.imageUrl).toBe(`/images/grapes/${seed.slug}.webp`);
-      expect(guide.imageAlt?.ro).toContain("reprezentativ");
-      expect(guide.imageAlt?.en).toContain("Representative");
-      expect(guide.imageAlt?.ro?.length ?? 0).toBeGreaterThan(20);
-      expect(guide.imageAlt?.en?.length ?? 0).toBeGreaterThan(20);
-      expect(guide.imageSource).toContain("nu este fotografie");
-      expect(guide.imageLicense).toContain("VinIntel");
-      expect(guide.imageKind).toBe("representative_illustration");
+      const expectedPath =
+        seed.kind === "photo"
+          ? `/images/grapes/photos/${seed.slug}.webp`
+          : `/images/grapes/${seed.slug}.webp`;
+      expect(guide.primaryImageUrl).toBe(expectedPath);
+      expect(guide.primaryImageAlt?.ro?.length ?? 0).toBeGreaterThan(20);
+      expect(guide.primaryImageAlt?.en?.length ?? 0).toBeGreaterThan(20);
+      expect(guide.imageCredit?.trim().length ?? 0).toBeGreaterThan(3);
+      expect(guide.imageSourceUrl).toMatch(
+        seed.kind === "photo" ? /^https?:\/\// : /^\//,
+      );
+      expect(guide.imageLicense?.trim().length ?? 0).toBeGreaterThan(3);
+      expect(guide.imageKind).toBe(seed.kind);
+      expect(guide.galleryJson).toEqual([]);
 
       const file = path.join(
         process.cwd(),
         "public",
-        guide.imageUrl!.replace(/^\//, ""),
+        expectedPath.replace(/^\//, ""),
       );
       expect(existsSync(file), file).toBe(true);
-      expect(statSync(file).size).toBeLessThan(80_000);
+      expect(statSync(file).size).toBeLessThan(seed.kind === "photo" ? 400_000 : 80_000);
       const resolved = resolveGrapeImage(guide, "ro");
-      expect(resolved.src).toBe(guide.imageUrl);
-      expect(resolved.kind).toBe("representative_illustration");
-      expect(resolved.alt).toBe(guide.imageAlt?.ro);
+      expect(resolved.src).toBe(expectedPath);
+      expect(resolved.kind).toBe(seed.kind);
+      expect(resolved.credit).toBe(guide.imageCredit);
+      expect(resolved.sourceUrl).toBe(guide.imageSourceUrl);
+      expect(resolved.alt).toBe(guide.primaryImageAlt?.ro);
     }
   });
 
   it("keeps the elegant fallback when an image is absent", () => {
-    const withoutImage = getGrapeGuide("sarba");
+    const withoutImage = getGrapeGuide("riesling");
     expect(withoutImage).toBeDefined();
     const resolved = resolveGrapeImage(withoutImage!, "en");
     expect(resolved.src).toBeNull();
-    expect(resolved.alt).toContain("sarba");
-    expect(resolved.source).toBeNull();
+    expect(resolved.alt).toContain("riesling");
+    expect(resolved.credit).toBeNull();
+    expect(resolved.sourceUrl).toBeNull();
   });
 });
