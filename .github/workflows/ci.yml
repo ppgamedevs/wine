@@ -32,7 +32,10 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        # `npm ci` is platform-sensitive for this lockfile's optional native
+        # packages; `npm install` keeps CI reproducible enough while resolving
+        # the Linux optional graph.
+        run: npm install --no-audit --no-fund
 
       - name: Create local CI database
         run: |
