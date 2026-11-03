@@ -107,6 +107,28 @@ function usableName(value: string | null | undefined): string | null {
   return cleaned.replace(/\s+(19\d{2}|20[0-3]\d)\s*$/, "").trim() || cleaned;
 }
 
+function findProductLine(text: string): string | null {
+  const candidates = text
+    .split(/\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length >= 4 && line.length <= 220);
+  for (const candidate of candidates) {
+    const norm = normalizeHintText(candidate);
+    const hasGrape = KNOWN_GRAPES.some((grape) =>
+      norm.includes(normalizeHintText(grape)),
+    );
+    const hasProductMarker =
+      /\b(?:demisec|demidulce|dulce|sec|dry|sweet)\b/.test(norm) ||
+      /\b\d+(?:[.,]\d+)?\s*(?:ml|l)\b/.test(norm);
+    if (!hasGrape || !hasProductMarker) continue;
+    const stripped = candidate
+      .replace(/^[^\n]*?%\s*(?:vol\.?|alcool)\s*[.:]?\s*/i, "")
+      .trim();
+    return stripped.length >= 4 ? stripped : candidate;
+  }
+  return null;
+}
+
 function jsonLdProductName(html: string): string | null {
   for (const match of html.matchAll(
     /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
@@ -134,6 +156,8 @@ function jsonLdProductName(html: string): string | null {
 export function extractSourceIdentityFromHtml(html: string): SourceWineIdentity {
   const evidence: string[] = [];
   const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1];
+  const h2 = html.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i)?.[1];
+  const headingHtml = h1 ?? h2;
   const og = html.match(/property=["']og:title["'][^>]*content=["']([^"']+)/i)?.[1];
   const jsonLd = jsonLdProductName(html);
   const sku =
@@ -141,9 +165,13 @@ export function extractSourceIdentityFromHtml(html: string): SourceWineIdentity 
     html.match(/["']sku["']\s*:\s*["']([^"']+)/i)?.[1] ??
     null;
 
-  const name = jsonLd ?? usableName(h1 ? h1.replace(/<[^>]+>/g, " ") : null) ?? usableName(og);
+  const name =
+    jsonLd ??
+    usableName(headingHtml ? headingHtml.replace(/<[^>]+>/g, " ") : null) ??
+    usableName(og);
   if (jsonLd) evidence.push("json-ld Product.name");
   else if (h1) evidence.push("h1");
+  else if (h2) evidence.push("h2");
   else if (og) evidence.push("og:title");
 
   const pageText = decode(
@@ -156,7 +184,7 @@ export function extractSourceIdentityFromHtml(html: string): SourceWineIdentity 
   const vintage = extractTechnicalSourceVintage({
     text: productText.slice(0, 4000),
     title: name,
-    heading: h1 ? h1.replace(/<[^>]+>/g, " ") : name,
+    heading: headingHtml ? headingHtml.replace(/<[^>]+>/g, " ") : name,
   });
 
   return {
@@ -190,8 +218,12 @@ export function extractSourceIdentityFromText(input: {
   const titleName = usableName(input.title);
   const heading = input.text.split("\n").map((line) => line.trim()).find((line) => line.length >= 4 && line.length <= 80);
   const headingName = usableName(heading);
-  const name = titleName ?? headingName;
-  if (titleName) evidence.push("document title");
+  const productLineName = usableName(findProductLine(input.text));
+  // A product line with grape/sweetness/volume is stronger identity evidence
+  // than a generic document title such as "Official A".
+  const name = productLineName ?? titleName ?? headingName;
+  if (productLineName) evidence.push("product line");
+  else if (titleName) evidence.push("document title");
   else if (headingName) evidence.push("first heading");
 
   const explicitVintage = extractTechnicalSourceVintage({

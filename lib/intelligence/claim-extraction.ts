@@ -7,6 +7,15 @@ import {
   buildCanonicalWineIdentityKey,
   type CanonicalWineIdentity,
 } from "@/lib/wine-identity";
+import {
+  classifySourceName,
+  extractFocusedProductHtml,
+  extractSourceIdentityFromHtml,
+  extractSourceIdentityFromText,
+  type SourceWineIdentity,
+} from "@/lib/tech-facts/source-identity";
+import { classifyAgainstSourceIdentity } from "@/lib/tech-facts/identity";
+import type { IdentityMatchClass } from "@/lib/tech-facts/types";
 import type {
   ClaimValue,
   DiscoveredSource,
@@ -40,32 +49,213 @@ function canonicalIdentity(wine: WineIntelligenceInput): CanonicalWineIdentity {
   };
 }
 
-function sourceIdentity(
-  source: DiscoveredSource,
-  variant: MurfatlarWineVariant | null,
+function normalizedIdentityText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function sourceIdentityFromVariant(
+  variant: MurfatlarWineVariant,
+): SourceWineIdentity {
+  return {
+    sourceWineName: variant.name,
+    sourceProducer: variant.identity.producer,
+    sourceVintage: variant.identity.vintage,
+    sourceType: variant.color,
+    sourceSweetness: variant.sweetness,
+    sourceGrapes: variant.grapeVarieties.map((grape) => grape.name),
+    sourceBottleSize: variant.volumeMl,
+    sourceSku: variant.sourceProductId,
+    sourceLine: variant.rangeName,
+    nameClass: "SOURCE_NAME_EXACT",
+    vintageClass:
+      variant.identity.vintage != null
+        ? "SOURCE_VINTAGE_EXPLICIT"
+        : "SOURCE_VINTAGE_MISSING",
+    identityEvidence: ["isolated Murfatlar product section"],
+  };
+}
+
+/**
+ * Strict source identity. A missing field is not a wildcard: it makes the
+ * identity insufficient for exact publication. Explicit contradictions are
+ * PRODUCT_MISMATCH.
+ */
+export function assessSourceIdentity(
   wine: WineIntelligenceInput,
-): { identity: string; confidence: number } {
-  if (source.classification === "existing_record") {
-    return { identity: "EXACT_WINE_UNDATED_SOURCE", confidence: 1 };
+  source: SourceWineIdentity,
+  evidenceText: string,
+): IdentityMatchClass {
+  const stripPackaging = (value: string) =>
+    value
+      .replace(/\b\d+(?:[.,]\d+)?\s*(?:ml|l)\b/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  const sourceName = stripPackaging(
+    (source.sourceWineName ?? "").replace(
+      new RegExp(`^${wine.producer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+`, "i"),
+      "",
+    ),
+  );
+  const base = classifyAgainstSourceIdentity(
+    {
+      wineName: stripPackaging(wine.name),
+      wineryName: wine.producer,
+      vintage: wine.vintage,
+      type: wine.color,
+      sweetness: wine.sweetness,
+      grapes: wine.grapeVarieties,
+      bottleSizeMl: wine.bottleSizeMl,
+    },
+    { ...source, sourceWineName: sourceName },
+  );
+  if (base === "PRODUCT_MISMATCH") return base;
+
+  const nameClass = classifySourceName(stripPackaging(wine.name), sourceName);
+  if (nameClass !== "SOURCE_NAME_EXACT") {
+    return nameClass === "SOURCE_NAME_MISSING"
+      ? "SOURCE_IDENTITY_INCOMPLETE"
+      : "LIKELY_WINE";
   }
-  if (variant) {
-    return {
-      identity:
-        variant.identity.bottleSizeMl === wine.bottleSizeMl ||
-        wine.bottleSizeMl == null
-          ? "EXACT_WINE_UNDATED_SOURCE"
-          : "PRODUCT_MISMATCH",
-      confidence: 0.98,
-    };
+
+  const producer = normalizedIdentityText(wine.producer);
+  const explicitProducer = normalizedIdentityText(source.sourceProducer ?? "");
+  if (producer && explicitProducer && explicitProducer !== producer) {
+    return "PRODUCT_MISMATCH";
   }
-  if (
-    source.classification === "official_producer_page" ||
-    source.classification === "official_technical_sheet" ||
-    source.classification === "official_catalog"
-  ) {
-    return { identity: "EXACT_WINE_UNDATED_SOURCE", confidence: 0.85 };
+  const haystack = normalizedIdentityText(
+    `${source.sourceWineName ?? ""} ${evidenceText}`,
+  );
+  if (producer && !explicitProducer && !haystack.includes(producer)) {
+    return "SOURCE_IDENTITY_INCOMPLETE";
   }
-  return { identity: "EXACT_WINE_UNDATED_SOURCE", confidence: 0.75 };
+
+  if (wine.sweetness && !source.sourceSweetness) return "LIKELY_WINE";
+  if (wine.grapeVarieties.length > 0 && source.sourceGrapes.length === 0) {
+    return "LIKELY_WINE";
+  }
+  if (wine.bottleSizeMl != null && source.sourceBottleSize == null) {
+    return "LIKELY_WINE";
+  }
+  if (wine.vintage == null && source.sourceVintage != null) {
+    return "LIKELY_WINE";
+  }
+
+  return base;
+}
+
+function identityFromVariant(
+  variant: MurfatlarWineVariant,
+  wine: WineIntelligenceInput,
+  source: DiscoveredSource,
+): { identity: IdentityMatchClass; confidence: number } {
+  const identity = assessSourceIdentity(
+    wine,
+    sourceIdentityFromVariant(variant),
+    `${variant.tastingNotes ?? ""} ${source.title}`,
+  );
+  return { identity, confidence: 0.9 };
+}
+
+function sourceIdentityFromJson(
+  parsed: Record<string, unknown>,
+  title: string,
+): SourceWineIdentity {
+  const displayName =
+    typeof parsed.displayName === "string"
+      ? parsed.displayName
+      : typeof parsed.productName === "string"
+        ? parsed.productName
+        : typeof parsed.title === "string"
+          ? parsed.title
+          : title;
+  return {
+    sourceWineName: displayName,
+    sourceProducer:
+      typeof parsed.producer === "string" ? parsed.producer : null,
+    sourceVintage:
+      typeof parsed.vintage === "number" ? parsed.vintage : null,
+    sourceType: typeof parsed.color === "string" ? parsed.color : null,
+    sourceSweetness:
+      typeof parsed.sweetness === "string" ? parsed.sweetness : null,
+    sourceGrapes: Array.isArray(parsed.grapeVarieties)
+      ? parsed.grapeVarieties.map(String)
+      : [],
+    sourceBottleSize:
+      typeof parsed.bottleSizeMl === "number" ? parsed.bottleSizeMl : null,
+    sourceSku:
+      typeof parsed.sourceProductId === "string"
+        ? parsed.sourceProductId
+        : null,
+    sourceLine: typeof parsed.range === "string" ? parsed.range : null,
+    nameClass: displayName ? "SOURCE_NAME_EXACT" : "SOURCE_NAME_MISSING",
+    vintageClass:
+      typeof parsed.vintage === "number"
+        ? "SOURCE_VINTAGE_EXPLICIT"
+        : "SOURCE_VINTAGE_MISSING",
+    identityEvidence: ["structured product JSON"],
+  };
+}
+
+function productNamesInHtml(html: string): string[] {
+  const names = new Set<string>();
+  for (const match of html.matchAll(
+    /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+  )) {
+    try {
+      const parsed = JSON.parse(match[1] ?? "");
+      const nodes = Array.isArray(parsed) ? parsed : [parsed];
+      for (const node of nodes) {
+        if (!node || typeof node !== "object") continue;
+        const record = node as Record<string, unknown>;
+        if (/product/i.test(String(record["@type"] ?? "")) && typeof record.name === "string") {
+          names.add(record.name.trim());
+        }
+      }
+    } catch {
+      // Ignore malformed JSON-LD.
+    }
+  }
+  for (const match of html.matchAll(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/gi)) {
+    const name = (match[1] ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (name.length >= 3 && name.length <= 120) names.add(name);
+  }
+  return [...names];
+}
+
+function targetProductTokens(wine: WineIntelligenceInput): string[] {
+  return normalizedIdentityText(wine.name)
+    .split(" ")
+    .filter((token) => token.length > 2);
+}
+
+/**
+ * Returns the isolated HTML for the exact product, or null when a multi-wine
+ * page cannot be safely reduced to one product section. A null result must not
+ * produce claims.
+ */
+export function isolateProductSection(
+  html: string,
+  wine: WineIntelligenceInput,
+): string | null {
+  const names = productNamesInHtml(html);
+  if (names.length <= 1) return extractFocusedProductHtml(html);
+
+  const tokens = targetProductTokens(wine);
+  const containers = [
+    ...html.matchAll(/<(article|section|li)[^>]*>[\s\S]*?<\/\1>/gi),
+  ].map((match) => match[0]);
+  const matching = containers.filter((container) => {
+    const text = normalizedIdentityText(container.replace(/<[^>]+>/g, " "));
+    return tokens.length > 0 && tokens.every((token) => text.includes(token));
+  });
+  if (matching.length === 1 && matching[0]) return matching[0];
+  return null;
 }
 
 function makeClaim(params: {
@@ -140,7 +330,7 @@ function valueFromVariant(
 ): WineClaim[] {
   const claims: WineClaim[] = [];
   const notes = variant.tastingNotes ?? "";
-  const identity = sourceIdentity(source, variant, wine);
+  const identity = identityFromVariant(variant, wine, source);
   const push = (
     field: IntelligenceField,
     value: ClaimValue,
@@ -275,7 +465,12 @@ function extractJsonClaims(
     return [];
   }
   const claims: WineClaim[] = [];
-  const identity = sourceIdentity(source, null, wine);
+  const title = typeof parsed.title === "string" ? parsed.title : source.title;
+  const identity = assessSourceIdentity(
+    wine,
+    sourceIdentityFromJson(parsed, title),
+    JSON.stringify(parsed),
+  );
   const push = (field: IntelligenceField, value: ClaimValue, excerpt: string, unit: string | null = null) => {
     if (value == null || (Array.isArray(value) && value.length === 0)) return;
     claims.push(
@@ -287,13 +482,12 @@ function extractJsonClaims(
         unit,
         excerpt,
         confidence: source.classification === "retailer" ? 0.7 : 0.8,
-        identity: identity.identity,
+        identity,
       }),
     );
   };
 
-  const title = typeof parsed.title === "string" ? parsed.title : source.title;
-  push("producer", String(parsed.producer ?? wine.producer), title);
+  if (typeof parsed.producer === "string") push("producer", parsed.producer, title);
   if (typeof parsed.range === "string") push("range", parsed.range, title);
   if (typeof parsed.productName === "string") push("product_name", parsed.productName, title);
   if (Array.isArray(parsed.grapeVarieties)) {
@@ -356,9 +550,9 @@ function extractTextClaims(
   wine: WineIntelligenceInput,
   source: DiscoveredSource,
   text: string,
+  identity: IdentityMatchClass,
 ): WineClaim[] {
   const claims: WineClaim[] = [];
-  const identity = sourceIdentity(source, null, wine);
   const push = (field: IntelligenceField, value: ClaimValue, excerpt: string, unit: string | null = null) => {
     claims.push(
       makeClaim({
@@ -369,7 +563,7 @@ function extractTextClaims(
         unit,
         excerpt,
         confidence: source.classification === "retailer" ? 0.65 : 0.75,
-        identity: identity.identity,
+        identity,
       }),
     );
   };
@@ -425,7 +619,25 @@ export function extractClaimsFromDiscoveredSource(
     if (variant) {
       return valueFromVariant(wine, source, variant);
     }
-    return extractTextClaims(wine, source, body.replace(/<[^>]+>/g, " "));
+
+    // A listing page must be narrowed to one product section before any claim
+    // extraction. If that is impossible, fail closed with no publishable claims.
+    const section = isolateProductSection(body, wine);
+    if (!section) return [];
+    const sourceIdentity = extractSourceIdentityFromHtml(section);
+    const identity = assessSourceIdentity(wine, sourceIdentity, section);
+    return extractTextClaims(
+      wine,
+      source,
+      section.replace(/<[^>]+>/g, " "),
+      identity,
+    );
   }
-  return extractTextClaims(wine, source, body);
+
+  const sourceIdentity = extractSourceIdentityFromText({
+    text: body,
+    title: source.title,
+  });
+  const identity = assessSourceIdentity(wine, sourceIdentity, body);
+  return extractTextClaims(wine, source, body, identity);
 }
