@@ -116,6 +116,8 @@ export interface ReconciledClaim {
   sourceUrl: string | null;
   claims: WineClaim[];
   conflict: ClaimConflict | null;
+  /** The exact claim that supplied `value`; never assume claims[0]. */
+  selectedClaim?: WineClaim | null;
 }
 
 export interface CompletenessField {

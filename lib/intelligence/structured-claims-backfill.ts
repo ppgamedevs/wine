@@ -3,6 +3,10 @@ import type {
   WineClaim,
   WineClaimField,
 } from "@/lib/intelligence/types";
+import {
+  AUTOMATIC_IDENTITY_MATCHES,
+  verificationForClaim,
+} from "@/lib/intelligence/claim-verification";
 
 const BACKFILL_FIELDS: WineClaimField[] = [
   "visual_appearance",
@@ -16,21 +20,7 @@ const BACKFILL_FIELDS: WineClaimField[] = [
   "food_pairing",
 ];
 
-/**
- * Automatic backfill is only safe for an exact bottle identity. LIKELY_WINE is
- * intentionally excluded: it must be reviewed by a human before publication.
- */
-const AUTOMATIC_IDENTITY_MATCHES = new Set([
-  "EXACT_WINE_EXACT_VINTAGE",
-  "EXACT_WINE_UNDATED_SOURCE",
-]);
-
-const OFFICIAL_SOURCE_CLASSES = new Set([
-  "official_technical_sheet",
-  "official_producer_page",
-  "official_catalog",
-  "producer_general",
-]);
+export { verificationForClaim as verificationForStructuredClaim };
 
 export interface ExistingStructuredClaim {
   id: number;
@@ -79,50 +69,6 @@ export interface StructuredBackfillPlan extends StructuredClaimPlanLike {
 
 function key(wineId: number, field: string, sourceHash: string): string {
   return `${wineId}\u0000${field}\u0000${sourceHash}`;
-}
-
-function sourceHost(url: string): string {
-  try {
-    return new URL(url).hostname.toLowerCase();
-  } catch {
-    return "";
-  }
-}
-
-/**
- * Verification belongs to the individual source claim, not to the reconciled
- * field. A retailer claim stays attributed even when another source supplied the
- * preferred reconciled value.
- */
-export function verificationForStructuredClaim(
-  claim: WineClaim,
-  fieldClaims: WineClaim[],
-): string {
-  if (!AUTOMATIC_IDENTITY_MATCHES.has(claim.identityMatchStatus)) {
-    return "unverified";
-  }
-  if (!claim.excerpt.trim()) return "unverified";
-
-  if (OFFICIAL_SOURCE_CLASSES.has(claim.sourceClass)) {
-    const corroboratingHosts = new Set(
-      fieldClaims
-        .filter(
-          (candidate) =>
-            candidate !== claim &&
-            OFFICIAL_SOURCE_CLASSES.has(candidate.sourceClass) &&
-            AUTOMATIC_IDENTITY_MATCHES.has(candidate.identityMatchStatus) &&
-            candidate.excerpt.trim().length > 0 &&
-            candidate.normalizedValue === claim.normalizedValue &&
-            sourceHost(candidate.sourceUrl) !== sourceHost(claim.sourceUrl),
-        )
-        .map((candidate) => sourceHost(candidate.sourceUrl)),
-    );
-    return corroboratingHosts.size > 0 ? "corroborated" : "verified_official";
-  }
-  if (claim.sourceClass === "specialist") return "attributed_specialist";
-  if (claim.sourceClass === "editorial") return "attributed_editorial";
-  if (claim.sourceClass === "retailer") return "attributed_retailer";
-  return "unverified";
 }
 
 /**
@@ -213,7 +159,7 @@ export function planStructuredClaims(input: {
       observedAt: claim.observedAt,
       extractionMethod: claim.extractionMethod,
       identityMatchStatus: claim.identityMatchStatus,
-      verificationStatus: verificationForStructuredClaim(
+      verificationStatus: verificationForClaim(
         claim,
         claimsByField.get(claim.field) ?? [],
       ),

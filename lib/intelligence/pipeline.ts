@@ -34,11 +34,20 @@ export interface RunWineIntelligenceInput {
   concurrency?: number;
   maxRetries?: number;
   now?: string;
+  /** Test hook for applying the report to an isolated database. */
+  persistReport?: typeof persistIntelligenceReport;
 }
 
 export interface RunWineIntelligenceResult {
   report: IntelligenceReport;
-  persisted: { claims: number; technical: number; ai: number; run: number } | null;
+  persisted: {
+    claims: number;
+    technical: number;
+    ai: number;
+    run: number;
+    rejected?: number;
+    skipped?: number;
+  } | null;
 }
 
 function stableHash(value: string): string {
@@ -254,8 +263,9 @@ export async function runWineIntelligence(
     },
   };
 
-  const persisted =
-    input.dryRun ? null : await persistIntelligenceReport(report);
+  const persisted = input.dryRun
+    ? null
+    : await (input.persistReport ?? persistIntelligenceReport)(report);
 
   return { report, persisted };
 }

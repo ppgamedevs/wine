@@ -158,6 +158,24 @@ describe("structured claim backfill plan", () => {
     );
   });
 
+  it("rejects a different-vintage variant from automatic backfill", async () => {
+    const base = await report();
+    const source = base.claims.find((claim) => claim.field === "food_pairing") ?? base.claims[0]!;
+    const variant: WineClaim = {
+      ...source,
+      identityMatchStatus: "EXACT_WINE_DIFFERENT_VINTAGE",
+      sourceClass: "official_producer_page",
+    };
+    const plan = planStructuredClaims({
+      report: { ...base, claims: [variant], reconciled: [] },
+      existing: [],
+    });
+    expect(plan.writes).toEqual([]);
+    expect(plan.skipped.some((item) => item.reason === "identity_EXACT_WINE_DIFFERENT_VINTAGE")).toBe(
+      true,
+    );
+  });
+
   it("does not auto-publish a conflicting field", async () => {
     const base = await report();
     const source = base.claims.find((claim) => claim.field === "food_pairing") ?? base.claims[0]!;

@@ -14,6 +14,7 @@ import {
   REQUIRED_FIELDS,
 } from "@/lib/intelligence/types";
 import { sourceHost } from "@/lib/intelligence/types";
+import { OFFICIAL_SOURCE_CLASSES } from "@/lib/intelligence/claim-verification";
 
 const SOURCE_RANK: Record<WineSourceClass, number> = {
   existing_record: 100,
@@ -28,11 +29,7 @@ const SOURCE_RANK: Record<WineSourceClass, number> = {
   unknown: 0,
 };
 
-const OFFICIAL = new Set<WineSourceClass>([
-  "official_technical_sheet",
-  "official_producer_page",
-  "official_catalog",
-]);
+const OFFICIAL = OFFICIAL_SOURCE_CLASSES;
 
 function isUsableIdentity(claim: WineClaim): boolean {
   return (
@@ -74,7 +71,11 @@ function bestClaim(claims: WineClaim[]): WineClaim {
   return [...claims].sort((left, right) => {
     const rank = SOURCE_RANK[right.sourceClass] - SOURCE_RANK[left.sourceClass];
     if (rank !== 0) return rank;
-    return right.confidence - left.confidence;
+    const confidence = right.confidence - left.confidence;
+    if (confidence !== 0) return confidence;
+    const url = left.sourceUrl.localeCompare(right.sourceUrl);
+    if (url !== 0) return url;
+    return left.claimHash.localeCompare(right.claimHash);
   })[0]!;
 }
 
@@ -124,6 +125,7 @@ export function reconcileClaims(claims: WineClaim[]): ReconciledClaim[] {
         sourceUrl: null,
         claims: [],
         conflict: null,
+        selectedClaim: null,
       };
     }
 
@@ -162,6 +164,7 @@ export function reconcileClaims(claims: WineClaim[]): ReconciledClaim[] {
       sourceUrl: chosenValue == null ? null : chosen.sourceUrl,
       claims: fieldClaims,
       conflict,
+      selectedClaim: chosenValue == null ? null : chosen,
     };
   });
 }

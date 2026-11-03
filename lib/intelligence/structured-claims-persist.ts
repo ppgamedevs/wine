@@ -2,15 +2,18 @@ import { db } from "@/lib/db";
 import { wineClaimEvidence } from "@/lib/schema";
 import type { StructuredClaimPlanLike } from "@/lib/intelligence/structured-claims-backfill";
 
+type PersistDatabase = typeof db;
+
 /**
  * Insert-only structured-claim persistence. Existing `(wine, field, sourceHash)`
  * rows are left untouched; a repeated plan therefore writes zero rows.
  */
 export async function applyStructuredClaims(
   plan: StructuredClaimPlanLike,
+  database: PersistDatabase = db,
 ): Promise<{ inserted: number; skippedExisting: number }> {
   let inserted = 0;
-  await db.transaction(async (tx) => {
+  await database.transaction(async (tx) => {
     for (const write of plan.writes) {
       const rows = await tx
         .insert(wineClaimEvidence)
