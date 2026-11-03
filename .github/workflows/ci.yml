@@ -40,8 +40,8 @@ jobs:
       - name: Create local CI database
         run: |
           rm -f local.db
-          # The repository's historical migrations do not include every current
-          # schema column; push the canonical schema into a fresh local DB.
+          # Test-fixture setup only. Migration 0028 itself is validated through
+          # the actual Drizzle migrator in the step below, not via push.
           npx drizzle-kit push --force
           npm run db:seed
 
@@ -50,6 +50,9 @@ jobs:
 
       - name: TypeScript
         run: npx tsc --noEmit
+
+      - name: Migration 0028 actual path
+        run: npx vitest run lib/migrations/0028-migration.test.ts --pool=forks
 
       - name: Tests
         run: npm test -- --pool=forks

@@ -49,4 +49,6 @@ export interface GrapeGuide {
   imageAlt?: Partial<Record<AppLocale, string>>;
   imageSource?: string;
   imageLicense?: string;
+  /** Representative artwork, not a verified photograph of the cultivar. */
+  imageKind?: "representative_illustration";
 }

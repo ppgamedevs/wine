@@ -24,7 +24,7 @@ the existing scanner or the V2 claim pipeline.
 | `lib/quality/engine.ts` | factual completeness, commercial separation, gates and repair queue |
 | `lib/quality/source-gaps.ts` | information-gain plans and unsuccessful-source cooldown cache |
 | `lib/quality/source-discovery.ts` | reuses V2 discovery to match missing fields to sources |
-| `lib/quality/benchmark.ts` | ChatGPT-style vs VinIntel evaluation; length is not rewarded |
+| `lib/quality/benchmark.ts` | fixture baseline and frozen independent-model baseline; length is not rewarded |
 | `lib/quality/release-gate.ts` | exact identity, source facts, completeness, Profitshare, RO/EN and SEO gate |
 | `scripts/catalog-quality-audit.ts` | 50-wine and production-wide read-only reports |
 | `scripts/quality-release-gate.ts` | automated release gate |
@@ -104,7 +104,12 @@ The evaluation set contains the ten practical questions requested. Scoring:
 - unsupported assertions −15 each
 - **length adds no score**
 
-See [`catalog-quality-benchmark.md`](./catalog-quality-benchmark.md).
+The reported fixture baseline is a hand-authored synthetic negative control, not
+ChatGPT. The independent baseline is a frozen answer set generated separately
+from label facts and stored under `benchmarks/`; the scorer makes no model call.
+
+See [`catalog-quality-benchmark.md`](./catalog-quality-benchmark.md) and
+[`benchmarks/README.md`](../benchmarks/README.md).
 
 ## Admin dashboard
 

@@ -59,6 +59,8 @@ function GrapeGuideCard({
         <GrapeVarietyImage
           slug={guide.slug}
           name={copy.name}
+          locale={locale}
+          imageKind={image.kind}
           imageUrl={image.src}
           imageAlt={image.alt}
           imageSource={image.source}

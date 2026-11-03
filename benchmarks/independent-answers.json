@@ -1,0 +1,73 @@
+{
+  "label": "Independent Grok baseline",
+  "provenance": {
+    "kind": "independent_model",
+    "model": "grok-4.20-0309-non-reasoning",
+    "generatedAt": "2026-11-03T19:10:00.000Z",
+    "generator": "scripts/generate-independent-benchmark-answers.ts",
+    "promptVersion": "independent-label-blind-v1",
+    "notes": "One independent model response to the ten frozen questions, generated from the public label facts only. No VinIntel claims or sources were provided. Field annotations are a frozen manual review of that response."
+  },
+  "answers": {
+    "style": {
+      "text": "Medium-dry white wine from the Muscat Ottonel grape.",
+      "citations": [],
+      "supportedFields": ["wine_color", "type", "sweetness"],
+      "unsupportedAssertions": []
+    },
+    "grape": {
+      "text": "Muscat Ottonel.",
+      "citations": [],
+      "supportedFields": ["grape_varieties"],
+      "unsupportedAssertions": []
+    },
+    "taste": {
+      "text": "Uncertain. Muscat Ottonel typically shows floral and grapey notes; label gives no specific descriptors.",
+      "citations": [],
+      "supportedFields": [],
+      "unsupportedAssertions": ["floral and grapey notes"]
+    },
+    "temperature": {
+      "text": "Chilled, around 8-10°C.",
+      "citations": [],
+      "supportedFields": [],
+      "unsupportedAssertions": ["8-10°C"]
+    },
+    "food": {
+      "text": "Suitable with light appetizers, mild cheeses or fruit-based desserts.",
+      "citations": [],
+      "supportedFields": [],
+      "unsupportedAssertions": ["light appetizers, mild cheeses or fruit-based desserts"]
+    },
+    "origin": {
+      "text": "Murfatlar, Romania.",
+      "citations": [],
+      "supportedFields": ["region", "country"],
+      "unsupportedAssertions": []
+    },
+    "variety": {
+      "text": "Single-varietal Muscat Ottonel.",
+      "citations": [],
+      "supportedFields": ["grape_varieties"],
+      "unsupportedAssertions": []
+    },
+    "compare": {
+      "text": "Similar to other medium-dry Muscat wines from Eastern Europe.",
+      "citations": [],
+      "supportedFields": [],
+      "unsupportedAssertions": ["similar to other medium-dry Muscat wines from Eastern Europe"]
+    },
+    "confirmed": {
+      "text": "Producer Murfatlar, region Murfatlar Romania, grape Muscat Ottonel, medium-dry white.",
+      "citations": [],
+      "supportedFields": ["verification"],
+      "unsupportedAssertions": []
+    },
+    "offer": {
+      "text": "Affordable everyday Romanian white wine.",
+      "citations": [],
+      "supportedFields": [],
+      "unsupportedAssertions": ["affordable everyday Romanian white wine"]
+    }
+  }
+}

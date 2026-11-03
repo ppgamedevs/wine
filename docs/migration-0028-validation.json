@@ -1,0 +1,83 @@
+{
+  "generatedAt": "2026-11-03T19:19:27.102Z",
+  "source": "configured production database (read-only); sanitized allow-listed data subset",
+  "clonePath": "tmp/migration-0028-clone.db",
+  "migrationJournalRows": 28,
+  "passed": true,
+  "schema": {
+    "copiedData": {
+      "wineries": 25,
+      "regions": 19,
+      "grape_varieties": 18,
+      "wines": 265,
+      "wine_fact_evidence": 445
+    },
+    "redactedColumns": {
+      "wineries": [
+        "stripe_customer_id",
+        "stripe_subscription_id",
+        "stripe_subscription_status"
+      ],
+      "regions": [],
+      "grape_varieties": [],
+      "wines": [
+        "submitted_email"
+      ],
+      "wine_fact_evidence": []
+    },
+    "newTables": [
+      "grape_variety_knowledge",
+      "wine_ai_interpretations",
+      "wine_claim_evidence",
+      "wine_enrichment_runs"
+    ],
+    "changedExistingTables": [],
+    "removedTables": [],
+    "changedTriggers": [],
+    "missingV2": [],
+    "drift": {
+      "comparedTo": "fresh database built from migrations 0000–0027",
+      "tableDifferences": 2,
+      "columnDifferences": 6,
+      "examples": [
+        "`wineries`: production-only columns premium_expires_at, premium_plan; history-only columns none",
+        "`winery_premium_checkouts`: production-only columns expires_at, welcome_email_sent_at, reminder_email_sent_at, expired_email_sent_at; history-only columns none"
+      ]
+    }
+  },
+  "data": {
+    "preserved": true,
+    "before": {
+      "counts": {
+        "wineries": 25,
+        "regions": 19,
+        "grape_varieties": 18,
+        "wines": 265,
+        "wine_fact_evidence": 445
+      },
+      "hashes": {
+        "wineries": "b4229271e966a391aae7e4f48df2d2a2b19436028bc43a96a6283c4787ae9165",
+        "regions": "a6ad625b407e0c747a39fd5b6a6e0ebbf9d3f7e124214c07b5c086df4ed454b2",
+        "grape_varieties": "28be04cd54c1f48f2e3788016650906bb687499889b2dbdb3588d76d0cafd994",
+        "wines": "c2282692f00fba8760838af530a17debf8e2f468440f0adfb59e80df0273f34f",
+        "wine_fact_evidence": "5f2dd3f159be9b39c68b4493c92d182a2372488bf2d60b07a330816a6ce6dbab"
+      }
+    },
+    "after": {
+      "counts": {
+        "wineries": 25,
+        "regions": 19,
+        "grape_varieties": 18,
+        "wines": 265,
+        "wine_fact_evidence": 445
+      },
+      "hashes": {
+        "wineries": "b4229271e966a391aae7e4f48df2d2a2b19436028bc43a96a6283c4787ae9165",
+        "regions": "a6ad625b407e0c747a39fd5b6a6e0ebbf9d3f7e124214c07b5c086df4ed454b2",
+        "grape_varieties": "28be04cd54c1f48f2e3788016650906bb687499889b2dbdb3588d76d0cafd994",
+        "wines": "c2282692f00fba8760838af530a17debf8e2f468440f0adfb59e80df0273f34f",
+        "wine_fact_evidence": "5f2dd3f159be9b39c68b4493c92d182a2372488bf2d60b07a330816a6ce6dbab"
+      }
+    }
+  }
+}

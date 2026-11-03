@@ -139,10 +139,13 @@ describe("grape encyclopedia guides", () => {
       expect(guide, seed.slug).toBeDefined();
       if (!guide) continue;
       expect(guide.imageUrl).toBe(`/images/grapes/${seed.slug}.webp`);
+      expect(guide.imageAlt?.ro).toContain("reprezentativ");
+      expect(guide.imageAlt?.en).toContain("Representative");
       expect(guide.imageAlt?.ro?.length ?? 0).toBeGreaterThan(20);
       expect(guide.imageAlt?.en?.length ?? 0).toBeGreaterThan(20);
-      expect(guide.imageSource).toContain("VinIntel");
+      expect(guide.imageSource).toContain("nu este fotografie");
       expect(guide.imageLicense).toContain("VinIntel");
+      expect(guide.imageKind).toBe("representative_illustration");
 
       const file = path.join(
         process.cwd(),
@@ -153,6 +156,7 @@ describe("grape encyclopedia guides", () => {
       expect(statSync(file).size).toBeLessThan(80_000);
       const resolved = resolveGrapeImage(guide, "ro");
       expect(resolved.src).toBe(guide.imageUrl);
+      expect(resolved.kind).toBe("representative_illustration");
       expect(resolved.alt).toBe(guide.imageAlt?.ro);
     }
   });

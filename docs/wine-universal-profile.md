@@ -25,6 +25,14 @@ Each structured field displays:
 - a clickable source title/URL when available;
 - a conflict badge when two structured values disagree.
 
+**Same-record rule:** the displayed value, source URL/title and verification
+badge are selected together from one evidence row. Rows are ordered
+deterministically by verification rank, source-class rank, confidence, observed
+time, source URL and id. Official evidence wins regardless of database row order.
+If a row is mislabelled `verified_official` but its `source_class` is `retailer`,
+the badge is demoted to `attributed_retailer`; a retailer value can never carry
+an official badge.
+
 Free-text `Culoare/Miros/Gust/Temperatura` does **not** populate the structured
 profile. If migration 0028 has not been applied or a wine has no claims, the UI
 shows an explicit empty-state message instead of presenting generic prose as a
@@ -45,7 +53,10 @@ identity/grape context.
 
 - structured sensory/serving/grape rendering with source attribution;
 - empty sensory/serving state when only free text exists;
-- conflict marking between official and retailer claims.
+- conflict marking between official and retailer claims;
+- reversed database row ordering producing the same official value, source and
+  badge;
+- a retailer-labelled official row being demoted to `attributed_retailer`.
 
 Browser smoke check also verifies the heading and mobile/desktop layout:
 

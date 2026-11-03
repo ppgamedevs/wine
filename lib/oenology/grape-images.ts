@@ -6,8 +6,10 @@ interface GrapeImageSeed {
   alt: Record<AppLocale, string>;
 }
 
-const SOURCE = "Ilustrație botanică originală VinIntel";
+const SOURCE =
+  "Ilustrație reprezentativă VinIntel; nu este fotografie științifică a cultivarului.";
 const LICENSE = "© VinIntel. Ilustrație originală, licență internă.";
+const KIND = "representative_illustration" as const;
 
 /**
  * First curated set. The files are original transparent-background WebP
@@ -91,9 +93,13 @@ const IMAGES_BY_SLUG = new Map(
     seed.slug,
     {
       imageUrl: `/images/grapes/${seed.slug}.webp`,
-      imageAlt: seed.alt,
+      imageAlt: {
+        ro: `Ilustrație reprezentativă: ${seed.alt.ro}`,
+        en: `Representative illustration: ${seed.alt.en}`,
+      },
       imageSource: SOURCE,
       imageLicense: LICENSE,
+      imageKind: KIND,
     },
   ] as const),
 );
@@ -106,7 +112,7 @@ export function withGrapeImage(guide: GrapeGuide): GrapeGuide {
 export function resolveGrapeImage(
   guide: Pick<
     GrapeGuide,
-    "slug" | "imageUrl" | "imageAlt" | "imageSource" | "imageLicense"
+    "slug" | "imageUrl" | "imageAlt" | "imageSource" | "imageLicense" | "imageKind"
   >,
   locale: AppLocale,
 ): {
@@ -114,14 +120,18 @@ export function resolveGrapeImage(
   alt: string;
   source: string | null;
   license: string | null;
+  kind: "representative_illustration" | null;
 } {
   const fallbackName = guide.slug.replace(/-/g, " ");
   return {
     src: guide.imageUrl?.trim() || null,
     alt:
       guide.imageAlt?.[locale]?.trim() ||
-      `Ciorchine de struguri ${fallbackName}`,
+      (locale === "ro"
+        ? `Ilustrație reprezentativă a soiului ${fallbackName}`
+        : `Representative illustration of ${fallbackName}`),
     source: guide.imageSource?.trim() || null,
     license: guide.imageLicense?.trim() || null,
+    kind: guide.imageKind ?? null,
   };
 }

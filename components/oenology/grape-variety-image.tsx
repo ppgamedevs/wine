@@ -2,15 +2,18 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import type { AppLocale } from "@/i18n/locale";
 import { cn } from "@/lib/utils";
 
 interface GrapeVarietyImageProps {
   slug: string;
   name: string;
+  locale: AppLocale;
   imageUrl?: string | null;
   imageAlt?: string | null;
   imageSource?: string | null;
   imageLicense?: string | null;
+  imageKind?: "representative_illustration" | null;
   priority?: boolean;
   className?: string;
 }
@@ -67,15 +70,21 @@ function GrapeFallback({ label }: { label: string }) {
 export function GrapeVarietyImage({
   slug,
   name,
+  locale,
   imageUrl,
   imageAlt,
   imageSource,
   imageLicense,
+  imageKind,
   priority = false,
   className,
 }: GrapeVarietyImageProps) {
   const [failed, setFailed] = useState(false);
-  const alt = imageAlt?.trim() || `Ciorchine de struguri ${name}`;
+  const alt =
+    imageAlt?.trim() ||
+    (locale === "ro"
+      ? `Ilustrație reprezentativă a soiului ${name}`
+      : `Representative illustration of ${name}`);
   const src = imageUrl?.trim();
 
   return (
@@ -100,6 +109,11 @@ export function GrapeVarietyImage({
       ) : (
         <GrapeFallback label={alt} />
       )}
+      {imageKind === "representative_illustration" ? (
+        <span className="pointer-events-none absolute inset-x-1 bottom-1 rounded-md border border-border/60 bg-background/92 px-1 py-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-muted-foreground shadow-sm">
+          {locale === "ro" ? "Ilustrație" : "Illustration"}
+        </span>
+      ) : null}
       {imageSource ? (
         <span className="sr-only">
           Sursa imaginii: {imageSource}

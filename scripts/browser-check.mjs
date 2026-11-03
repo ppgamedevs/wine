@@ -29,6 +29,10 @@ const imageAlts = await images.evaluateAll((nodes) =>
 const loadedImages = await images.evaluateAll((nodes) =>
   nodes.filter((node) => node.naturalWidth > 0).length,
 );
+const illustrationLabels = await page
+  .locator("a[href*='/soiuri/']")
+  .getByText("Ilustrație", { exact: true })
+  .count();
 const overflow = await page.evaluate(
   () => document.documentElement.scrollWidth > window.innerWidth + 1,
 );
@@ -61,6 +65,7 @@ const result = {
   cardCount,
   imageCount,
   loadedImages,
+  illustrationLabels,
   allImagesHaveAlt: imageAlts.every((alt) => alt.trim().length > 10),
   overflow,
   mobileOverflow,
@@ -75,6 +80,7 @@ if (
   cardCount < 10 ||
   imageCount < 10 ||
   loadedImages < 10 ||
+  illustrationLabels < 10 ||
   !result.allImagesHaveAlt ||
   overflow ||
   mobileOverflow ||

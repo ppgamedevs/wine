@@ -3,7 +3,12 @@ import {
   assessWineQuality,
   runCatalogQualityAudit,
 } from "@/lib/quality/engine";
-import { evaluateBenchmark } from "@/lib/quality/benchmark";
+import {
+  BENCHMARK_QUESTIONS,
+  evaluateBenchmark,
+  type BenchmarkAnswer,
+  type BenchmarkAnswerSet,
+} from "@/lib/quality/benchmark";
 import { runQualityReleaseGate } from "@/lib/quality/release-gate";
 import { SourceAttemptCache, planSourceGaps } from "@/lib/quality/source-gaps";
 import type { QualityWine } from "@/lib/quality/types";
@@ -196,10 +201,23 @@ describe("catalog quality engine", () => {
 });
 
 describe("quality benchmark", () => {
+  function answerSet(
+    label: string,
+    kind: BenchmarkAnswerSet["provenance"]["kind"],
+    answer: BenchmarkAnswer,
+  ): BenchmarkAnswerSet {
+    return {
+      label,
+      provenance: { kind, notes: "test answer set" },
+      answers: Object.fromEntries(
+        BENCHMARK_QUESTIONS.map((question) => [question.id, answer]),
+      ),
+    };
+  }
+
   it("does not let a longer unsupported answer win", () => {
     const result = evaluateBenchmark({
-      vinintel: {
-        label: "VinIntel",
+      vinintel: answerSet("VinIntel", "vinintel", {
         text: "Vin alb demisec, Muscat Ottonel, 7-8°C, DOC Murfatlar.",
         citations: ["https://murfatlar-vinul.ro/zestrea/"],
         supportedFields: [
@@ -216,17 +234,18 @@ describe("quality benchmark", () => {
           "commercial",
         ],
         unsupportedAssertions: [],
-      },
-      chatgpt: {
-        label: "ChatGPT",
+      }),
+      baseline: answerSet("Fixture baseline", "fixture", {
         text: "A very long generic answer with 13.5% alcohol, gold medals and orange blossom.",
         citations: [],
         supportedFields: ["wine_color", "sweetness", "grape_varieties"],
         unsupportedAssertions: ["13.5% alcohol", "gold medals", "orange blossom"],
-      },
+      }),
     });
-    expect(result.vinintelTotal).toBeGreaterThan(result.chatgptTotal);
-    expect(result.cases[0]?.chatgpt.unsupportedPenalty).toBe(45);
+    expect(result.vinintelTotal).toBeGreaterThan(result.baselineTotal);
+    expect(result.cases[0]?.baseline.unsupportedPenalty).toBe(45);
+    expect(result.baselineLabel).toBe("Fixture baseline");
+    expect(result.baselineKind).toBe("fixture");
   });
 });
 

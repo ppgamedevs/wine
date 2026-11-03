@@ -12,11 +12,22 @@ export const BENCHMARK_QUESTIONS = [
 ] as const;
 
 export interface BenchmarkAnswer {
-  label: string;
   text: string;
   citations: string[];
   supportedFields: string[];
   unsupportedAssertions: string[];
+}
+
+export interface BenchmarkAnswerSet {
+  label: string;
+  provenance: {
+    kind: "vinintel" | "fixture" | "independent_model";
+    model?: string;
+    generatedAt?: string;
+    promptVersion?: string;
+    notes: string;
+  };
+  answers: Record<string, BenchmarkAnswer>;
 }
 
 export interface BenchmarkCaseScore {
@@ -33,11 +44,13 @@ export interface BenchmarkResult {
   cases: Array<{
     questionId: string;
     vinintel: BenchmarkCaseScore;
-    chatgpt: BenchmarkCaseScore;
+    baseline: BenchmarkCaseScore;
   }>;
   vinintelTotal: number;
-  chatgptTotal: number;
-  winner: "vinintel" | "chatgpt" | "tie";
+  baselineTotal: number;
+  baselineLabel: string;
+  baselineKind: BenchmarkAnswerSet["provenance"]["kind"];
+  winner: "vinintel" | "baseline" | "tie";
   notes: string[];
 }
 
@@ -64,7 +77,7 @@ export function scoreBenchmarkAnswer(
   );
   const usefulness = Math.round(
     clamp(
-      (answer.text.length > 0 ? 8 : 0) +
+      (answer.text.trim().length > 0 ? 8 : 0) +
         (question.fields.some((field) => supported.has(field)) ? 8 : 0) +
         (answer.text.length < 3000 ? 4 : 0),
       0,
@@ -74,10 +87,7 @@ export function scoreBenchmarkAnswer(
   const completeness = Math.round(
     (fieldHits / Math.max(1, question.fields.length)) * 20,
   );
-  const unsupportedPenalty = Math.min(
-    60,
-    answer.unsupportedAssertions.length * 15,
-  );
+  const unsupportedPenalty = Math.min(60, answer.unsupportedAssertions.length * 15);
   return {
     questionId: question.id,
     factualCorrectness,
@@ -91,56 +101,59 @@ export function scoreBenchmarkAnswer(
   };
 }
 
+function answerFor(
+  set: BenchmarkAnswerSet,
+  questionId: string,
+): BenchmarkAnswer {
+  const answer = set.answers[questionId];
+  if (!answer) {
+    throw new Error(`Benchmark answer set "${set.label}" is missing ${questionId}`);
+  }
+  return answer;
+}
+
 export function evaluateBenchmark(input: {
-  vinintel: BenchmarkAnswer;
-  chatgpt: BenchmarkAnswer;
+  vinintel: BenchmarkAnswerSet;
+  baseline: BenchmarkAnswerSet;
 }): BenchmarkResult {
   const cases = BENCHMARK_QUESTIONS.map((question) => ({
     questionId: question.id,
-    vinintel: scoreBenchmarkAnswer(input.vinintel, question),
-    chatgpt: scoreBenchmarkAnswer(input.chatgpt, question),
+    vinintel: scoreBenchmarkAnswer(answerFor(input.vinintel, question.id), question),
+    baseline: scoreBenchmarkAnswer(answerFor(input.baseline, question.id), question),
   }));
   const vinintelTotal = Math.round(
     cases.reduce((sum, item) => sum + item.vinintel.total, 0) / cases.length,
   );
-  const chatgptTotal = Math.round(
-    cases.reduce((sum, item) => sum + item.chatgpt.total, 0) / cases.length,
+  const baselineTotal = Math.round(
+    cases.reduce((sum, item) => sum + item.baseline.total, 0) / cases.length,
   );
   return {
     cases,
     vinintelTotal,
-    chatgptTotal,
+    baselineTotal,
+    baselineLabel: input.baseline.label,
+    baselineKind: input.baseline.provenance.kind,
     winner:
-      vinintelTotal === chatgptTotal
+      vinintelTotal === baselineTotal
         ? "tie"
-        : vinintelTotal > chatgptTotal
+        : vinintelTotal > baselineTotal
           ? "vinintel"
-          : "chatgpt",
+          : "baseline",
     notes: [
       "Answer length does not add score.",
       "Unsupported assertions lose 15 points each.",
       "Evidence quality rewards cited, source-backed claims.",
+      "The fixture baseline is a hand-authored synthetic negative control, not a model comparison.",
     ],
   };
 }
 
-export function buildVinIntelBenchmarkAnswer(input: {
-  text: string;
-  citations: string[];
-  supportedFields: string[];
-}): BenchmarkAnswer {
-  return {
-    label: "VinIntel",
-    text: input.text,
-    citations: input.citations,
-    supportedFields: input.supportedFields,
-    unsupportedAssertions: [],
-  };
-}
-
-export function buildChatGptStyleBaseline(): BenchmarkAnswer {
-  return {
-    label: "ChatGPT-style baseline",
+/**
+ * Hand-authored negative control. This deliberately contains generic claims and
+ * no citations; it exists to test the rubric, not to represent any real model.
+ */
+export function buildFixtureBaselineAnswerSet(): BenchmarkAnswerSet {
+  const generic: BenchmarkAnswer = {
     text:
       "This is a long, generic answer. It is probably a dry white wine with about 13.5% alcohol, " +
       "gold medals and intense aromas of orange blossom and elderflower. It pairs with everything. " +
@@ -155,4 +168,46 @@ export function buildChatGptStyleBaseline(): BenchmarkAnswer {
       "served around 10-12°C",
     ],
   };
+  return {
+    label: "Fixture baseline — hand-authored synthetic negative control",
+    provenance: {
+      kind: "fixture",
+      promptVersion: "fixture-negative-control-v1",
+      notes:
+        "Synthetic negative control used only to test the scoring rubric. It is not an independently generated answer and is not a model comparison.",
+    },
+    answers: Object.fromEntries(
+      BENCHMARK_QUESTIONS.map((question) => [question.id, generic]),
+    ),
+  };
+}
+
+export function validateAnswerSet(value: unknown): BenchmarkAnswerSet {
+  if (!value || typeof value !== "object") throw new Error("Answer set must be an object");
+  const set = value as Partial<BenchmarkAnswerSet>;
+  if (typeof set.label !== "string" || !set.label.trim()) {
+    throw new Error("Answer set requires a label");
+  }
+  if (!set.provenance || typeof set.provenance !== "object") {
+    throw new Error("Answer set requires provenance");
+  }
+  if (!set.answers || typeof set.answers !== "object") {
+    throw new Error("Answer set requires answers");
+  }
+  for (const question of BENCHMARK_QUESTIONS) {
+    const answer = (set.answers as Record<string, unknown>)[question.id];
+    if (!answer || typeof answer !== "object") {
+      throw new Error(`Answer set is missing ${question.id}`);
+    }
+    const candidate = answer as Partial<BenchmarkAnswer>;
+    if (
+      typeof candidate.text !== "string" ||
+      !Array.isArray(candidate.citations) ||
+      !Array.isArray(candidate.supportedFields) ||
+      !Array.isArray(candidate.unsupportedAssertions)
+    ) {
+      throw new Error(`Answer ${question.id} has an invalid shape`);
+    }
+  }
+  return set as BenchmarkAnswerSet;
 }

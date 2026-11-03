@@ -59,32 +59,90 @@ function valueText(value: unknown): string {
   return String(value);
 }
 
-function preferredVerification(rows: WineClaimRow[]): string {
-  const rank = [
-    "verified_official",
-    "corroborated",
-    "attributed_retailer",
-    "attributed_specialist",
-    "attributed_editorial",
-    "unverified",
-    "conflict",
-    "identity_mismatch",
-  ];
-  return [...rows]
-    .sort(
-      (left, right) =>
-        rank.indexOf(left.verificationStatus) - rank.indexOf(right.verificationStatus),
-    )[0]?.verificationStatus ?? "unverified";
+const OFFICIAL_SOURCE_CLASSES = new Set([
+  "official_technical_sheet",
+  "official_producer_page",
+  "official_catalog",
+  "producer_general",
+]);
+
+const VERIFICATION_RANK: Record<string, number> = {
+  verified_official: 0,
+  corroborated: 1,
+  attributed_specialist: 2,
+  attributed_editorial: 3,
+  attributed_retailer: 4,
+  unverified: 5,
+  conflict: 6,
+  identity_mismatch: 7,
+};
+
+const SOURCE_CLASS_RANK: Record<string, number> = {
+  official_technical_sheet: 0,
+  official_producer_page: 1,
+  official_catalog: 2,
+  producer_general: 3,
+  specialist: 4,
+  editorial: 5,
+  education: 6,
+  retailer: 7,
+  unknown: 8,
+  existing_record: 9,
+};
+
+/**
+ * The badge must describe the exact record selected for the displayed value.
+ * If a row is labelled official but came from a retailer, demote the badge rather
+ * than pairing a retailer value with an official verification.
+ */
+export function effectiveVerification(row: WineClaimRow): string {
+  if (
+    row.verificationStatus === "verified_official" &&
+    !OFFICIAL_SOURCE_CLASSES.has(row.sourceClass)
+  ) {
+    if (row.sourceClass === "retailer") return "attributed_retailer";
+    if (row.sourceClass === "specialist") return "attributed_specialist";
+    if (row.sourceClass === "editorial") return "attributed_editorial";
+    return "unverified";
+  }
+  return row.verificationStatus;
+}
+
+function preferredClaimRow(rows: WineClaimRow[]): WineClaimRow {
+  return [...rows].sort((left, right) => {
+    const leftVerification = VERIFICATION_RANK[effectiveVerification(left)] ?? 99;
+    const rightVerification = VERIFICATION_RANK[effectiveVerification(right)] ?? 99;
+    if (leftVerification !== rightVerification) {
+      return leftVerification - rightVerification;
+    }
+    const sourceRank =
+      (SOURCE_CLASS_RANK[left.sourceClass] ?? 99) -
+      (SOURCE_CLASS_RANK[right.sourceClass] ?? 99);
+    if (sourceRank !== 0) return sourceRank;
+    const confidence = (right.confidence ?? 0) - (left.confidence ?? 0);
+    if (confidence !== 0) return confidence;
+    const observed = (right.observedAt ?? "").localeCompare(
+      left.observedAt ?? "",
+    );
+    if (observed !== 0) return observed;
+    const sourceUrl = left.sourceUrl.localeCompare(right.sourceUrl);
+    if (sourceUrl !== 0) return sourceUrl;
+    return (left.id ?? 0) - (right.id ?? 0);
+  })[0]!;
 }
 
 export interface WineClaimRow {
+  id?: number;
   field: string;
   value: unknown;
   verificationStatus: string;
+  sourceClass: string;
   sourceUrl: string;
   sourceTitle: string | null;
   unit: string | null;
   excerpt: string;
+  confidence?: number;
+  observedAt?: string;
 }
 
 function fieldFromRows(
@@ -97,14 +155,16 @@ function fieldFromRows(
   const uniqueValues = new Set(
     fieldRows.map((row) => valueText(row.value).trim().toLowerCase()),
   );
-  const first = fieldRows[0]!;
+  // Value, source and badge are taken from this same selected record. Never
+  // combine a retailer value with a separately selected official badge.
+  const selected = preferredClaimRow(fieldRows);
   return {
     key: field,
     label: label(field, locale),
-    value: `${valueText(first.value)}${first.unit ? ` ${first.unit}` : ""}`,
-    sourceUrl: first.sourceUrl,
-    sourceTitle: first.sourceTitle,
-    verification: preferredVerification(fieldRows),
+    value: `${valueText(selected.value)}${selected.unit ? ` ${selected.unit}` : ""}`,
+    sourceUrl: selected.sourceUrl,
+    sourceTitle: selected.sourceTitle,
+    verification: effectiveVerification(selected),
     conflict: uniqueValues.size > 1,
   };
 }
@@ -113,13 +173,17 @@ export async function loadWineClaimRows(wineId: number): Promise<WineClaimRow[]>
   try {
     const rows = await db
       .select({
+        id: wineClaimEvidence.id,
         field: wineClaimEvidence.field,
         value: wineClaimEvidence.valueJson,
         verificationStatus: wineClaimEvidence.verificationStatus,
+        sourceClass: wineClaimEvidence.sourceClass,
         sourceUrl: wineClaimEvidence.sourceUrl,
         sourceTitle: wineClaimEvidence.sourceTitle,
         unit: wineClaimEvidence.unit,
         excerpt: wineClaimEvidence.excerpt,
+        confidence: wineClaimEvidence.confidence,
+        observedAt: wineClaimEvidence.observedAt,
       })
       .from(wineClaimEvidence)
       .where(eq(wineClaimEvidence.wineId, wineId));

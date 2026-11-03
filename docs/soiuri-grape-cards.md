@@ -31,6 +31,7 @@ Preview: [desktop card](soiuri-card-desktop.png) · [mobile card](soiuri-card-mo
 - `imageAlt` (RO/EN)
 - `imageSource`
 - `imageLicense`
+- `imageKind: "representative_illustration"`
 
 The static encyclopedia remains the source of truth. `lib/oenology/grape-images.ts`
 holds the curated mapping; `GRAPE_GUIDES` merges it, and both
@@ -45,6 +46,10 @@ Busuioaca de Bohotin and Cadarca.
 
 - Original transparent 640×640 WebP illustrations, 21–32 KB each, licensed
   internally by VinIntel (`© VinIntel`).
+- These are **representative artwork, not scientifically verified photographs
+  of exact cultivars**. The card shows a visible "Ilustrație / Illustration"
+  label; alt text begins "Ilustrație reprezentativă / Representative
+  illustration"; `imageKind` is set to `representative_illustration`.
 - Generated from `scripts/generate-grape-images.ts` (`npm run images:grapes`);
   each palette and cluster follows the variety's documented berry colour,
   cluster shape and relative berry size. No hotlinked or stock-photo assets are

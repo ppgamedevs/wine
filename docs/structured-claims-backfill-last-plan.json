@@ -1,0 +1,87 @@
+{
+  "wineId": 418,
+  "dryRun": true,
+  "candidates": 6,
+  "plannedWrites": 6,
+  "alreadyPresent": 0,
+  "existingValueConflict": 0,
+  "skipped": [
+    {
+      "field": "serving_temperature",
+      "reason": "missing_http_source",
+      "sourceUrl": "vinintel://wine/418"
+    },
+    {
+      "field": "visual_appearance",
+      "reason": "missing_http_source",
+      "sourceUrl": "vinintel://wine/418"
+    },
+    {
+      "field": "aroma_descriptors",
+      "reason": "missing_http_source",
+      "sourceUrl": "vinintel://wine/418"
+    },
+    {
+      "field": "taste_descriptors",
+      "reason": "missing_http_source",
+      "sourceUrl": "vinintel://wine/418"
+    },
+    {
+      "field": "taste_descriptors",
+      "reason": "reconciled_conflict",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/"
+    }
+  ],
+  "fields": {
+    "serving_temperature": 1,
+    "visual_appearance": 1,
+    "aroma_descriptors": 1,
+    "acidity_perception": 1,
+    "finish": 1,
+    "food_pairing": 1
+  },
+  "writes": [
+    {
+      "field": "serving_temperature",
+      "value": "7-8",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceClass": "official_producer_page",
+      "verificationStatus": "verified_official"
+    },
+    {
+      "field": "visual_appearance",
+      "value": "galben-verzui",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceClass": "official_producer_page",
+      "verificationStatus": "verified_official"
+    },
+    {
+      "field": "aroma_descriptors",
+      "value": "caracteristic soiului | plăcut | îmbietor",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceClass": "official_producer_page",
+      "verificationStatus": "verified_official"
+    },
+    {
+      "field": "acidity_perception",
+      "value": "medie",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceClass": "official_producer_page",
+      "verificationStatus": "verified_official"
+    },
+    {
+      "field": "finish",
+      "value": "remanent savuros",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceClass": "official_producer_page",
+      "verificationStatus": "verified_official"
+    },
+    {
+      "field": "food_pairing",
+      "value": "brânzeturi | carne albă | diverse antreuri | preparate vegetariene | se poate servi ca aperitiv sau alaturi de preparate din pește",
+      "sourceUrl": "https://murfatlar-vinul.ro/zestrea/",
+      "sourceClass": "official_producer_page",
+      "verificationStatus": "verified_official"
+    }
+  ]
+}
