@@ -38,7 +38,7 @@ function wine(
   overrides: Partial<WineWithRelations> & { id: number; slug: string },
 ): WineWithRelations {
   return {
-    name: overrides.slug,
+    name: `${overrides.slug} 0.75L`,
     type: "red",
     sweetness: "sec",
     priceAvg: 48,
@@ -63,6 +63,9 @@ function wine(
             {
               retailer: "eMAG.ro",
               url: `https://l.profitshare.ro/l/${100000 + overrides.id}`,
+              wineSlug: overrides.slug,
+              bottleSizeMl: 750,
+              vintage: 2022,
               priceRon: overrides.priceAvg ?? 48,
               checkedAt: new Date().toISOString(),
               inStock: true,

@@ -7,6 +7,7 @@ interface GrapeImageSeed {
 }
 
 const SOURCE = "Ilustrație botanică originală VinIntel";
+const LICENSE = "© VinIntel. Ilustrație originală, licență internă.";
 
 /**
  * First curated set. The files are original transparent-background WebP
@@ -92,6 +93,7 @@ const IMAGES_BY_SLUG = new Map(
       imageUrl: `/images/grapes/${seed.slug}.webp`,
       imageAlt: seed.alt,
       imageSource: SOURCE,
+      imageLicense: LICENSE,
     },
   ] as const),
 );
@@ -102,9 +104,17 @@ export function withGrapeImage(guide: GrapeGuide): GrapeGuide {
 }
 
 export function resolveGrapeImage(
-  guide: Pick<GrapeGuide, "slug" | "imageUrl" | "imageAlt" | "imageSource">,
+  guide: Pick<
+    GrapeGuide,
+    "slug" | "imageUrl" | "imageAlt" | "imageSource" | "imageLicense"
+  >,
   locale: AppLocale,
-): { src: string | null; alt: string; source: string | null } {
+): {
+  src: string | null;
+  alt: string;
+  source: string | null;
+  license: string | null;
+} {
   const fallbackName = guide.slug.replace(/-/g, " ");
   return {
     src: guide.imageUrl?.trim() || null,
@@ -112,5 +122,6 @@ export function resolveGrapeImage(
       guide.imageAlt?.[locale]?.trim() ||
       `Ciorchine de struguri ${fallbackName}`,
     source: guide.imageSource?.trim() || null,
+    license: guide.imageLicense?.trim() || null,
   };
 }

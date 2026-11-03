@@ -2,25 +2,11 @@ import "../lib/load-env";
 import { writeFileSync } from "node:fs";
 import { loadQualityWinesFromDb } from "@/lib/quality/from-db";
 import { runCatalogQualityAudit } from "@/lib/quality/engine";
-import type { CatalogQualityReport, QualityAssessment } from "@/lib/quality/types";
+import type { CatalogQualityReport } from "@/lib/quality/types";
 
 function arg(name: string): string | undefined {
   const prefix = `--${name}=`;
   return process.argv.find((value) => value.startsWith(prefix))?.slice(prefix.length);
-}
-
-function isRecoverable(assessment: QualityAssessment, field: string): boolean {
-  const notes = `${assessment.wine.tastingNotes ?? ""} ${assessment.wine.descriptionEditorial ?? ""}`;
-  if (field === "serving_temperature") {
-    return /temperatura\s+(?:de\s+)?servire/i.test(notes);
-  }
-  if (field === "food_pairing") {
-    return /asocierea culinar/i.test(notes);
-  }
-  if (field === "tasting_notes") {
-    return /culoare|miros|gust/i.test(notes);
-  }
-  return false;
 }
 
 function sampleWines(wines: Awaited<ReturnType<typeof loadQualityWinesFromDb>>, limit: number) {
@@ -57,8 +43,8 @@ function sampleWines(wines: Awaited<ReturnType<typeof loadQualityWinesFromDb>>, 
   return [...selected.values()];
 }
 
-function beforeAfter(report: CatalogQualityReport) {
-  const rows: Array<{ field: string; before: number; after: number; total: number }> = [];
+function structuredCoverage(report: CatalogQualityReport) {
+  const rows: Array<{ field: string; present: number; total: number }> = [];
   for (const field of [
     "tasting_notes",
     "serving_temperature",
@@ -66,17 +52,14 @@ function beforeAfter(report: CatalogQualityReport) {
     "alcohol",
     "source_url",
   ]) {
-    let before = 0;
-    let after = 0;
+    let present = 0;
     for (const assessment of report.assessments) {
       const category = assessment.categories.find((item) =>
         item.presentFields.includes(field) || item.missing.includes(field),
       );
-      const present = category?.presentFields.includes(field) ?? false;
-      if (present) before += 1;
-      if (present || isRecoverable(assessment, field)) after += 1;
+      if (category?.presentFields.includes(field)) present += 1;
     }
-    rows.push({ field, before, after, total: report.assessments.length });
+    rows.push({ field, present, total: report.assessments.length });
   }
   return rows;
 }
@@ -114,13 +97,17 @@ function markdown(report: CatalogQualityReport, title: string): string {
       .sort((left, right) => right[1] - left[1])
       .map(([gate, count]) => `| ${gate} | ${count} |`),
     "",
-    "## Deterministic dry-run field coverage (before → after structuring existing evidence)",
+    "## Structured field coverage (no keyword inference, no data mutation)",
     "",
-    "| Field | Before | After | Total |",
-    "|---|---:|---:|---:|",
-    ...beforeAfter(report).map(
-      (row) => `| ${row.field} | ${row.before} | ${row.after} | ${row.total} |`,
+    "| Field | Structured present | Total |",
+    "|---|---:|---:|",
+    ...structuredCoverage(report).map(
+      (row) => `| ${row.field} | ${row.present} | ${row.total} |`,
     ),
+    "",
+    "This dry-run does not treat a keyword in free text as structured evidence.",
+    "The before/after backfill projection is intentionally not claimed until",
+    "migration 0028 and source-backed claims are applied.",
     "",
     "## Representative coverage",
     "",

@@ -11,7 +11,7 @@ vi.mock("server-only", () => ({}));
 const wine = {
   id: 1,
   slug: "selene",
-  name: "Selene Fetească Neagră",
+  name: "Selene Fetească Neagră 0.75L",
   type: "red",
   sweetness: "sec",
   vintage: 2022,
@@ -22,6 +22,9 @@ const wine = {
     {
       retailer: "eMAG.ro",
       url: "https://l.profitshare.ro/l/100002",
+      wineSlug: "selene",
+      bottleSizeMl: 750,
+      vintage: 2022,
       priceRon: 78,
       checkedAt: new Date().toISOString(),
       inStock: true,

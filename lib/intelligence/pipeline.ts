@@ -14,6 +14,7 @@ import type {
   IntelligenceField,
   IntelligenceReport,
   ReconciledClaim,
+  SourceCandidate,
   SourceFixture,
   SourceResult,
   WineClaim,
@@ -24,6 +25,7 @@ import { ALL_INTELLIGENCE_FIELDS } from "@/lib/intelligence/types";
 export interface RunWineIntelligenceInput {
   wine: WineIntelligenceInput;
   fixtures: SourceFixture[];
+  sourceCandidates?: SourceCandidate[];
   dryRun: boolean;
   aiGenerator?: (prompt: string) => Promise<string>;
   /** Optional network loader. Fixtures are used by default; no bypassing. */
@@ -120,6 +122,7 @@ export async function runWineIntelligence(
   const sources = discoverWineSources({
     wine: input.wine,
     fixtures: input.fixtures,
+    sourceCandidates: input.sourceCandidates,
   });
   const errors: string[] = [];
 
@@ -163,11 +166,13 @@ export async function runWineIntelligence(
 
       return {
         source: effectiveSource,
-        status: fixture ? "available" : source.availability,
+        status: fixture ? "available" : "unavailable",
         claims: fixture
           ? extractClaimsFromDiscoveredSource(input.wine, effectiveSource)
           : [],
-        error: loaded.error ?? (fixture ? null : source.availabilityReason),
+        error:
+          loaded.error ??
+          (fixture ? null : source.availabilityReason ?? "source loader unavailable"),
         requestCount: loaded.requests,
         cached: cached != null,
       };

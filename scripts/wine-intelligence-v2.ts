@@ -4,6 +4,10 @@ import {
   loadTargetSources,
   loadTargetWine,
 } from "@/lib/intelligence/fixtures";
+import {
+  loadCatalogWineForIntelligence,
+  loadLiveSource,
+} from "@/lib/intelligence/catalog-source";
 import { runWineIntelligence } from "@/lib/intelligence/pipeline";
 import { serializeEvidenceReport } from "@/lib/intelligence/report";
 import type { IntelligenceReport } from "@/lib/intelligence/types";
@@ -54,17 +58,42 @@ function summary(report: IntelligenceReport) {
 
 async function main() {
   const wineArg = arg("wine") ?? "418";
+  const wineId = Number.parseInt(wineArg, 10);
+  if (!Number.isFinite(wineId)) {
+    throw new Error(`Invalid --wine id: ${wineArg}`);
+  }
   const apply = process.argv.includes("--apply");
+  const fixturesOnly = process.argv.includes("--fixtures");
   const out = arg("out");
-  if (wineArg !== "418") {
+
+  if (apply && !process.argv.includes("--confirm-apply")) {
     throw new Error(
-      "This fixture runner currently supports the audited target wine 418. Add a wine loader before applying to other IDs.",
+      "Refusing to apply without --confirm-apply. Run a dry-run first, review the report, then apply.",
+    );
+  }
+
+  const fixtureInput = fixturesOnly
+    ? {
+        wine: loadTargetWine(),
+        fixtures: loadTargetSources(),
+        sourceCandidates: [],
+        loadSource: undefined,
+      }
+    : null;
+  const catalogInput = fixtureInput
+    ? null
+    : await loadCatalogWineForIntelligence(wineId);
+  if (!fixtureInput && !catalogInput) {
+    throw new Error(
+      `Wine ${wineId} was not found in the configured catalog. Use --fixtures for the audited target fixture.`,
     );
   }
 
   const result = await runWineIntelligence({
-    wine: loadTargetWine(),
-    fixtures: loadTargetSources(),
+    wine: fixtureInput?.wine ?? catalogInput!.input,
+    fixtures: fixtureInput?.fixtures ?? [],
+    sourceCandidates: fixtureInput?.sourceCandidates ?? catalogInput!.candidates,
+    loadSource: fixtureInput?.loadSource ?? loadLiveSource,
     dryRun: !apply,
   });
   summary(result.report);

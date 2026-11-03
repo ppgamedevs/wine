@@ -38,6 +38,14 @@ export interface SourceFixture {
   classification?: WineSourceClass;
 }
 
+/** A real catalog/producer URL that is resolved by a live loader at run time. */
+export interface SourceCandidate {
+  url: string;
+  title: string;
+  classification?: WineSourceClass;
+  contentKind?: SourceContentKind;
+}
+
 export interface DiscoveredSource {
   url: string;
   title: string;

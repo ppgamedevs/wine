@@ -72,7 +72,12 @@ export function hasAffiliateTracking(url: string): boolean {
 /** Clean product URL for price checks and catalog references (no affiliate params). */
 export function resolveCatalogProductUrl(url: string): string {
   const trimmed = url.trim();
-  if (!trimmed || isProfitshareUrl(trimmed)) return trimmed;
+  if (!trimmed) return trimmed;
+  if (isProfitshareUrl(trimmed)) {
+    // Keep only a fully qualified campaign URL. A malformed Profitshare host
+    // must not become a catalog/purchase URL by accident.
+    return isQualifyingProfitshareUrl(trimmed) ? trimmed : "";
+  }
   return normalizeRetailerProductUrl(trimmed);
 }
 
@@ -86,7 +91,7 @@ export function resolveAffiliatePurchaseUrl(input: {
   availability: { url?: string }[];
 }): string | null {
   const source = input.sourceUrl?.trim();
-  if (source && isProfitshareUrl(source)) {
+  if (source && isQualifyingProfitshareUrl(source)) {
     return source;
   }
 
@@ -174,8 +179,11 @@ export function resolveUserFacingPurchaseUrl(
   const trimmed = rawUrl.trim();
   if (!trimmed) return trimmed;
 
-  if (isProfitshareUrl(trimmed)) {
+  if (isQualifyingProfitshareUrl(trimmed)) {
     return trimmed;
+  }
+  if (isProfitshareUrl(trimmed)) {
+    return "";
   }
 
   const normalized = normalizeRetailerProductUrl(trimmed);

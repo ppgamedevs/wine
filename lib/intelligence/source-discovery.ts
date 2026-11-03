@@ -2,6 +2,7 @@ import { discoverOfficialDocumentUrls } from "@/lib/tech-facts/source-identity";
 import { classifySourceUrl } from "@/lib/source-trust";
 import type {
   DiscoveredSource,
+  SourceCandidate,
   SourceFixture,
   WineIntelligenceInput,
   WineSourceClass,
@@ -42,7 +43,12 @@ export function classifyIntelligenceSource(
 
 function sourceAvailability(
   fixture: SourceFixture | null,
-  options: { robotsAllowed: boolean; requiresAuth: boolean; rateLimited: boolean },
+  options: {
+    robotsAllowed: boolean;
+    requiresAuth: boolean;
+    rateLimited: boolean;
+    liveCandidate?: boolean;
+  },
 ): Pick<DiscoveredSource, "availability" | "availabilityReason"> {
   if (options.robotsAllowed === false) {
     return {
@@ -62,7 +68,7 @@ function sourceAvailability(
       availabilityReason: "rate limit / retry later",
     };
   }
-  if (!fixture) {
+  if (!fixture && !options.liveCandidate) {
     return {
       availability: "unavailable",
       availabilityReason: "no accessible fixture/content for this source",
@@ -98,6 +104,7 @@ function toDiscovered(fixture: SourceFixture, discoveredFrom: string): Discovere
 export function discoverWineSources(input: {
   wine: WineIntelligenceInput;
   fixtures: SourceFixture[];
+  sourceCandidates?: SourceCandidate[];
 }): DiscoveredSource[] {
   const byUrl = new Map<string, DiscoveredSource>();
   const add = (source: DiscoveredSource) => {
@@ -138,6 +145,30 @@ export function discoverWineSources(input: {
 
   for (const fixture of input.fixtures) {
     add(toDiscovered(fixture, "fixture input"));
+  }
+
+  for (const candidate of input.sourceCandidates ?? []) {
+    const classification = classifyIntelligenceSource(
+      candidate.url,
+      candidate.contentKind === "pdf_text",
+      candidate.classification,
+    );
+    const availability = sourceAvailability(null, {
+      robotsAllowed: true,
+      requiresAuth: false,
+      rateLimited: false,
+      liveCandidate: true,
+    });
+    add({
+      url: candidate.url,
+      title: candidate.title,
+      classification,
+      discoveredFrom: "catalog source candidate",
+      priority: PRIORITY[classification],
+      contentKind: candidate.contentKind ?? "html",
+      fixture: null,
+      ...availability,
+    });
   }
 
   add({

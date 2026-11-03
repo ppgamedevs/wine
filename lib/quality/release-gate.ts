@@ -13,6 +13,14 @@ export interface ReleaseGateReport {
   passed: boolean;
 }
 
+export interface CatalogInvariantWine {
+  wineId: number;
+  wineName: string;
+  hasQualifiedProfitshareOffer: boolean;
+  publicPrice: number | null;
+  exactIdentity: boolean;
+}
+
 export interface QualityReleaseInput {
   targetVariantKey: string | null;
   expectedVariantKey: string;
@@ -22,6 +30,8 @@ export interface QualityReleaseInput {
   roUnavailableLabel: string;
   enUnavailableLabel: string;
   hasQualifiedProfitshareOffer: boolean;
+  /** Representative/catalog-wide invariants; at least one wine is expected. */
+  catalog?: CatalogInvariantWine[];
 }
 
 export function runQualityReleaseGate(
@@ -95,6 +105,31 @@ export function runQualityReleaseGate(
     "Structured data does not leak unavailable prices",
     !/"price"\s*:/.test(input.jsonLd) || input.hasQualifiedProfitshareOffer,
     "checked price keys in Product JSON-LD",
+  );
+
+  const catalog = input.catalog ?? [];
+  const leaked = catalog.filter(
+    (wine) =>
+      !wine.hasQualifiedProfitshareOffer &&
+      wine.publicPrice != null &&
+      wine.publicPrice > 0,
+  );
+  add(
+    "catalog-profitshare-safety",
+    "No non-qualified public price across representative catalog",
+    catalog.length === 0 || leaked.length === 0,
+    catalog.length === 0
+      ? "not supplied in this invocation"
+      : `${catalog.length - leaked.length}/${catalog.length} safe`,
+  );
+  const identityFailures = catalog.filter((wine) => !wine.exactIdentity);
+  add(
+    "catalog-identity-safety",
+    "Representative catalog has no exact-product identity conflicts",
+    catalog.length === 0 || identityFailures.length === 0,
+    catalog.length === 0
+      ? "not supplied in this invocation"
+      : `${identityFailures.length} identity conflict(s)`,
   );
 
   return {

@@ -10,6 +10,7 @@ interface GrapeVarietyImageProps {
   imageUrl?: string | null;
   imageAlt?: string | null;
   imageSource?: string | null;
+  imageLicense?: string | null;
   priority?: boolean;
   className?: string;
 }
@@ -69,6 +70,7 @@ export function GrapeVarietyImage({
   imageUrl,
   imageAlt,
   imageSource,
+  imageLicense,
   priority = false,
   className,
 }: GrapeVarietyImageProps) {
@@ -99,7 +101,10 @@ export function GrapeVarietyImage({
         <GrapeFallback label={alt} />
       )}
       {imageSource ? (
-        <span className="sr-only">Sursa imaginii: {imageSource}</span>
+        <span className="sr-only">
+          Sursa imaginii: {imageSource}
+          {imageLicense ? `. Licență: ${imageLicense}` : ""}
+        </span>
       ) : null}
     </div>
   );

@@ -97,9 +97,18 @@ function hasAnyTechnical(wine: QualityWine): boolean {
   );
 }
 
+const SENSORY_CLAIM_FIELDS = [
+  "visual_appearance",
+  "aroma_descriptors",
+  "taste_descriptors",
+  "body",
+  "acidity_perception",
+  "tannin_perception",
+  "finish",
+] as const;
+
 function hasSensoryEvidence(wine: QualityWine): boolean {
-  const text = `${wine.tastingNotes ?? ""} ${wine.descriptionEditorial ?? ""}`;
-  return /culoare|miros|aroma|gust|corpolen|aciditate|tanin|final/i.test(text);
+  return SENSORY_CLAIM_FIELDS.some((field) => wine.claimFields.includes(field));
 }
 
 function detectGenericClaims(wine: QualityWine): boolean {
@@ -210,39 +219,44 @@ function assessCategories(wine: QualityWine): QualityCategoryResult[] {
     wine.volumeMl != null ? "bottle_volume" : null,
   ].filter((field): field is string => Boolean(field));
 
-  const sensoryApplicable = ["tasting_notes"];
-  const sensoryPresent: string[] = [];
-  if (hasText(notes)) sensoryPresent.push("tasting_notes");
-  for (const [field, pattern] of [
-    ["visual", /culoare/i],
-    ["aroma", /miros|aroma/i],
-    ["taste", /gust/i],
-    ["body", /corpolen/i],
-    ["acidity_perception", /aciditate/i],
-    ["tannin", /tanin/i],
-    ["finish", /final/i],
-  ] as const) {
-    if (pattern.test(notes)) {
-      sensoryApplicable.push(field);
-      if (pattern.test(notes)) sensoryPresent.push(field);
-    }
-  }
+  // Completeness is based on structured, source-backed claim fields. A keyword
+  // in a free-text description is not structured evidence and must not inflate
+  // the score.
+  const structured = new Set(wine.claimFields);
+  const sensoryApplicable = [
+    "tasting_notes",
+    "visual",
+    "aroma",
+    "taste",
+    "body",
+    "acidity_perception",
+    "tannin",
+    "finish",
+  ];
+  const sensoryFieldMap: Array<[string, string]> = [
+    ["visual", "visual_appearance"],
+    ["aroma", "aroma_descriptors"],
+    ["taste", "taste_descriptors"],
+    ["body", "body"],
+    ["acidity_perception", "acidity_perception"],
+    ["tannin", "tannin_perception"],
+    ["finish", "finish"],
+  ];
+  const sensoryPresent = sensoryFieldMap
+    .filter(([, claimField]) => structured.has(claimField))
+    .map(([field]) => field);
+  if (sensoryPresent.length > 0) sensoryPresent.unshift("tasting_notes");
 
-  // Only require serving temperature when the source notes explicitly contain
-  // it. Otherwise it is a source-gap, not a factual defect of the record.
-  const servingApplicable: string[] = [];
-  const servingPresent: string[] = [];
-  if (/temperatura\s+(?:de\s+)?servire/i.test(notes)) {
-    servingApplicable.push("serving_temperature");
-    if (wine.servingTemperature) servingPresent.push("serving_temperature");
-  }
+  const servingApplicable = structured.has("serving_temperature")
+    ? ["serving_temperature"]
+    : [];
+  const servingPresent = structured.has("serving_temperature")
+    ? ["serving_temperature"]
+    : [];
 
-  const foodApplicable =
-    wine.foodPairings.length > 0 || /asocierea culinar/i.test(notes)
-      ? ["food_pairing"]
-      : [];
+  const foodApplicable = ["food_pairing"];
   const foodPresent =
-    wine.foodPairings.length > 0 || /asocierea culinar/i.test(notes)
+    structured.has("food_pairing") || wine.foodPairings.length > 0
       ? ["food_pairing"]
       : [];
 

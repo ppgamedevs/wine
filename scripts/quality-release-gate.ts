@@ -7,6 +7,9 @@ import { parseMurfatlarProductPage } from "@/lib/murfatlar-producer";
 import { buildWineProductJsonLd } from "@/lib/wine-json-ld";
 import type { WineStructuredDataInput } from "@/lib/wine-json-ld";
 import { runQualityReleaseGate } from "@/lib/quality/release-gate";
+import { loadQualityWinesFromDb } from "@/lib/quality/from-db";
+import { assessWineQuality } from "@/lib/quality/engine";
+import { resolvePublicPrice } from "@/lib/public-price";
 
 async function main() {
   const wine = loadTargetWine();
@@ -48,6 +51,32 @@ async function main() {
       readFileSync(join(process.cwd(), "messages", locale, "wine.json"), "utf8"),
     ) as { buyingDecision?: { unavailable?: string } };
 
+  const catalogWines = await loadQualityWinesFromDb();
+  const catalog = catalogWines.map((catalogWine) => {
+    const assessment = assessWineQuality(catalogWine);
+    const publicPrice = resolvePublicPrice({
+      slug: catalogWine.slug,
+      name: catalogWine.name,
+      vintage: catalogWine.vintage,
+      affiliateLinks: catalogWine.affiliateLinks,
+      priceHistory: [],
+      currentPrice: null,
+      priceAvg: null,
+    } as never).displayPrice;
+    const identityConflict = assessment.gates.some((gate) =>
+      ["INCORRECT_VARIANT", "SWEETNESS_MIXING", "VINTAGE_MISMATCH"].includes(
+        gate.code,
+      ),
+    );
+    return {
+      wineId: catalogWine.id,
+      wineName: catalogWine.name,
+      hasQualifiedProfitshareOffer: catalogWine.hasQualifiedProfitshareOffer,
+      publicPrice,
+      exactIdentity: !identityConflict,
+    };
+  });
+
   const gate = runQualityReleaseGate({
     targetVariantKey: variant?.variantKey ?? null,
     expectedVariantKey: "zestrea-muscat-ottonel-alb-demisec-750ml",
@@ -57,6 +86,7 @@ async function main() {
     roUnavailableLabel: messages("ro").buyingDecision?.unavailable ?? "",
     enUnavailableLabel: messages("en").buyingDecision?.unavailable ?? "",
     hasQualifiedProfitshareOffer: false,
+    catalog,
   });
 
   for (const check of gate.checks) {

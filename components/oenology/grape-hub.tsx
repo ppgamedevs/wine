@@ -62,6 +62,7 @@ function GrapeGuideCard({
           imageUrl={image.src}
           imageAlt={image.alt}
           imageSource={image.source}
+          imageLicense={image.license}
           priority={priority}
         />
       </div>

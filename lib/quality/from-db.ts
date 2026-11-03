@@ -118,6 +118,23 @@ export async function loadQualityWinesFromDb(): Promise<QualityWine[]> {
     // uses stored fields and never invents provenance.
   }
 
+  const claimFieldsByWine = new Map<number, string[]>();
+  try {
+    const claimRows = (await db.all(
+      sql.raw(
+        "select wine_id, field from wine_claim_evidence where verification_status in ('verified_official','corroborated','attributed_retailer','attributed_specialist','attributed_editorial')",
+      ),
+    )) as Array<{ wine_id: number; field: string }>;
+    for (const row of claimRows) {
+      const fields = claimFieldsByWine.get(row.wine_id) ?? [];
+      fields.push(row.field);
+      claimFieldsByWine.set(row.wine_id, fields);
+    }
+  } catch {
+    // Migration 0028 may not be applied yet. Do not infer structured sensory
+    // evidence from free text.
+  }
+
   return rows.map((row) => {
     const name = text(row.name) ?? `Wine ${row.id}`;
     const notes = text(row.tasting_notes);
@@ -170,6 +187,7 @@ export async function loadQualityWinesFromDb(): Promise<QualityWine[]> {
       currentPrice: number(row.current_price),
       affiliateLinks: links,
       evidenceFields: evidenceByWine.get(Number(row.id)) ?? [],
+      claimFields: claimFieldsByWine.get(Number(row.id)) ?? [],
       updatedAt: text(row.updated_at),
       hasQualifiedProfitshareOffer: hasQualifiedOffer(links),
     } satisfies QualityWine;

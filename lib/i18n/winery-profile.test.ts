@@ -33,7 +33,7 @@ function winery(): WineryWithWines {
       {
         id: 91,
         slug: "cuvee-noir",
-        name: "Cuvée Noir",
+        name: "Cuvée Noir 0.75L",
         priceAvg: 89,
         currentPrice: 87,
         lowestPrice30d: 84,
@@ -41,6 +41,8 @@ function winery(): WineryWithWines {
           {
             retailer: "eMAG.ro",
             url: "https://l.profitshare.ro/l/100091",
+            wineSlug: "cuvee-noir",
+            bottleSizeMl: 750,
             priceRon: 89,
             checkedAt: new Date().toISOString(),
             inStock: true,
@@ -128,7 +130,7 @@ describe("Prompt 27B winery profile localization", () => {
     expect(localized.winery.wines[0]?.id).toBe(91);
     expect(localized.winery.wines[0]?.valueScore).toBe(82);
     expect(localized.winery.wines[0]?.imageAlt).toBe(
-      "Bottle of Cuvée Noir.",
+      "Bottle of Cuvée Noir 0.75L.",
     );
     expect(localized.events[0]?.id).toBe(301);
     expect(localized.events[0]?.startsAt).toBe(
@@ -211,7 +213,7 @@ describe("Prompt 27B winery profile localization", () => {
     expect(serialized).toContain("/en/wineries/crama-test");
     expect(serialized).toContain("/en/wines/cuvee-noir");
     expect(serialized).toContain('"inLanguage":"en-GB"');
-    expect(serialized).toContain("Romanian wine Cuvée Noir.");
+    expect(serialized).toContain("Romanian wine Cuvée Noir 0.75L.");
     expect(serialized).not.toContain("Fructe negre");
     expect(serialized).not.toContain("Descriere romaneasca");
   });

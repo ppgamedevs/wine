@@ -71,28 +71,34 @@ export function inferBottleSizeMl(name: string): number | null {
   return Math.round(ml);
 }
 
-function matchesWineIdentity(
+export function matchesWineIdentity(
   wine: PublicPriceWine,
   link: AffiliateLink,
 ): boolean {
-  if (link.wineSlug?.trim() && link.wineSlug.trim() !== wine.slug) {
+  // Exact product/variant identity is mandatory. A URL attached to a wine row
+  // is not enough: an affiliate link can be stale, copied or point at another
+  // bottle size/vintage.
+  const wineSlug = wine.slug.trim().toLowerCase();
+  const linkSlug = link.wineSlug?.trim().toLowerCase();
+  const productKey = link.productKey?.trim().toLowerCase();
+  if (linkSlug !== wineSlug && productKey !== wineSlug) {
     return false;
   }
 
-  const wineBottleSize = inferBottleSizeMl(wine.name);
+  const wineBottleSize =
+    inferBottleSizeMl(wine.name) ?? inferBottleSizeMl(wine.slug);
   if (
-    link.bottleSizeMl != null &&
-    wineBottleSize != null &&
+    wineBottleSize == null ||
+    link.bottleSizeMl == null ||
     Math.round(link.bottleSizeMl) !== wineBottleSize
   ) {
     return false;
   }
 
-  if (
-    link.vintage != null &&
-    wine.vintage != null &&
-    link.vintage !== wine.vintage
-  ) {
+  if (wine.vintage != null) {
+    if (link.vintage !== wine.vintage) return false;
+  } else if (link.vintage != null) {
+    // A non-vintage wine cannot be qualified by a vintage-specific offer.
     return false;
   }
 

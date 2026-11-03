@@ -22,7 +22,7 @@ import {
 const WINE = {
   id: 1,
   slug: "selene-feteasca-neagra-2024",
-  name: "Selene Feteasca Neagra 2024",
+  name: "Selene Feteasca Neagra 2024 0.75L",
   type: "red",
   vintage: 2024,
   sweetness: "sec",
@@ -32,6 +32,9 @@ const WINE = {
     {
       retailer: "eMAG.ro",
       url: "https://l.profitshare.ro/l/100001",
+      wineSlug: "selene-feteasca-neagra-2024",
+      bottleSizeMl: 750,
+      vintage: 2024,
       priceRon: 79,
       checkedAt: new Date().toISOString(),
       inStock: true,
@@ -194,7 +197,7 @@ describe("buildChatSommelierSystemPrompt: catalog facts only", () => {
     const prompt = buildChatSommelierSystemPrompt([WINE], input, "ro");
     expect(prompt).toContain("Value 79/100");
     expect(prompt).toContain("Pret: 79 RON");
-    expect(prompt).toContain("Nume: Selene Feteasca Neagra 2024");
+    expect(prompt).toContain("Nume: Selene Feteasca Neagra 2024 0.75L");
     expect(WINE.valueScore).toBe(79);
   });
 });

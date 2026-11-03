@@ -36,6 +36,28 @@ function makeWine(overrides: Partial<QualityWine> = {}): QualityWine {
     currentPrice: null,
     affiliateLinks: [],
     evidenceFields: ["alcohol", "sweetness", "vintage"],
+    claimFields: [
+      "producer",
+      "range",
+      "product_name",
+      "grape_varieties",
+      "bottle_volume",
+      "wine_color",
+      "sweetness",
+      "alcohol",
+      "appellation",
+      "region",
+      "country",
+      "serving_temperature",
+      "visual_appearance",
+      "aroma_descriptors",
+      "taste_descriptors",
+      "body",
+      "acidity_perception",
+      "tannin_perception",
+      "finish",
+      "food_pairing",
+    ],
     updatedAt: new Date().toISOString(),
     hasQualifiedProfitshareOffer: true,
     ...overrides,
@@ -51,6 +73,27 @@ describe("catalog quality engine", () => {
     expect(complete.status).toBe("complete");
     expect(noOffer.factualScore).toBe(complete.factualScore);
     expect(noOffer.commercial.priceCoverage).toBe("unavailable");
+  });
+
+  it("does not count sensory keywords without structured claim evidence", () => {
+    const keywordOnly = assessWineQuality(
+      makeWine({
+        claimFields: [],
+        tastingNotes:
+          "Culoare: galben. Miros: soc. Gust: echilibrat. Temperatura de servire: 7-8°C.",
+      }),
+    );
+    const sensory = keywordOnly.categories.find((item) => item.category === "sensory")!;
+    const serving = keywordOnly.categories.find((item) => item.category === "serving")!;
+    expect(sensory.present).toBe(0);
+    expect(sensory.percent).toBe(0);
+    expect(serving.present).toBe(0);
+    expect(keywordOnly.status).not.toBe("complete");
+
+    const structured = assessWineQuality(makeWine());
+    expect(
+      structured.categories.find((item) => item.category === "sensory")?.percent,
+    ).toBe(100);
   });
 
   it("detects Demisec/Demidulce mixing and vintage mismatch", () => {
@@ -93,7 +136,13 @@ describe("catalog quality engine", () => {
 
   it("does not penalize serving temperature when it is not in the source", () => {
     const withoutTemp = assessWineQuality(
-      makeWine({ tastingNotes: "Miros de soc. Gust echilibrat.", servingTemperature: null }),
+      makeWine({
+        tastingNotes: "Miros de soc. Gust echilibrat.",
+        servingTemperature: null,
+        claimFields: makeWine().claimFields.filter(
+          (field) => field !== "serving_temperature",
+        ),
+      }),
     );
     const serving = withoutTemp.categories.find((item) => item.category === "serving")!;
     expect(serving.applicable).toBe(0);
@@ -234,6 +283,35 @@ describe("quality release gate", () => {
 
   it("passes the clean target gate", () => {
     expect(runQualityReleaseGate(input).passed).toBe(true);
+  });
+
+  it("fails catalog-wide when a non-qualified public price or identity conflict is present", () => {
+    const result = runQualityReleaseGate({
+      ...input,
+      catalog: [
+        {
+          wineId: 1,
+          wineName: "Safe wine",
+          hasQualifiedProfitshareOffer: false,
+          publicPrice: null,
+          exactIdentity: true,
+        },
+        {
+          wineId: 2,
+          wineName: "Leaky wine",
+          hasQualifiedProfitshareOffer: false,
+          publicPrice: 50,
+          exactIdentity: false,
+        },
+      ],
+    });
+    expect(result.passed).toBe(false);
+    expect(result.checks.find((check) => check.id === "catalog-profitshare-safety")?.status).toBe(
+      "FAIL",
+    );
+    expect(result.checks.find((check) => check.id === "catalog-identity-safety")?.status).toBe(
+      "FAIL",
+    );
   });
 
   it("fails on non-Profitshare price leakage and missing facts", () => {

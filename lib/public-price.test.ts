@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isQualifyingProfitshareUrl, hasAffiliateTracking } from "@/lib/retailer-links";
+import {
+  hasAffiliateTracking,
+  isQualifyingProfitshareUrl,
+  resolveAffiliatePurchaseUrl,
+} from "@/lib/retailer-links";
 import {
   PUBLIC_PRICE_MAX_AGE_HOURS,
   resolvePublicPrice,
@@ -30,6 +34,12 @@ const EMAG_GENERIC =
 const AUCHAN = "https://www.auchan.ro/vin-test";
 
 function makeWine(overrides: Partial<WineWithRelations> = {}): WineWithRelations {
+  const links = (overrides.affiliateLinks ?? []).map((link) => ({
+    wineSlug: "test-wine-2022",
+    bottleSizeMl: 750,
+    vintage: 2022,
+    ...link,
+  }));
   return {
     id: 1,
     slug: "test-wine-2022",
@@ -41,7 +51,6 @@ function makeWine(overrides: Partial<WineWithRelations> = {}): WineWithRelations
     currentPrice: null,
     lowestPrice30d: null,
     priceHistory: [],
-    affiliateLinks: [],
     availability: [],
     valueScore: 80,
     overpricedRisk: "low",
@@ -51,6 +60,7 @@ function makeWine(overrides: Partial<WineWithRelations> = {}): WineWithRelations
     winery: null,
     region: null,
     ...overrides,
+    affiliateLinks: links,
   } as unknown as WineWithRelations;
 }
 
@@ -70,6 +80,23 @@ describe("strict Profitshare URL provenance", () => {
       isQualifyingProfitshareUrl("https://l.profitshare.ro.evil.test/l/1234"),
     ).toBe(false);
     expect(hasAffiliateTracking(EMAG_GENERIC)).toBe(false);
+  });
+
+  it("does not expose a malformed Profitshare URL through legacy purchase helpers", () => {
+    expect(
+      resolveAffiliatePurchaseUrl({
+        sourceUrl: "https://profitshare.ro/l/",
+        affiliateLinks: [],
+        availability: [],
+      }),
+    ).toBeNull();
+    expect(
+      resolveAffiliatePurchaseUrl({
+        sourceUrl: null,
+        affiliateLinks: [{ url: "https://profitshare.ro.evil.test/l/1234" }],
+        availability: [{ url: "https://l.profitshare.ro/l/16919669" }],
+      }),
+    ).toBe("https://l.profitshare.ro/l/16919669");
   });
 });
 
@@ -256,6 +283,44 @@ describe("canonical public price resolver", () => {
     expect(resolvePublicPrice(vintageMismatch, { now: NOW }).status).toBe(
       "unavailable",
     );
+  });
+
+  it("requires exact product slug, bottle volume and applicable vintage", () => {
+    const wine = makeWine();
+    wine.affiliateLinks = [
+      {
+        retailer: "eMAG.ro",
+        url: PROFITSHARE,
+        priceRon: 65,
+        checkedAt: FRESH,
+      },
+    ];
+    expect(resolvePublicPrice(wine, { now: NOW }).status).toBe("unavailable");
+
+    wine.affiliateLinks = [
+      {
+        retailer: "eMAG.ro",
+        url: PROFITSHARE,
+        priceRon: 65,
+        checkedAt: FRESH,
+        wineSlug: "another-product",
+        bottleSizeMl: 750,
+        vintage: 2022,
+      },
+    ];
+    expect(resolvePublicPrice(wine, { now: NOW }).status).toBe("unavailable");
+
+    wine.affiliateLinks = [
+      {
+        retailer: "eMAG.ro",
+        url: PROFITSHARE,
+        priceRon: 65,
+        checkedAt: FRESH,
+        wineSlug: "test-wine-2022",
+        vintage: 2022,
+      },
+    ];
+    expect(resolvePublicPrice(wine, { now: NOW }).status).toBe("unavailable");
   });
 
   it("rejects an offer known to be unavailable", () => {

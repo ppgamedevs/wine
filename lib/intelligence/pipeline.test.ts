@@ -169,6 +169,53 @@ describe("Multi-Source Wine Intelligence V2", () => {
     ).toBe("corroborated");
   });
 
+  it("enriches arbitrary catalog wines through a live source candidate and loader", async () => {
+    const producerFixture = loadTargetSources()[0]!;
+    const url = "https://producer.example/wines/zestrea-demisec";
+    const { report } = await runWineIntelligence({
+      wine: {
+        ...loadTargetWine(),
+        producerPageUrl: url,
+        sourceUrl: url,
+      },
+      fixtures: [],
+      sourceCandidates: [
+        {
+          url,
+          title: "Producer product page",
+          classification: "official_producer_page",
+        },
+      ],
+      loadSource: async () => ({
+        ...producerFixture,
+        url,
+        classification: "official_producer_page",
+      }),
+      dryRun: true,
+    });
+    expect(report.sources.find((source) => source.source.url === url)?.status).toBe(
+      "available",
+    );
+    expect(report.requestCount).toBe(1);
+    expect(report.claims.length).toBeGreaterThan(0);
+    expect(report.errors).toEqual([]);
+  });
+
+  it("reports an actionable error when a live source has no loader", async () => {
+    const url = "https://producer.example/wines/zestrea-demisec";
+    const { report } = await runWineIntelligence({
+      wine: { ...loadTargetWine(), producerPageUrl: url, sourceUrl: url },
+      fixtures: [],
+      sourceCandidates: [
+        { url, title: "Producer", classification: "official_producer_page" },
+      ],
+      dryRun: true,
+    });
+    const source = report.sources.find((item) => item.source.url === url);
+    expect(source?.status).toBe("unavailable");
+    expect(source?.error).toContain("source loader unavailable");
+  });
+
   it("is idempotent for the same source fingerprint and never mutates on dry-run", async () => {
     const first = await target();
     const second = await target();

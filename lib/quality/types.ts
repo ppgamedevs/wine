@@ -66,6 +66,8 @@ export interface QualityWine {
     inStock?: boolean;
   }>;
   evidenceFields: string[];
+  /** Structured V2 claim fields for this exact wine. */
+  claimFields: string[];
   updatedAt: string | null;
   hasQualifiedProfitshareOffer: boolean;
 }

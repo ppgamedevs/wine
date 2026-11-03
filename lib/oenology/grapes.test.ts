@@ -142,6 +142,7 @@ describe("grape encyclopedia guides", () => {
       expect(guide.imageAlt?.ro?.length ?? 0).toBeGreaterThan(20);
       expect(guide.imageAlt?.en?.length ?? 0).toBeGreaterThan(20);
       expect(guide.imageSource).toContain("VinIntel");
+      expect(guide.imageLicense).toContain("VinIntel");
 
       const file = path.join(
         process.cwd(),

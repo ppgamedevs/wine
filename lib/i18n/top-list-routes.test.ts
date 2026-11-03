@@ -42,7 +42,7 @@ function wine(id: number, type: WineType): WineWithRelations {
   const fixture = {
     id,
     wineryId: id,
-    name: `Wine ${id}`,
+    name: `Wine ${id} 0.75L`,
     slug: `wine-${id}`,
     type,
     sweetness: type === "dessert" ? "dulce" : "sec",
@@ -68,6 +68,8 @@ function wine(id: number, type: WineType): WineWithRelations {
       {
         retailer: "eMAG.ro",
         url: `https://l.profitshare.ro/l/${100000 + id}`,
+        wineSlug: `wine-${id}`,
+        bottleSizeMl: 750,
         priceRon: 25,
         checkedAt: new Date().toISOString(),
         inStock: true,

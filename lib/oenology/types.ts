@@ -48,4 +48,5 @@ export interface GrapeGuide {
   imageUrl?: string;
   imageAlt?: Partial<Record<AppLocale, string>>;
   imageSource?: string;
+  imageLicense?: string;
 }

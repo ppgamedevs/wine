@@ -51,6 +51,23 @@ qualifying Profitshare offer is `unavailable`, not a low-quality record. A store
 `NON_PROFITSHARE_PRICE_EXPOSURE` gate, and the public resolver must still return
 `Price unavailable`.
 
+### Structured completeness rule
+
+A field is complete only when it exists as a structured, source-backed claim in
+`wine_claim_evidence` (or a genuinely structured stored field such as alcohol or
+bottle volume). Keywords in a free-text description—`Culoare`, `Miros`,
+`Gust`, `Temperatura`—do **not** count as structured sensory or serving coverage.
+
+This deliberately lowered the first measured scores:
+
+- 50-wine sample: 0 complete / 29 partial / 21 incomplete; factual average 50.7%;
+  sensory evidence coverage 0% because migration 0028 claims are not applied.
+- Production: 0 complete / 116 partial / 149 incomplete; factual average 49%;
+  sensory evidence coverage 0% for the same reason.
+
+The previous keyword-based view overstated sensory completeness. The repair
+queue now correctly prioritizes the missing structured claims/backfill.
+
 ## Gates
 
 - incorrect variant (name grape not in stored varieties)
@@ -105,7 +122,13 @@ Filters: search, status and gate.
 - public completeness ≥90%;
 - no price claim and no JSON-LD offers without a qualified Profitshare offer;
 - RO/EN `Price unavailable` labels;
-- SEO structured data has no leaked price.
+- SEO structured data has no leaked price;
+- catalog-wide: every representative wine without a qualified offer has
+  `publicPrice = null`;
+- catalog-wide: no representative wine has an exact-product identity conflict.
+
+The current production read-only run checks all 265 catalog rows and reports
+265/265 safe for non-qualified public price exposure and 0 identity conflicts.
 
 Current target result: **PASS** on all six checks.
 

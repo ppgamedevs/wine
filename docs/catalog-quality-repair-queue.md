@@ -23,8 +23,11 @@ channel-aware duplicate check. Regression tests still cover both gates.
 
 ## P2 — factual coverage
 
-- 157 partial records: mostly missing alcohol, sugar/acidity, structured food
-  pairing or serving information.
+- 149 incomplete / 116 partial records after the structured-only scoring change:
+  free-text `Culoare/Miros/Gust/Temperatura` is no longer counted as structured
+  evidence.
+- 265 wines currently have 0% structured sensory coverage because migration 0028
+  and V2 claim backfill are not applied. This is the main evidence-backfill task.
 - 265 wines have no qualifying affiliate price. This is **not** a factual defect
   and must not lower record quality.
 - 265 wines have an official/source URL in the current read-only schema, but 24

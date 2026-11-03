@@ -45,6 +45,7 @@ WineIntelligenceInput
 | `lib/intelligence/ai-enrichment.ts` | constrained interpretation, numeric/award guard, token/cost estimate |
 | `lib/intelligence/pipeline.ts` | idempotent workflow, caching, retries, concurrency, dry-run/apply |
 | `lib/intelligence/persist.ts` | new evidence ledger + technical mirror + AI/run rows |
+| `lib/intelligence/catalog-source.ts` | arbitrary catalog wine input, DB source candidates, live bounded loader |
 
 ### Migrations
 
@@ -75,17 +76,26 @@ npx tsx scripts/seed-variety-knowledge.ts --apply
 ### Commands
 
 ```bash
-# Default: dry-run, no DB mutation
-npx tsx scripts/wine-intelligence-v2.ts --wine=418
+# Arbitrary catalog wine: DB source candidates + live bounded loader.
+# Default is dry-run; no DB mutation.
+npx tsx scripts/wine-intelligence-v2.ts --wine=<wine-id>
 
-# Write the full evidence/report JSON (still no DB mutation)
-npx tsx scripts/wine-intelligence-v2.ts --wine=418 --out=docs/sample-evidence-murfatlar-zestrea.json
+# The audited Murfatlar fixture (deterministic, no network):
+npx tsx scripts/wine-intelligence-v2.ts --wine=418 --fixtures
 
-# Controlled application, only after migration and review
-npx tsx scripts/wine-intelligence-v2.ts --wine=418 --apply
+# Write a full evidence/report JSON (still no DB mutation)
+npx tsx scripts/wine-intelligence-v2.ts --wine=418 --fixtures \
+  --out=docs/sample-evidence-murfatlar-zestrea.json
+
+# Controlled application, only after migration 0028 review:
+npx tsx scripts/wine-intelligence-v2.ts --wine=<wine-id> --apply --confirm-apply
 ```
 
-`--apply` is never invoked automatically. Dry-run is the default.
+The arbitrary-wine path loads the catalog row, derives source candidates from
+producer/tasting-sheet/source URLs and non-affiliate retailer links, then uses
+the existing bounded technical fetch loader. `--fixtures` is only for the
+audited target. `--apply` is never invoked automatically and requires
+`--confirm-apply`.
 
 ### Processing guarantees
 
