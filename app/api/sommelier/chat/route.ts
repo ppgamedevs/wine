@@ -38,12 +38,24 @@ import {
 } from "@/lib/sommelier-grounding";
 import { isSommelierGroundingEnabled } from "@/lib/sommelier-grounding-mode";
 import { recommendWines } from "@/lib/sommelier";
+import { loadComparisonClaims } from "@/lib/sommelier-evidence";
+import { loadVintageSignals } from "@/lib/sommelier-vintage-evidence";
+import {
+  findClosestRomanianWines,
+  formatComparisonContext,
+  parseComparisonIntent,
+  type RomanianComparisonResult,
+} from "@/lib/sommelier-comparison";
 import {
   computePersonalMatch,
   compareWithCanonicalMatch,
 } from "@/lib/recommendation/personal-match";
 import { rankWinesForOccasion } from "@/lib/recommendation/occasion-match";
-import { getCatalogIdentityIndex, getCatalogWinesBySlugs } from "@/lib/queries";
+import {
+  getCatalogIdentityIndex,
+  getCatalogWinesBySlugs,
+  getWinesForSommelier,
+} from "@/lib/queries";
 import type { SommelierInput } from "@/lib/sommelier-occasions";
 import type { WineWithRelations } from "@/types";
 
@@ -290,12 +302,48 @@ export async function POST(req: Request) {
     );
     let candidates = retrieval.wines;
 
+    const comparisonIntent = parseComparisonIntent(latestUserText);
+    let comparison: RomanianComparisonResult | null = null;
+    let comparisonContext: string | undefined;
+    if (comparisonIntent) {
+      const allWines = await getWinesForSommelier();
+      const vintageSignals = await loadVintageSignals();
+      const claims = await loadComparisonClaims(allWines.map((wine) => wine.id));
+      comparison = findClosestRomanianWines({
+        intent: comparisonIntent,
+        wines: allWines,
+        locale,
+        budgetMin: input.budgetMin,
+        budgetMax: input.budgetMax,
+        budgetSpecified: input.budgetSpecified,
+        claims,
+        vintageSignals: vintageSignals.bySlug,
+      });
+      if (comparison) {
+        candidates = [comparison.best, ...comparison.alternatives].map(
+          (match) => match.wine,
+        );
+        comparisonContext = formatComparisonContext(comparison, locale);
+      }
+    }
+
     if (shadowIntent) {
       logShadowRecommendationDiff(retrieval.wines, input, shadowIntent);
     }
 
     let grounding: GroundingDecision;
-    if (!isSommelierGroundingEnabled()) {
+    if (comparison) {
+      // A foreign style reference is deliberately not a catalog product. The
+      // comparison engine has already verified and ranked catalog substitutes.
+      grounding = {
+        allowed: true,
+        reason: "style_comparison",
+        restrictToSlugs: null,
+        references: [],
+        advisoryOnly: false,
+        notes: ["grounded_foreign_style_comparison"],
+      };
+    } else if (!isSommelierGroundingEnabled()) {
       grounding = {
         allowed: true,
         reason: "ok",
@@ -359,6 +407,7 @@ export async function POST(req: Request) {
       grounding,
       jevIntent,
       budget: parsedRequest.budget,
+      comparisonContext,
     });
     const candidateSlugs = candidates.map((wine) => wine.slug);
 
@@ -380,14 +429,18 @@ export async function POST(req: Request) {
 
         const fullText = await result.text;
         const slugs = grounding.allowed
-          ? extractRecommendedSlugs(fullText, candidateSlugs)
+          ? extractRecommendedSlugs(
+              fullText,
+              candidateSlugs,
+              comparison ? 4 : 3,
+            )
           : [];
         const wineBySlug = new Map(candidates.map((wine) => [wine.slug, wine]));
         const recommendations = slugs
           .map((slug) => wineBySlug.get(slug))
           .filter((wine) => wine != null)
           .map((wine) => serializeWineForChat(wine))
-          .slice(0, 3);
+          .slice(0, comparison ? 4 : 3);
 
         if (recommendations.length > 0) {
           writer.write({
@@ -404,6 +457,8 @@ export async function POST(req: Request) {
           intentSource: input.intentSource ?? "deterministic",
           groundingReason: grounding.reason,
           groundingAllowed: grounding.allowed,
+          comparisonReference: comparison?.intent.referenceName ?? null,
+          comparisonBest: comparison?.best.wine.slug ?? null,
           candidateCount: candidates.length,
           recommendationCount: recommendations.length,
         });

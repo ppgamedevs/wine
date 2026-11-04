@@ -449,6 +449,7 @@ export type GroundingReason =
   | "budget_excludes_all"
   | "constraints_exclude_all"
   | "specific_reference_unavailable"
+  | "style_comparison"
   | "catalog_unavailable";
 
 export interface GroundingReferenceResult {

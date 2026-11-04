@@ -11,6 +11,7 @@ import {
   parseChatToSommelierInput,
   parseSommelierRequest,
 } from "@/lib/sommelier-chat";
+import { extractRecommendedSlugs } from "@/lib/sommelier-chat-utils";
 import type { WineWithRelations } from "@/types";
 import type { GroundingDecision } from "@/lib/sommelier-grounding";
 import {
@@ -199,6 +200,33 @@ describe("buildChatSommelierSystemPrompt: catalog facts only", () => {
     expect(prompt).toContain("Pret: 79 RON");
     expect(prompt).toContain("Nume: Selene Feteasca Neagra 2024 0.75L");
     expect(WINE.valueScore).toBe(79);
+  });
+});
+
+describe("buildChatSommelierSystemPrompt: style comparison grounding", () => {
+  it("allows a fourth bottle only for a comparison answer", () => {
+    const slugs = ["a", "b", "c", "d"];
+    expect(
+      extractRecommendedSlugs("RECOMMENDED_SLUGS: a, b, c, d", slugs),
+    ).toEqual(["a", "b", "c"]);
+    expect(
+      extractRecommendedSlugs("RECOMMENDED_SLUGS: a, b, c, d", slugs, 4),
+    ).toEqual(slugs);
+  });
+
+  it("injects comparison evidence and enforces provenance separation", () => {
+    const input = parseChatToSommelierInput(
+      "What Romanian wine is closest to Chianti?",
+    );
+    const prompt = buildChatSommelierSystemPrompt([WINE], input, "en", {
+      comparisonContext:
+        "Best Romanian match: Selene Feteasca Neagra. Confirmed facts: colour=red. Interpretation: variety style. Uncertainties: oak not published.",
+    });
+    expect(prompt).toContain("COMPARISON ANALYSIS");
+    expect(prompt).toContain("Best Romanian match");
+    expect(prompt).toContain("confirmed facts");
+    expect(prompt).toContain("Do not invent a vintage");
+    expect(prompt).toContain("2-3 alternatives");
   });
 });
 

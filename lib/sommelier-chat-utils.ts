@@ -1,7 +1,8 @@
 const RECOMMENDED_SLUGS_LINE = /^RECOMMENDED_SLUGS:\s*(.+)$/im;
 const URL_PATTERN = /https?:\/\/[^\s)\]>]+/gi;
 
-const MAX_RECOMMENDED_SLUGS = 3;
+const MAX_RECOMMENDED_SLUGS = 4;
+const DEFAULT_RECOMMENDED_SLUGS = 3;
 
 /** Fix frequent LLM gender agreement mistakes in Romanian wine copy. */
 const ROMANIAN_GRAMMAR_FIXES: Array<[RegExp, string]> = [
@@ -35,7 +36,11 @@ function cleanSlugToken(token: string): string {
     .replace(/^["']|["']$/g, "");
 }
 
-function parseSlugLine(line: string, candidateSlugs: string[]): string[] {
+function parseSlugLine(
+  line: string,
+  candidateSlugs: string[],
+  max: number,
+): string[] {
   const slugSet = new Set(candidateSlugs);
   const slugs: string[] = [];
 
@@ -43,37 +48,46 @@ function parseSlugLine(line: string, candidateSlugs: string[]): string[] {
     const slug = cleanSlugToken(token);
     if (!slug || !slugSet.has(slug) || slugs.includes(slug)) continue;
     slugs.push(slug);
-    if (slugs.length >= MAX_RECOMMENDED_SLUGS) break;
+    if (slugs.length >= max) break;
   }
 
   return slugs;
 }
 
-function findMentionedSlugs(text: string, candidateSlugs: string[]): string[] {
+function findMentionedSlugs(
+  text: string,
+  candidateSlugs: string[],
+  max: number,
+): string[] {
   const normalized = text.toLowerCase();
   const slugs: string[] = [];
 
   for (const slug of candidateSlugs) {
     if (!normalized.includes(slug) || slugs.includes(slug)) continue;
     slugs.push(slug);
-    if (slugs.length >= MAX_RECOMMENDED_SLUGS) break;
+    if (slugs.length >= max) break;
   }
 
   return slugs;
 }
 
-/** Parse up to three wine slugs chosen by the LLM from its full response. */
+/** Parse up to three wine slugs, or up to four for a comparison answer. */
 export function extractRecommendedSlugs(
   llmText: string,
   candidateSlugs: string[],
+  max = DEFAULT_RECOMMENDED_SLUGS,
 ): string[] {
+  const boundedMax = Math.min(
+    MAX_RECOMMENDED_SLUGS,
+    Math.max(1, Math.trunc(max)),
+  );
   const lineMatch = llmText.match(RECOMMENDED_SLUGS_LINE);
   if (lineMatch?.[1]) {
-    const fromLine = parseSlugLine(lineMatch[1], candidateSlugs);
+    const fromLine = parseSlugLine(lineMatch[1], candidateSlugs, boundedMax);
     if (fromLine.length > 0) return fromLine;
   }
 
-  return findMentionedSlugs(llmText, candidateSlugs);
+  return findMentionedSlugs(llmText, candidateSlugs, boundedMax);
 }
 
 /** Strip machine-readable slug line and raw URLs from assistant chat text. */

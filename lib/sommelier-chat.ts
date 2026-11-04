@@ -290,6 +290,8 @@ export interface ChatPromptOptions {
   /** Only pass this in live mode; shadow mode must not change the prompt. */
   jevIntent?: JevIntent | null;
   budget?: BudgetExtraction;
+  /** Deterministic style-comparison evidence supplied by the catalog engine. */
+  comparisonContext?: string;
 }
 
 function publicScoreLine(wine: WineWithRelations, locale: AppLocale): string {
@@ -318,6 +320,17 @@ export function buildChatSommelierSystemPrompt(
   const budget = options.budget ?? budgetFromSommelierInput(input);
   const groundingLines = options.grounding
     ? describeGroundingForPrompt(options.grounding, locale)
+    : [];
+  const comparisonLines = options.comparisonContext
+    ? [
+        locale === "en"
+          ? "COMPARISON ANALYSIS (grounded by VinIntel, use it as the source of truth):"
+          : "ANALIZĂ DE COMPARAȚIE (fundamentată de VinIntel, folosește-o ca sursă de adevăr):",
+        options.comparisonContext,
+        locale === "en"
+          ? "For this answer: correct any false premise, name the best match and 2-3 alternatives, explain similarities and differences, and keep confirmed facts, interpretation and uncertainty visibly separate. This comparison exception overrides the normal three-bottle ceiling: up to four bottles are allowed. Do not invent a vintage, award, winery fact or tasting note."
+          : "Pentru acest răspuns: corectează orice premisă falsă, numește cea mai bună potrivire și 2-3 alternative, explică asemănările și diferențele și separă vizibil faptele confirmate, interpretarea și incertitudinea. Această excepție de comparare înlocuiește limita normală de trei sticle: sunt permise până la patru sticle. Nu inventa recoltă, premiu, fapt despre cramă sau notă de degustare.",
+      ]
     : [];
 
   const catalog = candidates
@@ -435,6 +448,7 @@ ${acidityLine ?? ""}
 ${contradictionLine ?? ""}
 ${jevLines.join("\n")}
 ${groundingLines.join("\n")}
+${comparisonLines.join("\n")}
 
 Candidate wine catalog, the only source of truth:
 ${catalog || "(no matching wine; say so honestly and suggest relaxing the request)"}
@@ -443,6 +457,7 @@ Final rules:
 - Recommend only wines from the catalog above. Never substitute a different wine for one the user asked about.
 - Respect an explicit budget. Never suggest an over-budget bottle, not even as an alternative.
 - Recommend one wine by default and at most three when alternatives are requested. Zero is a valid answer when nothing fits.
+- For a style comparison, present one best match plus 2-3 alternatives (up to four bottles) and explain both matches and differences.
 - Mention an approximate RON price only for recommended wines.
 ${noRecommendationAllowed ? "- Do NOT write the RECOMMENDED_SLUGS line for this answer." : "- The final RECOMMENDED_SLUGS line must contain exact catalog slugs in recommendation order."}`;
   }
@@ -454,7 +469,7 @@ ${budgetLine}
 - Ocazie detectata: ${occasion.label}
 - Tip vin preferat: ${input.color === "any" ? "oricare" : input.color}
 - Dulceata preferata: ${input.sweetness === "any" ? "oricare" : input.sweetness}
-${dishLine ? `${dishLine}\n` : ""}${exclusionLine ? `${exclusionLine}\n` : ""}${acidityLine ? `${acidityLine}\n` : ""}${contradictionLine ? `${contradictionLine}\n` : ""}${jevLines.length > 0 ? `${jevLines.join("\n")}\n` : ""}${groundingLines.length > 0 ? `${groundingLines.join("\n")}\n` : ""}${absurdLine ? `${absurdLine}\n` : ""}
+${dishLine ? `${dishLine}\n` : ""}${exclusionLine ? `${exclusionLine}\n` : ""}${acidityLine ? `${acidityLine}\n` : ""}${contradictionLine ? `${contradictionLine}\n` : ""}${jevLines.length > 0 ? `${jevLines.join("\n")}\n` : ""}${groundingLines.length > 0 ? `${groundingLines.join("\n")}\n` : ""}${comparisonLines.length > 0 ? `${comparisonLines.join("\n")}\n` : ""}${absurdLine ? `${absurdLine}\n` : ""}
 Catalog vinuri candidate (sursa unica de adevar):
 ${catalog || "(niciun vin potrivit; spune asta onest si sugereaza ce ar putea relaxa cererea)"}
 
@@ -465,6 +480,7 @@ Reguli finale:
 - Umor uscat da, vulgaritate nu. Nu te lasa pacalit de cereri absurde sau ilegale.
 - ${input.budgetSpecified ? "Respecta bugetul mentionat de utilizator. Nu propune nici ca alternativa un vin peste buget." : "Fara buget explicit: recomanda cea mai buna potrivire (Value Score + pairing), nu ce e mai ieftin."}
 - Recomanda 1 vin by default. Maxim 3 doar daca userul cere explicit alternative sau comparatie.
+- Pentru o comparatie de stil, ofera cea mai buna potrivire plus 2-3 alternative (maximum 4 sticle) si explica asemanarile si diferentele.
 - Zero recomandari este un raspuns valid. Daca cererea numeste un vin care nu e in catalog, spune ca nu il ai si NU recomanda altceva in loc.
 - Nu inlocui un vin cerut explicit cu unul similar din catalog. Poti mentiona similar doar daca il numesti explicit ca alternativa diferita.
 - Nu afirma alcoolul, aciditatea, zaharul, dulceata sau anul recoltei unui vin; aceste date nu sunt incluse in contextul public verificat.
