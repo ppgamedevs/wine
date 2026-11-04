@@ -76,7 +76,7 @@ export async function FeaturedWines() {
             <Reveal key={wine.id} delay={(index % 4) * 0.06} className="h-full">
               {/* No priority: these cards are below the fold and must not
                   compete with the hero LCP text for mobile bandwidth. */}
-              <WineCard wine={wine} />
+              <WineCard wine={wine} minValueScore={null} />
             </Reveal>
           ))}
         </div>

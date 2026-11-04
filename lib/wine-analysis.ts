@@ -12,6 +12,7 @@ import {
 } from "@/lib/value-score-thresholds";
 import { WINE_TYPE_TO_TOP_SLUG } from "@/lib/top-lists";
 import { resolveWineDisplayPrice } from "@/lib/wine-price";
+import { resolvePublicQualityScore } from "@/lib/public-quality-score";
 import type { WineWithRelations } from "@/types";
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
@@ -207,6 +208,7 @@ export function buildWineFaq(
         ? "Price currently unavailable"
         : "Preț indisponibil";
   const topPairing = resolvePublicWinePairings(wine, 1, locale)[0] ?? null;
+  const quality = resolvePublicQualityScore(wine);
   if (locale === "en") {
     const foodAnswer =
       topPairing == null
@@ -233,6 +235,13 @@ export function buildWineFaq(
       {
         question: `Who makes ${wine.name}?`,
         answer: `${wine.name} is made by ${wine.winery?.name ?? "the producer"}, in ${regionName}. ${wine.winery?.verified ? "The winery is verified in our database." : "The winery is not yet officially verified by VinIntel."}`,
+      },
+      {
+        question: `What is the Quality Score of ${wine.name}?`,
+        answer:
+          quality.status === "known" && quality.score != null
+            ? `VinIntel shows a quality score of ${quality.score}/100, based on ${quality.confidence}% evidence confidence. It is independent of price.`
+            : "VinIntel does not show a quality score because the available evidence is insufficient. We do not invent one.",
       },
       {
         question: `What does a Value Score of ${publicPrice != null && wine.valueScore != null ? wine.valueScore : "N/A"} mean?`,
@@ -269,6 +278,13 @@ export function buildWineFaq(
     {
       question: `Cine produce ${wine.name}?`,
       answer: `${wine.name} este produs de ${wineryName}, din regiunea ${regionName}. ${wine.winery?.verified ? "Crama este verificata in baza noastra de date." : "Crama nu este inca verificata oficial de VinIntel."}`,
+    },
+    {
+      question: `Ce scor de calitate are ${wine.name}?`,
+      answer:
+        quality.status === "known" && quality.score != null
+          ? `VinIntel afiseaza un scor de calitate de ${quality.score}/100, cu ${quality.confidence}% incredere in date. Scorul este independent de pret.`
+          : "VinIntel nu afiseaza un scor de calitate pentru ca dovezile disponibile sunt insuficiente. Nu inventam unul.",
     },
     {
       question: `Ce inseamna Value Score ${publicPrice != null && wine.valueScore != null ? wine.valueScore : "N/A"}?`,

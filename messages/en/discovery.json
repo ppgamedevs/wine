@@ -70,7 +70,7 @@
   },
   "FeaturedWines": {
     "heading": "Recommended wines",
-    "description": "Our selection by Value Score, with a minimum of 75/100: the strongest value for money in Romanian wine.",
+    "description": "Our selection by price-independent Quality Score. Value Score appears separately only when a verified offer exists.",
     "all": "All wines"
   },
   "TopLists": {
@@ -79,7 +79,7 @@
     "items": {
       "best": {
         "title": "Best Romanian wines",
-        "description": "Overall ranking by Value Score"
+        "description": "Overall ranking by Quality Score"
       },
       "under50": {
         "title": "Best wines under 50 RON",
@@ -128,16 +128,16 @@
   "Catalog": {
     "metadata": {
       "title": "Romanian wines: catalog, prices and scores",
-      "description": "A complete Romanian wine catalog with Value Score, prices in RON, winery and region. Search quickly and compare value for money.",
-      "openGraphTitle": "Romanian wines: catalog, prices and scores | VinIntel",
-      "openGraphDescription": "Every Romanian wine in the VinIntel catalog, ordered by Value Score."
+      "description": "A complete Romanian wine catalog with a price-independent Quality Score, Value Score only when a verified offer exists, winery and region.",
+      "openGraphTitle": "Romanian wines: catalog, quality and prices | VinIntel",
+      "openGraphDescription": "Every Romanian wine in the VinIntel catalog, ordered by Quality Score. Value Score appears separately only with a verified Profitshare price."
     },
     "breadcrumbHome": "Home",
     "breadcrumbCurrent": "Wines",
     "listName": "VinIntel Romanian wine catalog",
     "verified": "{count} verified wines",
     "heading": "Romanian wines",
-    "description": "Explore Romanian wines by color, sweetness and budget, then compare them by Value Score.",
+    "description": "Explore Romanian wines by color, sweetness and budget, compare them by Quality Score, and see Value Score only when the price is verified.",
     "popular": "Popular top lists",
     "add": "Add a wine",
     "emptyPrefix": "There are no wines in the catalog yet. Check back soon or",
@@ -145,12 +145,12 @@
     "faqHeading": "Frequently asked questions",
     "faq": {
       "value": {
-        "question": "What is Value Score?",
-        "answer": "Value Score is VinIntel's measure of value for money. The higher it is, the more a wine offers for its price."
+        "question": "What are Quality Score and Value Score?",
+        "answer": "Quality Score measures quality from wine evidence and does not depend on price. Value Score measures quality for money and appears only when a fresh Profitshare offer exists for the exact bottle. Without that offer, Value Score is unavailable and is never replaced by another score."
       },
       "search": {
         "question": "How do I search the catalog?",
-        "answer": "Filter by color or type, sweetness, price and Value Score. You can also search by name, winery, region or grape variety."
+        "answer": "Filter by color or type, sweetness, price and Quality Score. You can also search by name, winery, region or grape variety."
       },
       "add": {
         "question": "Can I add a missing wine?",
@@ -166,15 +166,15 @@
       "sortPlaceholder": "Sort",
       "priceAria": "Price",
       "pricePlaceholder": "Price",
-      "scoreAria": "Recommendation",
-      "scorePlaceholder": "Recommendation",
+      "scoreAria": "Quality",
+      "scorePlaceholder": "Quality",
       "apply": "Apply filters",
       "reset": "Reset",
       "foundOne": "wine found",
       "foundMany": "wines found",
       "removeFilter": "Remove filter {label}",
-      "recommendedNote": "Showing wines with a Value Score of {score}+ (worth the price)",
-      "exceptionalNote": "Showing wines with a Value Score of {score}+ (exceptional value)",
+      "recommendedNote": "Showing wines with a Quality Score of {score}+",
+      "exceptionalNote": "Showing wines with a Quality Score of {score}+ (exceptional quality)",
       "noResults": "No wines match the selected combination",
       "noResultsHint": "Try another sweetness, color or a wider budget.",
       "resetFilters": "Reset filters",
@@ -201,7 +201,8 @@
         "dulce": "Sweet"
       },
       "sort": {
-        "value": "Value Score (highest first)",
+        "quality": "Quality Score (highest first)",
+        "value": "Value Score (verified price only)",
         "priceAsc": "Price: low to high",
         "priceDesc": "Price: high to low",
         "name": "Name A-Z"
@@ -214,10 +215,10 @@
       },
       "scores": {
         "all": "All scores",
-        "recommended": "Worth the price ({score}+)",
-        "exceptional": "Exceptional ({score}+)",
-        "recommendedChip": "Worth the price",
-        "exceptionalChip": "Exceptional"
+        "recommended": "Quality ({score}+)",
+        "exceptional": "Exceptional quality ({score}+)",
+        "recommendedChip": "Quality",
+        "exceptionalChip": "Exceptional quality"
       },
       "sections": {
         "red": "Red wines",

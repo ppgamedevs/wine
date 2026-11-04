@@ -1,110 +1,145 @@
 import "../lib/load-env";
+import { createHash } from "node:crypto";
 import { eq, or } from "drizzle-orm";
 import { db } from "../lib/db";
 import {
-  DEFAULT_WINE_SOURCE_BADGE,
+  COMMUNITY_SOURCE_BADGE,
   regions,
+  wineClaimEvidence,
   wineries,
   wines,
-  type EditorialFoodPairingNote,
+  type FoodPairing,
 } from "../lib/schema";
+import { calculateFoodVersatility } from "../lib/scoring-v2/food-versatility";
+import { calculateGiftScore } from "../lib/scoring-v2/gift-score";
+import {
+  foodVersatilityInputFromWine,
+  giftScoreInputFromWine,
+} from "../lib/scoring-v2/wine-score-inputs";
+import {
+  PREMIAT_PRODUCER,
+  PREMIAT_PRODUCER_PAGE,
+  PREMIAT_RANGE,
+  PREMIAT_VARIANTS_750ML,
+  premiatIdentityKey,
+  premiatSourceUrl,
+  type PremiatVariant,
+} from "../lib/murfatlar-premiat-profile";
 import { buildWineImageAlt } from "../lib/wine-images";
 import { buildWineSlug } from "../lib/wine-url";
 
-const PRODUCER_PAGE_URL = "https://murfatlar-vinul.ro/premiat/";
-const PRODUCER = "Murfatlar";
-
-interface PremiatVariant {
-  key: "rosu" | "alb" | "roze";
-  name: string;
-  type: "red" | "white" | "rose";
-  sourceAnchor: string;
-  image: string;
-  tastingNotes: string;
-  culinaryPairings: string;
-  foodNotes: EditorialFoodPairingNote[];
+function hash(value: string): string {
+  return createHash("sha256").update(value, "utf8").digest("hex");
 }
 
-const VARIANTS: PremiatVariant[] = [
-  {
-    key: "rosu",
-    name: "Premiat Eticheta Neagra Rosu, 0.75L",
-    type: "red",
-    sourceAnchor: "rosu-750ml",
-    image:
-      "/images/wines/murfatlar-premiat-eticheta-neagra-rosu-750ml.webp",
-    tastingNotes:
-      "Culoare: roÈ™u-rubiniu, limpede. Miros: caracteristic strugurelui. Gust: taninuri moi, aciditate medie, vin tÃ¢nÄƒr, proaspÄƒt, cu fructuozitate delicatÄƒ. Temperatura de servire: 14-16Â°C.",
-    culinaryPairings:
-      "Preparate din carne roÈ™ie, miel È™i specialitÄƒÈ›i la grÄƒtar.",
-    foodNotes: [
-      {
-        dish: "Carne roÈ™ie la grÄƒtar",
-        note: "Recomandarea producÄƒtorului pentru acest vin demisec.",
-      },
-      {
-        dish: "Miel",
-        note: "Asociere indicatÄƒ de producÄƒtor.",
-      },
-      {
-        dish: "SpecialitÄƒÈ›i la grÄƒtar",
-        note: "Asociere indicatÄƒ de producÄƒtor.",
-      },
-    ],
-  },
-  {
-    key: "alb",
-    name: "Premiat Eticheta Neagra Alb, 0.75L",
-    type: "white",
-    sourceAnchor: "alb-750ml",
-    image:
-      "/images/wines/murfatlar-premiat-eticheta-neagra-alb-750ml.webp",
-    tastingNotes:
-      "Culoare: galben-verzui, limpede. Miros: caracteristic strugurelui. Gust: plÄƒcut, lejer, de o corpolenÈ›Äƒ medie, aciditate bunÄƒ, cu gust remanent suculent. Temperatura de servire: 6-8Â°C.",
-    culinaryPairings:
-      "SpecialitÄƒÈ›i de peÈ™te, crustacee, fructe de mare, pui È™i cÄƒrnuri slabe.",
-    foodNotes: [
-      {
-        dish: "PeÈ™te È™i fructe de mare",
-        note: "Recomandarea producÄƒtorului pentru acest vin demisec.",
-      },
-      {
-        dish: "Crustacee",
-        note: "Asociere indicatÄƒ de producÄƒtor.",
-      },
-      {
-        dish: "Pui È™i cÄƒrnuri slabe",
-        note: "Asociere indicatÄƒ de producÄƒtor.",
-      },
-    ],
-  },
-  {
-    key: "roze",
-    name: "Premiat Eticheta Neagra Roze, 0.75L",
-    type: "rose",
-    sourceAnchor: "roze-750ml",
-    image:
-      "/images/wines/murfatlar-premiat-eticheta-neagra-roze-750ml.webp",
-    tastingNotes:
-      "Culoare: roz, cu nuanÈ›e de somon. Miros: delicat, fructat, de cireÈ™e crude. Gust: plÄƒcut, lejer, cu aciditate medie. Temperatura de servire: 8-9Â°C.",
-    culinaryPairings:
-      "Mezeluri din carne de porc, brÃ¢nzeturi proaspete de oaie È™i caprÄƒ, legume crude.",
-    foodNotes: [
-      {
-        dish: "Mezeluri din porc",
-        note: "Recomandarea producÄƒtorului pentru acest vin demisec.",
-      },
-      {
-        dish: "BrÃ¢nzeturi proaspete de oaie È™i caprÄƒ",
-        note: "Asociere indicatÄƒ de producÄƒtor.",
-      },
-      {
-        dish: "Legume crude",
-        note: "Asociere indicatÄƒ de producÄƒtor.",
-      },
-    ],
-  },
-];
+function pairingRows(variant: PremiatVariant): FoodPairing[] {
+  return variant.foodNotes.map((note) => ({
+    dish: note.dish,
+    note: note.note,
+    basis: ["producer_evidence"],
+    strength: "good",
+  }));
+}
+
+function claimRows(variant: PremiatVariant, wineId: number, identity: string) {
+  const sourceUrl = premiatSourceUrl(variant);
+  const observedAt = new Date().toISOString();
+  const sourceHash = hash(`${sourceUrl}|${variant.tastingNotes}`);
+  const common = {
+    wineId,
+    canonicalIdentityKey: identity,
+    sourceUrl,
+    sourceTitle: "Premiat - Murfatlar Vinul",
+    sourceClass: "official_producer_page" as const,
+    observedAt,
+    extractionMethod: "deterministic",
+    identityMatchStatus: "EXACT_WINE_UNDATED",
+    verificationStatus: "attributed_editorial" as const,
+    confidence: 0.78,
+    sourceHash,
+  };
+
+  const claims: Array<{
+    field: Parameters<typeof db.insert>[0] extends never ? never : string;
+    value: string | number | string[];
+    normalized: string;
+    excerpt: string;
+  }> = [
+    {
+      field: "producer",
+      value: PREMIAT_PRODUCER,
+      normalized: PREMIAT_PRODUCER.toLowerCase(),
+      excerpt: "Producător: Murfatlar.",
+    },
+    {
+      field: "range",
+      value: PREMIAT_RANGE,
+      normalized: PREMIAT_RANGE.toLowerCase(),
+      excerpt: "Gama Premiat Eticheta Neagra.",
+    },
+    {
+      field: "product_name",
+      value: variant.name,
+      normalized: variant.name.toLowerCase(),
+      excerpt: variant.tastingNotes,
+    },
+    {
+      field: "wine_color",
+      value: variant.type,
+      normalized: variant.type,
+      excerpt: `Vin ${variant.label.toLowerCase()}.`,
+    },
+    {
+      field: "sweetness",
+      value: "demisec",
+      normalized: "demisec",
+      excerpt: "DEMISEC, obținut din podgoria Murfatlar.",
+    },
+    {
+      field: "bottle_volume",
+      value: 750,
+      normalized: "750",
+      excerpt: "750ml",
+    },
+    {
+      field: "serving_temperature",
+      value: variant.servingTemperature,
+      normalized: variant.servingTemperature,
+      excerpt: `Temperatura de servire: ${variant.servingTemperature}.`,
+    },
+    {
+      field: "food_pairing",
+      value: variant.foodNotes.map((note) => note.dish),
+      normalized: variant.culinaryPairings.toLowerCase(),
+      excerpt: variant.culinaryPairings,
+    },
+    {
+      field: "aroma_descriptors",
+      value: variant.tastingNotes.split("Miros:")[1]?.split("Gust:")[0]?.trim() ?? "",
+      normalized: variant.tastingNotes.toLowerCase(),
+      excerpt: variant.tastingNotes,
+    },
+    {
+      field: "taste_descriptors",
+      value: variant.tastingNotes.split("Gust:")[1]?.split("Temperatura")[0]?.trim() ?? "",
+      normalized: variant.tastingNotes.toLowerCase(),
+      excerpt: variant.tastingNotes,
+    },
+  ];
+
+  return claims
+    .filter((claim) => claim.value !== "")
+    .map((claim) => ({
+      ...common,
+      field: claim.field as never,
+      valueJson: claim.value,
+      normalizedValue: claim.normalized,
+      excerpt: claim.excerpt,
+      claimHash: hash(
+        `${identity}|${claim.field}|${JSON.stringify(claim.value)}|${sourceHash}`,
+      ),
+    }));
+}
 
 async function main() {
   const apply = process.argv.includes("--apply");
@@ -112,7 +147,7 @@ async function main() {
     where: eq(wineries.slug, "murfatlar"),
     columns: { id: true, name: true },
   });
-  if (!winery) throw new Error("Crama Murfatlar nu existÄƒ Ã®n catalog.");
+  if (!winery) throw new Error("Crama Murfatlar nu există în catalog.");
 
   const region = await db.query.regions.findFirst({
     where: eq(regions.slug, "murfatlar"),
@@ -120,13 +155,14 @@ async function main() {
   });
 
   const rows: Array<{ action: string; slug: string; name: string }> = [];
-  for (const variant of VARIANTS) {
+  for (const variant of PREMIAT_VARIANTS_750ML) {
     const slug = buildWineSlug({
-      producer: PRODUCER,
+      producer: PREMIAT_PRODUCER,
       name: variant.name,
       vintage: null,
     });
-    const sourceUrl = `${PRODUCER_PAGE_URL}#${variant.sourceAnchor}`;
+    const sourceUrl = premiatSourceUrl(variant);
+    const identity = premiatIdentityKey(variant);
     const existing = await db.query.wines.findFirst({
       where: or(eq(wines.slug, slug), eq(wines.sourceUrl, sourceUrl)),
       columns: { id: true, slug: true, name: true },
@@ -140,54 +176,102 @@ async function main() {
     if (!apply) continue;
 
     const extractedAt = new Date().toISOString();
-    await db.insert(wines).values({
-      slug,
-      name: variant.name,
-      wineryId: winery.id,
-      regionId: region?.id ?? null,
+    const foodPairings = pairingRows(variant);
+    const producerContent = {
+      tastingNotes: variant.tastingNotes,
+      culinaryPairings: variant.culinaryPairings,
+      sourceUrls: [PREMIAT_PRODUCER_PAGE],
+      extractedAt,
+      sourceType: "producer_page" as const,
+      extractionMethod: "deterministic" as const,
+    };
+    const scoreInput = {
       type: variant.type,
-      sweetness: "demisec",
-      vintage: null,
+      sweetness: variant.sweetness,
       grapeVarieties: [],
-      alcohol: null,
-      sugar: null,
-      acidity: null,
-      priceAvg: null,
-      currentPrice: null,
-      lowestPrice30d: null,
+      region: { name: "Murfatlar" },
+      winery: { name: winery.name },
+      vintage: null,
       valueScore: null,
       giftScore: null,
       foodMatchScore: null,
-      beginnerFriendly: false,
-      cellarPotential: null,
-      overpricedRisk: null,
-      tastingNotes: variant.tastingNotes,
-      foodPairings: [],
-      foodPairingNotes: variant.foodNotes,
-      dessertPairings: [],
-      sourceUrl,
-      producerPageUrl: PRODUCER_PAGE_URL,
-      submittedBy: "admin-cli",
-      submitType: "community",
-      status: "verified",
-      sourceBadge: DEFAULT_WINE_SOURCE_BADGE,
-      imageUrl: variant.image,
-      imageSource: "producer",
-      imageAlt: buildWineImageAlt({
+      estimatedQuality: null,
+      qualityFinal: null,
+      qualityEffective: null,
+      medals: [],
+      criticScore: null,
+      ratingAvg: null,
+      communityScore: null,
+      producerPageUrl: PREMIAT_PRODUCER_PAGE,
+      tastingSheetUrl: null,
+      alcohol: null,
+      acidity: null,
+      foodPairings,
+      producerContent,
+    };
+    const giftScore = calculateGiftScore(giftScoreInputFromWine(scoreInput)).score;
+    const foodMatchScore = calculateFoodVersatility(
+      foodVersatilityInputFromWine(scoreInput),
+    ).score;
+
+    const [created] = await db
+      .insert(wines)
+      .values({
+        slug,
         name: variant.name,
-        wineryName: winery.name,
+        wineryId: winery.id,
+        regionId: region?.id ?? null,
         type: variant.type,
-      }),
-      availability: [],
-      affiliateLinks: [],
-      producerContent: {
+        sweetness: variant.sweetness,
+        vintage: null,
+        grapeVarieties: [],
+        alcohol: null,
+        sugar: null,
+        acidity: null,
+        priceAvg: null,
+        currentPrice: null,
+        lowestPrice30d: null,
+        valueScore: null,
+        giftScore,
+        foodMatchScore,
+        beginnerFriendly: false,
+        cellarPotential: null,
+        overpricedRisk: null,
         tastingNotes: variant.tastingNotes,
-        culinaryPairings: variant.culinaryPairings,
-        sourceUrls: [PRODUCER_PAGE_URL],
-        extractedAt,
-        sourceType: "producer_page",
-        extractionMethod: "deterministic",
-      },
+        descriptionEditorial: variant.editorial.description,
+        tasteProfile: variant.editorial.tasteProfile,
+        thingsYouShouldKnow: variant.editorial.thingsYouShouldKnow,
+        foodPairings,
+        foodPairingNotes: variant.foodNotes,
+        dessertPairings: [],
+        sourceUrl,
+        producerPageUrl: PREMIAT_PRODUCER_PAGE,
+        submittedBy: "admin-cli",
+        submitType: "community",
+        status: "user_submitted",
+        sourceBadge: COMMUNITY_SOURCE_BADGE,
+        imageUrl: variant.image,
+        imageSource: "producer",
+        imageAlt: buildWineImageAlt({
+          name: variant.name,
+          wineryName: winery.name,
+          type: variant.type,
+        }),
+        availability: [],
+        affiliateLinks: [],
+        producerContent,
+      })
+      .returning({ id: wines.id, slug: wines.slug });
+
+    if (!created) throw new Error(`Insert failed for ${variant.key}`);
+    await db
+      .insert(wineClaimEvidence)
+      .values(claimRows(variant, created.id, identity))
+      .onConflictDoNothing();
+    rows.push({
+      action: "created",
+      slug: created.slug,
+      name: variant.name,
     });
   }
 
@@ -195,7 +279,8 @@ async function main() {
     JSON.stringify(
       {
         dryRun: !apply,
-        producerPage: PRODUCER_PAGE_URL,
+        producerPage: PREMIAT_PRODUCER_PAGE,
+        sourceIdentity: "official page + ?variant= slug, no synthetic anchor fragments",
         variants: rows,
       },
       null,
@@ -210,4 +295,3 @@ main()
     console.error(error);
     process.exit(1);
   });
-

@@ -12,6 +12,10 @@ import {
   valueScoreInputFromWine,
 } from "@/lib/scoring";
 import { resolveWineDisplayPrice } from "@/lib/wine-price";
+import {
+  resolvePublicQualityScore,
+  resolvePublicValueScore,
+} from "@/lib/public-quality-score";
 import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
@@ -248,12 +252,18 @@ export async function WineDualScores({ wine }: { wine: WineWithRelations }) {
   const t = await getTranslations("Wine.community");
   const breakdown = await getTranslations("Wine.valueBreakdown");
   const community = getCommunityScoreDisplay(wine);
-  const hasVinIntelScore =
-    wine.valueScore != null && resolveWineDisplayPrice(wine) != null;
+  const quality = resolvePublicQualityScore(wine);
+  const value = resolvePublicValueScore(wine);
+  const hasValue = value.status === "known" && value.score != null;
 
-  if (!hasVinIntelScore && community.score == null) {
-    return null;
-  }
+  const qualityLabel = locale === "ro" ? "Calitate" : "Quality";
+  const valueLabel = locale === "ro" ? "Value Score" : "Value Score";
+  const insufficient =
+    locale === "ro" ? "Date insuficiente" : "Insufficient data";
+  const valueRequiresPrice =
+    locale === "ro"
+      ? "Necesita o oferta Profitshare valida pentru acest vin exact."
+      : "Requires a valid Profitshare offer for this exact wine.";
 
   return (
     <section aria-labelledby="wine-dual-scores-heading" className="scroll-mt-24">
@@ -261,89 +271,147 @@ export async function WineDualScores({ wine }: { wine: WineWithRelations }) {
         id="wine-dual-scores-heading"
         className="font-serif text-2xl font-semibold text-foreground sm:text-3xl"
       >
-        {t("heading")}
+        {locale === "ro" ? "Scoruri si evaluari" : "Scores and assessments"}
       </h2>
       <Card className="mt-5 border-border/70">
-        <CardContent className="p-6 sm:p-8">
+        <CardContent className="grid gap-7 p-6 sm:p-8 lg:grid-cols-3">
           <ScoreColumn
-              title={t("scoreTitle")}
-              badge={
-                community.score != null ? (
-                  <div className="flex flex-col items-start gap-2">
-                    <VinScoreBadge
-                      score={community.score}
-                      size="lg"
-                      showLabel={false}
-                    />
-                    <Badge
-                      variant="secondary"
-                      className="gap-1 font-normal"
-                    >
-                      <Users className="h-3 w-3" aria-hidden="true" />
-                      {community.voteCount === 0
-                        ? t("noVotesLabel")
-                        : community.voteCount === 1
-                          ? t("oneVoteLabel")
-                          : t("manyVotesLabel", {
-                              count: community.voteCount,
-                            })}
-                    </Badge>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    {t("noVotes")}
-                  </p>
-                )
-              }
-              explanation={
-                community.isLiveCommunity
-                  ? t("explanation")
-                  : community.score != null
-                    ? `${t("explanation")} ${t("estimatedExplanation")}`
-                    : t("explanation")
-              }
-              footer={
-                <WineCommunityVoteButton
-                  wineSlug={wine.slug}
-                  initialScore={community.isLiveCommunity ? community.score : null}
-                  initialVoteCount={
-                    community.isLiveCommunity ? community.voteCount : 0
-                  }
-                  labels={{
-                    alreadyVoted: t("alreadyVoted", {
-                      score: "__SCORE__",
-                    }),
-                    editVote: t("editVote"),
-                    vote: t("vote"),
-                    editTitle: t("editTitle"),
-                    voteTitle: t("voteTitle"),
-                    editDescription: t("editDescription"),
-                    voteDescription: t("voteDescription"),
-                    thanks: t("thanks", { score: "__SCORE__" }),
-                    currentScore: t("currentScore", {
-                      score: "__SCORE__",
-                      votes: "__VOTES__",
-                    }),
-                    oneVote: t("oneVote"),
-                    manyVotes: t("manyVotes", { count: "__COUNT__" }),
-                    yourScore: t("yourScore"),
-                    rangeLabel: t("rangeLabel"),
-                    weak: t("weak"),
-                    good: t("good"),
-                    excellent: t("excellent"),
-                    cancel: t("cancel"),
-                    sending: t("sending"),
-                    save: t("save"),
-                    submit: t("submit"),
-                    submitError: t("submitError"),
-                  }}
-                />
-              }
-            />
+            title={qualityLabel}
+            badge={
+              quality.status === "known" && quality.score != null ? (
+                <div className="flex flex-col items-start gap-2">
+                  <VinScoreBadge
+                    score={quality.score}
+                    size="lg"
+                    showLabel={false}
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {quality.confidence}%{" "}
+                    {locale === "ro" ? "incredere in date" : "data confidence"}
+                  </span>
+                </div>
+              ) : (
+                <p className="text-sm font-medium text-muted-foreground">
+                  {insufficient}
+                </p>
+              )
+            }
+            explanation={
+              quality.status === "known"
+                ? locale === "ro"
+                  ? "Scor de calitate independent de pret, calculat din dovezile disponibile despre vin."
+                  : "Price-independent quality score based on the available wine evidence."
+                : locale === "ro"
+                  ? "Nu afisam un scor numeric fara dovezi suficiente. Nu inventam calitate."
+                  : "No numeric score without enough evidence. We do not invent quality."
+            }
+          />
+
+          <ScoreColumn
+            title={valueLabel}
+            badge={
+              hasValue ? (
+                <div className="flex flex-col items-start gap-2">
+                  <VinScoreBadge
+                    score={value.score!}
+                    size="lg"
+                    showLabel={false}
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {value.priceRon != null
+                      ? `${value.priceRon} RON`
+                      : locale === "ro"
+                        ? "pret verificat"
+                        : "verified price"}
+                  </span>
+                </div>
+              ) : (
+                <p className="text-sm font-medium text-muted-foreground">
+                  {locale === "ro" ? "Indisponibil" : "Unavailable"}
+                </p>
+              )
+            }
+            explanation={
+              hasValue
+                ? locale === "ro"
+                  ? "Value Score masoara raportul calitate-pret si exista doar cand oferta Profitshare este proaspata si identica."
+                  : "Value Score measures quality for money and appears only for a fresh, exact-product Profitshare offer."
+                : valueRequiresPrice
+            }
+          />
+
+          <ScoreColumn
+            title={t("scoreTitle")}
+            badge={
+              community.score != null ? (
+                <div className="flex flex-col items-start gap-2">
+                  <VinScoreBadge
+                    score={community.score}
+                    size="lg"
+                    showLabel={false}
+                  />
+                  <Badge variant="secondary" className="gap-1 font-normal">
+                    <Users className="h-3 w-3" aria-hidden="true" />
+                    {community.voteCount === 0
+                      ? t("noVotesLabel")
+                      : community.voteCount === 1
+                        ? t("oneVoteLabel")
+                        : t("manyVotesLabel", {
+                            count: community.voteCount,
+                          })}
+                  </Badge>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">{t("noVotes")}</p>
+              )
+            }
+            explanation={
+              community.isLiveCommunity
+                ? t("explanation")
+                : community.score != null
+                  ? `${t("explanation")} ${t("estimatedExplanation")}`
+                  : t("explanation")
+            }
+            footer={
+              <WineCommunityVoteButton
+                wineSlug={wine.slug}
+                initialScore={community.isLiveCommunity ? community.score : null}
+                initialVoteCount={
+                  community.isLiveCommunity ? community.voteCount : 0
+                }
+                labels={{
+                  alreadyVoted: t("alreadyVoted", { score: "__SCORE__" }),
+                  editVote: t("editVote"),
+                  vote: t("vote"),
+                  editTitle: t("editTitle"),
+                  voteTitle: t("voteTitle"),
+                  editDescription: t("editDescription"),
+                  voteDescription: t("voteDescription"),
+                  thanks: t("thanks", { score: "__SCORE__" }),
+                  currentScore: t("currentScore", {
+                    score: "__SCORE__",
+                    votes: "__VOTES__",
+                  }),
+                  oneVote: t("oneVote"),
+                  manyVotes: t("manyVotes", { count: "__COUNT__" }),
+                  yourScore: t("yourScore"),
+                  rangeLabel: t("rangeLabel"),
+                  weak: t("weak"),
+                  good: t("good"),
+                  excellent: t("excellent"),
+                  cancel: t("cancel"),
+                  sending: t("sending"),
+                  save: t("save"),
+                  submit: t("submit"),
+                  submitError: t("submitError"),
+                }}
+              />
+            }
+          />
         </CardContent>
       </Card>
 
-      {hasVinIntelScore ? (
+      {hasValue ? (
         <details className="mt-8 rounded-xl border border-border/70 bg-card">
           <summary className="cursor-pointer px-5 py-4 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             {breakdown("summary")}

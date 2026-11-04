@@ -12,6 +12,7 @@ import {
   BUDGET_THRESHOLDS,
   filterWinesByBudget,
   filterWinesByType,
+  getTopWinesByQuality,
   getTopWinesByValue,
 } from "@/lib/top-lists";
 import { formatRon } from "@/lib/format";
@@ -155,7 +156,7 @@ export function TopListHubSections({
             <MiniTopList
               key={type}
               title={label[locale]}
-              wines={getTopWinesByValue(filterWinesByType(allWines, type), 3)}
+              wines={getTopWinesByQuality(filterWinesByType(allWines, type), 3)}
               href={topListHref(locale, `type:${type}`)}
               locale={locale}
             />

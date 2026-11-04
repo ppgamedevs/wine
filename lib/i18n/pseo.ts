@@ -240,6 +240,8 @@ export function localizedTopListRankSummary(
     switch (list.rankMetric) {
       case "gift":
         return `Top ${list.wines.length} optiuni, ordonate dupa Gift Score.`;
+      case "quality":
+        return `Top ${list.wines.length} optiuni, ordonate dupa Quality Score, independent de pret.`;
       case "relevance":
         return `Top ${list.wines.length} optiuni, ordonate dupa potrivirea pentru ocazia aleasa.`;
       default:
@@ -250,6 +252,8 @@ export function localizedTopListRankSummary(
   switch (list.rankMetric) {
     case "gift":
       return `Top ${list.wines.length} choices, ordered by Gift Score.`;
+    case "quality":
+      return `Top ${list.wines.length} choices, ordered by price-independent Quality Score.`;
     case "relevance":
       return `Top ${list.wines.length} choices, ordered by match for the selected occasion.`;
     default:
@@ -262,6 +266,7 @@ export function localizedTopListRankColumnLabel(
   locale: AppLocale,
 ): string {
   if (metric === "gift") return "Gift";
+  if (metric === "quality") return locale === "en" ? "Quality" : "Calitate";
   if (metric === "relevance") {
     return locale === "en" ? "Match" : "Potrivire";
   }

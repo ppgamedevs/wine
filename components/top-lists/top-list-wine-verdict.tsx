@@ -6,6 +6,7 @@ import { formatRon, valueScoreTone } from "@/lib/format";
 import { getPseoMessages } from "@/lib/i18n/pseo";
 import { buildWorthItAnalysis } from "@/lib/wine-analysis";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
+import { resolvePublicQualityScore } from "@/lib/public-quality-score";
 import { resolveWineVintage, stripEmbeddedVintageFromName } from "@/lib/wine-vintage";
 import { cn } from "@/lib/utils";
 import type { WineWithRelations } from "@/types";
@@ -24,21 +25,25 @@ function buildWhyInTop(
 ): string {
   const parts: string[] = [];
   const pricing = buildWinePriceViewModel(wine);
-  if (pricing.status === "verified" && wine.valueScore && wine.valueScore >= 75) {
+  const quality = resolvePublicQualityScore(wine);
+  if (quality.status === "known" && quality.score != null) {
+    parts.push(`Quality Score ${quality.score}/100`);
+  }
+  if (pricing.status === "verified" && wine.valueScore) {
     parts.push(`Value Score ${wine.valueScore}/100`);
   }
   if (pricing.displayPrice != null) {
     parts.push(
       locale === "en"
-        ? `good value at ${formatRon(pricing.displayPrice, locale)}`
-        : `pret bun la ${formatRon(pricing.displayPrice, locale)}`,
+        ? `verified price ${formatRon(pricing.displayPrice, locale)}`
+        : `pret verificat ${formatRon(pricing.displayPrice, locale)}`,
     );
   }
   return parts.length > 0
     ? parts.join(", ")
     : locale === "en"
-      ? "solid value in the VinIntel catalog"
-      : "raport calitate-pret solid in catalogul nostru";
+      ? "insufficient quality or price evidence"
+      : "date insuficiente despre calitate sau pret";
 }
 
 function buildMinus(
@@ -122,14 +127,14 @@ export function TopListWineVerdict({
         <span className="absolute left-3 top-3 z-10 inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-wine px-2 text-sm font-bold text-wine-foreground shadow-sm">
           #{position}
         </span>
-        {wine.valueScore != null ? (
+        {resolvePublicQualityScore(wine).score != null ? (
           <span
             className={cn(
               "absolute right-3 top-3 z-10 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur",
-              valueScoreTone(wine.valueScore),
+              valueScoreTone(resolvePublicQualityScore(wine).score!),
             )}
           >
-            {wine.valueScore}/100
+            {resolvePublicQualityScore(wine).score}/100
           </span>
         ) : null}
       </Link>
