@@ -1,6 +1,6 @@
 import "../lib/load-env";
 import { createHash } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../lib/db";
 import {
   COMMUNITY_SOURCE_BADGE,
@@ -16,11 +16,11 @@ import {
   premiatSourceUrl,
 } from "../lib/murfatlar-premiat-profile";
 import { calculateFoodVersatility } from "../lib/scoring-v2/food-versatility";
-import { calculateGiftScore } from "../lib/scoring-v2/gift-score";
+import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
 import {
   foodVersatilityInputFromWine,
   giftScoreInputFromWine,
-} from "../lib/scoring-v2/wine-score-inputs";
+} from "@/lib/scoring-v2/wine-score-inputs";
 import { buildWineSlug } from "../lib/wine-url";
 
 function hash(value: string): string {
@@ -34,7 +34,14 @@ async function main() {
     throw new Error("Refusing to write without --apply --confirm-repair.");
   }
 
+  const table = await db.all(
+    sql.raw(
+      "select name from sqlite_master where type = 'table' and name = 'wine_claim_evidence' limit 1",
+    ),
+  );
+  const claimsAvailable = table.length > 0;
   const report: Array<Record<string, unknown>> = [];
+
   for (const variant of PREMIAT_VARIANTS_750ML) {
     const slug = buildWineSlug({
       producer: PREMIAT_PRODUCER,
@@ -49,8 +56,6 @@ async function main() {
         name: true,
         status: true,
         sourceUrl: true,
-        tastingNotes: true,
-        producerContent: true,
       },
     });
     if (!row) {
@@ -115,7 +120,7 @@ async function main() {
       updatedAt: new Date().toISOString(),
     };
 
-    report.push({
+    const entry: Record<string, unknown> = {
       variant: variant.key,
       status: "repair-plan",
       id: row.id,
@@ -131,56 +136,77 @@ async function main() {
         sourceUrl: patch.sourceUrl,
       },
       action: apply ? "applied" : "dry-run",
-    });
+      claims: claimsAvailable ? "pending" : "skipped_missing_wine_claim_evidence",
+    };
+    report.push(entry);
 
     if (!apply) continue;
 
     await db.update(wines).set(patch).where(eq(wines.id, row.id));
+    if (!claimsAvailable) continue;
 
-    const identity = premiatIdentityKey(variant);
-    const sourceUrl = premiatSourceUrl(variant);
-    const sourceHash = hash(`${sourceUrl}|${variant.tastingNotes}`);
-    const claims = [
-      ["producer", PREMIAT_PRODUCER, "Producător: Murfatlar."],
-      ["range", PREMIAT_RANGE, "Gama Premiat Eticheta Neagra."],
-      ["product_name", variant.name, variant.tastingNotes],
-      ["wine_color", variant.type, `Vin ${variant.label.toLowerCase()}.`],
-      ["sweetness", "demisec", "DEMISEC, obținut din podgoria Murfatlar."],
-      ["bottle_volume", 750, "750ml"],
-      ["serving_temperature", variant.servingTemperature, `Temperatura de servire: ${variant.servingTemperature}.`],
-      ["food_pairing", variant.foodNotes.map((note) => note.dish), variant.culinaryPairings],
-    ] as const;
+    try {
+      const identity = premiatIdentityKey(variant);
+      const sourceUrl = premiatSourceUrl(variant);
+      const sourceHash = hash(`${sourceUrl}|${variant.tastingNotes}`);
+      const claims = [
+        ["producer", PREMIAT_PRODUCER, "Producător: Murfatlar."],
+        ["range", PREMIAT_RANGE, "Gama Premiat Eticheta Neagra."],
+        ["product_name", variant.name, variant.tastingNotes],
+        ["wine_color", variant.type, `Vin ${variant.label.toLowerCase()}.`],
+        ["sweetness", "demisec", "DEMISEC, obținut din podgoria Murfatlar."],
+        ["bottle_volume", 750, "750ml"],
+        [
+          "serving_temperature",
+          variant.servingTemperature,
+          `Temperatura de servire: ${variant.servingTemperature}.`,
+        ],
+        [
+          "food_pairing",
+          variant.foodNotes.map((note) => note.dish),
+          variant.culinaryPairings,
+        ],
+      ] as const;
 
-    await db
-      .insert(wineClaimEvidence)
-      .values(
-        claims.map(([field, value, excerpt]) => ({
-          wineId: row.id,
-          canonicalIdentityKey: identity,
-          field: field as never,
-          valueJson: value as never,
-          normalizedValue: String(value).toLowerCase(),
-          sourceUrl,
-          sourceTitle: "Premiat - Murfatlar Vinul",
-          sourceClass: "official_producer_page" as const,
-          excerpt,
-          observedAt: new Date().toISOString(),
-          extractionMethod: "deterministic",
-          identityMatchStatus: "EXACT_WINE_UNDATED",
-          verificationStatus: "attributed_editorial" as const,
-          confidence: 0.78,
-          sourceHash,
-          claimHash: hash(`${identity}|${field}|${JSON.stringify(value)}|${sourceHash}`),
-        })),
-      )
-      .onConflictDoNothing();
+      await db
+        .insert(wineClaimEvidence)
+        .values(
+          claims.map(([field, value, excerpt]) => ({
+            wineId: row.id,
+            canonicalIdentityKey: identity,
+            field: field as never,
+            valueJson: value as never,
+            normalizedValue: String(value).toLowerCase(),
+            sourceUrl,
+            sourceTitle: "Premiat - Murfatlar Vinul",
+            sourceClass: "official_producer_page" as const,
+            excerpt,
+            observedAt: new Date().toISOString(),
+            extractionMethod: "deterministic",
+            identityMatchStatus: "EXACT_WINE_UNDATED",
+            verificationStatus: "attributed_editorial" as const,
+            confidence: 0.78,
+            sourceHash,
+            claimHash: hash(
+              `${identity}|${field}|${JSON.stringify(value)}|${sourceHash}`,
+            ),
+          })),
+        )
+        .onConflictDoNothing();
+      entry.claims = "written_or_already_present";
+    } catch (error) {
+      entry.claims =
+        "claim_write_failed: " +
+        (error instanceof Error ? error.message : String(error));
+    }
   }
 
   console.log(
     JSON.stringify(
       {
         dryRun: !apply,
-        sourceIdentity: "official page + ?variant= slug, no synthetic anchor fragments",
+        sourceIdentity:
+          "official page + ?variant= slug, no synthetic anchor fragments",
         report,
       },
       null,

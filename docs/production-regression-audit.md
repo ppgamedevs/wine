@@ -140,3 +140,21 @@ The proposed repair:
 - adds structured producer claims without inventing grape, alcohol or vintage;
 - fills official food pairings and deterministic editorial copy;
 - leaves `valueScore` null because no qualified price exists.
+
+## Repair execution status
+
+The operator explicitly ran the repair with `--apply --confirm-repair`.
+
+Result:
+
+- structural fields, diacritics, source identities and pairings are repaired for
+  IDs 421, 422 and 423;
+- all three are now `user_submitted`, not `verified`; they require normal review
+  before appearing in the public catalog;
+- structured claim insertion was skipped because `wine_claim_evidence` does not
+  exist (migration 0028 is not applied);
+- no Value Score was created because no qualified price exists.
+
+A future run after migration 0028 will write the claims; the repair script now
+checks for the table and reports the skip instead of failing after the wine
+update.

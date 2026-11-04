@@ -1,6 +1,6 @@
 import "../lib/load-env";
 import { createHash } from "node:crypto";
-import { eq, or } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 import { db } from "../lib/db";
 import {
   COMMUNITY_SOURCE_BADGE,
@@ -143,6 +143,12 @@ function claimRows(variant: PremiatVariant, wineId: number, identity: string) {
 
 async function main() {
   const apply = process.argv.includes("--apply");
+  const claimTable = await db.all(
+    sql.raw(
+      "select name from sqlite_master where type = 'table' and name = 'wine_claim_evidence' limit 1",
+    ),
+  );
+  const claimsAvailable = claimTable.length > 0;
   const winery = await db.query.wineries.findFirst({
     where: eq(wineries.slug, "murfatlar"),
     columns: { id: true, name: true },
@@ -264,10 +270,19 @@ async function main() {
       .returning({ id: wines.id, slug: wines.slug });
 
     if (!created) throw new Error(`Insert failed for ${variant.key}`);
-    await db
-      .insert(wineClaimEvidence)
-      .values(claimRows(variant, created.id, identity))
-      .onConflictDoNothing();
+    if (claimsAvailable) {
+      try {
+        await db
+          .insert(wineClaimEvidence)
+          .values(claimRows(variant, created.id, identity))
+          .onConflictDoNothing();
+      } catch (error) {
+        console.warn(
+          `Structured claims skipped for ${variant.key}`,
+          error instanceof Error ? error.message : error,
+        );
+      }
+    }
     rows.push({
       action: "created",
       slug: created.slug,
