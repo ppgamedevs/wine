@@ -449,6 +449,9 @@ export type GroundingReason =
   | "budget_excludes_all"
   | "constraints_exclude_all"
   | "specific_reference_unavailable"
+  | "no_verified_price"
+  | "retailer_unavailable"
+  | "retrieval_unavailable"
   | "style_comparison"
   | "catalog_unavailable";
 
@@ -616,14 +619,32 @@ export function describeGroundingForPrompt(
     if (decision.reason === "specific_reference_unavailable") {
       lines.push(
         ro
-          ? "- Cererea numeste un vin, soi sau producator care NU exista in catalogul VinIntel de mai jos. Spune onest ca nu il ai in catalog si ca nu poti recomanda un inlocuitor. NU recomanda alt vin in locul lui. NU scrie linia RECOMMENDED_SLUGS."
-          : "- The request names a wine, grape or producer that is NOT in the VinIntel catalog below. Say honestly that you do not have it and that you will not substitute another bottle. Do NOT recommend a replacement. Do NOT write the RECOMMENDED_SLUGS line.",
+          ? "- Cererea numeste un vin, soi sau producator care NU exista in catalogul VinIntel de mai jos. Spune onest ca nu il ai in catalog si ca nu poti recomanda un inlocuitor. Nu inventa si nu sugera alt vin in locul lui."
+          : "- The request names a wine, grape or producer that is NOT in the VinIntel catalog below. Say honestly that you do not have it and that you will not substitute another bottle. Do not invent and do not suggest a replacement.",
+      );
+    } else if (decision.reason === "no_verified_price") {
+      lines.push(
+        ro
+          ? "- Catalogul are vinuri, dar niciunul nu are un pret Profitshare verificat si proaspat. Nu spune ca nu exista vinuri bune si nu face afirmatii despre piata. Explica scurt ca nu poti verifica pretul si ofera criterii de stil sau pasi de verificare."
+          : "- The catalog has wines, but none has a fresh verified Profitshare price. Do not claim that no good wines exist and do not make market-wide claims. Explain briefly that the price cannot be verified and offer style criteria or verification steps.",
+      );
+    } else if (decision.reason === "retailer_unavailable") {
+      lines.push(
+        ro
+          ? "- Nu exista date licentiate de stoc sau pret pentru retailerul cerut. Nu afirma ca un vin este in stoc acolo si nu inventa preturi de raft. Spune scurt ce poti si ce nu poti verifica."
+          : "- No licensed stock or price data exists for the requested retailer. Do not claim that a wine is in stock there and do not invent shelf prices. Say briefly what you can and cannot verify.",
       );
     } else if (decision.reason === "budget_excludes_all") {
       lines.push(
         ro
-          ? "- Niciun vin din catalog nu respecta bugetul cerut. NU depasi bugetul si NU propune un vin peste buget. Spune clar ca nu ai o potrivire in bugetul respectiv. NU scrie linia RECOMMENDED_SLUGS."
-          : "- No catalog wine fits the stated budget. Do NOT exceed it and do NOT offer an over-budget bottle. Say clearly that nothing fits. Do NOT write the RECOMMENDED_SLUGS line.",
+          ? "- Exista preturi verificate, dar niciun vin nu respecta bugetul cerut. NU depasi bugetul, NU propune un vin mai scump si NU presupune ca userul vrea sa plateasca mai mult. Spune clar ca nu ai o potrivire in buget."
+          : "- Verified prices exist, but no wine meets the stated budget. Do NOT exceed it, do NOT offer a more expensive bottle and do NOT assume the user wants to spend more. Say clearly that nothing fits.",
+      );
+    } else if (decision.reason === "retrieval_unavailable") {
+      lines.push(
+        ro
+          ? "- Retrieval-ul sau o sursa externa este indisponibila acum. Nu inventa si nu substitui; invita userul sa reincerce."
+          : "- Retrieval or an external source is unavailable right now. Do not invent or substitute; ask the user to try again.",
       );
     } else if (decision.reason === "catalog_unavailable") {
       lines.push(
@@ -634,8 +655,8 @@ export function describeGroundingForPrompt(
     } else {
       lines.push(
         ro
-          ? "- Nu exista nicio potrivire reala in catalog pentru cererea de fata. NU inventa vinuri si NU recomanda ceva aleatoriu. Spune onest ca nu ai o recomandare potrivita si ce ar putea relaxa cererea. NU scrie linia RECOMMENDED_SLUGS."
-          : "- Nothing in the catalog matches this request. Do NOT invent wines and do NOT recommend something at random. Say honestly that you have no fitting recommendation and what could be relaxed. Do NOT write the RECOMMENDED_SLUGS line.",
+          ? "- Nu exista nicio potrivire reala in catalog pentru cererea de fata. NU inventa vinuri si NU recomanda ceva aleatoriu. Spune onest ca nu ai o recomandare potrivita si ce ar putea relaxa cererea."
+          : "- Nothing in the catalog matches this request. Do NOT invent wines and do NOT recommend something at random. Say honestly that you have no fitting recommendation and what could be relaxed.",
       );
     }
     return lines;

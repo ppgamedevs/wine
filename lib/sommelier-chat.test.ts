@@ -15,6 +15,11 @@ import { extractRecommendedSlugs } from "@/lib/sommelier-chat-utils";
 import type { WineWithRelations } from "@/types";
 import type { GroundingDecision } from "@/lib/sommelier-grounding";
 import {
+  diagnoseAvailability,
+  describeAvailabilityForPrompt,
+} from "@/lib/sommelier-availability";
+import { describeRetailerForPrompt } from "@/lib/sommelier-retailer";
+import {
   compareToExpected,
   parseEvaluationFixture,
   type EvaluationInterpretation,
@@ -144,8 +149,8 @@ describe("buildChatSommelierSystemPrompt: grounding instructions", () => {
       grounding,
     });
     expect(prompt).toContain("NU exista in catalogul VinIntel");
-    expect(prompt).toContain("NU scrie linia RECOMMENDED_SLUGS");
-    expect(prompt).not.toContain("RECOMMENDED_SLUGS trebuie sa contina");
+    expect(prompt).not.toContain("RECOMMENDED_SLUGS");
+    expect(prompt).toContain("marcaje interne");
   });
 
   it("forbids exceeding an explicit budget", () => {
@@ -153,6 +158,33 @@ describe("buildChatSommelierSystemPrompt: grounding instructions", () => {
     const prompt = buildChatSommelierSystemPrompt([WINE], input, "ro");
     expect(prompt).toContain("pana la 80 RON");
     expect(prompt).toContain("NU recomanda peste buget");
+  });
+
+  it("recognizes Mega and keeps an under-30 budget strict", () => {
+    const parsed = parseSommelierRequest(
+      "zi-mi un vin bun de la mega sub 30 de lei",
+    );
+    expect(parsed.retailer.id).toBe("mega-image");
+    expect(parsed.budget.budgetMax).toBe(30);
+    expect(parsed.budget.exclusiveMax).toBe(true);
+
+    const prompt = buildChatSommelierSystemPrompt([], parsed.input, "ro", {
+      budget: parsed.budget,
+      retailerContext: describeRetailerForPrompt(parsed.retailer, "ro"),
+      availabilityContext: describeAvailabilityForPrompt(
+        diagnoseAvailability({
+          allWines: [],
+          budget: parsed.budget,
+          retailer: parsed.retailer,
+        }),
+        "ro",
+      ),
+    });
+    expect(prompt).not.toContain("RECOMMENDED_SLUGS");
+    expect(prompt).not.toContain("parizer");
+    expect(prompt).toContain("Mega Image");
+    expect(prompt).toContain("stoc");
+    expect(prompt).toContain("30");
   });
 
   it("restricts recommendations to the named slugs", () => {

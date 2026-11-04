@@ -133,6 +133,14 @@ describe("priceSatisfiesBudget: hard budget cannot be exceeded", () => {
     expect(priceSatisfiesBudget(80.01, budget)).toBe(false);
   });
 
+  it("treats 'sub 30' as strictly below 30", () => {
+    const strict = extractBudgetConstraint("sub 30 de lei");
+    expect(strict.budgetMax).toBe(30);
+    expect(strict.exclusiveMax).toBe(true);
+    expect(priceSatisfiesBudget(30, strict)).toBe(false);
+    expect(priceSatisfiesBudget(29.99, strict)).toBe(true);
+  });
+
   it("rejects unknown prices under a hard budget", () => {
     expect(priceSatisfiesBudget(null, budget)).toBe(false);
     expect(priceSatisfiesBudget(undefined, budget)).toBe(false);

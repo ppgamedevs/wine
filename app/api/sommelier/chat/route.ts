@@ -16,7 +16,12 @@ import {
   retrieveWinesForChat,
   serializeWineForChat,
 } from "@/lib/sommelier-chat";
-import { extractRecommendedSlugs } from "@/lib/sommelier-chat-utils";
+import {
+  diagnoseAvailability,
+  describeAvailabilityForPrompt,
+} from "@/lib/sommelier-availability";
+import { buildAvailabilityFallback } from "@/lib/sommelier-fallback";
+import { describeRetailerForPrompt } from "@/lib/sommelier-retailer";
 import { isAppLocale } from "@/i18n/locale";
 import { guardInteractiveApi } from "@/lib/security/api-guard";
 import { readBoundedJson } from "@/lib/security/request-body";
@@ -294,13 +299,21 @@ export async function POST(req: Request) {
       }
     }
 
-    const retrieval = await retrieveWinesForChat(
-      latestUserText,
-      conversationTexts,
-      6,
-      locale,
-      { input },
-    );
+    let retrieval: Awaited<ReturnType<typeof retrieveWinesForChat>>;
+    let retrievalFailed = false;
+    try {
+      retrieval = await retrieveWinesForChat(
+        latestUserText,
+        conversationTexts,
+        6,
+        locale,
+        { input },
+      );
+    } catch (error) {
+      retrievalFailed = true;
+      console.error("Sommelier retrieval failed", error);
+      retrieval = { input, wines: [] };
+    }
     let candidates = retrieval.wines;
 
     const comparisonIntent = parseComparisonIntent(latestUserText);
@@ -327,6 +340,22 @@ export async function POST(req: Request) {
         comparisonContext = formatComparisonContext(comparison, locale);
       }
     }
+
+    let catalogForDiagnosis = retrieval.wines;
+    let retrievalUnavailable = retrievalFailed;
+    if (parsedRequest.retailer.detected || retrieval.wines.length === 0) {
+      try {
+        catalogForDiagnosis = await getWinesForSommelier();
+      } catch {
+        retrievalUnavailable = true;
+      }
+    }
+    const availability = diagnoseAvailability({
+      allWines: catalogForDiagnosis,
+      budget: parsedRequest.budget,
+      retailer: parsedRequest.retailer,
+      retrievalFailed: retrievalUnavailable,
+    });
 
     if (shadowIntent) {
       logShadowRecommendationDiff(retrieval.wines, input, shadowIntent);
@@ -398,10 +427,85 @@ export async function POST(req: Request) {
     if (!grounding.allowed) {
       // Never send a candidate list the model could pick from.
       candidates = [];
+      if (availability.primary !== "ok") {
+        grounding = {
+          ...grounding,
+          reason:
+            availability.primary === "no_verified_price"
+              ? "no_verified_price"
+              : availability.primary === "retailer_unavailable"
+                ? "retailer_unavailable"
+                : availability.primary === "catalog_empty"
+                  ? "no_candidates"
+                  : availability.primary === "budget_excludes"
+                    ? "budget_excludes_all"
+                    : "retrieval_unavailable",
+        };
+      }
     }
 
     if (jevConfig.personalization === "shadow") {
       logPersonalMatchShadow(retrieval.wines, input);
+    }
+
+    // No eligible wine: answer deterministically. This is the safety boundary
+    // against market-wide claims, invented stock, budget upselling and tone
+    // failures in the exact "Mega under 30" case.
+    if (
+      candidates.length === 0 &&
+      comparison == null &&
+      availability.primary !== "ok"
+    ) {
+      const fallbackText = buildAvailabilityFallback({
+        diagnosis: availability,
+        budget: parsedRequest.budget,
+        retailer: parsedRequest.retailer,
+        locale,
+      });
+      const textId = generateId();
+      const stream = createUIMessageStream({
+        originalMessages: messages,
+        execute: async ({ writer }) => {
+          writer.write({ type: "text-start", id: textId });
+          writer.write({
+            type: "text-delta",
+            id: textId,
+            delta: fallbackText,
+          });
+          writer.write({ type: "text-end", id: textId });
+
+          await recordSommelierQuestion({
+            rawQuery: latestUserText,
+            language: locale,
+            answerQuality: "low",
+            recommendationCount: 0,
+            comparisonReference: null,
+            metadata: {
+              groundingReason: grounding.reason,
+              availabilityPrimary: availability.primary,
+              availabilityCases: availability.cases,
+              retailer: parsedRequest.retailer.id,
+              budgetSpecified: parsedRequest.budget.budgetSpecified,
+              budgetExclusiveMax: parsedRequest.budget.exclusiveMax,
+              candidateCount: 0,
+              fallback: "deterministic_availability",
+            },
+          });
+
+          logJevEvent("info", "sommelier_request_completed", {
+            mode: jevConfig.mode,
+            jevStatus,
+            jevFailure,
+            intentSource: input.intentSource ?? "deterministic",
+            groundingReason: grounding.reason,
+            groundingAllowed: grounding.allowed,
+            candidateCount: 0,
+            recommendationCount: 0,
+            fallback: "deterministic_availability",
+          });
+        },
+      });
+      return createUIMessageStreamResponse({ stream });
     }
 
     const system = buildChatSommelierSystemPrompt(candidates, input, locale, {
@@ -409,8 +513,9 @@ export async function POST(req: Request) {
       jevIntent,
       budget: parsedRequest.budget,
       comparisonContext,
+      retailerContext: describeRetailerForPrompt(parsedRequest.retailer, locale),
+      availabilityContext: describeAvailabilityForPrompt(availability, locale),
     });
-    const candidateSlugs = candidates.map((wine) => wine.slug);
 
     const stream = createUIMessageStream({
       originalMessages: messages,
@@ -429,19 +534,11 @@ export async function POST(req: Request) {
         writer.merge(result.toUIMessageStream());
 
         const fullText = await result.text;
-        const slugs = grounding.allowed
-          ? extractRecommendedSlugs(
-              fullText,
-              candidateSlugs,
-              comparison ? 4 : 3,
-            )
+        const recommendations = grounding.allowed
+          ? candidates
+              .slice(0, comparison ? 4 : 3)
+              .map((wine) => serializeWineForChat(wine))
           : [];
-        const wineBySlug = new Map(candidates.map((wine) => [wine.slug, wine]));
-        const recommendations = slugs
-          .map((slug) => wineBySlug.get(slug))
-          .filter((wine) => wine != null)
-          .map((wine) => serializeWineForChat(wine))
-          .slice(0, comparison ? 4 : 3);
 
         if (recommendations.length > 0) {
           writer.write({
@@ -464,6 +561,11 @@ export async function POST(req: Request) {
           comparisonReference: comparison?.intent.referenceName ?? null,
           metadata: {
             groundingReason: grounding.reason,
+            availabilityPrimary: availability.primary,
+            availabilityCases: availability.cases,
+            retailer: parsedRequest.retailer.id,
+            budgetSpecified: parsedRequest.budget.budgetSpecified,
+            budgetExclusiveMax: parsedRequest.budget.exclusiveMax,
             candidateCount: candidates.length,
             comparisonBest: comparison?.best.wine.slug ?? null,
           },
