@@ -70,7 +70,7 @@
   },
   "FeaturedWines": {
     "heading": "Vinuri recomandate",
-    "description": "Selectia noastra dupa Value Score (minim 75/100): cel mai bun raport calitate pret din vinul romanesc.",
+    "description": "Selectia noastra dupa Quality Score, independent de pret. Value Score apare separat doar cand exista o oferta verificata.",
     "all": "Toate vinurile"
   },
   "TopLists": {
@@ -79,7 +79,7 @@
     "items": {
       "best": {
         "title": "Cele mai bune vinuri romanesti",
-        "description": "Top general dupa Value Score"
+        "description": "Top general dupa Quality Score"
       },
       "under50": {
         "title": "Cele mai bune vinuri sub 50 lei",
@@ -128,16 +128,16 @@
   "Catalog": {
     "metadata": {
       "title": "Vinuri romanesti: catalog, preturi si scoruri",
-      "description": "Catalog complet de vinuri romanesti cu Value Score, preturi in RON, crama si regiune. Cauta rapid si compara raportul calitate-pret.",
-      "openGraphTitle": "Vinuri romanesti: catalog, preturi si scoruri | VinIntel",
-      "openGraphDescription": "Toate vinurile romanesti din catalogul VinIntel, ordonate dupa Value Score."
+      "description": "Catalog complet de vinuri romanesti cu Quality Score independent de pret, Value Score doar cand exista oferta verificata, crama si regiune.",
+      "openGraphTitle": "Vinuri romanesti: catalog, calitate si preturi | VinIntel",
+      "openGraphDescription": "Toate vinurile romanesti din catalogul VinIntel, ordonate dupa Quality Score. Value Score apare separat, doar cu pret Profitshare verificat."
     },
     "breadcrumbHome": "Acasa",
     "breadcrumbCurrent": "Vinuri",
     "listName": "Catalog vinuri romanesti VinIntel",
     "verified": "{count} vinuri verificate",
     "heading": "Vinuri romanesti",
-    "description": "Exploreaza vinurile romanesti dupa culoare, dulceata si buget, apoi compara-le dupa Value Score.",
+    "description": "Exploreaza vinurile romanesti dupa culoare, dulceata si buget, compara-le dupa Quality Score si vezi Value Score doar cand pretul este verificat.",
     "popular": "Topuri populare",
     "add": "Adauga un vin",
     "emptyPrefix": "Inca nu avem vinuri in catalog. Revino in curand sau",
@@ -145,12 +145,12 @@
     "faqHeading": "Intrebari frecvente",
     "faq": {
       "value": {
-        "question": "Ce este Value Score?",
-        "answer": "Value Score este scorul VinIntel pentru raportul calitate-pret. Cu cat e mai mare, cu atat vinul ofera mai mult pentru banii tai."
+        "question": "Ce este Quality Score si ce este Value Score?",
+        "answer": "Quality Score masoara calitatea pe baza dovezilor despre vin si nu depinde de pret. Value Score masoara raportul calitate-pret si este afisat doar cand exista o oferta Profitshare proaspata pentru sticla exacta. Fara aceasta oferta, Value Score lipseste; nu este inlocuit cu alt scor."
       },
       "search": {
         "question": "Cum caut un vin in catalog?",
-        "answer": "Filtreaza dupa culoare sau tip, dulceata, pret si Value Score. Poti cauta si dupa nume, crama, regiune sau soi."
+        "answer": "Filtreaza dupa culoare sau tip, dulceata, pret si Quality Score. Poti cauta si dupa nume, crama, regiune sau soi."
       },
       "add": {
         "question": "Pot adauga un vin care lipseste?",
@@ -166,15 +166,15 @@
       "sortPlaceholder": "Sortare",
       "priceAria": "Pret",
       "pricePlaceholder": "Pret",
-      "scoreAria": "Recomandare",
-      "scorePlaceholder": "Recomandare",
+      "scoreAria": "Calitate",
+      "scorePlaceholder": "Calitate",
       "apply": "Aplica filtrele",
       "reset": "Reseteaza",
       "foundOne": "vin gasit",
       "foundMany": "vinuri gasite",
       "removeFilter": "Sterge filtrul {label}",
-      "recommendedNote": "Afisam vinuri cu Value Score {score}+ (merita pretul)",
-      "exceptionalNote": "Afisam vinuri cu Value Score {score}+ (valoare exceptionala)",
+      "recommendedNote": "Afisam vinuri cu Quality Score {score}+",
+      "exceptionalNote": "Afisam vinuri cu Quality Score {score}+ (calitate exceptionala)",
       "noResults": "Niciun vin nu corespunde combinatiei alese",
       "noResultsHint": "Incearca alta dulceata, culoare sau un buget mai larg.",
       "resetFilters": "Reseteaza filtrele",
@@ -201,7 +201,8 @@
         "dulce": "Dulce"
       },
       "sort": {
-        "value": "Value Score (cel mai bun)",
+        "quality": "Quality Score (cel mai bun)",
+        "value": "Value Score (doar cu pret verificat)",
         "priceAsc": "Pret crescator",
         "priceDesc": "Pret descrescator",
         "name": "Nume A-Z"
@@ -214,10 +215,10 @@
       },
       "scores": {
         "all": "Toate scorurile",
-        "recommended": "Merita pretul ({score}+)",
-        "exceptional": "Exceptionale ({score}+)",
-        "recommendedChip": "Merita pretul",
-        "exceptionalChip": "Exceptionale"
+        "recommended": "Calitate ({score}+)",
+        "exceptional": "Calitate exceptionala ({score}+)",
+        "recommendedChip": "Calitate",
+        "exceptionalChip": "Calitate exceptionala"
       },
       "sections": {
         "red": "Vinuri rosii",

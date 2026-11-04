@@ -24,9 +24,9 @@ import {
   SITE,
 } from "@/lib/seo";
 import {
-  MIN_RECOMMENDED_VALUE_SCORE,
-  VALUE_SCORE_EXCEPTIONAL_MIN,
-} from "@/lib/value-score-thresholds";
+  QUALITY_EXCEPTIONAL_MIN,
+  QUALITY_RECOMMENDED_MIN,
+} from "@/lib/public-quality-score";
 
 export const revalidate = 3600;
 
@@ -147,6 +147,7 @@ export default async function VinuriCatalogPage({
       dulce: t("Catalog.directory.sweetness.dulce"),
     },
     sort: {
+      "quality-desc": t("Catalog.directory.sort.quality"),
       "value-desc": t("Catalog.directory.sort.value"),
       "price-asc": t("Catalog.directory.sort.priceAsc"),
       "price-desc": t("Catalog.directory.sort.priceDesc"),
@@ -161,10 +162,10 @@ export default async function VinuriCatalogPage({
     scores: {
       all: t("Catalog.directory.scores.all"),
       recommended: t("Catalog.directory.scores.recommended", {
-        score: MIN_RECOMMENDED_VALUE_SCORE,
+        score: QUALITY_RECOMMENDED_MIN,
       }),
       exceptional: t("Catalog.directory.scores.exceptional", {
-        score: VALUE_SCORE_EXCEPTIONAL_MIN,
+        score: QUALITY_EXCEPTIONAL_MIN,
       }),
     },
   };

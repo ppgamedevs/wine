@@ -7,6 +7,7 @@ import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-
 import { formatRon } from "@/lib/format";
 import { buildWorthItAnalysis } from "@/lib/wine-analysis";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
+import { resolvePublicQualityScore } from "@/lib/public-quality-score";
 import type { WineWithRelations } from "@/types";
 import { getValueScoreVerdict } from "@/lib/value-score-thresholds";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -20,6 +21,7 @@ export async function WineBuyingDecision({ wine }: { wine: WineWithRelations }) 
   const analysis = buildWorthItAnalysis(wine, locale);
   const pairing = resolvePublicWinePairings(wine, 1, locale)[0] ?? null;
   const { gift } = resolvePublicSecondaryScores(wine);
+  const quality = resolvePublicQualityScore(wine);
   const hasOffer = pricing.purchaseLink != null;
   const verdict = getValueScoreVerdict(wine.valueScore);
   const scoreLabel =
@@ -60,18 +62,38 @@ export async function WineBuyingDecision({ wine }: { wine: WineWithRelations }) 
               {analysis.summary}
             </p>
           </div>
-          {wine.valueScore != null && pricing.status === "verified" ? (
-            <div className="shrink-0 text-center">
-              <VinScoreBadge
-                score={wine.valueScore}
-                size="lg"
-                label={scoreLabel}
-              />
-              <p className="mt-1 text-xs font-medium text-muted-foreground">
-                {t("valueScore")}
+          <div className="flex shrink-0 flex-col items-center gap-4 text-center">
+            {quality.status === "known" && quality.score != null ? (
+              <div>
+                <VinScoreBadge
+                  score={quality.score}
+                  size="lg"
+                  label={locale === "ro" ? "Calitate" : "Quality"}
+                />
+                <p className="mt-1 text-xs font-medium text-muted-foreground">
+                  Quality Score
+                </p>
+              </div>
+            ) : (
+              <p className="max-w-28 text-xs font-medium text-muted-foreground">
+                {locale === "ro"
+                  ? "Calitate: date insuficiente"
+                  : "Quality: insufficient data"}
               </p>
-            </div>
-          ) : null}
+            )}
+            {wine.valueScore != null && pricing.status === "verified" ? (
+              <div>
+                <VinScoreBadge
+                  score={wine.valueScore}
+                  size="lg"
+                  label={scoreLabel}
+                />
+                <p className="mt-1 text-xs font-medium text-muted-foreground">
+                  {t("valueScore")}
+                </p>
+              </div>
+            ) : null}
+          </div>
         </div>
 
         <div className="grid gap-3 border-t border-border/70 pt-4 sm:grid-cols-2">

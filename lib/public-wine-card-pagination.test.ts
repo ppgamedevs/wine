@@ -47,7 +47,7 @@ describe("bounded public catalog requests", () => {
     );
     expect(request.filters.type).toBe("all");
     expect(request.filters.sweetness).toBe("all");
-    expect(request.filters.sort).toBe("value-desc");
+    expect(request.filters.sort).toBe("quality-desc");
     expect(request.filters.priceBand).toBe("all");
     expect(request.filters.verdict).toBe("exceptional");
   });

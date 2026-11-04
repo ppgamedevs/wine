@@ -6,6 +6,7 @@ export const MAX_PUBLIC_CATALOG_PAGE = 1_000;
 export const MAX_PUBLIC_CATALOG_QUERY_LENGTH = 80;
 
 export type PublicWineCatalogSort =
+  | "quality-desc"
   | "value-desc"
   | "price-asc"
   | "price-desc"
@@ -57,6 +58,7 @@ const WINE_SWEETNESS: ReadonlySet<string> = new Set([
   "dulce",
 ]);
 const WINE_SORTS: ReadonlySet<string> = new Set([
+  "quality-desc",
   "value-desc",
   "price-asc",
   "price-desc",
@@ -112,7 +114,7 @@ export function parsePublicWineCatalogRequest(
         : "all",
       sort: WINE_SORTS.has(sort ?? "")
         ? (sort as PublicWineCatalogSort)
-        : "value-desc",
+        : "quality-desc",
       verdict: WINE_VERDICTS.has(verdict ?? "")
         ? (verdict as PublicWineCatalogVerdict)
         : "all",
@@ -179,6 +181,11 @@ export interface PublicWineCardViewModel {
   typeLabel: string;
   vintage: number | null;
   valueScore: number | null;
+  qualityScore: number | null;
+  qualityStatus: "known" | "insufficient";
+  qualityConfidence: number;
+  qualitySource: string | null;
+  valueScoreStatus: "known" | "unavailable";
   displayedRankScore: number | null;
   displayedRankLabel: string;
   image: {
@@ -197,6 +204,8 @@ export interface PublicWineCatalogItem {
   type: WineType;
   sweetness: WineSweetness | null;
   valueScore: number | null;
+  qualityScore: number | null;
+  qualityStatus: "known" | "insufficient";
   filterPrice: number | null;
   searchText: string;
   card: PublicWineCardViewModel;

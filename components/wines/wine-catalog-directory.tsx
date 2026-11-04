@@ -54,7 +54,7 @@ function catalogHref(
   if (filters.sweetness !== "all") {
     params.set("sweetness", filters.sweetness);
   }
-  if (filters.sort !== "value-desc") params.set("sort", filters.sort);
+  if (filters.sort !== "quality-desc") params.set("sort", filters.sort);
   if (filters.priceBand !== "all") params.set("price", filters.priceBand);
   if (filters.verdict !== "all") params.set("score", filters.verdict);
   if (page > 1) params.set("page", String(page));

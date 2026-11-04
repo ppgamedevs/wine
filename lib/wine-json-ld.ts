@@ -1,6 +1,7 @@
 import { formatRon } from "@/lib/format";
 import { resolveWineImage } from "@/lib/wine-images";
 import { resolvePublicPrice } from "@/lib/public-price";
+import { resolvePublicQualityScore } from "@/lib/public-quality-score";
 import type { WineFaqItem } from "@/lib/wine-analysis";
 import { absoluteUrl } from "@/lib/seo";
 import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
@@ -102,6 +103,7 @@ export function buildWineProductNode(
   const { src: imageUrl } = resolveWineImage(wine);
   const offers = buildProductOffers(wine, url);
   const aggregateRating = buildProductAggregateRating(wine);
+  const quality = resolvePublicQualityScore(wine as unknown as WineWithRelations);
 
   return {
     "@type": "Product",
@@ -117,6 +119,18 @@ export function buildWineProductNode(
     category: "Wine",
     ...(offers ? { offers } : {}),
     ...(aggregateRating ? { aggregateRating } : {}),
+    ...(quality.status === "known" && quality.score != null
+      ? {
+          additionalProperty: {
+            "@type": "PropertyValue",
+            name: "Quality Score",
+            value: quality.score,
+            maxValue: 100,
+            description:
+              "VinIntel price-independent quality score from available evidence.",
+          },
+        }
+      : {}),
     ...(wine.createdAt ? { releaseDate: wine.createdAt } : {}),
     ...(wine.updatedAt ? { dateModified: wine.updatedAt } : {}),
   };
@@ -260,12 +274,16 @@ export function buildWineMetadataDescription(
 ): string {
   const price = resolveWineOfferPrice(wine);
   const hasPublicPrice = price != null;
+  const quality = resolvePublicQualityScore(wine);
   if (locale === "en") {
     const englishPairing = resolvePublicWinePairings(wine, 1, "en")[0];
     const parts = [
       buildWineFullTitle(wine.name, wine.vintage),
       wine.winery?.name ? `from ${wine.winery.name}` : null,
       price != null ? `at ${formatRon(price, "en")}` : null,
+      quality.status === "known" && quality.score != null
+        ? `Quality Score ${quality.score}/100`
+        : null,
       hasPublicPrice && wine.valueScore
         ? `Value Score ${wine.valueScore}/100`
         : null,
@@ -280,6 +298,9 @@ export function buildWineMetadataDescription(
     `${buildWineFullTitle(wine.name, wine.vintage)}`,
     wine.winery?.name ? `de la ${wine.winery.name}` : null,
     price != null ? `la ${formatRon(price)}` : null,
+    quality.status === "known" && quality.score != null
+      ? `Quality Score ${quality.score}/100`
+      : null,
     hasPublicPrice && wine.valueScore
       ? `Value Score ${wine.valueScore}/100`
       : null,

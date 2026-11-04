@@ -11,6 +11,10 @@ import {
 } from "@/lib/top-lists";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
 import {
+  resolvePublicQualityScore,
+  resolvePublicValueScore,
+} from "@/lib/public-quality-score";
+import {
   resolveWineVintage,
   stripEmbeddedVintageFromName,
 } from "@/lib/wine-vintage";
@@ -26,6 +30,8 @@ interface PublicWineCardOptions {
 
 function rankLabel(metric: TopListRankMetric, locale: AppLocale): string {
   if (metric === "gift") return "Gift Score";
+  if (metric === "quality")
+    return locale === "en" ? "Quality Score" : "Quality Score";
   if (metric === "relevance")
     return locale === "en" ? "Match Score" : "Scor potrivire";
   return "Value Score";
@@ -53,6 +59,8 @@ export function buildPublicWineCardViewModel(
   const vintage = resolveWineVintage(wine);
   const pricing = buildWinePriceViewModel(wine);
   const hasPublicPrice = pricing.status === "verified";
+  const quality = resolvePublicQualityScore(wine);
+  const value = resolvePublicValueScore(wine);
 
   return {
     slug: wine.slug,
@@ -62,6 +70,11 @@ export function buildPublicWineCardViewModel(
     typeLabel: getWineTypeLabel(wine.type, locale),
     vintage,
     valueScore: hasPublicPrice ? wine.valueScore : null,
+    qualityScore: quality.status === "known" ? quality.score : null,
+    qualityStatus: quality.status,
+    qualityConfidence: quality.confidence,
+    qualitySource: quality.source,
+    valueScoreStatus: value.status,
     displayedRankScore:
       highlightScore === "value" && !hasPublicPrice
         ? null
@@ -119,6 +132,8 @@ function buildPublicWineCatalogItemForLocale(
     type: wine.type,
     sweetness: wine.sweetness,
     valueScore,
+    qualityScore: card.qualityScore,
+    qualityStatus: card.qualityStatus,
     filterPrice,
     searchText,
     card,

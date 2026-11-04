@@ -2,6 +2,7 @@ import { formatRon, wineTypeLabel } from "@/lib/format";
 import { filterWinesByGrapeVariety } from "@/lib/grape-variety-index";
 import { calculateGiftScore } from "@/lib/scoring-v2/gift-score";
 import { resolvePublicSecondaryScores } from "@/lib/scoring-v2/public-secondary-display";
+import { resolvePublicQualityScore } from "@/lib/public-quality-score";
 import { usesPublicOccasionMatch } from "@/lib/recommendation/occasion-match-mode";
 import { usesSecondaryV2Ranking } from "@/lib/scoring-v2/secondary-scoring-mode";
 import { giftScoreInputFromWine } from "@/lib/scoring-v2/wine-score-inputs";
@@ -17,7 +18,7 @@ import {
 import { sanitizeWinesForPublic } from "@/lib/public-price";
 import type { WineType, WineWithRelations } from "@/types";
 
-export type TopListRankMetric = "value" | "gift" | "relevance";
+export type TopListRankMetric = "value" | "quality" | "gift" | "relevance";
 
 /** Minimum wines required for indexable pSEO top list pages. */
 export const MIN_INDEXABLE_TOP_LIST_WINES = 8;
@@ -178,6 +179,13 @@ function byValueScore(a: WineWithRelations, b: WineWithRelations): number {
   return (b.valueScore ?? 0) - (a.valueScore ?? 0);
 }
 
+function byQualityScore(a: WineWithRelations, b: WineWithRelations): number {
+  return (
+    (resolvePublicQualityScore(b).score ?? 0) -
+    (resolvePublicQualityScore(a).score ?? 0)
+  );
+}
+
 /** Limit wines per winery so top lists are not dominated by one producer. */
 export function diversifyByWinery(
   wines: WineWithRelations[],
@@ -249,6 +257,18 @@ export function getTopWinesByValue(
     : sorted.slice(0, limit);
 }
 
+/** Price-independent ranking used by non-budget editorial lists. */
+export function getTopWinesByQuality(
+  wines: WineWithRelations[],
+  limit: number,
+  diversify = true,
+): WineWithRelations[] {
+  const sorted = [...wines].sort(byQualityScore);
+  return diversify
+    ? diversifyByWinery(sorted, 2, limit)
+    : sorted.slice(0, limit);
+}
+
 function liveGiftScore(wine: WineWithRelations): number {
   return calculateGiftScore(giftScoreInputFromWine(wine)).score;
 }
@@ -280,6 +300,10 @@ function legacyOccasionDisplayScore(wine: WineWithRelations): number {
 
 function valueScores(wines: WineWithRelations[]): number[] {
   return wines.map((wine) => wine.valueScore ?? 0);
+}
+
+function qualityScores(wines: WineWithRelations[]): number[] {
+  return wines.map((wine) => resolvePublicQualityScore(wine).score ?? 0);
 }
 
 function rankForOccasion(
@@ -316,20 +340,20 @@ export function resolveTopList(
   allWines = sanitizeWinesForPublic(allWines);
   // Best overall by value score.
   if (slug === "cele-mai-bune-vinuri-romanesti") {
-    const wines = getTopWinesByValue(allWines, 12);
+    const wines = getTopWinesByQuality(allWines, 12);
     return {
       slug,
       heading: "Cele mai bune vinuri romanesti",
-      metaTitle: "Cele mai bune vinuri romanesti in 2026 - top pe bugete",
+      metaTitle: "Cele mai bune vinuri romanesti in 2026 - top pe calitate",
       metaDescription:
-        "Top vinuri romanesti dupa Value Score: cel mai bun raport calitate-pret, cu preturi in RON, scoruri si pairing-uri.",
+        "Top vinuri romanesti dupa Quality Score, independent de pret. Value Score apare separat doar cand exista o oferta Profitshare valida.",
       intro:
-        "Am ordonat cele mai bune vinuri romanesti dupa Value Score, indicatorul nostru care masoara raportul calitate-pret. Fiecare vin de mai jos a fost evaluat pe baza pretului mediu, a calitatii si a potrivirii cu mancarea romaneasca.",
+        "Am ordonat vinurile romanesti dupa Quality Score, indicatorul de calitate independent de pret. Value Score nu este inlocuit sau inventat: apare doar cand exista o oferta Profitshare proaspata pentru sticla exacta.",
       wines,
-      rankScores: valueScores(wines),
-      faq: buildGenericFaq("cele mai bune vinuri romanesti", wines, "value"),
+      rankScores: qualityScores(wines),
+      faq: buildGenericFaq("cele mai bune vinuri romanesti", wines, "quality"),
       breadcrumbName: "Cele mai bune vinuri romanesti",
-      rankMetric: "value",
+      rankMetric: "quality",
     };
   }
 
@@ -383,19 +407,19 @@ export function resolveTopList(
     const plural = typeMatch[1];
     const wines = allWines
       .filter((w) => w.type === type)
-      .sort(byValueScore)
+      .sort(byQualityScore)
       .slice(0, 12);
     return {
       slug,
       heading: `Cele mai bune vinuri ${plural} romanesti`,
       metaTitle: `Cele mai bune vinuri ${plural} romanesti`,
-      metaDescription: `Top vinuri ${plural} romanesti dupa Value Score, cu preturi in RON, scoruri si recomandari de pairing.`,
-      intro: `Selectia noastra de vinuri ${plural} romanesti, ordonata dupa Value Score. ${wineTypeLabel[type]} de calitate, evaluate transparent dupa raportul calitate-pret.`,
+      metaDescription: `Top vinuri ${plural} romanesti dupa Quality Score, independent de pret, cu diferente si recomandari de pairing.`,
+      intro: `Selectia noastra de vinuri ${plural} romanesti, ordonata dupa Quality Score. ${wineTypeLabel[type]} evaluate transparent pe calitate; Value Score ramane separat si apare doar cu oferta Profitshare valida.`,
       wines,
-      rankScores: valueScores(wines),
-      faq: buildGenericFaq(`vinuri ${plural} romanesti`, wines, "value"),
+      rankScores: qualityScores(wines),
+      faq: buildGenericFaq(`vinuri ${plural} romanesti`, wines, "quality"),
       breadcrumbName: `Vinuri ${plural}`,
-      rankMetric: "value",
+      rankMetric: "quality",
     };
   }
 
@@ -408,7 +432,7 @@ export function resolveTopList(
       slug: grapeSlug,
       name: grapeName,
     })
-      .sort(byValueScore)
+      .sort(byQualityScore)
       .slice(0, 12);
 
     if (wines.length === 0) return null;
@@ -417,13 +441,13 @@ export function resolveTopList(
       slug,
       heading: `Cele mai bune vinuri ${grapeName}`,
       metaTitle: `Cea mai buna ${grapeName}: top vinuri romanesti`,
-      metaDescription: `Cele mai bune vinuri ${grapeName} din Romania, ordonate dupa Value Score, cu preturi in RON si pairing-uri.`,
-      intro: `${grapeName} este unul dintre soiurile reprezentative pentru vinul romanesc. Mai jos gasesti cele mai bune vinuri ${grapeName}, ordonate dupa raportul calitate-pret.`,
+      metaDescription: `Cele mai bune vinuri ${grapeName} din Romania, ordonate dupa Quality Score, cu diferente si pairing-uri.`,
+      intro: `${grapeName} este unul dintre soiurile reprezentative pentru vinul romanesc. Mai jos gasesti cele mai bune vinuri ${grapeName}, ordonate dupa calitate, independent de pret.`,
       wines,
-      rankScores: valueScores(wines),
-      faq: buildGenericFaq(`vinuri ${grapeName}`, wines, "value"),
+      rankScores: qualityScores(wines),
+      faq: buildGenericFaq(`vinuri ${grapeName}`, wines, "quality"),
       breadcrumbName: grapeName,
-      rankMetric: "value",
+      rankMetric: "quality",
     };
   }
 
@@ -498,6 +522,8 @@ export function topListRankSummary(list: ResolvedTopList): string {
   switch (list.rankMetric) {
     case "gift":
       return `Top ${list.wines.length} optiuni, ordonate dupa Gift Score (cat de bine functioneaza ca dar).`;
+    case "quality":
+      return `Top ${list.wines.length} optiuni, ordonate dupa Quality Score (calitate independenta de pret).`;
     case "relevance":
       return `Top ${list.wines.length} optiuni, ordonate dupa potrivirea pentru ocazia aleasa.`;
     default:
@@ -511,6 +537,8 @@ export function topListRankColumnLabel(
   switch (rankMetric) {
     case "gift":
       return "Gift";
+    case "quality":
+      return "Calitate";
     case "relevance":
       return "Potrivire";
     default:
@@ -526,6 +554,8 @@ export function topListRankScore(
   switch (rankMetric) {
     case "gift":
       return resolvePublicSecondaryScores(wine).gift.score;
+    case "quality":
+      return resolvePublicQualityScore(wine).score;
     case "relevance":
       return usesSecondaryV2Ranking() && usesPublicOccasionMatch()
         ? displayedScore ?? null
@@ -558,9 +588,11 @@ function buildGenericFaq(
   const scoreLabel =
     rankMetric === "gift"
       ? "Gift Score"
-      : rankMetric === "relevance"
-        ? "scor de potrivire"
-        : "Value Score";
+      : rankMetric === "quality"
+        ? "Quality Score"
+        : rankMetric === "relevance"
+          ? "scor de potrivire"
+          : "Value Score";
   const scoreValue =
     top == null
       ? undefined
@@ -580,9 +612,11 @@ function buildGenericFaq(
       answer:
         rankMetric === "gift"
           ? "Folosim Gift Score (0-100): cat de sigura si convingatoare este sticla ca alegere de cadou, din calitatea estimata, increderea in date, valoare si caracterul distinctiv. Nu evaluam ambalajul."
-          : rankMetric === "relevance"
-            ? contextualRankingExplanation()
-            : "Folosim Value Score, un indicator de la 0 la 100 care masoara raportul calitate-pret, combinat cu date despre preturi actuale in RON si potrivirea cu mancarea romaneasca.",
+          : rankMetric === "quality"
+            ? "Folosim Quality Score, un indicator de calitate independent de pret. Value Score ramane separat si apare doar cand exista o oferta Profitshare proaspata pentru sticla exacta."
+            : rankMetric === "relevance"
+              ? contextualRankingExplanation()
+              : "Folosim Value Score, un indicator de la 0 la 100 care masoara raportul calitate-pret, combinat cu date despre preturi actuale in RON si potrivirea cu mancarea romaneasca.",
     },
     {
       question: "Cat de des se actualizeaza lista?",

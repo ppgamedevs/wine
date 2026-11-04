@@ -26,6 +26,9 @@ const CARD_COPY: Record<
     verify: string;
     verifyDisabled: string;
     details: string;
+    quality: string;
+    qualityInsufficient: string;
+    valueNotAvailable: string;
   }
 > = {
   ro: {
@@ -39,6 +42,9 @@ const CARD_COPY: Record<
     verify: "Verifica pret",
     verifyDisabled: "disponibil doar pentru cramele verificate",
     details: "Vezi detalii",
+    quality: "Calitate",
+    qualityInsufficient: "Date insuficiente",
+    valueNotAvailable: "Value indisponibil",
   },
   en: {
     unavailable: "Price unavailable",
@@ -51,6 +57,9 @@ const CARD_COPY: Record<
     verify: "Check price",
     verifyDisabled: "available only for verified wineries",
     details: "View details",
+    quality: "Quality",
+    qualityInsufficient: "Insufficient data",
+    valueNotAvailable: "Value unavailable",
   },
 };
 
@@ -92,6 +101,20 @@ function WineCardPriceFooter({
 
   return (
     <div className="mt-auto space-y-3 pt-4">
+      <div className="flex items-center justify-between gap-2 border-b border-border/50 pb-2 text-xs">
+        <span className="text-muted-foreground">{copy.quality}</span>
+        {card.qualityScore != null ? (
+          <span
+            className="font-semibold tabular-nums text-foreground"
+            title={`${copy.quality}: ${card.qualityScore}/100`}
+          >
+            {card.qualityScore}
+            <span className="font-normal text-muted-foreground">/100</span>
+          </span>
+        ) : (
+          <span className="text-muted-foreground">{copy.qualityInsufficient}</span>
+        )}
+      </div>
       {price.status === "unavailable" ? (
         <p className="text-sm font-medium text-muted-foreground">
           {copy.unavailable}

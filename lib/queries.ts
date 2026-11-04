@@ -36,6 +36,10 @@ import { MIN_INDEXABLE_TOP_LIST_WINES } from "@/lib/top-lists";
 import { MIN_RECOMMENDED_VALUE_SCORE } from "@/lib/value-score-thresholds";
 import { VALUE_SCORE_EXCEPTIONAL_MIN } from "@/lib/value-score-thresholds";
 import {
+  QUALITY_EXCEPTIONAL_MIN,
+  QUALITY_RECOMMENDED_MIN,
+} from "@/lib/public-quality-score";
+import {
   MAX_PUBLIC_CATALOG_PAGE,
   WINE_CATALOG_PAGE_SIZE,
   WINERY_DIRECTORY_PAGE_SIZE,
@@ -326,9 +330,9 @@ export async function getFeaturedWines(
       with: { winery: true, region: true },
       where: and(
         catalogWineCondition(),
-        gte(wines.valueScore, MIN_RECOMMENDED_VALUE_SCORE),
+        gte(catalogQuality, QUALITY_RECOMMENDED_MIN),
       ),
-      orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
+      orderBy: (table, { desc: orderDesc }) => [orderDesc(catalogQuality)],
       limit,
     });
     return normalizeWineRows(rows as WineWithRelations[]);
@@ -353,6 +357,7 @@ const CATALOG_WINE_SWEETNESS: WineSweetness[] = [
   "dulce",
 ];
 const catalogPrice = sql<number | null>`coalesce(nullif(${wines.currentPrice}, 0), nullif(${wines.priceAvg}, 0))`;
+const catalogQuality = sql<number | null>`coalesce(${wines.qualityFinal}, ${wines.qualityEffective})`;
 
 function boundedPublicPage(page: number): number {
   if (!Number.isFinite(page)) return 1;
@@ -404,9 +409,9 @@ function wineCatalogFilterCondition(
     conditions.push(eq(wines.sweetness, filters.sweetness));
   }
   if (filters.verdict === "recommended") {
-    conditions.push(gte(wines.valueScore, MIN_RECOMMENDED_VALUE_SCORE));
+    conditions.push(gte(catalogQuality, QUALITY_RECOMMENDED_MIN));
   } else if (filters.verdict === "exceptional") {
-    conditions.push(gte(wines.valueScore, VALUE_SCORE_EXCEPTIONAL_MIN));
+    conditions.push(gte(catalogQuality, QUALITY_EXCEPTIONAL_MIN));
   }
   if (filters.priceBand === "under50") {
     conditions.push(lt(catalogPrice, 50));
@@ -439,7 +444,15 @@ function wineCatalogOrder(filters: PublicWineCatalogFilters): SQL[] {
   if (filters.sort === "name-asc") {
     return [asc(wines.name), asc(wines.slug)];
   }
-  return [desc(wines.valueScore), asc(wines.name), asc(wines.slug)];
+  if (filters.sort === "value-desc") {
+    return [desc(wines.valueScore), asc(wines.name), asc(wines.slug)];
+  }
+  return [
+    sql`${catalogQuality} is null`,
+    desc(catalogQuality),
+    asc(wines.name),
+    asc(wines.slug),
+  ];
 }
 
 function facetMap<T extends string>(
@@ -919,7 +932,7 @@ export async function getSimilarWines(
         ),
       ),
       with: { winery: true, region: true },
-      orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
+      orderBy: (table, { desc: orderDesc }) => [orderDesc(catalogQuality)],
       limit,
     });
     return normalizeWineRows(rows as WineWithRelations[]);
@@ -941,10 +954,10 @@ export async function getRecommendedWines(
       where: andCatalog(
         ne(wines.id, wine.id),
         eq(wines.type, wine.type),
-        gte(wines.valueScore, MIN_RECOMMENDED_VALUE_SCORE),
+        gte(catalogQuality, QUALITY_RECOMMENDED_MIN),
       ),
       with: { winery: true, region: true },
-      orderBy: (table, { desc: orderDesc }) => [orderDesc(table.valueScore)],
+      orderBy: (table, { desc: orderDesc }) => [orderDesc(catalogQuality)],
       limit: limit + 6,
     });
 
