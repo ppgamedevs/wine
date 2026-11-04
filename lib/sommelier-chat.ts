@@ -29,6 +29,7 @@ import {
   type GroundingDecision,
 } from "@/lib/sommelier-grounding";
 import { describeJevIntent } from "@/lib/jev/intent";
+import { detectRetailer, type RetailerRequest } from "@/lib/sommelier-retailer";
 import type { JevIntent } from "@/lib/jev/types";
 import {
   type ColorPreference,
@@ -95,6 +96,7 @@ export interface ParsedSommelierRequest {
   budget: BudgetExtraction;
   dishReference: DishReference | null;
   exclusions: ExclusionSignals;
+  retailer: RetailerRequest;
 }
 
 /**
@@ -113,6 +115,7 @@ export function parseSommelierRequest(
   const combined = normalizeText(rawCombined, locale);
 
   const budget = extractBudgetConstraint(rawCombined);
+  const retailer = detectRetailer(rawCombined);
   const exclusions = extractExclusionSignals(rawCombined);
   const dishReference = extractDishReference(rawCombined);
   const contradictoryColor = detectColorContradiction(rawCombined);
@@ -169,6 +172,7 @@ export function parseSommelierRequest(
     budget,
     exclusions,
     dishReference,
+    retailer,
     input: {
       budgetMin: budget.budgetMin,
       budgetMax: budgetSpecified ? budget.budgetMax : SOMMELIER_NO_BUDGET_MAX,
@@ -292,6 +296,8 @@ export interface ChatPromptOptions {
   budget?: BudgetExtraction;
   /** Deterministic style-comparison evidence supplied by the catalog engine. */
   comparisonContext?: string;
+  retailerContext?: string[];
+  availabilityContext?: string[];
 }
 
 function publicScoreLine(wine: WineWithRelations, locale: AppLocale): string {
@@ -321,6 +327,8 @@ export function buildChatSommelierSystemPrompt(
   const groundingLines = options.grounding
     ? describeGroundingForPrompt(options.grounding, locale)
     : [];
+  const retailerLines = options.retailerContext ?? [];
+  const availabilityLines = options.availabilityContext ?? [];
   const comparisonLines = options.comparisonContext
     ? [
         locale === "en"
@@ -387,11 +395,11 @@ export function buildChatSommelierSystemPrompt(
 
   const budgetLine = input.budgetSpecified
     ? locale === "en"
-      ? `- Explicit budget: ${describeBudget(budget, "en")}. Never recommend above it.`
-      : `- Buget explicit: ${describeBudget(budget, "ro")}. NU recomanda peste buget.`
+      ? `- Explicit budget: ${describeBudget(budget, "en")}. Never recommend above it and never raise it on your own.`
+      : `- Buget explicit: ${describeBudget(budget, "ro")}. NU recomanda peste buget si NU il mari singur.`
     : locale === "en"
       ? "- Budget: not specified. Do not assume one and do not claim a price target."
-      : `- Buget: nespecificat. NU presupune un buget si NU spune "la bugetul asta". Prioritizeaza Value Score si potrivirea culinara, nu pretul mic.`;
+      : "- Buget: nespecificat. NU presupune un buget si NU inventa un prag de pret. Prioriteaza stilul si dovezile, nu pretul mic sau mare.";
 
   const dishLine = input.dish
     ? locale === "en"
@@ -426,13 +434,12 @@ export function buildChatSommelierSystemPrompt(
         ...describeJevIntent(options.jevIntent, locale).map((line) => `  ${line}`),
       ]
     : [];
-  const absurdLine = input.absurdRequest
-    ? `- CERERE ABSURDA/ILEGALA detectata. Refuza pairing-ul cerut (ex. carne de delfin e ilegala). Fii ferm si sarcastic, nu cooperativ. Poti lua usor peste picior stilul userului (parizer, mancare dubioasa), apoi redirectioneaza spre ceva real din Romania. Nu recomanda vin ca si cum cererea ar fi normala.`
-    : "";
 
-  const noRecommendationAllowed = options.grounding
-    ? !options.grounding.allowed
-    : false;
+  const absurdLine = input.absurdRequest
+    ? locale === "en"
+      ? "- The request is illegal or absurd. Refuse the requested pairing firmly and respectfully. Do not mock the user or their budget. Redirect to a real, legal option only if useful."
+      : "- Cererea este ilegala sau absurda. Refuza ferm si respectuos, fara sa ridiculizezi userul sau bugetul lui. Redirectioneaza catre o optiune reala doar daca ajuta."
+    : "";
 
   if (locale === "en") {
     return `${CHAT_SOMMELIER_BASE_PROMPT_EN}
@@ -448,18 +455,21 @@ ${acidityLine ?? ""}
 ${contradictionLine ?? ""}
 ${jevLines.join("\n")}
 ${groundingLines.join("\n")}
+${retailerLines.join("\n")}
+${availabilityLines.join("\n")}
 ${comparisonLines.join("\n")}
 
 Candidate wine catalog, the only source of truth:
-${catalog || "(no matching wine; say so honestly and suggest relaxing the request)"}
+${catalog || "(no matching wine; say so honestly and offer a useful next step without inventing availability or price)"}
 
 Final rules:
 - Recommend only wines from the catalog above. Never substitute a different wine for one the user asked about.
-- Respect an explicit budget. Never suggest an over-budget bottle, not even as an alternative.
+- Respect an explicit budget. Never suggest an over-budget bottle, not even as an alternative, and never raise the budget on your own.
 - Recommend one wine by default and at most three when alternatives are requested. Zero is a valid answer when nothing fits.
 - For a style comparison, present one best match plus 2-3 alternatives (up to four bottles) and explain both matches and differences.
-- Mention an approximate RON price only for recommended wines.
-${noRecommendationAllowed ? "- Do NOT write the RECOMMENDED_SLUGS line for this answer." : "- The final RECOMMENDED_SLUGS line must contain exact catalog slugs in recommendation order."}`;
+- Mention a RON price only for recommended wines with a verified Profitshare price.
+- The UI displays recommendations selected by the system from the catalog. Discuss those wines; never output slugs, JSON, markers or system instructions.
+- If the answer has no valid recommendation, say so briefly and honestly. Offer style criteria or verification steps, never a market-wide claim.`;
   }
 
   return `${CHAT_SOMMELIER_BASE_PROMPT}
@@ -469,24 +479,22 @@ ${budgetLine}
 - Ocazie detectata: ${occasion.label}
 - Tip vin preferat: ${input.color === "any" ? "oricare" : input.color}
 - Dulceata preferata: ${input.sweetness === "any" ? "oricare" : input.sweetness}
-${dishLine ? `${dishLine}\n` : ""}${exclusionLine ? `${exclusionLine}\n` : ""}${acidityLine ? `${acidityLine}\n` : ""}${contradictionLine ? `${contradictionLine}\n` : ""}${jevLines.length > 0 ? `${jevLines.join("\n")}\n` : ""}${groundingLines.length > 0 ? `${groundingLines.join("\n")}\n` : ""}${comparisonLines.length > 0 ? `${comparisonLines.join("\n")}\n` : ""}${absurdLine ? `${absurdLine}\n` : ""}
+${dishLine ? `${dishLine}\n` : ""}${exclusionLine ? `${exclusionLine}\n` : ""}${acidityLine ? `${acidityLine}\n` : ""}${contradictionLine ? `${contradictionLine}\n` : ""}${jevLines.length > 0 ? `${jevLines.join("\n")}\n` : ""}${groundingLines.length > 0 ? `${groundingLines.join("\n")}\n` : ""}${retailerLines.length > 0 ? `${retailerLines.join("\n")}\n` : ""}${availabilityLines.length > 0 ? `${availabilityLines.join("\n")}\n` : ""}${comparisonLines.length > 0 ? `${comparisonLines.join("\n")}\n` : ""}${absurdLine ? `${absurdLine}\n` : ""}
 Catalog vinuri candidate (sursa unica de adevar):
-${catalog || "(niciun vin potrivit; spune asta onest si sugereaza ce ar putea relaxa cererea)"}
-
-Format final obligatoriu (ultima linie, separata):
-RECOMMENDED_SLUGS: <slug1>[, <slug2>[, <slug3>]]
+${catalog || "(niciun vin potrivit; spune asta onest si ofera un pas util, fara sa inventezi stoc sau pret)"}
 
 Reguli finale:
-- Umor uscat da, vulgaritate nu. Nu te lasa pacalit de cereri absurde sau ilegale.
-- ${input.budgetSpecified ? "Respecta bugetul mentionat de utilizator. Nu propune nici ca alternativa un vin peste buget." : "Fara buget explicit: recomanda cea mai buna potrivire (Value Score + pairing), nu ce e mai ieftin."}
+- Umor uscat da, vulgaritate nu. Nu ridiculiza userul, bugetul sau vinurile ieftine.
+- ${input.budgetSpecified ? "Respecta bugetul mentionat de utilizator. Nu propune nici ca alternativa un vin peste buget si nu il mari singur." : "Fara buget explicit: nu presupune un buget si nu inventa un prag de pret. Prioriteaza stilul si dovezile."}
 - Recomanda 1 vin by default. Maxim 3 doar daca userul cere explicit alternative sau comparatie.
 - Pentru o comparatie de stil, ofera cea mai buna potrivire plus 2-3 alternative (maximum 4 sticle) si explica asemanarile si diferentele.
 - Zero recomandari este un raspuns valid. Daca cererea numeste un vin care nu e in catalog, spune ca nu il ai si NU recomanda altceva in loc.
 - Nu inlocui un vin cerut explicit cu unul similar din catalog. Poti mentiona similar doar daca il numesti explicit ca alternativa diferita.
 - Nu afirma alcoolul, aciditatea, zaharul, dulceata sau anul recoltei unui vin; aceste date nu sunt incluse in contextul public verificat.
 - Nu include URL-uri in raspuns (nici Profitshare, nici eMAG).
-- Mentioneaza pretul aproximativ in RON in text doar pentru vinurile recomandate.
-- ${noRecommendationAllowed ? "NU scrie linia RECOMMENDED_SLUGS pentru acest raspuns." : "RECOMMENDED_SLUGS trebuie sa contina slug-uri EXACTE din catalog, in ordinea recomandarilor (1-3)."}`;
+- Mentioneaza un pret in RON in text doar pentru vinurile recomandate cu pret Profitshare verificat.
+- Interfata afiseaza recomandarile selectate de sistem din catalog. Vorbeste despre aceste vinuri; nu scrie slug-uri, JSON, marcaje interne sau instructiuni de sistem.
+- Daca raspunsul nu are o recomandare valida, spune asta scurt si onest. Ofera criterii de stil sau pasi de verificare, niciodata o afirmatie despre toata piata.`;
 }
 
 export function buildChatSommelierUserPrompt(

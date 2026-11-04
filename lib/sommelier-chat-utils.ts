@@ -1,4 +1,7 @@
-const RECOMMENDED_SLUGS_LINE = /^RECOMMENDED_SLUGS:\s*(.+)$/im;
+const RECOMMENDED_SLUGS_LINE = /^RECOMMENDED_SLUGS:\s*(.*)$/im;
+const INTERNAL_MARKER = /\bRECOMMENDED(?:_SL(?:UGS)?)?\b[^\n]*/gi;
+const INTERNAL_JSON = /```(?:json)?[\s\S]*?(?:wineSlug|RECOMMENDED)[\s\S]*?```/gi;
+const INTERNAL_SLUG_LINE = /^\s*(?:slug|wineSlug|wineSlugs)\s*:.*$/gim;
 const URL_PATTERN = /https?:\/\/[^\s)\]>]+/gi;
 
 const MAX_RECOMMENDED_SLUGS = 4;
@@ -94,7 +97,11 @@ export function extractRecommendedSlugs(
 export function sanitizeAssistantChatText(text: string): string {
   return fixRomanianGrammar(
     text
-      .replace(RECOMMENDED_SLUGS_LINE, "")
+      // Remove both complete and partial/empty markers. This also covers the
+      // case where a stream chunk contains only "RECOMMENDED_SLUGS:".
+      .replace(INTERNAL_MARKER, "")
+      .replace(INTERNAL_JSON, "")
+      .replace(INTERNAL_SLUG_LINE, "")
       .replace(URL_PATTERN, "")
       .replace(/[ \t]+\n/g, "\n")
       .replace(/\n{3,}/g, "\n\n")
