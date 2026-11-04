@@ -45,6 +45,8 @@ export interface ReferenceStyle extends StyleVector {
   aliases: string[];
   grape?: string;
   origin: { region: string; country: string };
+  /** Optional canonical cluster parent for closely related references. */
+  clusterId?: string;
 }
 
 export interface ComparisonIntent {
@@ -143,6 +145,7 @@ export const STYLE_REFERENCES: ReferenceStyle[] = [
     id: "chianti",
     name: "Chianti",
     aliases: ["chianti classico", "chianti"],
+    clusterId: "chianti",
     grape: "Sangiovese",
     origin: { region: "Tuscany", country: "Italy" },
     color: "red",
@@ -162,6 +165,7 @@ export const STYLE_REFERENCES: ReferenceStyle[] = [
     id: "sangiovese",
     name: "Sangiovese",
     aliases: ["sangiovese"],
+    clusterId: "chianti",
     grape: "Sangiovese",
     origin: { region: "Tuscany", country: "Italy" },
     color: "red",
@@ -384,6 +388,25 @@ export const STYLE_REFERENCES: ReferenceStyle[] = [
     freshness: 4.2,
     ageability: 3,
     food: ["vegetables", "fish", "pork", "asian food"],
+    climate: ["cool", "continental"],
+  },
+  {
+    id: "prosecco",
+    name: "Prosecco",
+    aliases: ["prosecco"],
+    grape: "Glera",
+    origin: { region: "Veneto", country: "Italy" },
+    color: "sparkling",
+    body: 1.4,
+    acidity: 4,
+    tannin: 0,
+    alcohol: 1.5,
+    sweetness: 0.5,
+    aromatic: ["green apple", "pear", "white flowers", "lemon"],
+    oak: 0,
+    freshness: 4.3,
+    ageability: 1.8,
+    food: ["salty starters", "fried food", "seafood", "brunch"],
     climate: ["cool", "continental"],
   },
   {
@@ -638,7 +661,7 @@ const KNOWN_ORIGINS = [
 ];
 
 const COMPARISON_CUES =
-  /\b(?:closest|nearest|similar|equivalent|like|enjoy|alternative|instead of|compare|comparison|versus|vs|what romanian|which romanian|should i try|should i drink|asemanator|apropiat|alternativa|comparatie|ce vin romanesc|care vin romanesc|cu ce se compara|ce sa incerc)\b/;
+  /\b(?:closest|nearest|similar|equivalent|equivalents|like|enjoy|alternatives?|instead of|compare|comparison|versus|vs|what romanian|which romanian|should i try|should i drink|lovers|for .* lovers|asemanator|apropiat|alternativa|comparatie|iubitor|ce vin romanesc|care vin romanesc|cu ce se compara|ce sa incerc)\b/;
 
 const ORIGIN_PATTERN =
   /\b(?:from|din)\s+([a-z][a-z\s-]{2,30}?)(?=\s+(?:in|din|from|19|20|\d{4})|\s*[,.;]|$)/;

@@ -76,6 +76,9 @@ export default async function CatalogQualityPage({
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
+            <Link href="/admin/pseo-drafts">PSEO flywheel</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
             <Link href="/admin/data-quality">Data quality</Link>
           </Button>
           <Button asChild variant="outline" size="sm">

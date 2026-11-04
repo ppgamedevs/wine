@@ -40,6 +40,7 @@ import { isSommelierGroundingEnabled } from "@/lib/sommelier-grounding-mode";
 import { recommendWines } from "@/lib/sommelier";
 import { loadComparisonClaims } from "@/lib/sommelier-evidence";
 import { loadVintageSignals } from "@/lib/sommelier-vintage-evidence";
+import { recordSommelierQuestion } from "@/lib/pseo-flywheel-service";
 import {
   findClosestRomanianWines,
   formatComparisonContext,
@@ -449,6 +450,24 @@ export async function POST(req: Request) {
             data: recommendations,
           });
         }
+
+        await recordSommelierQuestion({
+          rawQuery: latestUserText,
+          language: locale,
+          answerQuality:
+            grounding.allowed &&
+            recommendations.length > 0 &&
+            fullText.trim().length > 120
+              ? "high"
+              : "low",
+          recommendationCount: recommendations.length,
+          comparisonReference: comparison?.intent.referenceName ?? null,
+          metadata: {
+            groundingReason: grounding.reason,
+            candidateCount: candidates.length,
+            comparisonBest: comparison?.best.wine.slug ?? null,
+          },
+        });
 
         logJevEvent("info", "sommelier_request_completed", {
           mode: jevConfig.mode,

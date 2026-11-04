@@ -1495,3 +1495,151 @@ export const wineEnrichmentRuns = sqliteTable(
     ),
   ],
 );
+
+/* -------------------------------------------------------------------------- */
+/*                    Sommelier demand to PSEO flywheel                        */
+/* -------------------------------------------------------------------------- */
+
+export interface SommelierIntentEntities {
+  references: string[];
+  grapes: string[];
+  regions: string[];
+  wineries: string[];
+  wines: string[];
+  vintages: number[];
+}
+
+export const SOMMELIER_ANSWER_QUALITIES = ["high", "low", "unknown"] as const;
+export type SommelierAnswerQuality =
+  (typeof SOMMELIER_ANSWER_QUALITIES)[number];
+
+export const PSEO_DRAFT_STATUSES = [
+  "draft",
+  "approved",
+  "published",
+  "rejected",
+] as const;
+export type PseoDraftStatus = (typeof PSEO_DRAFT_STATUSES)[number];
+
+export const PSEO_PUBLISH_RECOMMENDATIONS = [
+  "publish",
+  "review",
+  "reject",
+] as const;
+export type PseoPublishRecommendation =
+  (typeof PSEO_PUBLISH_RECOMMENDATIONS)[number];
+
+/** Structured record of a real sommelier question. */
+export const sommelierQuestionIntents = sqliteTable(
+  "sommelier_question_intents",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    rawQuery: text("raw_query").notNull(),
+    normalizedQuery: text("normalized_query").notNull(),
+    entitiesJson: text("entities_json", { mode: "json" })
+      .$type<SommelierIntentEntities>()
+      .notNull(),
+    topicCluster: text("topic_cluster").notNull(),
+    canonicalQuestion: text("canonical_question").notNull(),
+    intentType: text("intent_type").notNull(),
+    language: text("language", { enum: ["ro", "en", "other"] }).notNull(),
+    answerQuality: text("answer_quality", {
+      enum: SOMMELIER_ANSWER_QUALITIES,
+    })
+      .notNull()
+      .default("unknown"),
+    similarPageExists: integer("similar_page_exists", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    blocked: integer("blocked", { mode: "boolean" }).notNull().default(false),
+    blockReason: text("block_reason"),
+    source: text("source").notNull().default("sommelier_chat"),
+    metadataJson: text("metadata_json", { mode: "json" })
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default(sql`'{}'`),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    index("sommelier_question_intents_cluster_idx").on(table.topicCluster),
+    index("sommelier_question_intents_normalized_idx").on(table.normalizedQuery),
+    index("sommelier_question_intents_created_idx").on(table.createdAt),
+    index("sommelier_question_intents_quality_idx").on(table.answerQuality),
+  ],
+);
+
+/** Generated PSEO candidates. Public indexing is off until explicit approval. */
+export const pseoDraftPages = sqliteTable(
+  "pseo_draft_pages",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    slug: text("slug").notNull(),
+    locale: text("locale", { enum: ["ro", "en"] }).notNull(),
+    pageType: text("page_type").notNull(),
+    title: text("title").notNull(),
+    metaTitle: text("meta_title").notNull(),
+    metaDescription: text("meta_description").notNull(),
+    intro: text("intro").notNull(),
+    contentMarkdown: text("content_markdown").notNull(),
+    sectionsJson: text("sections_json", { mode: "json" })
+      .$type<Array<{ heading: string; body: string }>>()
+      .notNull()
+      .default(sql`'[]'`),
+    faqJson: text("faq_json", { mode: "json" })
+      .$type<Array<{ question: string; answer: string }>>()
+      .notNull()
+      .default(sql`'[]'`),
+    sourcesJson: text("sources_json", { mode: "json" })
+      .$type<Array<{ label: string; href?: string }>>()
+      .notNull()
+      .default(sql`'[]'`),
+    generatedFromIntentCluster: text("generated_from_intent_cluster").notNull(),
+    clusterKey: text("cluster_key").notNull(),
+    confidence: real("confidence").notNull().default(0),
+    publishRecommendation: text("publish_recommendation", {
+      enum: PSEO_PUBLISH_RECOMMENDATIONS,
+    })
+      .notNull()
+      .default("review"),
+    noindexUntilApproved: integer("noindex_until_approved", {
+      mode: "boolean",
+    })
+      .notNull()
+      .default(true),
+    status: text("status", { enum: PSEO_DRAFT_STATUSES })
+      .notNull()
+      .default("draft"),
+    supportingWineCount: integer("supporting_wine_count").notNull().default(0),
+    demandCount: integer("demand_count").notNull().default(0),
+    qualityGateJson: text("quality_gate_json", { mode: "json" })
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default(sql`'{}'`),
+    sourceIntentIdsJson: text("source_intent_ids_json", { mode: "json" })
+      .$type<number[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    reviewNotes: text("review_notes"),
+    approvedAt: text("approved_at"),
+    approvedBy: text("approved_by"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    uniqueIndex("pseo_draft_pages_slug_locale_uidx").on(
+      table.slug,
+      table.locale,
+    ),
+    index("pseo_draft_pages_cluster_idx").on(table.clusterKey),
+    index("pseo_draft_pages_status_idx").on(table.status),
+    index("pseo_draft_pages_recommendation_idx").on(
+      table.publishRecommendation,
+    ),
+  ],
+);
