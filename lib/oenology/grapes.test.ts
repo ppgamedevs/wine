@@ -172,6 +172,29 @@ describe("grape encyclopedia guides", () => {
     }
   });
 
+  it("supports the structured sommelier editorial model on Mustoasa", () => {
+    const guide = getGrapeGuide("mustoasa-de-maderat");
+    expect(guide).toBeDefined();
+    for (const locale of ["ro", "en"] as const) {
+      const copy = guide!.copy[locale];
+      expect(copy.answer.length).toBeGreaterThan(120);
+      expect(copy.tastingProfile).toBeDefined();
+      expect(Object.values(copy.tastingProfile!).every((value) => value.length > 20)).toBe(
+        true,
+      );
+      expect(copy.editorialSections?.map((section) => section.kind)).toEqual([
+        "verified",
+        "generalization",
+        "interpretation",
+      ]);
+      expect(copy.buyingChecklist?.length).toBeGreaterThanOrEqual(3);
+      expect(copy.whatCanGoWrong?.length).toBeGreaterThanOrEqual(3);
+      expect(copy.facts.length).toBeGreaterThanOrEqual(6);
+      const serialized = JSON.stringify(copy);
+      expect(serialized).not.toMatch(/[\u2013\u2014]/);
+    }
+  });
+
   it("keeps the elegant fallback when an image is absent", () => {
     const withoutImage = getGrapeGuide("riesling");
     expect(withoutImage).toBeDefined();

@@ -17,6 +17,25 @@ export interface GrapeSource {
   href?: string;
 }
 
+export type GrapeEpistemicKind =
+  | "verified"
+  | "generalization"
+  | "interpretation";
+
+export interface GrapeTastingProfile {
+  aroma: string;
+  palate: string;
+  structure: string;
+  finish: string;
+}
+
+export interface GrapeEditorialSection {
+  id: string;
+  title: string;
+  body: string;
+  kind: GrapeEpistemicKind;
+}
+
 export interface GrapeGuideCopy {
   name: string;
   alsoKnownAs: string[];
@@ -32,6 +51,11 @@ export interface GrapeGuideCopy {
   facts: GrapeFact[];
   faq: GrapeFaqItem[];
   sources: GrapeSource[];
+  /** Premium template fields. Optional so every existing guide remains valid. */
+  tastingProfile?: GrapeTastingProfile;
+  editorialSections?: GrapeEditorialSection[];
+  buyingChecklist?: string[];
+  whatCanGoWrong?: string[];
 }
 
 export interface GrapeGalleryImage {

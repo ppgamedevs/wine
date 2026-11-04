@@ -219,6 +219,36 @@ export async function GrapeEncyclopedia({
           </dl>
         </section>
 
+        {copy.tastingProfile ? (
+          <section aria-labelledby="tasting-profile-heading">
+            <h2
+              id="tasting-profile-heading"
+              className="font-serif text-2xl font-semibold text-foreground"
+            >
+              {locale === "ro" ? "Profil de degustare" : "Tasting profile"}
+            </h2>
+            <dl className="mt-6 grid gap-px overflow-hidden rounded-2xl border border-border/70 bg-border/70 sm:grid-cols-2">
+              {(
+                [
+                  ["aroma", locale === "ro" ? "Aromă" : "Aroma", copy.tastingProfile.aroma],
+                  ["palate", locale === "ro" ? "Palat" : "Palate", copy.tastingProfile.palate],
+                  ["structure", locale === "ro" ? "Structură" : "Structure", copy.tastingProfile.structure],
+                  ["finish", locale === "ro" ? "Final" : "Finish", copy.tastingProfile.finish],
+                ] as const
+              ).map(([key, label, value]) => (
+                <div key={key} className="bg-card px-5 py-4 sm:px-6">
+                  <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {label}
+                  </dt>
+                  <dd className="mt-1 text-sm leading-relaxed text-foreground">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ) : null}
+
         <ProseBlock id="intro" title={copy.name} body={copy.intro} visuallyHideTitle />
 
         <ProseBlock
@@ -236,6 +266,47 @@ export async function GrapeEncyclopedia({
           title={grapeCopy.romaniaHeading}
           body={copy.inRomania}
         />
+
+        {copy.editorialSections && copy.editorialSections.length > 0 ? (
+          <section aria-labelledby="editorial-heading" className="space-y-4">
+            <h2
+              id="editorial-heading"
+              className="font-serif text-2xl font-semibold text-foreground"
+            >
+              {locale === "ro" ? "Lectură de somelier" : "Sommelier reading"}
+            </h2>
+            {copy.editorialSections.map((section) => {
+              const kindLabel =
+                locale === "ro"
+                  ? section.kind === "verified"
+                    ? "Fapt verificat"
+                    : section.kind === "generalization"
+                      ? "Generalizare stilistică"
+                      : "Interpretare editorială"
+                  : section.kind === "verified"
+                    ? "Verified fact"
+                    : section.kind === "generalization"
+                      ? "Stylistic generalisation"
+                      : "Editorial interpretation";
+              return (
+                <article
+                  key={section.id}
+                  className="rounded-2xl border border-border/70 bg-card p-5 sm:p-6"
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-wine">
+                    {kindLabel}
+                  </p>
+                  <h3 className="mt-2 font-serif text-xl font-semibold text-foreground">
+                    {section.title}
+                  </h3>
+                  <p className="mt-2 text-base leading-relaxed text-muted-foreground">
+                    {section.body}
+                  </p>
+                </article>
+              );
+            })}
+          </section>
+        ) : null}
 
         <section aria-labelledby="pairing-heading">
           <h2
@@ -268,6 +339,45 @@ export async function GrapeEncyclopedia({
           title={grapeCopy.chooseHeading}
           body={copy.howToChoose}
         />
+
+        {copy.buyingChecklist && copy.buyingChecklist.length > 0 ? (
+          <section aria-labelledby="buying-checklist-heading">
+            <h2
+              id="buying-checklist-heading"
+              className="font-serif text-2xl font-semibold text-foreground"
+            >
+              {locale === "ro" ? "Checklist de cumpărare" : "Buying checklist"}
+            </h2>
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+              {copy.buyingChecklist.map((item) => (
+                <li
+                  key={item}
+                  className="rounded-xl border border-border/70 bg-card px-4 py-3 text-sm leading-relaxed text-muted-foreground"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {copy.whatCanGoWrong && copy.whatCanGoWrong.length > 0 ? (
+          <section aria-labelledby="what-can-go-wrong-heading">
+            <h2
+              id="what-can-go-wrong-heading"
+              className="font-serif text-2xl font-semibold text-foreground"
+            >
+              {locale === "ro"
+                ? "Ce poate merge prost"
+                : "What can go wrong"}
+            </h2>
+            <ul className="mt-5 space-y-2 border-l-2 border-wine/30 pl-5 text-base leading-relaxed text-muted-foreground">
+              {copy.whatCanGoWrong.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         <section aria-labelledby="catalog-heading">
           <div className="flex flex-wrap items-end justify-between gap-3">

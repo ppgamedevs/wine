@@ -1294,93 +1294,205 @@ export const INDIGENOUS_GRAPE_GUIDES: GrapeGuide[] = [
     copy: {
       ro: {
         name: "Mustoasa de Maderat",
-        alsoKnownAs: ["Mustoasa"],
-        metaTitle: "Mustoasa de Maderat: alb acid din Minis",
+        alsoKnownAs: ["Mustoasa", "Mustoasa de Maderat"],
+        metaTitle: "Mustoasa de Maderat: ghidul unui alb de Minis cu aciditate",
         metaDescription:
-          "Mustoasa de Maderat in Banat: aciditate, citrice si de ce e vin de peste, nu de desert.",
+          "Mustoasa de Maderat, soiul alb al Minisului: stil, profil de degustare, regiune, logica asocierilor si cum alegi o sticla.",
         answer:
-          "Mustoasa de Maderat e un alb banatean, de obicei foarte acid, citric, cu corp usor. Numele vine din mustul abundent al strugurelui, nu din dulceata. E vin de peste, de vara si de aperitiv sarat. Daca o vrei cremoasa si vanilata, alegi alt soi.",
+          "Mustoasa de Maderat este un alb autohton din zona Minis-Maderat, Arad, construit in jurul aciditatii si al texturii, nu al dulcetii. Exemplele reusite sunt uscate, citrice, cu fruct alb si o salinitate discreta; corpul ramane suplu. Este un vin de masa cu tensiune, nu un alb aromat si nici un desert.",
         intro:
-          "E o specialitate de Minis-Maderat, nu un alb generic de catalog. Cramele care o respecta o tin seaca si vie. Cele care se tem de acid adauga zahar si o strica. Cere sec.",
+          "Putine soiuri romanesti cer atat de clar o decizie de stil. Mustoasa nu castiga prin aroma spectaculoasa sau prin lemn, ci prin tensiunea dintre aciditate, extract si un fruct care nu trebuie lasat sa devina obosit. O sticla buna nu ascunde acidul sub zahar, ci il aseaza in centrul vinului. De aceea, cand este facuta cu intentie, pare mai putin o curiozitate de catalog si mai mult un vin de masa foarte precis.",
         inTheGlass:
-          "Lamâie, merisoare albe, verdeata, sare. Finalul trebuie sa fie uscat si taios. Amareala scurta e defect, nu terroir.",
+          "Intr-un exemplu puternic, nasul sta aproape de coaja de lamie, mar verde, piersica alba si ierburi de gradina; uneori apare o nota de piatra umeda. Atacul este direct, fara grasime, mijlocul ramane suplu, iar finalul se inchide uscat si usor sarat. Aciditatea este vizibila, dar nu trebuie sa muste ca un citric nedumerit: are nevoie de extract si de un fruct matur in spate.",
         origin:
-          "Soi local din podgoria Minis-Maderat. Face pereche istorica cu Cadarca: un alb acid langa un rosu de terasa. Nu e un Sauvignon importat.",
+          "Soiul este asociat istoric cu podgoria Minis-Maderat, in judetul Arad, la contactul Banatului cu Crisana. Nu este un Sauvignon rebotezat si nici un soi international cu nume local. În zona, identitatea lui se leaga de un alb de casa, baut la masa, nu de un vin de concurs construit pentru note mari.",
         inRomania:
-          "Banat, aproape exclusiv. Productie mica. Daca vezi Mustoasa pe o eticheta din alta regiune, verifica daca e acelasi soi sau un nume folosit lejer.",
+          "În catalogul romanesc, Mustoasa ramane o specialitate de nisa. Este greu de gasit in afara Minis-Maderatului, iar volumele mici fac din fiecare sticla o ocazie. Daca apare pe o eticheta din alta regiune, verifica producatorul si soiul; nu presupune ca numele este folosit cu aceeasi rigoare peste tot.",
         pairing:
-          "Peste, icre, salate, zacuscă nu prea grasa, branza proaspata. Evita desertul. Un demisec exista, dar masa sarata cere sec.",
+          "Logica este simpla: aciditatea taie grasimea si ridica salinitatea, fara sa acopere preparatul. Functioneaza cu peste prajit, ciorba de peste, icre, branza de oaie proaspata, legume la cuptor si aperitive sarate. Nu are nevoie de salsa sau de sosuri dulci. Un desert il face sa para ascutit si gol; daca alegi o versiune demisec, duce mai bine o branza grasa decat o prajitura.",
         howToChoose:
-          "Crama din Minis sau Banat, an recent, sec. Serveste bine racita. Be-o tanara.",
+          "Cauta un vin sec, dintr-o recolta recenta, cu indicarea Miniș-Măderat si cu un producator care stie ce face cu aciditatea. Un alcool de 11-13% este un reper rezonabil, nu o garantie. Evita sticlele in care fructul este ascuns de zahar, de lemn mult sau de o aciditate verde, necoapta. Serveste-l la 8-10 grade, nu inghetat, si lasa-l sa se incalzeasca in pahar.",
         facts: [
           { label: "Culoare", value: "Alb" },
-          { label: "Origine", value: "Minis-Maderat, Banat" },
-          { label: "Stil tipic", value: "Aciditate inalta, citrice, corp usor" },
-          { label: "La masa", value: "Peste, icre, aperitive sarate" },
+          { label: "Origine", value: "Minis-Maderat, Arad" },
+          { label: "Stil tipic", value: "Sec, acid, corp suplu" },
+          { label: "Aroma", value: "Citrice, fruct alb, ierburi" },
+          { label: "Textura", value: "Aciditate inalta, final sarat" },
+          { label: "La masa", value: "Peste, icre, branza proaspata" },
         ],
         faq: [
           {
-            question: "Mustoasa inseamna ca e dulce?",
+            question: "Mustoasa inseamna ca vinul este dulce?",
             answer:
-              "Nu. Numele tine de mustul strugurelui. Stilul bun e sec si acid.",
+              "Nu. Numele are legatura cu mustul strugurelui, nu cu zaharul din pahar. Stilul de referinta este sec, iar dulceata nu este o calitate implicita.",
+          },
+          {
+            question: "Se bea tanara sau poate sta in sticla?",
+            answer:
+              "Majoritatea exemplelor castiga din prospetime si se bea in primii ani. Unele sticle mai extractive pot evolutiona cateva sezoane, dar nu promitem o longevitate pe care producatorul nu o sustine.",
           },
           {
             question: "Se compara cu Cramposia?",
             answer:
-              "Pe aciditate, da, ca idee. Sunt soiuri din regiuni diferite. Mustoasa e poveste de Banat, Cramposia de Dragasani.",
+              "Ambele pot avea aciditate vie, dar sunt soiuri diferite, din regiuni diferite. Mustoasa este povestea Minis-Maderatului, Cramposia a Dragasanilor. Asemanarea de structura nu le face interschimbabile.",
           },
           {
-            question: "E usoara de gasit?",
+            question: "De ce nu o gasesc in supermarket?",
             answer:
-              "Nu. Volumele sunt mici. Cand o gasesti, e o ocazie, nu un stoc de supermarket.",
+              "Plantatiile sunt mici si putine crame o lucreaza. Cand o gasesti, este mai probabil o sticla de producator decat un volum de raft. Verifica intotdeauna eticheta si recolta.",
           },
         ],
-        sources: [{ label: "Ghid VinIntel Minis-Maderat" }],
+        sources: [
+          { label: "Ghid VinIntel Minis-Maderat" },
+          { label: "Note de degustare VinIntel" },
+        ],
+        tastingProfile: {
+          aroma:
+            "Coaja de lamie, mar verde, piersica alba, ierburi de gradina; uneori piatra umeda.",
+          palate:
+            "Fruct alb matur, dar fara dulceata; textura supla, cu o impresie de sare pe final.",
+          structure:
+            "Aciditate inalta, alcool moderat, corp usor spre mediu, extract discret.",
+          finish:
+            "Usor, curat si taios; nu trebuie sa lase amareala lunga sau zahar pe buze.",
+        },
+        editorialSections: [
+          {
+            id: "mustoasa-verified",
+            title: "Ce putem afirma despre soi",
+            kind: "verified",
+            body:
+              "Mustoasa de Maderat este un soi alb autohton romanesc, asociat cu podgoria Minis-Maderat din judetul Arad. În catalogul VinIntel este tratat ca o specialitate de nisa, cu prezenta comerciala limitata, nu ca un soi larg raspandit.",
+          },
+          {
+            id: "mustoasa-generalization",
+            title: "Tiparul stilistic",
+            kind: "generalization",
+            body:
+              "În exemplele reusite, vinul este sec, cu aciditate inalta, corp suplu si un profil de citrice si fruct alb. Generalizarea este utila pentru a sti ce sa cauti, dar nu garanteaza stilul fiecarei sticle: anul, momentul culesului si decizia de a nu indulci conteaza.",
+          },
+          {
+            id: "mustoasa-interpretation",
+            title: "Interpretarea editoriala",
+            kind: "interpretation",
+            body:
+              "Cheia acestui soi nu este sa produca arome spectaculoase, ci sa pastreze un echilibru intre aciditate, extract si un fruct matur. Cand acest echilibru lipseste, vinul devine fie verde si ascutit, fie plat si inutil indulcit. O sticla buna trebuie sa para simpla la prima vedere si precisa dupa al doilea pahar.",
+          },
+        ],
+        buyingChecklist: [
+          "Alege un vin sec, cu mentiunea Minis-Maderat sau un producator cunoscut din zona.",
+          "Prefera o recolta recenta daca vrei prospetime; intreaba de evolutie doar daca producatorul o sustine.",
+          "Verifica alcoolul si aciditatea perceputa, nu doar numarul de pe eticheta.",
+          "Evita lemnul mult si zaharul care acopera fructul, daca vrei stilul de referinta.",
+          "Serveste la 8-10 grade si lasa paharul sa se incalzeasca.",
+        ],
+        whatCanGoWrong: [
+          "Aciditate verde, necoapta, care lasa o senzatie de agurida si un final amar.",
+          "Zahar adaugat pentru a masca lipsa de maturitate, cu rezultatul unui vin moale si fara directie.",
+          "Lemn sau oxidative prea agresive, care acopera citrusul si textura supla.",
+          "Sticle vechi sau prost pastrate, in care fructul dispare si ramane doar aciditatea.",
+        ],
       },
       en: {
         name: "Mustoasa de Maderat",
-        alsoKnownAs: ["Mustoasa"],
-        metaTitle: "Mustoasa de Maderat: Minis white with bite",
+        alsoKnownAs: ["Mustoasa", "Mustoasa de Maderat"],
+        metaTitle: "Mustoasa de Maderat: a Minis white built on acidity",
         metaDescription:
-          "Mustoasa de Maderat in Banat: high acidity, citrus, and why it is a fish wine, not a dessert wine.",
+          "Mustoasa de Maderat from Minis-Maderat, Arad: style, tasting profile, regional context, food logic and how to choose a bottle.",
         answer:
-          "Mustoasa de Maderat is a Banat white, usually very acidic, citrus, light-bodied. The name comes from abundant juice, not from sweetness. It is a fish, summer and salty-starter wine. If you want creamy vanilla, pick another grape.",
+          "Mustoasa de Maderat is an indigenous white from the Minis-Maderat area of Arad, built around acidity and texture rather than sweetness. Successful examples are dry, citrus-led, with white fruit and a quiet saline note; the body stays lean. It is a table wine with tension, not an aromatic white or a dessert.",
         intro:
-          "This is a Minis-Maderat speciality, not a generic catalogue white. Estates that respect it keep it dry and tense. Those that fear acid add sugar and blunt it. Ask for dry.",
+          "Few Romanian varieties demand such a clear stylistic decision. Mustoasa does not win through a spectacular aroma or new oak; it wins through the tension between acidity, extract and fruit that has not been allowed to become tired. A good bottle does not hide acidity under sugar, it puts acidity at the centre. That is why, when made with intent, it feels less like a catalogue curiosity and more like a very precise table wine.",
         inTheGlass:
-          "Lemon, white cranberry, greens, salt. The finish should be dry and sharp. Short bitterness is a fault, not terroir.",
+          "In a strong example, the nose sits close to lemon peel, green apple, white peach and garden herbs; a wet-stone note can appear. The attack is direct rather than creamy, the mid-palate stays lean, and the finish closes dry and lightly saline. Acidity is visible but should not bite like an unresolved citrus; it needs extract and ripe fruit behind it.",
         origin:
-          "A local grape of Minis-Maderat. Historically it sits beside Cadarca: an acid white next to a terrace red. It is not imported Sauvignon.",
+          "The variety is historically associated with the Minis-Maderat vineyard in Arad, where Banat meets Crisana. It is not renamed Sauvignon Blanc, nor an international variety with a local label. In the area its identity is tied to a house white drunk at the table, not to a competition wine built for high scores.",
         inRomania:
-          "Banat, almost exclusively. Small production. If you see Mustoasa from another region, check whether it is the same grape or a loose name.",
+          "In the Romanian catalogue, Mustoasa remains a niche speciality. It is hard to find outside Minis-Maderat, and small volumes make every bottle an occasion. If it appears on a label from another region, check the producer and the variety; do not assume the name is used with the same rigour everywhere.",
         pairing:
-          "Fish, roe, salads, lighter vegetable spread, fresh cheese. Skip dessert. Off-dry exists, but salty food wants dry.",
+          "The logic is simple: acidity cuts fat and lifts salt without covering the dish. It works with fried fish, fish soup, roe, fresh sheep cheese, roasted vegetables and salty starters. It does not need salsa or sweet sauces. Dessert makes it taste sharp and hollow; if you choose an off-dry version, it handles a rich cheese better than a cake.",
         howToChoose:
-          "A Minis or Banat winery, recent vintage, dry. Serve well chilled. Drink it young.",
+          "Look for a dry wine from a recent vintage, labelled Minis-Maderat or made by a producer who knows how to handle acidity. Alcohol around 11-13% is a useful clue, not a guarantee. Avoid bottles where fruit is hidden by sugar, heavy oak or green, unripe acidity. Serve at 8-10 degrees, not ice cold, and let it warm in the glass.",
         facts: [
           { label: "Colour", value: "White" },
-          { label: "Origin", value: "Minis-Maderat, Banat" },
-          { label: "Typical style", value: "High acid, citrus, light body" },
-          { label: "At the table", value: "Fish, roe, salty starters" },
+          { label: "Origin", value: "Minis-Maderat, Arad" },
+          { label: "Typical style", value: "Dry, acidic, lean-bodied" },
+          { label: "Aroma", value: "Citrus, white fruit, herbs" },
+          { label: "Texture", value: "High acidity, saline finish" },
+          { label: "At the table", value: "Fish, roe, fresh cheese" },
         ],
         faq: [
           {
-            question: "Does Mustoasa mean sweet?",
+            question: "Does Mustoasa mean the wine is sweet?",
             answer:
-              "No. The name refers to the grape's juice. The good style is dry and acidic.",
+              "No. The name relates to the grape's juice, not sugar in the glass. The reference style is dry, and sweetness is not an implied quality.",
+          },
+          {
+            question: "Should it be drunk young or can it age?",
+            answer:
+              "Most examples gain from freshness and are best in their first years. Some more extractive bottles can evolve for a few seasons, but we do not promise longevity the producer does not support.",
           },
           {
             question: "Is it like Cramposie?",
             answer:
-              "On acidity, as an idea, yes. They belong to different regions. Mustoasa is Banat, Cramposie is Dragasani.",
+              "Both can show vivid acidity, but they are different varieties from different regions. Mustoasa belongs to Minis-Maderat, Cramposie to Dragasani. A structural resemblance does not make them interchangeable.",
           },
           {
-            question: "Is it easy to find?",
+            question: "Why is it hard to find?",
             answer:
-              "No. Volumes are small. When you see it, it is an occasion, not a supermarket staple.",
+              "Plantings are small and few estates work with it. When you find it, it is more likely a producer bottle than a supermarket volume. Always check the label and vintage.",
           },
         ],
-        sources: [{ label: "VinIntel notes on Minis-Maderat" }],
+        sources: [
+          { label: "VinIntel guide to Minis-Maderat" },
+          { label: "VinIntel tasting notes" },
+        ],
+        tastingProfile: {
+          aroma:
+            "Lemon peel, green apple, white peach and garden herbs; a wet-stone note may appear.",
+          palate:
+            "Ripe white fruit without sweetness; a lean texture with a saline impression on the finish.",
+          structure:
+            "High acidity, moderate alcohol, light to medium body, restrained extract.",
+          finish:
+            "Light, clean and cutting; it should not leave a long bitter or sugary trail.",
+        },
+        editorialSections: [
+          {
+            id: "mustoasa-verified",
+            title: "What we can state about the variety",
+            kind: "verified",
+            body:
+              "Mustoasa de Maderat is an indigenous Romanian white variety associated with the Minis-Maderat vineyard in Arad. In the VinIntel catalogue it is treated as a niche speciality with limited commercial presence, not as a widely planted variety.",
+          },
+          {
+            id: "mustoasa-generalization",
+            title: "The stylistic pattern",
+            kind: "generalization",
+            body:
+              "In successful examples the wine is dry, with high acidity, a lean body and a citrus and white-fruit profile. The generalisation helps you know what to look for, but it does not guarantee every bottle: vintage, picking date and the decision not to soften it all matter.",
+          },
+          {
+            id: "mustoasa-interpretation",
+            title: "Editorial interpretation",
+            kind: "interpretation",
+            body:
+              "The key is not spectacular aroma but a balance between acidity, extract and ripe fruit. When that balance is missing, the wine becomes either green and sharp or flat and needlessly sweet. A good bottle should look simple at first and precise after the second glass.",
+          },
+        ],
+        buyingChecklist: [
+          "Choose a dry wine labelled Minis-Maderat, or from a known producer in the area.",
+          "Prefer a recent vintage for freshness; ask about evolution only when the producer supports it.",
+          "Check alcohol and perceived acidity, not just the number on the label.",
+          "Avoid heavy oak and sugar that cover the fruit if you want the reference style.",
+          "Serve at 8-10 degrees and let it warm in the glass.",
+        ],
+        whatCanGoWrong: [
+          "Green, unripe acidity that leaves a sour impression and a bitter finish.",
+          "Sugar added to hide a lack of ripeness, producing a soft wine with no direction.",
+          "Aggressive oak or oxidation that covers the citrus and the lean texture.",
+          "Old or badly stored bottles where the fruit disappears and only acidity remains.",
+        ],
       },
     },
   },
