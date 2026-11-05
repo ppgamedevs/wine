@@ -69,10 +69,16 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Seed local vintage demo
+        env:
+          TURSO_DATABASE_URL: file:local.db
+        run: npx tsx scripts/seed-vintage-demo.ts --confirm-local
+
       - name: Browser smoke checks
         env:
           BROWSER_BASE_URL: http://127.0.0.1:3114
           BROWSER_WINE_SLUG: davino-domaine-ceptura-rosu-2019
+          BROWSER_VINTAGE_WINE_SLUG: zestrea-muscat-ottonel-demisec-2021-demo
         run: |
           npm run start -- -p 3114 > /tmp/vinintel-next.log 2>&1 &
           for attempt in $(seq 1 30); do
@@ -80,6 +86,7 @@ jobs:
             sleep 1
           done
           node scripts/browser-check.mjs
+          node scripts/vintage-browser-check.mjs
 
       - name: Jev configuration tests
         run: npx vitest run lib/jev --pool=forks

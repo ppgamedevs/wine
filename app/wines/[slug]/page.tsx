@@ -12,6 +12,7 @@ import { WineRelatedSections } from "@/components/wines/wine-related-sections";
 import { WineScoreCards } from "@/components/wines/wine-score-cards";
 import { WineSpecsTable } from "@/components/wines/wine-specs-table";
 import { WineUniversalProfile } from "@/components/wines/wine-universal-profile";
+import { VintageStory } from "@/components/wines/vintage-story";
 import { WineWineryLink } from "@/components/wines/wine-winery-link";
 import { WineDataFreshness } from "@/components/wines/wine-data-freshness";
 import { WineReportButton } from "@/components/wines/wine-report-button";
@@ -27,6 +28,7 @@ import {
 import { buildWineFullTitle } from "@/lib/wine-vintage";
 import { buildWineFaq } from "@/lib/wine-analysis";
 import { loadUniversalWineProfile } from "@/lib/wine-universal-profile";
+import { loadVintageIntelligence } from "@/lib/vintage/query";
 import { buildWineJsonLd, buildWineMetadataDescription } from "@/lib/wine-json-ld";
 import {
   sanitizeWineForPublic,
@@ -170,6 +172,10 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
   const publicRecommended = sanitizeWinesForPublic(recommended);
   const faq = buildWineFaq(wine, locale);
   const universalProfile = await loadUniversalWineProfile(wine, locale as AppLocale);
+  const vintageIntelligence = await loadVintageIntelligence(
+    wine,
+    locale as AppLocale,
+  );
   const jsonLd = buildWineJsonLd(wine, faq, technicalTrust, locale);
 
   return (
@@ -239,6 +245,11 @@ export default async function WinePage({ params, searchParams }: WinePageProps) 
           <WineUniversalProfile
             profile={universalProfile}
             locale={locale as AppLocale}
+          />
+          <VintageStory
+            intelligence={vintageIntelligence}
+            locale={locale as AppLocale}
+            currentVintage={wine.vintage ?? null}
           />
           <WineDataFreshness wine={wine} />
           <WineEditorial wine={wine} limitedData={localized.limitedData} />
