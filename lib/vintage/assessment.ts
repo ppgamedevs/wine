@@ -31,10 +31,7 @@ function matchesScope(
   evidence: VintageEvidenceRecord,
   wine: WineWithRelations,
 ): boolean {
-  if (evidence.vintage != null && wine.vintage != null && evidence.vintage !== wine.vintage) {
-    return false;
-  }
-  if (evidence.vintage != null && wine.vintage == null) return false;
+  if ((evidence.vintage ?? null) !== (wine.vintage ?? null)) return false;
   const region = wine.region?.name ?? null;
   const familyKey = wineFamilyKey({
     name: wine.name,

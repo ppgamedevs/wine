@@ -22,7 +22,7 @@ import { buildWineFaq } from "@/lib/wine-analysis";
 import { valueScoreInputFromWine } from "@/lib/scoring";
 import type { WineWithRelations } from "@/types";
 
-const NOW = new Date("2026-11-03T12:00:00.000Z");
+const NOW = new Date();
 const FRESH = new Date(NOW.getTime() - 2 * 60 * 60 * 1000).toISOString();
 const STALE = new Date(
   NOW.getTime() - (PUBLIC_PRICE_MAX_AGE_HOURS + 1) * 60 * 60 * 1000,

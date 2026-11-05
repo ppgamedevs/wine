@@ -24,8 +24,8 @@ describe("migration 0029 PSEO question flywheel", () => {
     expect(sql).not.toMatch(/\b(?:DROP\s+(?:TABLE|INDEX)|DELETE\s+FROM|INSERT\s+INTO|ALTER\s+TABLE)\b/i);
   });
 
-  it("is registered as the next journal entry", () => {
-    expect(journal.entries.at(-1)).toMatchObject({
+  it("remains registered as migration 0029 even when later migrations exist", () => {
+    expect(journal.entries.find((entry) => entry.tag === "0029_pseo_question_flywheel")).toMatchObject({
       idx: 29,
       tag: "0029_pseo_question_flywheel",
     });

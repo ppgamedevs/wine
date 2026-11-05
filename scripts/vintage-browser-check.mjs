@@ -29,7 +29,14 @@ await page.waitForTimeout(300);
 const storyVisible = await story.isVisible();
 const classificationVisible = await page.getByText(/favorabil|favorable|mixt|mixed/i).first().isVisible();
 const sourcesVisible = await page.getByText(/surse și transparență|sources and transparency/i).first().isVisible();
-const comparisonVisible = await page.getByRole("heading", { name: /compară recoltele|compare vintages/i }).isVisible();
+const comparisonHeading = page.getByRole("heading", { name: /compară recoltele|compare vintages/i });
+const comparisonVisible = await comparisonHeading.isVisible();
+const comparisonText = comparisonVisible
+  ? await comparisonHeading.locator("..").locator("..").innerText()
+  : "";
+const bothVintageAssessmentsVisible =
+  /2021/.test(comparisonText) && /2025/.test(comparisonText) &&
+  /favorabil/i.test(comparisonText) && /mixt/i.test(comparisonText);
 const desktopOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
 await page.screenshot({ path: "docs/vintage-story-desktop.png", fullPage: false });
 
@@ -71,6 +78,7 @@ console.log(JSON.stringify({
   classificationVisible,
   sourcesVisible,
   comparisonVisible,
+  bothVintageAssessmentsVisible,
   desktopOverflow,
   mobileOverflow,
   mobileStoryVisible,
@@ -80,6 +88,6 @@ console.log(JSON.stringify({
   errors,
 }, null, 2));
 await browser.close();
-if (!storyVisible || !classificationVisible || !sourcesVisible || !comparisonVisible || desktopOverflow || mobileOverflow || !mobileStoryVisible || !guideVisible || !englishGuide || !englishStory || errors.length > 0) {
+if (!storyVisible || !classificationVisible || !sourcesVisible || !comparisonVisible || !bothVintageAssessmentsVisible || desktopOverflow || mobileOverflow || !mobileStoryVisible || !guideVisible || !englishGuide || !englishStory || errors.length > 0) {
   process.exit(1);
 }

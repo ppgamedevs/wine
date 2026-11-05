@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray, isNull, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { vintageEvidence, wines } from "@/lib/schema";
 import type { WineWithRelations } from "@/types";
@@ -51,13 +51,24 @@ function evidenceFromRow(row: typeof vintageEvidence.$inferSelect): VintageEvide
 }
 
 export async function loadVintageEvidence(
-  wine: WineWithRelations,
+  familyWines: WineWithRelations[],
 ): Promise<VintageEvidenceRecord[]> {
+  const years = [...new Set(
+    familyWines.map((wine) => wine.vintage).filter(
+      (year): year is number => year != null && Number.isInteger(year),
+    ),
+  )];
+  const includesNonVintage = familyWines.some((wine) => wine.vintage == null);
+  if (years.length === 0 && !includesNonVintage) return [];
+  const filter =
+    years.length > 0 && includesNonVintage
+      ? or(inArray(vintageEvidence.vintage, years), isNull(vintageEvidence.vintage))
+      : years.length > 0
+        ? inArray(vintageEvidence.vintage, years)
+        : isNull(vintageEvidence.vintage);
   try {
-    const rows = await db.select().from(vintageEvidence);
-    return rows
-      .filter((row) => row.vintage === (wine.vintage ?? null))
-      .map(evidenceFromRow);
+    const rows = await db.select().from(vintageEvidence).where(filter);
+    return rows.map(evidenceFromRow);
   } catch {
     // Migration 0030 may not be applied; fail closed with no evidence.
     return [];
@@ -81,14 +92,12 @@ export async function loadVintageIntelligence(
   wine: WineWithRelations,
   locale: AppLocale,
 ): Promise<VintageIntelligence> {
-  const [evidence, candidates] = await Promise.all([
-    loadVintageEvidence(wine),
-    loadFamilyCandidates(wine),
-  ]);
+  const candidates = await loadFamilyCandidates(wine);
   const family = buildVintageFamily(wine, [wine, ...candidates]);
   const releases = family.releases
     .map((release) => candidates.find((candidate) => candidate.id === release.id))
     .filter((candidate): candidate is WineWithRelations => candidate != null);
+  const evidence = await loadVintageEvidence([wine, ...releases]);
   const assessments = releases.map((release) => ({
     wine: release,
     assessment: assessVintage({ wine: release, evidence }),
@@ -127,7 +136,7 @@ export async function loadVintageGuide(): Promise<VintageGuideEntry[]> {
   }
   const groups = new Map<string, Array<typeof vintageEvidence.$inferSelect>>();
   for (const row of rows) {
-    if (!row.region) continue;
+    if (!row.region || row.scope !== "region") continue;
     const key = `${row.region}\u0000${row.vintage ?? "NV"}`;
     const list = groups.get(key) ?? [];
     list.push(row);
