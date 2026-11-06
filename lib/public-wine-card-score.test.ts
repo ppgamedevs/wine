@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { buildPublicWineCardViewModel } from "@/lib/public-wine-card";
 import type { WineWithRelations } from "@/types";
 
-const NOW = new Date("2026-11-04T12:00:00.000Z");
+// A fixed calendar date makes the "fresh offer" fixture stale after 48 hours.
+const NOW = new Date();
 
 function wine(overrides: Record<string, unknown> = {}): WineWithRelations {
   return {
