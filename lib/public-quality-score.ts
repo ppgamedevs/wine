@@ -9,6 +9,23 @@ export type PublicQualityStatus = "known" | "insufficient";
 /** Editorial quality filters, separate from Value Score thresholds. */
 export const QUALITY_RECOMMENDED_MIN = 70;
 export const QUALITY_EXCEPTIONAL_MIN = 78;
+/** Quality is independent of price and uses its own, evidence-led color bands. */
+export function qualityScoreTone(score: number | null | undefined): string {
+  if (score == null || !Number.isFinite(score)) {
+    return "bg-muted/60 text-muted-foreground ring-1 ring-border/70";
+  }
+  if (score >= QUALITY_EXCEPTIONAL_MIN) {
+    return "bg-emerald-700/10 text-emerald-800 ring-1 ring-emerald-700/25";
+  }
+  if (score >= QUALITY_RECOMMENDED_MIN) {
+    return "bg-teal-600/10 text-teal-800 ring-1 ring-teal-600/25";
+  }
+  if (score >= 60) {
+    return "bg-amber-500/15 text-amber-900 ring-1 ring-amber-500/30";
+  }
+  return "bg-rose-600/10 text-rose-800 ring-1 ring-rose-600/25";
+}
+
 
 export interface PublicQualityScore {
   status: PublicQualityStatus;

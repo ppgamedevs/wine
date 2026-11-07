@@ -8,6 +8,7 @@ import {
 } from "@/components/wines/wine-card-client-actions";
 import { WineImage } from "@/components/wines/wine-image";
 import { formatRon, valueScoreTone } from "@/lib/format";
+import { qualityScoreTone } from "@/lib/public-quality-score";
 import type { PublicWineCardViewModel } from "@/lib/public-wine-card-types";
 import { cn } from "@/lib/utils";
 import type { AppLocale } from "@/i18n/locale";
@@ -105,7 +106,10 @@ function WineCardPriceFooter({
         <span className="text-muted-foreground">{copy.quality}</span>
         {card.qualityScore != null ? (
           <span
-            className="font-semibold tabular-nums text-foreground"
+            className={cn(
+              "inline-flex items-baseline rounded-md px-2 py-0.5 font-semibold tabular-nums",
+              qualityScoreTone(card.qualityScore),
+            )}
             title={`${copy.quality}: ${card.qualityScore}/100`}
           >
             {card.qualityScore}

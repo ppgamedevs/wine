@@ -1,3 +1,4 @@
+import { qualityScoreTone } from "@/lib/public-quality-score";
 import { describe, expect, it } from "vitest";
 import {
   resolvePublicQualityScore,
@@ -111,5 +112,17 @@ describe("public quality score", () => {
     });
     const value = resolvePublicValueScore(candidate, NOW);
     expect(value.status).toBe("unavailable");
+  });
+});
+
+
+describe("price-independent quality score colors", () => {
+  it("uses distinctly styled quality bands, not Value Score verdicts", () => {
+    expect(qualityScoreTone(82)).toContain("emerald");
+    expect(qualityScoreTone(79)).toContain("emerald");
+    expect(qualityScoreTone(72)).toContain("teal");
+    expect(qualityScoreTone(64)).toContain("amber");
+    expect(qualityScoreTone(48)).toContain("rose");
+    expect(qualityScoreTone(null)).toContain("muted");
   });
 });
