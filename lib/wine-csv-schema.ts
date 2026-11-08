@@ -42,7 +42,11 @@ export const wineCsvRowSchema = z.object({
   category: csvCategorySchema,
   grape_varieties: z.string().trim().optional(),
   soiuri: z.string().trim().optional(),
-  source_url: z.string().trim().url(),
+  source_url: z.string().trim().url().optional(),
+  /** Optional explicit triple. The winery page is not an affiliate URL. */
+  producer_url: z.string().trim().url().optional(),
+  emag_url: z.string().trim().url().optional(),
+  profitshare_url: z.string().trim().url().optional(),
   availability: z.string().trim().optional(),
   sweetness: z.string().trim().optional(),
   dulceata: z.string().trim().optional(),

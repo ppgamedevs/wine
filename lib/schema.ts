@@ -69,6 +69,16 @@ export interface AffiliateLink {
   offerId?: string;
   /** Retailer-side product/variant key used to prove offer identity. */
   productKey?: string;
+  /** Exact merchant product URL; separate from the affiliate purchase URL. */
+  merchantUrl?: string;
+  /** Stable merchant product ID (eMAG: the `/pd/<ID>` token). */
+  merchantProductId?: string;
+  /** ISO currency for priceRon; defaults to RON. */
+  currency?: string;
+  /** Result of matching the affiliate destination to merchantProductId. */
+  verificationStatus?: "verified" | "unverified" | "mismatch";
+  verifiedAt?: string;
+  verificationError?: string;
   /** Bottle size in ml; compared with the wine name when present. */
   bottleSizeMl?: number;
   /** Offer vintage; compared with the wine vintage when both exist. */
@@ -1551,6 +1561,47 @@ export const wineEnrichmentRuns = sqliteTable(
     ),
   ],
 );
+
+/* -------------------------------------------------------------------------- */
+/*                    Daily affiliate price refresh                           */
+/* -------------------------------------------------------------------------- */
+
+export const priceRefreshRuns = sqliteTable("price_refresh_runs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  startedAt: text("started_at").notNull(),
+  finishedAt: text("finished_at"),
+  status: text("status", {
+    enum: ["running", "success", "failed", "locked"],
+  }).notNull(),
+  dryRun: integer("dry_run", { mode: "boolean" }).notNull().default(false),
+  cursorStart: integer("cursor_start").notNull().default(0),
+  cursorEnd: integer("cursor_end"),
+  processed: integer("processed").notNull().default(0),
+  updated: integer("updated").notNull().default(0),
+  unchanged: integer("unchanged").notNull().default(0),
+  failed: integer("failed").notNull().default(0),
+  skipped: integer("skipped").notNull().default(0),
+  errorJson: text("error_json", { mode: "json" })
+    .$type<Record<string, unknown>[]>()
+    .notNull()
+    .default(sql`'[]'`),
+  lockToken: text("lock_token"),
+});
+
+export const priceRefreshState = sqliteTable("price_refresh_state", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  key: text("key").notNull(),
+  cursor: integer("cursor").notNull().default(0),
+  lockToken: text("lock_token"),
+  lockExpiresAt: text("lock_expires_at"),
+  lastStartedAt: text("last_started_at"),
+  lastFinishedAt: text("last_finished_at"),
+  lastSuccessAt: text("last_success_at"),
+  lastError: text("last_error"),
+  updatedAt: text("updated_at").notNull(),
+}, (table) => [
+  uniqueIndex("price_refresh_state_key_uidx").on(table.key),
+]);
 
 /* -------------------------------------------------------------------------- */
 /*                    Sommelier demand to PSEO flywheel                        */

@@ -54,7 +54,7 @@ describe("route inventory", () => {
   it("contains each current API source once and reserves no v1 implementation", () => {
     const sources = API_ROUTE_EXPECTATIONS.map((item) => item.sourcePath);
     expect(new Set(sources).size).toBe(sources.length);
-    expect(API_ROUTE_EXPECTATIONS).toHaveLength(11);
+    expect(API_ROUTE_EXPECTATIONS).toHaveLength(12);
     expect(API_ROUTE_EXPECTATIONS.some((item) => item.route.startsWith("/api/v1")))
       .toBe(false);
   });
