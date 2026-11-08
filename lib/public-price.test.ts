@@ -356,6 +356,35 @@ describe("canonical public price resolver", () => {
     expect(resolvePublicPrice(wine, { now: NOW }).displayPrice).toBeNull();
   });
 
+
+  it("recovers a verified offer hidden by old unproven out-of-stock parsing", () => {
+    const slug = "cramele-recas-explicit-sauvignon-blanc-2025";
+    const link = {
+      retailer: "eMAG.ro",
+      url: PROFITSHARE,
+      merchantUrl: "https://www.emag.ro/vin-explicit/pd/DLBLPY2BM/",
+      merchantProductId: "DLBLPY2BM",
+      wineSlug: slug,
+      vintage: 2025,
+      priceRon: 34,
+      checkedAt: FRESH,
+      verificationStatus: "verified" as const,
+      inStock: false,
+    };
+    const wine = makeWine({
+      slug,
+      name: "EXPLICIT Sauvignon Blanc",
+      vintage: 2025,
+      affiliateLinks: [link],
+    });
+    expect(resolvePublicPrice(wine, { now: NOW }).displayPrice).toBe(34);
+    wine.affiliateLinks[0]!.stockEvidence = "structured_product";
+    expect(resolvePublicPrice(wine, { now: NOW }).displayPrice).toBeNull();
+    wine.affiliateLinks[0]!.stockEvidence = undefined;
+    wine.affiliateLinks[0]!.verificationStatus = "unverified";
+    expect(resolvePublicPrice(wine, { now: NOW }).displayPrice).toBeNull();
+  });
+
   it("rejects an offer known to be unavailable", () => {
     const wine = makeWine({
       affiliateLinks: [
