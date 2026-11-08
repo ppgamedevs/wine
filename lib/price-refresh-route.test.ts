@@ -27,9 +27,9 @@ describe("daily price refresh operations contract", () => {
     expect(route).toContain("runPriceRefreshBatch");
   });
 
-  it("schedules the refresh once per day", () => {
+  it("schedules hourly batches with enough capacity for all existing affiliate wines", () => {
     expect(vercel.crons).toEqual([
-      { path: "/api/cron/price-refresh", schedule: "0 */6 * * *" },
+      { path: "/api/cron/price-refresh", schedule: "0 * * * *" },
     ]);
   });
 

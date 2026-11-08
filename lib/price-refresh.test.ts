@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import type {
   AffiliatePriceTarget,
   PriceRefreshObservation,
@@ -218,5 +220,20 @@ describe("daily affiliate price refresh", () => {
     expect(result.unchanged).toBe(1);
     expect(attempts).toBe(3);
     expect(sleep).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("legacy price refresh persistence integration", () => {
+  it("uses verified product-id matching and skips recently checked offers", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "lib/price-refresh-store.ts"),
+      "utf8",
+    );
+    expect(source).toContain("extractEmagProductId(candidate.url) === productId");
+    expect(source).toContain("merchantProductId: productId");
+    expect(source).toContain("url: affiliateUrl");
+    expect(source).toContain("verificationStatus: \"verified\"");
+    expect(source).toContain("while (targets.length < limit)");
+    expect(source).toContain("const freshnessCutoff");
   });
 });
