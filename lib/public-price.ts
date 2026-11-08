@@ -98,11 +98,16 @@ export function matchesWineIdentity(
 
   const wineBottleSize =
     inferBottleSizeMl(wine.name) ?? inferBottleSizeMl(wine.slug);
-  if (
-    wineBottleSize == null ||
-    link.bottleSizeMl == null ||
-    Math.round(link.bottleSizeMl) !== wineBottleSize
-  ) {
+  const hasVerifiedMerchantIdentity = Boolean(
+    link.verificationStatus === "verified" &&
+    link.merchantUrl &&
+    link.merchantProductId,
+  );
+  // Live-verified exact merchant SKU establishes product identity even when
+  // a legacy wine name or slug omits "0.75L". Reject explicit size conflicts.
+  if (wineBottleSize != null && link.bottleSizeMl != null) {
+    if (Math.round(link.bottleSizeMl) !== wineBottleSize) return false;
+  } else if (!hasVerifiedMerchantIdentity) {
     return false;
   }
 
