@@ -1,5 +1,6 @@
 import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { inferBottleSizeMl } from "@/lib/public-price";
 import { extractProductFromUrl } from "@/lib/price-extractor";
 import { fetchPageWithResolution } from "@/lib/fetch-page-html";
 import { recalculateSingleWineValueScore } from "@/lib/recalculate-value-scores";
@@ -124,49 +125,79 @@ export class DbPriceRefreshStore implements PriceRefreshStore {
   }
 
   async loadTargets(cursor: number, limit: number): Promise<AffiliatePriceTarget[]> {
-    const rows = await db.query.wines.findMany({
-      where: and(
-        eq(wines.status, "verified"),
-        isNotNull(wines.affiliateLinks),
-        gt(wines.id, cursor),
-      ),
-      columns: {
-        id: true,
-        slug: true,
-        name: true,
-        status: true,
-        sourceUrl: true,
-        producerPageUrl: true,
-        currentPrice: true,
-        priceAvg: true,
-        priceHistory: true,
-        affiliateLinks: true,
-        vintage: true,
-      },
-      orderBy: [asc(wines.id)],
-      limit: limit * 3,
-    });
-
+    // Scan past wines without qualifying affiliate URLs. A fixed limit*3 query
+    // would otherwise repeat the first non-eligible page forever.
     const targets: AffiliatePriceTarget[] = [];
-    for (const row of rows) {
-      const auditWine: PriceAuditWine = {
-        id: row.id,
-        slug: row.slug,
-        name: row.name,
-        status: row.status,
-        sourceUrl: row.sourceUrl,
-        producerPageUrl: row.producerPageUrl,
-        currentPrice: row.currentPrice,
-        priceAvg: row.priceAvg,
-        priceHistory: row.priceHistory ?? [],
-        affiliateLinks: row.affiliateLinks ?? [],
-      };
-      for (const offer of recoverAffiliateOffers(auditWine)) {
-        targets.push({ wine: { ...auditWine, vintage: row.vintage }, offer });
+    const pageSize = Math.max(50, limit * 3);
+    let scannedThrough = cursor;
+    const freshnessCutoff = Date.now() - 23 * 60 * 60 * 1000;
+
+    while (targets.length < limit) {
+      const rows = await db.query.wines.findMany({
+        where: and(
+          eq(wines.status, "verified"),
+          isNotNull(wines.affiliateLinks),
+          gt(wines.id, scannedThrough),
+        ),
+        columns: {
+          id: true,
+          slug: true,
+          name: true,
+          status: true,
+          sourceUrl: true,
+          producerPageUrl: true,
+          currentPrice: true,
+          priceAvg: true,
+          priceHistory: true,
+          affiliateLinks: true,
+          vintage: true,
+        },
+        orderBy: [asc(wines.id)],
+        limit: pageSize,
+      });
+      if (rows.length === 0) break;
+
+      for (const row of rows) {
+        scannedThrough = row.id;
+        const auditWine: PriceAuditWine = {
+          id: row.id,
+          slug: row.slug,
+          name: row.name,
+          status: row.status,
+          sourceUrl: row.sourceUrl,
+          producerPageUrl: row.producerPageUrl,
+          currentPrice: row.currentPrice,
+          priceAvg: row.priceAvg,
+          priceHistory: row.priceHistory ?? [],
+          affiliateLinks: row.affiliateLinks ?? [],
+        };
+        // Finish every offer belonging to this wine before advancing the wine ID.
+        // Otherwise the cursor would skip an additional retailer offer.
+        for (const offer of recoverAffiliateOffers(auditWine)) {
+          const linked = row.affiliateLinks?.find(
+            (link) =>
+              link.url === offer.affiliateUrl &&
+              link.merchantProductId?.toUpperCase() ===
+                offer.merchantProductId.toUpperCase(),
+          );
+          const checkedAt = linked?.checkedAt
+            ? new Date(linked.checkedAt).getTime()
+            : NaN;
+          if (
+            linked?.verificationStatus === "verified" &&
+            Number.isFinite(checkedAt) &&
+            checkedAt >= freshnessCutoff
+          ) {
+            continue;
+          }
+          targets.push({ wine: { ...auditWine, vintage: row.vintage }, offer });
+        }
         if (targets.length >= limit) break;
       }
-      if (targets.length >= limit) break;
+
+      if (rows.length < pageSize) break;
     }
+
     return targets;
   }
 
@@ -240,6 +271,8 @@ export class DbPriceRefreshStore implements PriceRefreshStore {
       where: eq(wines.id, input.target.wine.id),
       columns: {
         id: true,
+        slug: true,
+        name: true,
         priceHistory: true,
         affiliateLinks: true,
         currentPrice: true,
@@ -248,28 +281,45 @@ export class DbPriceRefreshStore implements PriceRefreshStore {
     });
     if (!wine) throw new Error("wine_not_found");
 
-    const link = wine.affiliateLinks.find(
+    // A successfully verified live Profitshare redirect can safely upgrade a
+    // legacy direct-eMAG affiliate record. Old imports did not store the
+    // merchantProductId required by the previous implementation.
+    const productId = input.target.offer.merchantProductId.toUpperCase();
+    const affiliateUrl = input.target.offer.affiliateUrl;
+    const exactIndex = wine.affiliateLinks.findIndex(
       (candidate) =>
-        candidate.merchantProductId?.toUpperCase() ===
-        input.target.offer.merchantProductId.toUpperCase(),
+        candidate.url === affiliateUrl &&
+        (candidate.merchantProductId?.toUpperCase() === productId ||
+          extractEmagProductId(candidate.merchantUrl) === productId),
     );
-    if (!link) throw new Error("affiliate_link_not_found");
-
+    const legacyIndex = wine.affiliateLinks.findIndex(
+      (candidate) =>
+        extractEmagProductId(candidate.url) === productId,
+    );
+    const index = exactIndex >= 0 ? exactIndex : legacyIndex;
+    const link = index >= 0 ? wine.affiliateLinks[index] : undefined;
     const now = new Date(input.observation.observedAt);
-    const previous = link.priceRon ?? null;
+    const previous = link?.priceRon ?? null;
     const updatedLink: AffiliateLink = {
-      ...link,
+      ...(link ?? { retailer: "eMAG.ro" }),
+      url: affiliateUrl,
+      merchantUrl: input.target.offer.merchantUrl,
+      merchantProductId: productId,
+      productKey: wine.slug,
+      wineSlug: wine.slug,
+      bottleSizeMl: inferBottleSizeMl(wine.name) ?? undefined,
+      vintage: wine.vintage,
       priceRon: input.observation.priceRon,
       currency: "RON",
       checkedAt: input.observation.observedAt,
-      inStock: input.observation.inStock ?? link.inStock,
+      inStock: input.observation.inStock ?? link?.inStock,
       verificationStatus: "verified",
       verifiedAt: input.observation.observedAt,
       verificationError: undefined,
     };
-    const links = wine.affiliateLinks.map((candidate) =>
-      candidate === link ? updatedLink : candidate,
-    );
+    const links = index >= 0
+      ? wine.affiliateLinks.map((candidate, i) => i === index ? updatedLink : candidate)
+      : [...wine.affiliateLinks, updatedLink];
     const history = pruneHistory(
       [
         ...(wine.priceHistory ?? []),
