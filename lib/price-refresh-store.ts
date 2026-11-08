@@ -326,7 +326,7 @@ export class DbPriceRefreshStore implements PriceRefreshStore {
         {
           date: input.observation.observedAt,
           price: input.observation.priceRon,
-          source: link.url,
+          source: updatedLink.url,
         },
       ],
       now,
