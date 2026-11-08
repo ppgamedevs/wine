@@ -323,6 +323,39 @@ describe("canonical public price resolver", () => {
     expect(resolvePublicPrice(wine, { now: NOW }).status).toBe("unavailable");
   });
 
+
+  it("accepts a current verified exact-product offer without a volume in the wine name", () => {
+    const slug = "cramele-recas-explicit-sauvignon-blanc-2025";
+    const wine = makeWine({
+      slug,
+      name: "EXPLICIT Sauvignon Blanc",
+      vintage: 2025,
+      affiliateLinks: [{
+        retailer: "eMAG.ro",
+        url: PROFITSHARE,
+        merchantUrl: "https://www.emag.ro/vin-explicit-0-75l/pd/DLBLPY2BM/",
+        merchantProductId: "DLBLPY2BM",
+        productKey: slug,
+        wineSlug: slug,
+        bottleSizeMl: undefined,
+        vintage: 2025,
+        priceRon: 34,
+        checkedAt: FRESH,
+        verificationStatus: "verified",
+      }],
+    });
+    expect(resolvePublicPrice(wine, { now: NOW }).displayPrice).toBe(34);
+    wine.affiliateLinks[0]!.merchantProductId = "WRONG";
+    expect(resolvePublicPrice(wine, { now: NOW }).displayPrice).toBeNull();
+    wine.affiliateLinks[0]!.merchantProductId = "DLBLPY2BM";
+    wine.affiliateLinks[0]!.verificationStatus = "unverified";
+    expect(resolvePublicPrice(wine, { now: NOW }).displayPrice).toBeNull();
+    wine.affiliateLinks[0]!.verificationStatus = "verified";
+    wine.name = "EXPLICIT Sauvignon Blanc 0.75L";
+    wine.affiliateLinks[0]!.bottleSizeMl = 1000;
+    expect(resolvePublicPrice(wine, { now: NOW }).displayPrice).toBeNull();
+  });
+
   it("rejects an offer known to be unavailable", () => {
     const wine = makeWine({
       affiliateLinks: [
