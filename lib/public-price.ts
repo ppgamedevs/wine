@@ -1,4 +1,5 @@
 import type { AffiliateLink, PriceHistoryEntry } from "@/lib/schema";
+import { extractEmagProductId } from "@/lib/affiliate-pricing";
 import {
   getProfitshareOfferId,
   isQualifyingProfitshareUrl,
@@ -21,6 +22,8 @@ export interface PublicPriceOffer {
   observedAt: string;
   offerId: string;
   productKey?: string;
+  merchantProductId?: string;
+  merchantUrl?: string;
   bottleSizeMl?: number;
   vintage?: number | null;
 }
@@ -75,6 +78,14 @@ export function matchesWineIdentity(
   wine: PublicPriceWine,
   link: AffiliateLink,
 ): boolean {
+  // New eMAG offers must carry both the merchant URL and its stable product
+  // ID. A URL that points at a different `/pd/<ID>` is a hard mismatch.
+  if (link.merchantUrl || link.merchantProductId) {
+    const fromUrl = extractEmagProductId(link.merchantUrl);
+    const storedId = link.merchantProductId?.trim().toUpperCase() ?? null;
+    if (!fromUrl || !storedId || fromUrl !== storedId) return false;
+  }
+
   // Exact product/variant identity is mandatory. A URL attached to a wine row
   // is not enough: an affiliate link can be stale, copied or point at another
   // bottle size/vintage.
@@ -126,6 +137,9 @@ function observationForLink(
   now: Date,
 ): PublicPriceOffer | null {
   if (!isQualifyingProfitshareUrl(link.url)) return null;
+  if (link.verificationStatus && link.verificationStatus !== "verified") {
+    return null;
+  }
   if (link.inStock === false) return null;
 
   const retailer = link.retailer?.trim();
@@ -167,6 +181,10 @@ function observationForLink(
     observedAt: fresh.observedAt.toISOString(),
     offerId,
     ...(link.productKey?.trim() ? { productKey: link.productKey.trim() } : {}),
+    ...(link.merchantProductId?.trim()
+      ? { merchantProductId: link.merchantProductId.trim() }
+      : {}),
+    ...(link.merchantUrl?.trim() ? { merchantUrl: link.merchantUrl.trim() } : {}),
     ...(link.bottleSizeMl != null
       ? { bottleSizeMl: Math.round(link.bottleSizeMl) }
       : {}),

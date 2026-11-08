@@ -12,6 +12,8 @@ import {
   type GrapeVarietyShare,
 } from "@/lib/schema";
 import { calculateInitialScores } from "@/lib/scoring";
+import { inferBottleSizeMl } from "@/lib/public-price";
+import { buildAffiliateLinks } from "@/lib/affiliate-import";
 import { buildWineImageAlt } from "@/lib/wine-images";
 import { buildWineSlug, slugify } from "@/lib/wine-url";
 import {
@@ -37,6 +39,9 @@ interface ParsedWineRow {
   sweetness: "sec" | "demisec" | "demidulce" | "dulce" | null;
   grapeVarieties: GrapeVarietyShare[];
   sourceUrl: string;
+  producerUrl: string | null;
+  emagUrl: string | null;
+  profitshareUrl: string | null;
   availabilityLabel: string | null;
   tastingNotes: string | null;
   alcohol: number | null;
@@ -122,20 +127,6 @@ function parseAvailabilityEntries(
   ];
 }
 
-function buildAffiliateLinks(
-  sourceUrl: string,
-  producer: string,
-  priceAvg: number,
-): AffiliateLink[] {
-  return [
-    {
-      retailer: producer,
-      url: sourceUrl,
-      priceRon: priceAvg,
-    },
-  ];
-}
-
 function mapValidatedRow(row: WineCsvRow): ParsedWineRow {
   const producerSlug = slugify(
     row.producer_slug ?? row.winery_slug ?? row.producer,
@@ -149,6 +140,15 @@ function mapValidatedRow(row: WineCsvRow): ParsedWineRow {
       vintage: row.vintage,
     });
 
+  const sourceUrl =
+    row.source_url ??
+    row.profitshare_url ??
+    row.emag_url ??
+    row.producer_url;
+  if (!sourceUrl) {
+    throw new Error(`Rand fara source_url, profitshare_url sau emag_url: ${row.name}`);
+  }
+
   return {
     slug,
     name: row.name,
@@ -161,7 +161,10 @@ function mapValidatedRow(row: WineCsvRow): ParsedWineRow {
     type: mapWineCsvRowToType(row.category),
     sweetness: parseSweetness(row.sweetness ?? row.dulceata),
     grapeVarieties: grapeVarietiesFromCsvRow(row),
-    sourceUrl: row.source_url,
+    sourceUrl: row.profitshare_url ?? sourceUrl,
+    producerUrl: row.producer_url ?? (row.source_url ? row.source_url : null),
+    emagUrl: row.emag_url ?? null,
+    profitshareUrl: row.profitshare_url ?? null,
     availabilityLabel: row.availability ?? null,
     tastingNotes: row.tasting_notes ?? row.note_degustare ?? null,
     alcohol: row.alcohol ?? row.alcool ?? null,
@@ -268,11 +271,15 @@ function buildInsertValues(
     parsed.priceAvg,
     parsed.producer,
   );
-  const affiliateLinks = buildAffiliateLinks(
-    parsed.sourceUrl,
-    parsed.producer,
-    parsed.priceAvg,
-  );
+  const affiliateLinks = buildAffiliateLinks({
+    slug: parsed.slug,
+    producer: parsed.producer,
+    sourceUrl: parsed.sourceUrl,
+    emagUrl: parsed.emagUrl,
+    profitshareUrl: parsed.profitshareUrl,
+    bottleSizeMl: inferBottleSizeMl(parsed.name),
+    vintage: parsed.vintage,
+  });
 
   const scores = withScores
     ? calculateInitialScores({
@@ -315,6 +322,7 @@ function buildInsertValues(
     valueExplanation: null,
     tasteProfile: null,
     sourceUrl: parsed.sourceUrl,
+    producerPageUrl: parsed.producerUrl ?? undefined,
     status: "verified" as const,
     submittedBy: null,
   };

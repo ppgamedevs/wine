@@ -1,0 +1,2579 @@
+{
+  "dryRun": true,
+  "note": "No network destination verification is performed here. Links remain unverified until the daily job validates the redirect.",
+  "recoverableLegacyLinks": 94,
+  "recoveredWines": 94,
+  "report": [
+    {
+      "id": 149,
+      "slug": "cramele-recas-solo-quinta-roze-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "Cramele Recas",
+          "url": "https://www.emag.ro/vin-rose-recas-solo-quinta-sec-0-75l-5942084508971/pd/D45YZVYBM/?ref=ps&emag_click_id=58c4ddde35029cc8f5b680c1c5c872cd&utm_source=_affiliate_N5LM&utm_medium=profitshare&utm_campaign=profitshare_N5LM&utm_content=link",
+          "priceRon": 98
+        }
+      ],
+      "after": [
+        {
+          "retailer": "Cramele Recas",
+          "url": "https://l.profitshare.ro/l/16137525",
+          "priceRon": 98,
+          "merchantUrl": "https://www.emag.ro/vin-rose-recas-solo-quinta-sec-0-75l-5942084508971/pd/D45YZVYBM/",
+          "merchantProductId": "D45YZVYBM",
+          "productKey": "cramele-recas-solo-quinta-roze-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 150,
+      "slug": "cramele-recas-solo-quinta-alb-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-recas-solo-quinta-cupaj-sec-0-75l-5942084508995/pd/D3SXDXYBM/",
+          "priceRon": 101
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16138853",
+          "priceRon": 101,
+          "merchantUrl": "https://www.emag.ro/vin-alb-recas-solo-quinta-cupaj-sec-0-75l-5942084508995/pd/D3SXDXYBM/",
+          "merchantProductId": "D3SXDXYBM",
+          "productKey": "cramele-recas-solo-quinta-alb-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 152,
+      "slug": "cramele-recas-muse-day-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rose-recas-muse-day-sec-0-75l-5942084508650/pd/D6WKJJYBM/",
+          "priceRon": 75
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16139528",
+          "priceRon": 75,
+          "merchantUrl": "https://www.emag.ro/vin-rose-recas-muse-day-sec-0-75l-5942084508650/pd/D6WKJJYBM/",
+          "merchantProductId": "D6WKJJYBM",
+          "productKey": "cramele-recas-muse-day-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 153,
+      "slug": "cramele-recas-muse-night-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rose-recas-muse-night-demisec-0-75l-5942084508667/pd/DB909HYBM/",
+          "priceRon": 74
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16139530",
+          "priceRon": 74,
+          "merchantUrl": "https://www.emag.ro/vin-rose-recas-muse-night-demisec-0-75l-5942084508667/pd/DB909HYBM/",
+          "merchantProductId": "DB909HYBM",
+          "productKey": "cramele-recas-muse-night-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 154,
+      "slug": "cramele-recas-sole-roze-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rose-recas-sole-0-75ll-5942084508988/pd/D8WKJJYBM/",
+          "priceRon": 67
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16139541",
+          "priceRon": 67,
+          "merchantUrl": "https://www.emag.ro/vin-rose-recas-sole-0-75ll-5942084508988/pd/D8WKJJYBM/",
+          "merchantProductId": "D8WKJJYBM",
+          "productKey": "cramele-recas-sole-roze-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 156,
+      "slug": "cramele-recas-explicit-roze-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-recas-explicit-roze-0-75l-rec-260/pd/D4BLPY2BM/",
+          "priceRon": 51
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16139555",
+          "priceRon": 51,
+          "merchantUrl": "https://www.emag.ro/vin-recas-explicit-roze-0-75l-rec-260/pd/D4BLPY2BM/",
+          "merchantProductId": "D4BLPY2BM",
+          "productKey": "cramele-recas-explicit-roze-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 157,
+      "slug": "cramele-recas-castel-huniade-roze-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rose-recas-castel-huniade-demisec-0-75l-5942084508391/pd/DDK49PYBM/",
+          "priceRon": 31
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16139557",
+          "priceRon": 31,
+          "merchantUrl": "https://www.emag.ro/vin-rose-recas-castel-huniade-demisec-0-75l-5942084508391/pd/DDK49PYBM/",
+          "merchantProductId": "DDK49PYBM",
+          "productKey": "cramele-recas-castel-huniade-roze-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 158,
+      "slug": "cramele-recas-schwaben-wein-roze-demisec-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-roze-demisec-schwaben-wein-0-75-l-cramele-recas-rec-222/pd/DG1ZGPYBM/",
+          "priceRon": 23
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16139559",
+          "priceRon": 23,
+          "merchantUrl": "https://www.emag.ro/vin-roze-demisec-schwaben-wein-0-75-l-cramele-recas-rec-222/pd/DG1ZGPYBM/",
+          "merchantProductId": "DG1ZGPYBM",
+          "productKey": "cramele-recas-schwaben-wein-roze-demisec-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 160,
+      "slug": "cramele-recas-la-stejari-chardonnay-2020",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-recas-la-stejari-chardonnay-sec-0-75l-5942084508636/pd/DPTV7ZYBM/",
+          "priceRon": 287
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16139910",
+          "priceRon": 287,
+          "merchantUrl": "https://www.emag.ro/vin-alb-recas-la-stejari-chardonnay-sec-0-75l-5942084508636/pd/DPTV7ZYBM/",
+          "merchantProductId": "DPTV7ZYBM",
+          "productKey": "cramele-recas-la-stejari-chardonnay-2020",
+          "vintage": 2020,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 162,
+      "slug": "cramele-recas-muse-stars-brut",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-spumant-alb-recas-muse-stars-brut-0-75l-5940625000007/pd/DTTV7ZYBM/",
+          "priceRon": 94
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16139918",
+          "priceRon": 94,
+          "merchantUrl": "https://www.emag.ro/vin-spumant-alb-recas-muse-stars-brut-0-75l-5940625000007/pd/DTTV7ZYBM/",
+          "merchantProductId": "DTTV7ZYBM",
+          "productKey": "cramele-recas-muse-stars-brut",
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 163,
+      "slug": "cramele-recas-muse-white-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-recas-muse-white-sec-0-75l-5942084508681/pd/D05YZVYBM/",
+          "priceRon": 66
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16139919",
+          "priceRon": 66,
+          "merchantUrl": "https://www.emag.ro/vin-alb-recas-muse-white-sec-0-75l-5942084508681/pd/D05YZVYBM/",
+          "merchantProductId": "D05YZVYBM",
+          "productKey": "cramele-recas-muse-white-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 165,
+      "slug": "cramele-recas-sole-chardonnay-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-recas-sole-chardonnay-sec-0-75l-5942084508964/pd/DTYNVNYBM/",
+          "priceRon": 71
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16140279",
+          "priceRon": 71,
+          "merchantUrl": "https://www.emag.ro/vin-alb-recas-sole-chardonnay-sec-0-75l-5942084508964/pd/DTYNVNYBM/",
+          "merchantProductId": "DTYNVNYBM",
+          "productKey": "cramele-recas-sole-chardonnay-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 166,
+      "slug": "cramele-recas-sole-feteasca-regala-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-recas-sole-feteasca-regala-sec-0-75l-5942084508957/pd/DS309HYBM/",
+          "priceRon": 71
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16140280",
+          "priceRon": 71,
+          "merchantUrl": "https://www.emag.ro/vin-alb-recas-sole-feteasca-regala-sec-0-75l-5942084508957/pd/DS309HYBM/",
+          "merchantProductId": "DS309HYBM",
+          "productKey": "cramele-recas-sole-feteasca-regala-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 167,
+      "slug": "cramele-recas-sole-orange-wine-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-orange-recas-sole-sec-0-75l-5942084509565/pd/DHD401YBM/",
+          "priceRon": 65
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16140281",
+          "priceRon": 65,
+          "merchantUrl": "https://www.emag.ro/vin-orange-recas-sole-sec-0-75l-5942084509565/pd/DHD401YBM/",
+          "merchantProductId": "DHD401YBM",
+          "productKey": "cramele-recas-sole-orange-wine-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 168,
+      "slug": "cramele-recas-sole-viognier-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-recas-sole-viognier-sec-0-75l-5942084509558/pd/D0D401YBM/",
+          "priceRon": 64
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16140282",
+          "priceRon": 64,
+          "merchantUrl": "https://www.emag.ro/vin-alb-recas-sole-viognier-sec-0-75l-5942084509558/pd/D0D401YBM/",
+          "merchantProductId": "D0D401YBM",
+          "productKey": "cramele-recas-sole-viognier-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 169,
+      "slug": "cramele-recas-sole-sauvignon-blanc-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-recas-sole-sauvignon-blanc-sec-0-75l-5942084508940/pd/DJ61G0YBM/",
+          "priceRon": 71
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16140283",
+          "priceRon": 71,
+          "merchantUrl": "https://www.emag.ro/vin-alb-recas-sole-sauvignon-blanc-sec-0-75l-5942084508940/pd/DJ61G0YBM/",
+          "merchantProductId": "DJ61G0YBM",
+          "productKey": "cramele-recas-sole-sauvignon-blanc-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 170,
+      "slug": "cramele-recas-implicit-aligote-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-implicit-aligote-0-75l-rec-276/pd/DRRWYY2BM/",
+          "priceRon": 59
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16140284",
+          "priceRon": 59,
+          "merchantUrl": "https://www.emag.ro/vin-implicit-aligote-0-75l-rec-276/pd/DRRWYY2BM/",
+          "merchantProductId": "DRRWYY2BM",
+          "productKey": "cramele-recas-implicit-aligote-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 172,
+      "slug": "cramele-recas-implicit-pinot-grigio-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-implicit-pinot-grigio-sec-102-222/pd/DD9LVT3BM/",
+          "priceRon": 58
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16141764",
+          "priceRon": 58,
+          "merchantUrl": "https://www.emag.ro/vin-alb-implicit-pinot-grigio-sec-102-222/pd/DD9LVT3BM/",
+          "merchantProductId": "DD9LVT3BM",
+          "productKey": "cramele-recas-implicit-pinot-grigio-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 173,
+      "slug": "cramele-recas-implicit-sauvignon-blanc-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-cramele-recas-implicit-sauvignon-blanc-0-75l-arome-tropicale-si-erbacee-sticla-lzr-0006255/pd/D1X3813BM/",
+          "priceRon": 58
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16141769",
+          "priceRon": 58,
+          "merchantUrl": "https://www.emag.ro/vin-alb-cramele-recas-implicit-sauvignon-blanc-0-75l-arome-tropicale-si-erbacee-sticla-lzr-0006255/pd/D1X3813BM/",
+          "merchantProductId": "D1X3813BM",
+          "productKey": "cramele-recas-implicit-sauvignon-blanc-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 174,
+      "slug": "cramele-recas-explicit-sauvignon-blanc-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-recas-explicit-sauvignon-blanc-0-75l-rec-261/pd/DLBLPY2BM/"
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16142104",
+          "merchantUrl": "https://www.emag.ro/vin-recas-explicit-sauvignon-blanc-0-75l-rec-261/pd/DLBLPY2BM/",
+          "merchantProductId": "DLBLPY2BM",
+          "productKey": "cramele-recas-explicit-sauvignon-blanc-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 175,
+      "slug": "cramele-recas-explicit-chardonnay-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-recas-explicit-chardonnay-0-75l-rec-282/pd/DKBLPY2BM/"
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16142105",
+          "merchantUrl": "https://www.emag.ro/vin-recas-explicit-chardonnay-0-75l-rec-282/pd/DKBLPY2BM/",
+          "merchantProductId": "DKBLPY2BM",
+          "productKey": "cramele-recas-explicit-chardonnay-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 177,
+      "slug": "cramele-recas-explicit-feteasca-regala-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-recas-explicit-feteasca-regala-0-75l-rec-259/pd/DFBLPY2BM/"
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16142107",
+          "merchantUrl": "https://www.emag.ro/vin-recas-explicit-feteasca-regala-0-75l-rec-259/pd/DFBLPY2BM/",
+          "merchantProductId": "DFBLPY2BM",
+          "productKey": "cramele-recas-explicit-feteasca-regala-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 180,
+      "slug": "cramele-recas-castel-huniade-sarba-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-recas-castel-huniade-sarba-0-75l-rec-285/pd/DZBLPY2BM/",
+          "priceRon": 31
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16142624",
+          "priceRon": 31,
+          "merchantUrl": "https://www.emag.ro/vin-recas-castel-huniade-sarba-0-75l-rec-285/pd/DZBLPY2BM/",
+          "merchantProductId": "DZBLPY2BM",
+          "productKey": "cramele-recas-castel-huniade-sarba-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 184,
+      "slug": "cramele-recas-schwaben-wein-riesling-italian-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-schwaben-riesling-italian-sec-0-75l-rec-206/pd/DXH4F9YBM/",
+          "priceRon": 23
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16142644",
+          "priceRon": 23,
+          "merchantUrl": "https://www.emag.ro/vin-alb-schwaben-riesling-italian-sec-0-75l-rec-206/pd/DXH4F9YBM/",
+          "merchantProductId": "DXH4F9YBM",
+          "productKey": "cramele-recas-schwaben-wein-riesling-italian-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 185,
+      "slug": "cramele-recas-schwaben-wein-feteasca-regala-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-schwaben-feteasca-regala-demisec-0-75l-5942084508469/pd/DFPMHPYBM/",
+          "priceRon": 23
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16142643",
+          "priceRon": 23,
+          "merchantUrl": "https://www.emag.ro/vin-alb-schwaben-feteasca-regala-demisec-0-75l-5942084508469/pd/DFPMHPYBM/",
+          "merchantProductId": "DFPMHPYBM",
+          "productKey": "cramele-recas-schwaben-wein-feteasca-regala-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 186,
+      "slug": "cramele-recas-schwaben-wein-muscat-ottonel-2022",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-demidulce-schwaben-wein-cramele-recas-muscat-ottonel-13-alcool-0-75-l-rec-235/pd/D0LKB23BM/",
+          "priceRon": 23
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16142646",
+          "priceRon": 23,
+          "merchantUrl": "https://www.emag.ro/vin-alb-demidulce-schwaben-wein-cramele-recas-muscat-ottonel-13-alcool-0-75-l-rec-235/pd/D0LKB23BM/",
+          "merchantProductId": "D0LKB23BM",
+          "productKey": "cramele-recas-schwaben-wein-muscat-ottonel-2022",
+          "vintage": 2022,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 187,
+      "slug": "cramele-recas-la-stejari-merlot-2020",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-recas-la-stejari-merlot-sec-0-75l-5942084508629/pd/DSXSD33BM/",
+          "priceRon": 312
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143077",
+          "priceRon": 312,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-recas-la-stejari-merlot-sec-0-75l-5942084508629/pd/DSXSD33BM/",
+          "merchantProductId": "DSXSD33BM",
+          "productKey": "cramele-recas-la-stejari-merlot-2020",
+          "vintage": 2020,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 188,
+      "slug": "cramele-recas-la-stejari-cabernet-sauvignon-2018",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-sec-recas-la-stejari-cabernet-sauvignon-15-0-75l-5942084508643/pd/DYZ9LX2BM/",
+          "priceRon": 318
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143078",
+          "priceRon": 318,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-sec-recas-la-stejari-cabernet-sauvignon-15-0-75l-5942084508643/pd/DYZ9LX2BM/",
+          "merchantProductId": "DYZ9LX2BM",
+          "productKey": "cramele-recas-la-stejari-cabernet-sauvignon-2018",
+          "vintage": 2018,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 189,
+      "slug": "cramele-recas-cuvee-uberland-2021",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-recas-cuvee-uberland-sec-0-75-l-5942084508582/pd/DF5YZVYBM/",
+          "priceRon": 140
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143079",
+          "priceRon": 140,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-recas-cuvee-uberland-sec-0-75-l-5942084508582/pd/DF5YZVYBM/",
+          "merchantProductId": "DF5YZVYBM",
+          "productKey": "cramele-recas-cuvee-uberland-2021",
+          "vintage": 2021,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 190,
+      "slug": "cramele-recas-selene-cabernet-sauvignon-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-recas-selene-cabernet-sauvignon-sec-0-75l-5942084508902/pd/D627DZYBM/",
+          "priceRon": 100
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143080",
+          "priceRon": 100,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-recas-selene-cabernet-sauvignon-sec-0-75l-5942084508902/pd/D627DZYBM/",
+          "merchantProductId": "D627DZYBM",
+          "productKey": "cramele-recas-selene-cabernet-sauvignon-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 191,
+      "slug": "cramele-recas-selene-feteasca-neagra-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-recas-selene-feteasca-neagra-0-75l-5942084508919/pd/DW27DZYBM/",
+          "priceRon": 95
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143081",
+          "priceRon": 95,
+          "merchantUrl": "https://www.emag.ro/vin-recas-selene-feteasca-neagra-0-75l-5942084508919/pd/DW27DZYBM/",
+          "merchantProductId": "DW27DZYBM",
+          "productKey": "cramele-recas-selene-feteasca-neagra-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 192,
+      "slug": "cramele-recas-selene-merlot-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-recas-selene-merlot-sec-0-75l-5942084508933/pd/DHTV7ZYBM/",
+          "priceRon": 100
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143082",
+          "priceRon": 100,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-recas-selene-merlot-sec-0-75l-5942084508933/pd/DHTV7ZYBM/",
+          "merchantProductId": "DHTV7ZYBM",
+          "productKey": "cramele-recas-selene-merlot-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 193,
+      "slug": "cramele-recas-selene-syrah-2021",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-recas-selene-syrah-sec-0-75l-5942084508926/pd/DKTV7ZYBM/",
+          "priceRon": 100
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143084",
+          "priceRon": 100,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-recas-selene-syrah-sec-0-75l-5942084508926/pd/DKTV7ZYBM/",
+          "merchantProductId": "DKTV7ZYBM",
+          "productKey": "cramele-recas-selene-syrah-2021",
+          "vintage": 2021,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 194,
+      "slug": "cramele-recas-selene-cabernet-sauvignon-magnum-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-sec-recas-selene-cabernet-sauvignon-magnum-14-1-5l-5942084509244/pd/DNXKNX2BM/",
+          "priceRon": 184
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143085",
+          "priceRon": 184,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-sec-recas-selene-cabernet-sauvignon-magnum-14-1-5l-5942084509244/pd/DNXKNX2BM/",
+          "merchantProductId": "DNXKNX2BM",
+          "productKey": "cramele-recas-selene-cabernet-sauvignon-magnum-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 195,
+      "slug": "cramele-recas-implicit-feteasca-neagra-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-sec-feteasca-neagra-implicit-cramele-recas-0-75l-padrino652/pd/DZQLPJ3BM/",
+          "priceRon": 58
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143088",
+          "priceRon": 58,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-sec-feteasca-neagra-implicit-cramele-recas-0-75l-padrino652/pd/DZQLPJ3BM/",
+          "merchantProductId": "DZQLPJ3BM",
+          "productKey": "cramele-recas-implicit-feteasca-neagra-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 196,
+      "slug": "cramele-recas-implicit-merlot-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-implicit-merlot-sec-0-75l-106-66/pd/D39LVT3BM/",
+          "priceRon": 59
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143089",
+          "priceRon": 59,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-implicit-merlot-sec-0-75l-106-66/pd/D39LVT3BM/",
+          "merchantProductId": "D39LVT3BM",
+          "productKey": "cramele-recas-implicit-merlot-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 197,
+      "slug": "cramele-recas-explicit-merlot-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-recas-explicit-merlot-0-75l-rec-268/pd/DXBLPY2BM/",
+          "priceRon": 51
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143091",
+          "priceRon": 51,
+          "merchantUrl": "https://www.emag.ro/vin-recas-explicit-merlot-0-75l-rec-268/pd/DXBLPY2BM/",
+          "merchantProductId": "DXBLPY2BM",
+          "productKey": "cramele-recas-explicit-merlot-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 199,
+      "slug": "cramele-recas-explicit-rara-neagra-merlot-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "Cramele Recas",
+          "url": "https://cramelerecas.ro/explicit-rara-neagra-merlot/"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-recas-explicit-rara-neagra-si-merlot-0-75l-rec-275/pd/DSBLPY2BM/",
+          "priceRon": 51
+        }
+      ],
+      "after": [
+        {
+          "retailer": "Cramele Recas",
+          "url": "https://l.profitshare.ro/l/16143093",
+          "merchantUrl": "https://www.emag.ro/vin-recas-explicit-rara-neagra-si-merlot-0-75l-rec-275/pd/DSBLPY2BM/",
+          "merchantProductId": "DSBLPY2BM",
+          "productKey": "cramele-recas-explicit-rara-neagra-merlot-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143093",
+          "priceRon": 51,
+          "merchantUrl": "https://www.emag.ro/vin-recas-explicit-rara-neagra-si-merlot-0-75l-rec-275/pd/DSBLPY2BM/",
+          "merchantProductId": "DSBLPY2BM",
+          "productKey": "cramele-recas-explicit-rara-neagra-merlot-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 200,
+      "slug": "cramele-recas-explicit-feteasca-neagra-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-recas-explicit-feteasca-neagra-0-75l-rec-262/pd/D0BLPY2BM/",
+          "priceRon": 51
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143094",
+          "priceRon": 51,
+          "merchantUrl": "https://www.emag.ro/vin-recas-explicit-feteasca-neagra-0-75l-rec-262/pd/D0BLPY2BM/",
+          "merchantProductId": "D0BLPY2BM",
+          "productKey": "cramele-recas-explicit-feteasca-neagra-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 204,
+      "slug": "cramele-recas-castel-huniade-merlot-cu-pinot-noir",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-castel-huniade-merlot-cu-pinot-noir-demidulce-0-75l-rec-248/pd/D13MWB3BM/",
+          "priceRon": 31
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143102",
+          "priceRon": 31,
+          "merchantUrl": "https://www.emag.ro/vin-castel-huniade-merlot-cu-pinot-noir-demidulce-0-75l-rec-248/pd/D13MWB3BM/",
+          "merchantProductId": "D13MWB3BM",
+          "productKey": "cramele-recas-castel-huniade-merlot-cu-pinot-noir",
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 205,
+      "slug": "cramele-recas-schwaben-wein-cabernet-sauvignon-pinot-noir-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-schwaben-rosu-cabernet-sauvignon-pinot-noir-demidulce-0-75l-rec-207/pd/DTH4F9YBM/",
+          "priceRon": 23
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143103",
+          "priceRon": 23,
+          "merchantUrl": "https://www.emag.ro/vin-schwaben-rosu-cabernet-sauvignon-pinot-noir-demidulce-0-75l-rec-207/pd/DTH4F9YBM/",
+          "merchantProductId": "DTH4F9YBM",
+          "productKey": "cramele-recas-schwaben-wein-cabernet-sauvignon-pinot-noir-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 208,
+      "slug": "avincis-orange-2022",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-avincis-orange-sec-0-75l-5941979900951/pd/DBP6402BM/",
+          "priceRon": 87
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16143147",
+          "priceRon": 87,
+          "merchantUrl": "https://www.emag.ro/vin-avincis-orange-sec-0-75l-5941979900951/pd/DBP6402BM/",
+          "merchantProductId": "DBP6402BM",
+          "productKey": "avincis-orange-2022",
+          "vintage": 2022,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 209,
+      "slug": "avincis-alb-avincis-cuvee-amelie-dulce-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-avincis-cuvee-amelie-dulce-0-75l-5941979900838/pd/DYP6402BM/",
+          "priceRon": 61
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16151329",
+          "priceRon": 61,
+          "merchantUrl": "https://www.emag.ro/vin-alb-avincis-cuvee-amelie-dulce-0-75l-5941979900838/pd/DYP6402BM/",
+          "merchantProductId": "DYP6402BM",
+          "productKey": "avincis-alb-avincis-cuvee-amelie-dulce-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 210,
+      "slug": "avincis-spumant-avincis-metoda-traditionla-extra-brut-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-spumant-avincis-metoda-traditionla-extra-brut-0-75l-5941979900845/pd/DWH6402BM/",
+          "priceRon": 99
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16151334",
+          "priceRon": 99,
+          "merchantUrl": "https://www.emag.ro/vin-spumant-avincis-metoda-traditionla-extra-brut-0-75l-5941979900845/pd/DWH6402BM/",
+          "merchantProductId": "DWH6402BM",
+          "productKey": "avincis-spumant-avincis-metoda-traditionla-extra-brut-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 211,
+      "slug": "avincis-alb-avincis-cramposie-selectionata-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-avincis-cramposie-selectionata-sec-0-75l-5941979900746/pd/DQBNHPYBM/",
+          "priceRon": 50
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16153611",
+          "priceRon": 50,
+          "merchantUrl": "https://www.emag.ro/vin-alb-avincis-cramposie-selectionata-sec-0-75l-5941979900746/pd/DQBNHPYBM/",
+          "merchantProductId": "DQBNHPYBM",
+          "productKey": "avincis-alb-avincis-cramposie-selectionata-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 212,
+      "slug": "avincis-alb-avincis-cuvee-petit-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-avincis-cuvee-petit-sec-0-75l-5941979900753/pd/D1BNHPYBM/",
+          "priceRon": 50
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16153613",
+          "priceRon": 50,
+          "merchantUrl": "https://www.emag.ro/vin-alb-avincis-cuvee-petit-sec-0-75l-5941979900753/pd/D1BNHPYBM/",
+          "merchantProductId": "D1BNHPYBM",
+          "productKey": "avincis-alb-avincis-cuvee-petit-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 213,
+      "slug": "avincis-alb-avincis-feteasca-regala-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-alb-avincis-feteasca-regala-sec-0-75l-5941979900760/pd/DJBNHPYBM/",
+          "priceRon": 55
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16153614",
+          "priceRon": 55,
+          "merchantUrl": "https://www.emag.ro/vin-alb-avincis-feteasca-regala-sec-0-75l-5941979900760/pd/DJBNHPYBM/",
+          "merchantProductId": "DJBNHPYBM",
+          "productKey": "avincis-alb-avincis-feteasca-regala-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 215,
+      "slug": "avincis-rosu-avincis-alutus-primus-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-avincis-alutus-primus-sec-0-75l-5941979900975/pd/D2P6402BM/",
+          "priceRon": 134
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159013",
+          "priceRon": 134,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-avincis-alutus-primus-sec-0-75l-5941979900975/pd/D2P6402BM/",
+          "merchantProductId": "D2P6402BM",
+          "productKey": "avincis-rosu-avincis-alutus-primus-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 216,
+      "slug": "avincis-rosu-avincis-merlot-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-avincis-merlot-sec-0-75l-5941979900968/pd/DMP6402BM/",
+          "priceRon": 87
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159014",
+          "priceRon": 87,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-avincis-merlot-sec-0-75l-5941979900968/pd/DMP6402BM/",
+          "merchantProductId": "DMP6402BM",
+          "productKey": "avincis-rosu-avincis-merlot-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 218,
+      "slug": "avincis-rosu-avincis-cuvee-grandiflora-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-avincis-cuvee-grandiflora-sec-0-75l-5941979900814/pd/DFBNHPYBM/",
+          "priceRon": 145
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159017",
+          "priceRon": 145,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-avincis-cuvee-grandiflora-sec-0-75l-5941979900814/pd/DFBNHPYBM/",
+          "merchantProductId": "DFBNHPYBM",
+          "productKey": "avincis-rosu-avincis-cuvee-grandiflora-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 219,
+      "slug": "avincis-rosu-avincis-cabernet-sauvignon-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-avincis-cabernet-sauvignon-sec-0-75l-5941979900654/pd/DZBNHPYBM/",
+          "priceRon": 42
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159018",
+          "priceRon": 42,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-avincis-cabernet-sauvignon-sec-0-75l-5941979900654/pd/DZBNHPYBM/",
+          "merchantProductId": "DZBNHPYBM",
+          "productKey": "avincis-rosu-avincis-cabernet-sauvignon-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 220,
+      "slug": "avincis-rosu-avincis-cuvee-andrei-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-avincis-cuvee-andrei-sec-0-75l-5941979900807/pd/DVBNHPYBM/",
+          "priceRon": 90
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159020",
+          "priceRon": 90,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-avincis-cuvee-andrei-sec-0-75l-5941979900807/pd/DVBNHPYBM/",
+          "merchantProductId": "DVBNHPYBM",
+          "productKey": "avincis-rosu-avincis-cuvee-andrei-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 221,
+      "slug": "avincis-rosu-avincis-pinot-noir-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-avincis-pinot-noir-sec-0-75l-5941979900791/pd/DLBNHPYBM/",
+          "priceRon": 66
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159022",
+          "priceRon": 66,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-avincis-pinot-noir-sec-0-75l-5941979900791/pd/DLBNHPYBM/",
+          "merchantProductId": "DLBNHPYBM",
+          "productKey": "avincis-rosu-avincis-pinot-noir-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 222,
+      "slug": "avincis-rosu-avincis-negru-de-dragasani-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rosu-avincis-negru-de-dragasani-sec-0-75l-5941979900777/pd/DCBNHPYBM/",
+          "priceRon": 85
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159023",
+          "priceRon": 85,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-avincis-negru-de-dragasani-sec-0-75l-5941979900777/pd/DCBNHPYBM/",
+          "merchantProductId": "DCBNHPYBM",
+          "productKey": "avincis-rosu-avincis-negru-de-dragasani-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 223,
+      "slug": "avincis-rose-avincis-cuvee-alexis-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/vin-rose-avincis-cuvee-alexis-sec-0-75l-5941979900784/pd/DSBNHPYBM/",
+          "priceRon": 52
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159027",
+          "priceRon": 52,
+          "merchantUrl": "https://www.emag.ro/vin-rose-avincis-cuvee-alexis-sec-0-75l-5941979900784/pd/DSBNHPYBM/",
+          "merchantProductId": "DSBNHPYBM",
+          "productKey": "avincis-rose-avincis-cuvee-alexis-sec-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 224,
+      "slug": "avincis-rose-merlot-cabernet-sauvignon-0-7l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://www.emag.ro/avincis-rose-merlot-cabernet-sauvignon-0-7l-1149/pd/DYDXKS3BM/",
+          "priceRon": 52
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159028",
+          "priceRon": 52,
+          "merchantUrl": "https://www.emag.ro/avincis-rose-merlot-cabernet-sauvignon-0-7l-1149/pd/DYDXKS3BM/",
+          "merchantProductId": "DYDXKS3BM",
+          "productKey": "avincis-rose-merlot-cabernet-sauvignon-0-7l",
+          "bottleSizeMl": 700,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "swapped legacy eMAG URL into merchantUrl and Profitshare URL into url"
+    },
+    {
+      "id": 235,
+      "slug": "balla-geza-mustoasa-de-maderat-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://www.ballageza.com/ro/catalog/vinuri/mustoasa-de-maderat,2024"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159175",
+          "priceRon": 55
+        }
+      ],
+      "after": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://l.profitshare.ro/l/16159175",
+          "merchantUrl": "https://www.emag.ro/vin-alb-balla-geza-mustoasa-de-maderat-sec-0-75l-5942167002525/pd/D0WKZVYBM/",
+          "merchantProductId": "D0WKZVYBM",
+          "productKey": "balla-geza-mustoasa-de-maderat-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16159175",
+          "priceRon": 55,
+          "merchantUrl": "https://www.emag.ro/vin-alb-balla-geza-mustoasa-de-maderat-sec-0-75l-5942167002525/pd/D0WKZVYBM/",
+          "merchantProductId": "D0WKZVYBM",
+          "productKey": "balla-geza-mustoasa-de-maderat-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 238,
+      "slug": "balla-geza-furmint-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://www.ballageza.com/ro/catalog/vinuri/furmint,2024"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160229",
+          "priceRon": 101
+        }
+      ],
+      "after": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://l.profitshare.ro/l/16160229",
+          "merchantUrl": "https://www.emag.ro/vin-alb-balla-geza-stone-wine-furmint-sec-0-75l-5942167003393/pd/DBYTVFYBM/",
+          "merchantProductId": "DBYTVFYBM",
+          "productKey": "balla-geza-furmint-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160229",
+          "priceRon": 101,
+          "merchantUrl": "https://www.emag.ro/vin-alb-balla-geza-stone-wine-furmint-sec-0-75l-5942167003393/pd/DBYTVFYBM/",
+          "merchantProductId": "DBYTVFYBM",
+          "productKey": "balla-geza-furmint-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 262,
+      "slug": "balla-geza-cadarca-2022-stonewines",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://www.ballageza.com/ro/catalog/vinuri/cadarca,2022-stonewines"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160277",
+          "priceRon": 101
+        }
+      ],
+      "after": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://l.profitshare.ro/l/16160277",
+          "merchantUrl": "https://www.emag.ro/vin-rosu-balla-geza-stonewine-cadarca-sec-0-75l-5942167003430/pd/DT66FSYBM/",
+          "merchantProductId": "DT66FSYBM",
+          "productKey": "balla-geza-cadarca-2022-stonewines",
+          "vintage": 2022,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160277",
+          "priceRon": 101,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-balla-geza-stonewine-cadarca-sec-0-75l-5942167003430/pd/DT66FSYBM/",
+          "merchantProductId": "DT66FSYBM",
+          "productKey": "balla-geza-cadarca-2022-stonewines",
+          "vintage": 2022,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 268,
+      "slug": "balla-geza-cabernet-franc-2020-stonewines",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://www.ballageza.com/ro/catalog/vinuri/cabernet-franc,2020-stonewines"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160286",
+          "priceRon": 124
+        }
+      ],
+      "after": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://l.profitshare.ro/l/16160286",
+          "merchantUrl": "https://www.emag.ro/vin-rosu-balla-geza-stonewine-cabernet-franc-sec-0-75l-5942167003492/pd/DMYTVFYBM/",
+          "merchantProductId": "DMYTVFYBM",
+          "productKey": "balla-geza-cabernet-franc-2020-stonewines",
+          "vintage": 2020,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160286",
+          "priceRon": 124,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-balla-geza-stonewine-cabernet-franc-sec-0-75l-5942167003492/pd/DMYTVFYBM/",
+          "merchantProductId": "DMYTVFYBM",
+          "productKey": "balla-geza-cabernet-franc-2020-stonewines",
+          "vintage": 2020,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 270,
+      "slug": "balla-geza-frizzy-2025-vin-perlant",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://www.ballageza.com/ro/catalog/vinuri/frizzy,2025-vin-perlant"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160449",
+          "priceRon": 60
+        }
+      ],
+      "after": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://l.profitshare.ro/l/16160449",
+          "merchantUrl": "https://www.emag.ro/vin-perlant-balla-geza-frizzy-sec-0-75l-5942167002600/pd/D4LFQ9YBM/",
+          "merchantProductId": "D4LFQ9YBM",
+          "productKey": "balla-geza-frizzy-2025-vin-perlant",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160449",
+          "priceRon": 60,
+          "merchantUrl": "https://www.emag.ro/vin-perlant-balla-geza-frizzy-sec-0-75l-5942167002600/pd/D4LFQ9YBM/",
+          "merchantProductId": "D4LFQ9YBM",
+          "productKey": "balla-geza-frizzy-2025-vin-perlant",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 271,
+      "slug": "balla-geza-rozzy-2024-vin-perlant",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://www.ballageza.com/ro/catalog/vinuri/rozzy,2024-vin-perlant"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160294",
+          "priceRon": 60
+        }
+      ],
+      "after": [
+        {
+          "retailer": "Balla Geza",
+          "url": "https://l.profitshare.ro/l/16160294",
+          "merchantUrl": "https://www.emag.ro/vin-perlant-balla-geza-rozzy-sec-0-75l-5942167002624/pd/D5MTVFYBM/",
+          "merchantProductId": "D5MTVFYBM",
+          "productKey": "balla-geza-rozzy-2024-vin-perlant",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        },
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16160294",
+          "priceRon": 60,
+          "merchantUrl": "https://www.emag.ro/vin-perlant-balla-geza-rozzy-sec-0-75l-5942167002624/pd/D5MTVFYBM/",
+          "merchantProductId": "D5MTVFYBM",
+          "productKey": "balla-geza-rozzy-2024-vin-perlant",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 282,
+      "slug": "budureasca-spumant-shine-rose-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16164785",
+          "priceRon": 51
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16164785",
+          "priceRon": 51,
+          "merchantUrl": "https://www.emag.ro/vin-spumant-shine-rose-sec-0-75l-5941976204588/pd/DT103R3BM/",
+          "merchantProductId": "DT103R3BM",
+          "productKey": "budureasca-spumant-shine-rose-sec-0-75l",
+          "bottleSizeMl": 75000,
+          "vintage": 2019,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 283,
+      "slug": "budureasca-spumant-shine-alb-brut-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16164713",
+          "priceRon": 36
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16164713",
+          "priceRon": 36,
+          "merchantUrl": "https://www.emag.ro/vin-spumant-shine-alb-brut-0-75l-5941976204595/pd/DK103R3BM/",
+          "merchantProductId": "DK103R3BM",
+          "productKey": "budureasca-spumant-shine-alb-brut-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 288,
+      "slug": "budureasca-spumant-budureasca-prima-stilla-alb-brut-cutie-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16164783",
+          "priceRon": 163
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16164783",
+          "priceRon": 163,
+          "merchantUrl": "https://www.emag.ro/vin-spumant-budureasca-prima-stilla-alb-brut-cutie-0-75l-bud99/pd/D0Q2MJ3BM/",
+          "merchantProductId": "D0Q2MJ3BM",
+          "productKey": "budureasca-spumant-budureasca-prima-stilla-alb-brut-cutie-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": 2016,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 344,
+      "slug": "budureasca-rose-sabrize-sec-crama-budureasca-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170073",
+          "priceRon": 51
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170073",
+          "priceRon": 51,
+          "merchantUrl": "https://www.emag.ro/vin-rose-sabrize-sec-crama-budureasca-0-75l-padrino0014/pd/DZ62MSYBM/",
+          "merchantProductId": "DZ62MSYBM",
+          "productKey": "budureasca-rose-sabrize-sec-crama-budureasca-0-75l",
+          "bottleSizeMl": 75000,
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 345,
+      "slug": "budureasca-alb-budureasca-sabrize-fume-sec-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170076",
+          "priceRon": 46
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170076",
+          "priceRon": 46,
+          "merchantUrl": "https://www.emag.ro/vin-alb-budureasca-sabrize-fume-sec-0-75l-5940541821656/pd/D9D94JYBM/",
+          "merchantProductId": "D9D94JYBM",
+          "productKey": "budureasca-alb-budureasca-sabrize-fume-sec-0-75l",
+          "bottleSizeMl": 75000,
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 346,
+      "slug": "budureasca-sabrize-sauvignon-blanc-sec",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170078",
+          "priceRon": 64
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170078",
+          "priceRon": 64,
+          "merchantUrl": "https://www.emag.ro/vin-alb-budureasca-sabrize-sauvignon-blanc-sec-0-75l-5940541821656/pd/DHD94JYBM/",
+          "merchantProductId": "DHD94JYBM",
+          "productKey": "budureasca-sabrize-sauvignon-blanc-sec",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 349,
+      "slug": "budureasca-bristena-tamaioasa-romaneasca-demidulce-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170087",
+          "priceRon": 42
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170087",
+          "priceRon": 42,
+          "merchantUrl": "https://www.emag.ro/vin-alb-budureasca-bristena-tamaioasa-romaneasca-demidulce-0-75l-5940541820178/pd/DCDM8KYBM/",
+          "merchantProductId": "DCDM8KYBM",
+          "productKey": "budureasca-bristena-tamaioasa-romaneasca-demidulce-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 350,
+      "slug": "budureasca-clasic-rose-demisec-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170095",
+          "priceRon": 66
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170095",
+          "priceRon": 66,
+          "merchantUrl": "https://www.emag.ro/vin-rose-budureasca-clasic-demisec-0-75l-5940541820062/pd/DQDM8KYBM/",
+          "merchantProductId": "DQDM8KYBM",
+          "productKey": "budureasca-clasic-rose-demisec-2024",
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 352,
+      "slug": "budureasca-clasic-feteasca-neagra-demisec-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170104",
+          "priceRon": 66
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170104",
+          "priceRon": 66,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-budureasca-clasic-feteasca-neagra-demisec-0-75l-5940541820109/pd/DLDM8KYBM/",
+          "merchantProductId": "DLDM8KYBM",
+          "productKey": "budureasca-clasic-feteasca-neagra-demisec-2023",
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 356,
+      "slug": "budureasca-clasic-cabernet-sauvignon-sec-2025",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170123",
+          "priceRon": 66
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170123",
+          "priceRon": 66,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-budureasca-clasic-cabernet-sauvignon-sec-0-75l-5940541820079/pd/D551G0YBM/",
+          "merchantProductId": "D551G0YBM",
+          "productKey": "budureasca-clasic-cabernet-sauvignon-sec-2025",
+          "vintage": 2025,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 366,
+      "slug": "budureasca-bag-in-box-cabernet-sauvignon-sec-2l-2023",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170156",
+          "priceRon": 60
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170156",
+          "priceRon": 60,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-budureasca-cabernet-sauvignon-sec-bib-2l-5941976201174/pd/D7SXXMYBM/",
+          "merchantProductId": "D7SXXMYBM",
+          "productKey": "budureasca-bag-in-box-cabernet-sauvignon-sec-2l-2023",
+          "bottleSizeMl": 2000,
+          "vintage": 2023,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 367,
+      "slug": "budureasca-bag-in-box-fume-demisec-2l-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170170",
+          "priceRon": 60
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170170",
+          "priceRon": 60,
+          "merchantUrl": "https://www.emag.ro/vin-alb-budureasca-fume-demisec-bib-2l-5941976202447/pd/D2SXXMYBM/",
+          "merchantProductId": "D2SXXMYBM",
+          "productKey": "budureasca-bag-in-box-fume-demisec-2l-2024",
+          "bottleSizeMl": 2000,
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 368,
+      "slug": "budureasca-bag-in-box-rose-demisec-2l-2024",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170171",
+          "priceRon": 55
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170171",
+          "priceRon": 55,
+          "merchantUrl": "https://www.emag.ro/vin-rose-budureasca-demisec-bib-2l-5941976201181/pd/DNSXXMYBM/",
+          "merchantProductId": "DNSXXMYBM",
+          "productKey": "budureasca-bag-in-box-rose-demisec-2l-2024",
+          "bottleSizeMl": 2000,
+          "vintage": 2024,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 369,
+      "slug": "budureasca-bag-in-box-red-cuvee-demisec-2l-2022",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170172",
+          "priceRon": 60
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170172",
+          "priceRon": 60,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-budureasca-cuvee-demisec-bib-2l-5941976202591/pd/DKSXXMYBM/",
+          "merchantProductId": "DKSXXMYBM",
+          "productKey": "budureasca-bag-in-box-red-cuvee-demisec-2l-2022",
+          "bottleSizeMl": 2000,
+          "vintage": 2022,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 370,
+      "slug": "budureasca-bag-in-box-sauvignon-blanc-demisec-2l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170174",
+          "priceRon": 60
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170174",
+          "priceRon": 60,
+          "merchantUrl": "https://www.emag.ro/vin-alb-budureasca-sauvignon-blanc-demisec-bib-2l-5941976201204/pd/DDSXXMYBM/",
+          "merchantProductId": "DDSXXMYBM",
+          "productKey": "budureasca-bag-in-box-sauvignon-blanc-demisec-2l",
+          "bottleSizeMl": 2000,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 373,
+      "slug": "crama-gabai-vin-rose-sec-pinot-rose-2020",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170221",
+          "priceRon": 60
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16170221",
+          "priceRon": 60,
+          "merchantUrl": "https://www.emag.ro/vin-rose-crama-gabai-sec-0-75l-6427921000010/pd/DV709HYBM/",
+          "merchantProductId": "DV709HYBM",
+          "productKey": "crama-gabai-vin-rose-sec-pinot-rose-2020",
+          "vintage": 2020,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 391,
+      "slug": "murfatlar-lacrima-lui-ovidiu-rosu",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559495",
+          "priceRon": 44
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559495",
+          "priceRon": 44,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-dulce-licoros-lacrima-lui-ovidiu-cupaj-alcool-15-0-75l-cri-132/pd/DP0RLPYBM/",
+          "merchantProductId": "DP0RLPYBM",
+          "productKey": "murfatlar-lacrima-lui-ovidiu-rosu",
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 392,
+      "slug": "murfatlar-lacrima-lui-ovidiu-roze",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559497",
+          "priceRon": 41
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559497",
+          "priceRon": 41,
+          "merchantUrl": "https://www.emag.ro/vin-roze-licoros-lacrima-lui-ovidiu-murfatlar-vinul-0-75l-alcrovinw043/pd/DBTGR6YBM/",
+          "merchantProductId": "DBTGR6YBM",
+          "productKey": "murfatlar-lacrima-lui-ovidiu-roze",
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 393,
+      "slug": "murfatlar-lacrima-lui-ovidiu-alb",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559500",
+          "priceRon": 79
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559500",
+          "priceRon": 79,
+          "merchantUrl": "https://www.emag.ro/vin-alb-licoros-lacrima-lui-ovidiu-murfatlar-0-75-l-5941982055297/pd/D4PWJKYBM/",
+          "merchantProductId": "D4PWJKYBM",
+          "productKey": "murfatlar-lacrima-lui-ovidiu-alb",
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 394,
+      "slug": "murfatlar-aerosoli-roze",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559564",
+          "priceRon": 39
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559564",
+          "priceRon": 39,
+          "merchantUrl": "https://www.emag.ro/vin-roze-aerosoli-feteasca-neagra-pinot-noir-750-ml-12-vol-sec-doc-cmd-murfatlar-alcrovinw039/pd/D47J5XYBM/",
+          "merchantProductId": "D47J5XYBM",
+          "productKey": "murfatlar-aerosoli-roze",
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 395,
+      "slug": "murfatlar-lacrima-lui-ovidiu-12-alb",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559567",
+          "priceRon": 163
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16559567",
+          "priceRon": 163,
+          "merchantUrl": "https://www.emag.ro/lacrima-lui-ovidiu-12-ani-alb-licoros-murfatlar-0-75l-4560/pd/DQYMWB3BM/",
+          "merchantProductId": "DQYMWB3BM",
+          "productKey": "murfatlar-lacrima-lui-ovidiu-12-alb",
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 396,
+      "slug": "murfatlar-alb-demisec-statornic-sauvignon-blanc-murfatlar-vinul-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16919669",
+          "priceRon": 65
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16919669",
+          "priceRon": 65,
+          "merchantUrl": "https://www.emag.ro/vin-alb-demisec-statornic-sauvignon-blanc-murfatlar-vinul-0-75l-statornic-sb/pd/DFNRD8YBM/",
+          "merchantProductId": "DFNRD8YBM",
+          "productKey": "murfatlar-alb-demisec-statornic-sauvignon-blanc-murfatlar-vinul-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 397,
+      "slug": "murfatlar-statornic-roze",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16919672",
+          "priceRon": 31
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16919672",
+          "priceRon": 31,
+          "merchantUrl": "https://www.emag.ro/vin-roze-demisec-statornic-cabernet-sauvignon-murfatlar-vinul-0-75l-statornic-cs/pd/DFHJ28YBM/",
+          "merchantProductId": "DFHJ28YBM",
+          "productKey": "murfatlar-statornic-roze",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 398,
+      "slug": "murfatlar-rosu-sec-statornic-pinot-noir-0-75l-doc-cmd-murfatlar",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16919675",
+          "priceRon": 31
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16919675",
+          "priceRon": 31,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-sec-statornic-pinot-noir-0-75l-doc-cmd-murfatlar-alcrovinw032/pd/DBGDC73BM/",
+          "merchantProductId": "DBGDC73BM",
+          "productKey": "murfatlar-rosu-sec-statornic-pinot-noir-0-75l-doc-cmd-murfatlar",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 401,
+      "slug": "murfatlar-sec-de-murfatlar-cabernet-sauvignon-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16920180",
+          "priceRon": 28
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16920180",
+          "priceRon": 28,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-murfatlar-cabernet-sauvignon-0-75l-sec-rosu-intensiv-alcrovinw026/pd/DGFZYR3BM/",
+          "merchantProductId": "DGFZYR3BM",
+          "productKey": "murfatlar-sec-de-murfatlar-cabernet-sauvignon-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 404,
+      "slug": "murfatlar-3-hectare-feteasca-neagra-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16920198",
+          "priceRon": 38
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16920198",
+          "priceRon": 38,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-sec-3-hectare-feteasca-neagra-0-75l-doc-ct-murfatlar-alcrovinw037/pd/DMGDC73BM/",
+          "merchantProductId": "DMGDC73BM",
+          "productKey": "murfatlar-3-hectare-feteasca-neagra-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 405,
+      "slug": "murfatlar-3-hectare-sauvignon-blanc-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16920201",
+          "priceRon": 40
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16920201",
+          "priceRon": 40,
+          "merchantUrl": "https://www.emag.ro/vin-alb-sec-3-hectare-sauvignon-blanc-0-75l-doc-ct-murfatlar-alcrovinw038/pd/DYGDC73BM/",
+          "merchantProductId": "DYGDC73BM",
+          "productKey": "murfatlar-3-hectare-sauvignon-blanc-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 409,
+      "slug": "murfatlar-zestrea-cabernet-sauvignon-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16921383",
+          "priceRon": 19
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16921383",
+          "priceRon": 19,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-zestrea-cabernet-sauvignon-750-ml-13-vol-demisec-doc-cmd-murfatlar-alcrovinw023/pd/DMKDRJMBM/",
+          "merchantProductId": "DMKDRJMBM",
+          "productKey": "murfatlar-zestrea-cabernet-sauvignon-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 410,
+      "slug": "murfatlar-zestrea-pinot-noir-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16921440",
+          "priceRon": 19
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16921440",
+          "priceRon": 19,
+          "merchantUrl": "https://www.emag.ro/vin-rosu-demidulce-murfatlar-pinot-noir-0-75l-rubiniu-alcrovinw030/pd/DBJZYR3BM/",
+          "merchantProductId": "DBJZYR3BM",
+          "productKey": "murfatlar-zestrea-pinot-noir-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 411,
+      "slug": "murfatlar-zestrea-merlot-cabernet-sauvignon-roze-demidulce-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16921743",
+          "priceRon": 33
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16921743",
+          "priceRon": 33,
+          "merchantUrl": "https://www.emag.ro/vin-roze-zestrea-merlot-si-cabernet-sauvignon-0-75l-doc-cmd-murfatlar-c48142/pd/DRGPQQYBM/",
+          "merchantProductId": "DRGPQQYBM",
+          "productKey": "murfatlar-zestrea-merlot-cabernet-sauvignon-roze-demidulce-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 412,
+      "slug": "murfatlar-zestrea-muscat-ottonel-demidulce-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16922057",
+          "priceRon": 24
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16922057",
+          "priceRon": 24,
+          "merchantUrl": "https://www.emag.ro/vin-alb-demidulce-muscat-ottonel-zestrea-murfatlar-0-75-l-c4768/pd/D0LB0QYBM/",
+          "merchantProductId": "D0LB0QYBM",
+          "productKey": "murfatlar-zestrea-muscat-ottonel-demidulce-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    },
+    {
+      "id": 413,
+      "slug": "murfatlar-zestrea-sauvignon-blanc-0-75l",
+      "action": "dry-run",
+      "before": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16922059",
+          "priceRon": 33
+        }
+      ],
+      "after": [
+        {
+          "retailer": "eMAG.ro",
+          "url": "https://l.profitshare.ro/l/16922059",
+          "priceRon": 33,
+          "merchantUrl": "https://www.emag.ro/vin-alb-demisec-sauvignon-blanc-zestrea-murfatlar-0-75-l-c4768-2543-6542/pd/D4LB0QYBM/",
+          "merchantProductId": "D4LB0QYBM",
+          "productKey": "murfatlar-zestrea-sauvignon-blanc-0-75l",
+          "bottleSizeMl": 750,
+          "vintage": null,
+          "currency": "RON",
+          "verificationStatus": "unverified"
+        }
+      ],
+      "reason": "recovered merchant URL from price history"
+    }
+  ]
+}
