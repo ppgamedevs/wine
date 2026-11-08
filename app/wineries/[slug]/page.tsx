@@ -34,7 +34,7 @@ import {
 } from "@/lib/winery-copy";
 import type { WineryWithWines } from "@/types";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 export const dynamicParams = true;
 
 interface WineryPageProps {

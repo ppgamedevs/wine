@@ -45,7 +45,7 @@ import { localizeWineSubmissionMessage } from "@/lib/wine-submission-messages";
 import type { AppLocale } from "@/i18n/locale";
 import type { WineWithRelations } from "@/types";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 export const dynamicParams = true;
 
 interface WinePageProps {

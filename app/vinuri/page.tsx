@@ -28,7 +28,7 @@ import {
   QUALITY_RECOMMENDED_MIN,
 } from "@/lib/public-quality-score";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getDiscoveryI18n();

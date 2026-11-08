@@ -1,5 +1,6 @@
 import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { parseProductStockAvailability } from "@/lib/price-stock";
 import { inferBottleSizeMl } from "@/lib/public-price";
 import { extractProductFromUrl } from "@/lib/price-extractor";
 import { fetchPageWithResolution } from "@/lib/fetch-page-html";
@@ -44,18 +45,7 @@ function pruneHistory(
   });
 }
 
-function stockFromHtml(html: string): boolean | null {
-  const normalized = html.toLowerCase();
-  if (
-    /stoc epuizat|stoc indisponibil|indisponibil|out of stock|currently unavailable/.test(
-      normalized,
-    )
-  ) {
-    return false;
-  }
-  if (/în stoc|in stoc|available|disponibil/.test(normalized)) return true;
-  return null;
-}
+
 
 function sameProduct(finalUrl: string, expectedId: string): boolean {
   return extractEmagProductId(finalUrl) === expectedId.toUpperCase();
@@ -186,7 +176,9 @@ export class DbPriceRefreshStore implements PriceRefreshStore {
           if (
             linked?.verificationStatus === "verified" &&
             Number.isFinite(checkedAt) &&
-            checkedAt >= freshnessCutoff
+            checkedAt >= freshnessCutoff &&
+            // Revisit earlier false stock flags without product-level evidence.
+            !(linked.inStock === false && !linked.stockEvidence)
           ) {
             continue;
           }
@@ -312,7 +304,12 @@ export class DbPriceRefreshStore implements PriceRefreshStore {
       priceRon: input.observation.priceRon,
       currency: "RON",
       checkedAt: input.observation.observedAt,
-      inStock: input.observation.inStock ?? link?.inStock,
+      inStock: input.observation.inStock ?? (
+        link?.inStock === false && !link.stockEvidence ? undefined : link?.inStock
+      ),
+      stockEvidence: input.observation.inStock === null
+        ? "unknown"
+        : "structured_product",
       verificationStatus: "verified",
       verifiedAt: input.observation.observedAt,
       verificationError: undefined,
@@ -390,7 +387,7 @@ export const dbPriceRefreshFetcher: PriceRefreshFetcher = {
     return {
       priceRon: extracted.price,
       currency: "RON",
-      inStock: stockFromHtml(page.html),
+      inStock: parseProductStockAvailability(page.html),
       observedAt: new Date().toISOString(),
       finalUrl: page.finalUrl,
       vintage: extracted.vintage,
