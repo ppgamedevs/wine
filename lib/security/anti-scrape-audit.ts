@@ -169,6 +169,19 @@ export const API_ROUTE_EXPECTATIONS = [
     notes: "Scheduled jobs are private and fail closed when the secret is absent.",
   },
   {
+    route: "/api/cron/price-refresh",
+    sourcePath: "app/api/cron/price-refresh/route.ts",
+    classification: "private-job",
+    methods: ["GET"],
+    caps: {
+      requestLimit: 4,
+      requestWindowSeconds: 3_600,
+    },
+    protections: ["shared-secret"],
+    notes:
+      "Daily affiliate refresh is private, bounded and fails closed without CRON_SECRET.",
+  },
+  {
     route: "/api/stripe/billing-portal",
     sourcePath: "app/api/stripe/billing-portal/route.ts",
     classification: "disabled",
