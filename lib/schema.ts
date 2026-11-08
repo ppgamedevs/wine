@@ -65,6 +65,8 @@ export interface AffiliateLink {
   checkedAt?: string;
   /** False only when the offer is known to be unavailable. */
   inStock?: boolean;
+  /** Explicit merchant product metadata, not generic page text. */
+  stockEvidence?: "structured_product" | "unknown";
   /** Profitshare campaign token, when explicitly stored. */
   offerId?: string;
   /** Retailer-side product/variant key used to prove offer identity. */
