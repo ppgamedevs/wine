@@ -145,7 +145,20 @@ function observationForLink(
   if (link.verificationStatus && link.verificationStatus !== "verified") {
     return null;
   }
-  if (link.inStock === false) return null;
+  // Old price-refresh runs sometimes wrote inStock=false because generic
+  // "indisponibil" appeared anywhere in the eMAG HTML, including unrelated
+  // products. Such a flag has no stock evidence. Treat it as unknown ONLY when
+  // the exact merchant SKU and affiliate redirect were successfully verified.
+  // A current product-specific OutOfStock signal remains a hard exclusion.
+  if (link.inStock === false) {
+    const legacyUnprovenStockFlag = Boolean(
+      link.verificationStatus === "verified" &&
+      !link.stockEvidence &&
+      link.merchantUrl &&
+      link.merchantProductId,
+    );
+    if (!legacyUnprovenStockFlag) return null;
+  }
 
   const retailer = link.retailer?.trim();
   if (!retailer) return null;
