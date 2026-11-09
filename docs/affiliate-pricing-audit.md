@@ -1,6 +1,6 @@
 # Affiliate pricing and daily refresh audit
 
-Read-only production audit on 2026-11-08. No production row was changed.
+Production audit on 2026-11-08, followed by a controlled refresh that only recorded live verified observations. Historical prices were not deleted.
 
 ## Current coverage
 
@@ -11,14 +11,14 @@ Read-only production audit on 2026-11-08. No production row was changed.
 | Wines with a producer page URL | 258 |
 | Wines with an exact eMAG product URL | 97 |
 | Wines with a Profitshare URL | 95 |
-| Wines with any stored price | 180 |
-| Wines missing a usable price observation | 185 |
-| **Wines with a current public price** | **0** |
+| Wines with any stored price | 183 |
+| Wines missing a usable price observation | 181 |
+| **Wines with a current public price** | **59** |
 | Recoverable existing offers | 80 |
 | Needs manual link correction | 15 |
 | Genuinely unavailable | 178 |
-| Legacy direct-eMAG / Profitshare swaps | 56 |
-| Stale observations | 88 |
+| Legacy direct-eMAG / Profitshare swaps | 14 |
+| Stale observations | 24 |
 
 The 180 stored prices are not public coverage: most lack `checkedAt` on the
 affiliate link, and the strict resolver correctly refuses them. The public

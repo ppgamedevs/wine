@@ -201,7 +201,9 @@ export function WineCardView({
           <span
             className={cn(
               "absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm",
-              valueScoreTone(card.displayedRankScore),
+              card.displayedRankMetric === "quality"
+                ? qualityScoreTone(card.displayedRankScore)
+                : valueScoreTone(card.displayedRankScore),
             )}
             title={card.displayedRankLabel}
           >

@@ -105,11 +105,7 @@ describe("Prompt 27B public surface guards", () => {
   });
 
   it("keeps locale route states translated and client copy scoped", async () => {
-    const [loading, error, claimForm, smartSearch] = await Promise.all([
-      readFile(
-        new URL("../../app/[locale]/loading.tsx", import.meta.url),
-        "utf8",
-      ),
+    const [error, claimForm, smartSearch] = await Promise.all([
       readFile(
         new URL("../../app/[locale]/error.tsx", import.meta.url),
         "utf8",
@@ -124,7 +120,8 @@ describe("Prompt 27B public surface guards", () => {
       ),
     ]);
 
-    expect(loading).toContain('getTranslations("Route")');
+    // Dynamic route states intentionally have no streaming loading.tsx boundary:
+    // it would turn a real notFound() into an HTTP 200 soft-404 shell.
     expect(error).toContain('useTranslations("Error")');
     expect(claimForm).toContain("copy: ClaimFormCopy");
     expect(smartSearch).toContain("copy?: SmartSearchCopy");

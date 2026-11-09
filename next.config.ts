@@ -53,6 +53,13 @@ const nextConfig: NextConfig = {
           "/journal/recolta-2026-in-moldova-ce-inseamna-pentru-tine",
         permanent: true,
       },
+      {
+        // Legacy generated slug repeated the "pentru-" prefix for dessert.
+        source:
+          "/topuri/vinuri-sub-:budget(\\d+)-lei-pentru-pentru-desert",
+        destination: "/topuri/vinuri-sub-:budget-lei-pentru-desert",
+        permanent: true,
+      },
     ];
   },
   async headers() {

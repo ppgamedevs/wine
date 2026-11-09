@@ -3,6 +3,7 @@ import {
   BUDGET_THRESHOLDS,
   getResolvableTopListSlugs,
   resolveTopList,
+  topListOccasionSlug,
   TYPE_SLUG_MAP,
   WINE_TYPE_TO_TOP_SLUG,
   type ResolvedTopList,
@@ -209,7 +210,7 @@ export function topListSlugForLocale(
         : `wines-under-${definition.budget}-ron`;
     case "budget-occasion":
       return locale === "ro"
-        ? `vinuri-sub-${definition.budget}-lei-pentru-${definition.occasion}`
+        ? `vinuri-sub-${definition.budget}-lei-pentru-${topListOccasionSlug(definition.occasion)}`
         : `wines-under-${definition.budget}-ron-for-${ENGLISH_OCCASION_SLUGS[definition.occasion]}`;
     case "grape":
       return locale === "ro"

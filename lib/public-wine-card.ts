@@ -80,6 +80,7 @@ export function buildPublicWineCardViewModel(
         ? null
         : topListRankScore(wine, highlightScore, options.displayedScore),
     displayedRankLabel: rankLabel(highlightScore, locale),
+    displayedRankMetric: highlightScore,
     image: {
       url: wine.imageUrl,
       source: wine.imageSource,
