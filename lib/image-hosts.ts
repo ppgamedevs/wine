@@ -26,6 +26,8 @@ export const IMAGE_REMOTE_HOSTS = [
   "www.cramagabai.ro",
   "murfatlar-vinul.ro",
   "www.murfatlar-vinul.ro",
+  "crama-apogeum.ro",
+  "www.crama-apogeum.ro",
   "www.lacertawinery.ro",
   "www.jidvei.ro",
   "**.emag.ro",
