@@ -1,0 +1,196 @@
+[
+  {
+    "id": 162,
+    "slug": "cramele-recas-muse-stars-brut",
+    "name": "Muse Stars Brut (Spumant)",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-spumant-alb-recas-muse-stars-brut-0-75l-5940625000007/pd/DTTV7ZYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16139918"
+  },
+  {
+    "id": 204,
+    "slug": "cramele-recas-castel-huniade-merlot-cu-pinot-noir",
+    "name": "Castel Huniade Merlot cu Pinot Noir",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-castel-huniade-merlot-cu-pinot-noir-demidulce-0-75l-rec-248/pd/D13MWB3BM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16143102"
+  },
+  {
+    "id": 211,
+    "slug": "avincis-alb-avincis-cramposie-selectionata-sec-0-75l",
+    "name": "Alb Avincis, Cramposie Selectionata, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-alb-avincis-cramposie-selectionata-sec-0-75l-5941979900746/pd/DQBNHPYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16153611"
+  },
+  {
+    "id": 212,
+    "slug": "avincis-alb-avincis-cuvee-petit-sec-0-75l",
+    "name": "Alb Avincis, Cuvee Petit, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-alb-avincis-cuvee-petit-sec-0-75l-5941979900753/pd/D1BNHPYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16153613"
+  },
+  {
+    "id": 213,
+    "slug": "avincis-alb-avincis-feteasca-regala-sec-0-75l",
+    "name": "Alb Avincis, Feteasca Regala, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-alb-avincis-feteasca-regala-sec-0-75l-5941979900760/pd/DJBNHPYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16153614"
+  },
+  {
+    "id": 215,
+    "slug": "avincis-rosu-avincis-alutus-primus-sec-0-75l",
+    "name": "Rosu Avincis Alutus Primus, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-rosu-avincis-alutus-primus-sec-0-75l-5941979900975/pd/D2P6402BM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16159013"
+  },
+  {
+    "id": 216,
+    "slug": "avincis-rosu-avincis-merlot-sec-0-75l",
+    "name": "Rosu Avincis Merlot, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-rosu-avincis-merlot-sec-0-75l-5941979900968/pd/DMP6402BM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16159014"
+  },
+  {
+    "id": 218,
+    "slug": "avincis-rosu-avincis-cuvee-grandiflora-sec-0-75l",
+    "name": "Rosu Avincis, Cuvee Grandiflora, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-rosu-avincis-cuvee-grandiflora-sec-0-75l-5941979900814/pd/DFBNHPYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16159017"
+  },
+  {
+    "id": 219,
+    "slug": "avincis-rosu-avincis-cabernet-sauvignon-sec-0-75l",
+    "name": "Rosu Avincis Cabernet Sauvignon, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-rosu-avincis-cabernet-sauvignon-sec-0-75l-5941979900654/pd/DZBNHPYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16159018"
+  },
+  {
+    "id": 220,
+    "slug": "avincis-rosu-avincis-cuvee-andrei-sec-0-75l",
+    "name": "Rosu Avincis Cuvee Andrei, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-rosu-avincis-cuvee-andrei-sec-0-75l-5941979900807/pd/DVBNHPYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16159020"
+  },
+  {
+    "id": 221,
+    "slug": "avincis-rosu-avincis-pinot-noir-sec-0-75l",
+    "name": "Rosu Avincis Pinot Noir, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-rosu-avincis-pinot-noir-sec-0-75l-5941979900791/pd/DLBNHPYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16159022"
+  },
+  {
+    "id": 222,
+    "slug": "avincis-rosu-avincis-negru-de-dragasani-sec-0-75l",
+    "name": "Rosu Avincis Negru de Dragasani, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-rosu-avincis-negru-de-dragasani-sec-0-75l-5941979900777/pd/DCBNHPYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16159023"
+  },
+  {
+    "id": 223,
+    "slug": "avincis-rose-avincis-cuvee-alexis-sec-0-75l",
+    "name": "Rose Avincis, Cuvee Alexis, Sec, 0.75l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-rose-avincis-cuvee-alexis-sec-0-75l-5941979900784/pd/DSBNHPYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16159027"
+  },
+  {
+    "id": 224,
+    "slug": "avincis-rose-merlot-cabernet-sauvignon-0-7l",
+    "name": "Rose Merlot & Cabernet Sauvignon 0.7l",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation",
+      "legacy_url_swap"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/avincis-rose-merlot-cabernet-sauvignon-0-7l-1149/pd/DYDXKS3BM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16159028"
+  },
+  {
+    "id": 371,
+    "slug": "crama-gabai-vin-rose-demidulce-sweet-pinot-rose-2022",
+    "name": "Vin Rose Demidulce – Sweet Pinot Rose",
+    "reasons": [
+      "missing_producer_url",
+      "stale_observation"
+    ],
+    "producerUrl": null,
+    "emagUrl": "https://www.emag.ro/vin-rose-crama-gabai-sweet-demidulce-0-75l-6427921000027/pd/DS709HYBM/",
+    "profitshareUrl": "https://l.profitshare.ro/l/16170218"
+  }
+]

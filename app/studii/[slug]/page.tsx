@@ -54,7 +54,7 @@ function buildStudyFaq(
       {
         question: "How is Value Score calculated?",
         answer:
-          "Value Score combines estimated quality, price in RON, availability and market signals. See How our scores work for details.",
+          "Value Score combines quality evidence with the current verified Profitshare price for the exact product. Without a verified offer we show no Value Score and no estimated price.",
       },
     ];
   }
@@ -72,7 +72,7 @@ function buildStudyFaq(
     {
       question: "Cum calculati Value Score?",
       answer:
-        "Value Score combina calitatea estimata, pretul in RON, disponibilitatea si semnale de piata. Detalii pe pagina Cum functioneaza scorurile.",
+        "Value Score combina dovezile de calitate cu pretul Profitshare verificat pentru produsul exact. Fara o oferta verificata nu afisam Value Score si nu folosim un pret estimativ.",
     },
   ];
 }
@@ -224,12 +224,22 @@ export default async function StudiiPage({ params }: StudiiPageProps) {
                   <tr className="border-b border-border/50">
                     <td className="px-4 py-3">{copy.averagePrice}</td>
                     <td className="px-4 py-3 font-medium">
-                      {formatRon(study.avgPriceUnder50, locale)}
+                      {study.avgPriceUnder50 == null
+                        ? locale === "en"
+                          ? "Insufficient data"
+                          : "Date insuficiente"
+                        : formatRon(study.avgPriceUnder50, locale)}
                     </td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="px-4 py-3">{copy.averageValue}</td>
-                    <td className="px-4 py-3 font-medium">{study.avgValueScoreUnder50}/100</td>
+                    <td className="px-4 py-3 font-medium">
+                      {study.avgValueScoreUnder50 == null
+                        ? locale === "en"
+                          ? "Insufficient data"
+                          : "Date insuficiente"
+                        : `${study.avgValueScoreUnder50}/100`}
+                    </td>
                   </tr>
                 </tbody>
               </table>

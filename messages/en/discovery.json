@@ -22,7 +22,7 @@
       },
       "prices": {
         "question": "Are prices in RON and kept up to date?",
-        "answer": "Yes. Prices are shown in RON as either a currently verified price or an approximate price, depending on the source available for each wine."
+        "answer": "Yes. We show a RON price only when a fresh, verified Profitshare offer exists for the exact product. Otherwise we show Price unavailable and do not use an estimated price."
       }
     },
     "cta": {
@@ -60,7 +60,7 @@
       },
       "price": {
         "title": "Current prices",
-        "description": "We show the current or estimated price in RON from the wine's primary source."
+        "description": "We show a current price only from verified Profitshare offers; otherwise the page clearly states Price unavailable."
       },
       "local": {
         "title": "Local knowledge",

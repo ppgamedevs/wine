@@ -22,7 +22,7 @@
       },
       "prices": {
         "question": "Preturile sunt in RON si actualizate?",
-        "answer": "Da. Preturile sunt afisate in RON ca pret actual verificat sau pret aproximativ, in functie de sursa disponibila pentru fiecare vin."
+        "answer": "Da. Afisam un pret in RON doar cand exista o oferta Profitshare verificata si proaspata pentru produsul exact. Daca nu exista, afisam Preț indisponibil si nu folosim un pret estimativ."
       }
     },
     "cta": {
@@ -60,7 +60,7 @@
       },
       "price": {
         "title": "Preturi actuale",
-        "description": "Afisam pretul curent sau estimativ in RON, preluat din sursa principala a vinului."
+        "description": "Afisam pretul curent doar din oferte Profitshare verificate; cand nu exista, scriem clar Preț indisponibil."
       },
       "local": {
         "title": "Date locale",

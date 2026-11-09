@@ -12,17 +12,31 @@ Production audit on 2026-11-08, followed by a controlled refresh that only recor
 | Wines with an exact eMAG product URL | 97 |
 | Wines with a Profitshare URL | 95 |
 | Wines with any stored price | 183 |
-| Wines missing a usable price observation | 181 |
-| **Wines with a current public price** | **59** |
+| Wines missing a usable price observation | 176 |
+| **Wines with a current public price** | **69** |
 | Recoverable existing offers | 80 |
 | Needs manual link correction | 15 |
 | Genuinely unavailable | 178 |
 | Legacy direct-eMAG / Profitshare swaps | 14 |
-| Stale observations | 24 |
+| Stale observations | 18 |
 
-The 180 stored prices are not public coverage: most lack `checkedAt` on the
-affiliate link, and the strict resolver correctly refuses them. The public
-resolver reported zero current offers before this change.
+The 183 stored prices are not public coverage: many lack a fresh `checkedAt` on
+the affiliate link, and the strict resolver correctly refuses them. The public
+resolver reported zero current offers before the controlled recovery.
+
+## Reconciliation after recovery
+
+| Bucket | Wines |
+|---|---:|
+| Current verified public price | 69 |
+| Verified identity, currently out of stock | 9 |
+| Identity recoverable, refresh pending | 2 |
+| Manual link correction queue | 15 |
+| No exact affiliate pair | 178 |
+| **Total** | **273** |
+
+The 80 `recoverable` rows are the sum of the first three buckets, not an
+additional set. The admin queue lists the 15 manual cases with IDs and reasons.
 
 ## Why it was zero
 
@@ -92,7 +106,7 @@ Profitshare redirect lands on the same eMAG product ID.
 
 Schedule: `/api/cron/price-refresh` every six hours, protected by
 `Authorization: Bearer $CRON_SECRET`. `maxDuration = 60`. The 14-target batch
-means the 80 recovered offers are revisited well inside a 24-hour cycle while
+means the 80 identity-recoverable offers are revisited well inside a 24-hour cycle while
 each request stays short.
 
 Approximate operating cost for 80 recoverable offers: two requests per offer per
@@ -103,5 +117,6 @@ release.
 
 ## Admin
 
-`/admin/price-refresh` shows the cursor, last start, last success, last error and
+`/admin/price-refresh` shows current/out-of-stock/pending coverage, the manual
+queue with exact IDs and reasons, obsolete editorial snapshots, the cursor, last start, last success, last error and
 the last 20 runs with processed/updated/unchanged/failed counts.

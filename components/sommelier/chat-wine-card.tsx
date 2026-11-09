@@ -79,7 +79,13 @@ export function ChatWineCard({
             <p className="text-sm font-medium text-foreground/90">
               {formatRon(wine.priceRon, locale)}
               <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                {locale === "en" ? "approx. price" : "pret aprox."}
+                {wine.priceRon == null
+                  ? locale === "en"
+                    ? "price unavailable"
+                    : "pret indisponibil"
+                  : locale === "en"
+                    ? "verified price"
+                    : "preț verificat"}
               </span>
             </p>
 
