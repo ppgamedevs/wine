@@ -442,7 +442,7 @@ export function resolveTopList(
         "Selectie de vinuri romanesti disponibile in supermarket si magazine online (eMag, Kaufland, Auchan etc.), ordonate dupa raport calitate-pret.",
       wines,
       rankScores: valueScores(wines),
-      faq: buildGenericFaq("vinuri bune din supermarket", wines, "value"),
+      faq: buildGenericFaq("vinuri din supermarket", wines, "value"),
       breadcrumbName: "Vinuri din supermarket",
       rankMetric: "value",
     };
