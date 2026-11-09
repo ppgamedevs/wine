@@ -7,6 +7,7 @@ import {
   getCommunityScoreDisplay,
 } from "@/lib/community-score";
 import { splitValueExplanation, sanitizeEditorialText } from "@/lib/editorial-text";
+import { commercialEditorialNotice } from "@/lib/commercial-editorial";
 import {
   buildValueScoreBreakdown,
   valueScoreInputFromWine,
@@ -120,6 +121,11 @@ async function BreakdownTable({
         locale,
       )
     : null;
+  const editorialPriceNotice = commercialEditorialNotice(
+    [editorialSummary],
+    publicPrice,
+    locale,
+  );
 
   return (
     <div className="space-y-4">
@@ -162,6 +168,11 @@ async function BreakdownTable({
       {editorialSummary ? (
         <p className="max-w-3xl text-base leading-relaxed text-foreground/90">
           {sanitizeEditorialText(editorialSummary)}
+        </p>
+      ) : null}
+      {editorialPriceNotice ? (
+        <p className="max-w-3xl rounded-xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          {editorialPriceNotice}
         </p>
       ) : null}
 

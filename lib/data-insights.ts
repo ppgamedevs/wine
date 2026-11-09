@@ -6,8 +6,8 @@ export interface Sub50StudyData {
   generatedAt: string;
   totalWinesAnalyzed: number;
   winesUnder50: number;
-  avgPriceUnder50: number;
-  avgValueScoreUnder50: number;
+  avgPriceUnder50: number | null;
+  avgValueScoreUnder50: number | null;
   top50: WineWithRelations[];
   topWineries: { name: string; slug: string; avgValueScore: number; count: number }[];
   topGrapes: { name: string; count: number }[];
@@ -86,7 +86,9 @@ export function computeTopGrapes(
 }
 
 export function buildSub50Study2026(allWines: WineWithRelations[]): Sub50StudyData {
-  const under50 = filterWinesByBudget(allWines, 50);
+  const under50 = filterWinesByBudget(allWines, 50).filter(
+    (wine) => wine.valueScore != null,
+  );
   const goodUnder50 = under50.filter(
     (w) => (w.valueScore ?? 0) >= MIN_RECOMMENDED_VALUE_SCORE,
   );
@@ -95,8 +97,14 @@ export function buildSub50Study2026(allWines: WineWithRelations[]): Sub50StudyDa
     generatedAt: new Date().toISOString(),
     totalWinesAnalyzed: allWines.length,
     winesUnder50: under50.length,
-    avgPriceUnder50: computeAveragePrice(under50),
-    avgValueScoreUnder50: computeAverageValueScore(goodUnder50.length > 0 ? goodUnder50 : under50),
+    avgPriceUnder50:
+      under50.length > 0 ? computeAveragePrice(under50) : null,
+    avgValueScoreUnder50:
+      under50.length > 0
+        ? computeAverageValueScore(
+            goodUnder50.length > 0 ? goodUnder50 : under50,
+          )
+        : null,
     top50: getTopWinesByValue(under50, 50),
     topWineries: computeTopWineriesByValue(under50),
     topGrapes: computeTopGrapes(under50),

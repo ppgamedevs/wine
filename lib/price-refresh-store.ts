@@ -18,6 +18,7 @@ import {
   recoverAffiliateOffers,
   type PriceAuditWine,
 } from "@/lib/affiliate-pricing";
+import { extractEditorialPrices } from "@/lib/commercial-editorial";
 import { resolvePublicPrice } from "@/lib/public-price";
 import type {
   AffiliatePriceTarget,
@@ -412,6 +413,8 @@ export async function readPriceRefreshStats() {
         priceHistory: true,
         affiliateLinks: true,
         vintage: true,
+        descriptionEditorial: true,
+        valueExplanation: true,
       },
     });
     let withProducer = 0;
@@ -419,36 +422,104 @@ export async function readPriceRefreshStats() {
     let withAffiliate = 0;
     let current = 0;
     let stale = 0;
+    let outOfStock = 0;
+    let pending = 0;
+    let manual = 0;
+    let noPair = 0;
+    let obsoleteEditorial = 0;
+    const manualQueue: Array<{
+      id: number;
+      slug: string;
+      name: string;
+      cases: string[];
+      producerUrl: string | null;
+      emagUrl: string | null;
+      profitshareUrl: string | null;
+    }> = [];
+
     for (const row of rows) {
+      const links = row.affiliateLinks ?? [];
       const audit = recoverAffiliateOffer({
         ...row,
         priceHistory: row.priceHistory ?? [],
-        affiliateLinks: row.affiliateLinks ?? [],
+        affiliateLinks: links,
       });
+      const publicPrice = resolvePublicPrice({
+        slug: row.slug,
+        name: row.name,
+        vintage: row.vintage ?? null,
+        affiliateLinks: links,
+        priceHistory: row.priceHistory ?? [],
+      }).displayPrice;
+
       if (audit.producerUrl) withProducer += 1;
       if (audit.emagUrl) withEmag += 1;
       if (audit.profitshareUrl) withAffiliate += 1;
       if (audit.cases.includes("stale_observation")) stale += 1;
-      if (
-        resolvePublicPrice({
+
+      if (publicPrice != null) {
+        current += 1;
+      } else if (audit.manualCorrection) {
+        manual += 1;
+        manualQueue.push({
+          id: row.id,
           slug: row.slug,
           name: row.name,
-          vintage: (row as { vintage?: number | null }).vintage ?? null,
-          affiliateLinks: row.affiliateLinks ?? [],
-          priceHistory: row.priceHistory ?? [],
-        }).displayPrice != null
+          cases: audit.cases,
+          producerUrl: audit.producerUrl,
+          emagUrl: audit.emagUrl,
+          profitshareUrl: audit.profitshareUrl,
+        });
+      } else if (audit.unavailable) {
+        noPair += 1;
+      } else if (audit.recoverable) {
+        const link = links.find(
+          (candidate) =>
+            candidate.merchantProductId?.toUpperCase() ===
+            audit.merchantProductId?.toUpperCase(),
+        );
+        if (
+          link?.verificationStatus === "verified" &&
+          link.inStock === false &&
+          link.stockEvidence === "structured_product"
+        ) {
+          outOfStock += 1;
+        } else {
+          pending += 1;
+        }
+      } else {
+        noPair += 1;
+      }
+
+      const editorialPrices = extractEditorialPrices(
+        [row.descriptionEditorial, row.valueExplanation]
+          .filter(Boolean)
+          .join(" "),
+      );
+      if (
+        editorialPrices.length > 0 &&
+        (publicPrice == null ||
+          editorialPrices.some(
+            (price) => Math.round(price) !== Math.round(publicPrice),
+          ))
       ) {
-        current += 1;
+        obsoleteEditorial += 1;
       }
     }
+
     return {
       totalWines: rows.length,
       withProducer,
       withEmag,
       withAffiliate,
       current,
-      unavailable: rows.length - current,
+      outOfStock,
+      pending,
+      manual,
+      noPair,
+      obsoleteEditorial,
       stale,
+      manualQueue,
     };
   } catch {
     return null;

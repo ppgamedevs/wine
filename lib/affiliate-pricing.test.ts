@@ -48,6 +48,36 @@ describe("affiliate pricing recovery", () => {
     expect(audit.offer?.productKey).toBe(wine().slug);
   });
 
+  it("recovers a profitshare link when the eMAG product is in sourceUrl", () => {
+    const audit = evaluateSources(
+      wine({
+        sourceUrl: EMAG,
+        currentPrice: null,
+        priceAvg: null,
+        affiliateLinks: [
+          { retailer: "eMAG.ro", url: PROFITSHARE, priceRon: 34 },
+        ],
+      }),
+      NOW,
+    );
+    const offers = recoverAffiliateOffers(
+      wine({
+        sourceUrl: EMAG,
+        currentPrice: null,
+        priceAvg: null,
+        affiliateLinks: [
+          { retailer: "eMAG.ro", url: PROFITSHARE, priceRon: 34 },
+        ],
+      }),
+    );
+    expect(audit.recoverable).toBe(true);
+    expect(audit.emagUrl).toBe(EMAG);
+    expect(audit.profitshareUrl).toBe(PROFITSHARE);
+    expect(audit.merchantProductId).toBe("D4BLPY2BM");
+    expect(offers).toHaveLength(1);
+    expect(offers[0].merchantProductId).toBe("D4BLPY2BM");
+  });
+
   it("extracts the exact eMAG product ID and normalizes the URL", () => {
     expect(extractEmagProductId(EMAG)).toBe("D4BLPY2BM");
     expect(extractEmagProductId("https://www.emag.ro/search/vin/pd/D4BLPY2BM")).toBe(

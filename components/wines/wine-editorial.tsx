@@ -7,7 +7,9 @@ import {
   EditorialWineIcon,
 } from "@/components/wines/editorial-icons";
 import { sanitizeEditorialText } from "@/lib/editorial-text";
+import { commercialEditorialNotice } from "@/lib/commercial-editorial";
 import { sanitizePublicSecondaryCopy } from "@/lib/scoring-v2/public-secondary-display";
+import { resolveWineDisplayPrice } from "@/lib/wine-price";
 import type { WineWithRelations } from "@/types";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -54,9 +56,26 @@ export async function WineEditorial({
   const hasTaste = Boolean(wine.tasteProfile?.trim());
 
   const hasEditorialContent = hasDescription || hasThings || hasTaste;
+  const historicalPriceNotice = commercialEditorialNotice(
+    [
+      wine.descriptionEditorial,
+      wine.tasteProfile,
+      ...(wine.thingsYouShouldKnow ?? []),
+    ],
+    resolveWineDisplayPrice(wine),
+    locale === "en" ? "en" : "ro",
+  );
 
   return (
     <div className="space-y-12">
+      {historicalPriceNotice ? (
+        <p
+          className="rounded-xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-950"
+          role="note"
+        >
+          {historicalPriceNotice}
+        </p>
+      ) : null}
       {!hasEditorialContent ? (
         <Card className="border-dashed border-border/80 bg-secondary/20">
           <CardContent className="p-6 text-sm leading-relaxed text-muted-foreground">

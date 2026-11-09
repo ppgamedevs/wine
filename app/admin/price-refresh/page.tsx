@@ -55,7 +55,11 @@ export default async function PriceRefreshAdminPage() {
           ["Cu referință eMAG", stats?.withEmag ?? "-"],
           ["Cu link afiliat", stats?.withAffiliate ?? "-"],
           ["Cu preț curent", stats?.current ?? "-"],
-          ["Preț indisponibil", stats?.unavailable ?? "-"],
+          ["Stoc epuizat", stats?.outOfStock ?? "-"],
+          ["În așteptare", stats?.pending ?? "-"],
+          ["Fără pereche afiliată", stats?.noPair ?? "-"],
+          ["Corecții manuale", stats?.manual ?? "-"],
+          ["Editorial vechi", stats?.obsoleteEditorial ?? "-"],
           ["Observații vechi", stats?.stale ?? "-"],
         ].map(([label, value]) => (
           <div key={String(label)} className="rounded-xl border p-4">
@@ -81,6 +85,48 @@ export default async function PriceRefreshAdminPage() {
             <div className="mt-1 text-lg font-semibold">{value}</div>
           </div>
         ))}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="font-serif text-xl font-semibold">
+          Coadă corecții manuale
+        </h2>
+        <div className="overflow-x-auto rounded-xl border">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40 text-left">
+              <tr>
+                <th className="p-3">ID</th>
+                <th className="p-3">Vin</th>
+                <th className="p-3">Motiv</th>
+                <th className="p-3">Producător</th>
+                <th className="p-3">eMAG</th>
+                <th className="p-3">Profitshare</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(stats?.manualQueue ?? []).map((item) => (
+                <tr key={item.id} className="border-t">
+                  <td className="p-3">{item.id}</td>
+                  <td className="p-3">
+                    {item.name}
+                    <div className="text-xs text-muted-foreground">{item.slug}</div>
+                  </td>
+                  <td className="p-3">{item.cases.join(", ")}</td>
+                  <td className="p-3">{item.producerUrl ? "da" : "lipsă"}</td>
+                  <td className="p-3">{item.emagUrl ? "da" : "lipsă"}</td>
+                  <td className="p-3">{item.profitshareUrl ? "da" : "lipsă"}</td>
+                </tr>
+              ))}
+              {(stats?.manualQueue ?? []).length === 0 ? (
+                <tr>
+                  <td className="p-3 text-muted-foreground" colSpan={6}>
+                    Nicio corecție manuală în coadă.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className="overflow-x-auto rounded-xl border">

@@ -131,6 +131,10 @@ export function recoverAffiliateOffer(
     const merchant = link.merchantUrl ?? (isEmagUrl(link.url) ? link.url : null);
     return Boolean(merchant && extractEmagProductId(merchant));
   });
+  const rawSourceUrl = wine.sourceUrl?.trim() ?? "";
+  const sourceEmag = isEmagUrl(rawSourceUrl)
+    ? normalizeEmagProductUrl(rawSourceUrl)
+    : null;
   const historyEmag = (wine.priceHistory ?? []).find(
     (entry) => isEmagUrl(entry.source) && extractEmagProductId(entry.source),
   );
@@ -145,6 +149,7 @@ export function recoverAffiliateOffer(
     normalizeEmagProductUrl(
       directEmag?.merchantUrl ??
         directEmag?.url ??
+        sourceEmag ??
         historyEmag?.source ??
         "",
     ) ?? null;
@@ -270,10 +275,15 @@ export function recoverAffiliateOffers(wine: PriceAuditWine): RecoveredOffer[] {
   const offers: RecoveredOffer[] = [];
   const seen = new Set<string>();
 
+  const rawSourceUrl = wine.sourceUrl?.trim() ?? "";
+  const sourceEmag = isEmagUrl(rawSourceUrl)
+    ? normalizeEmagProductUrl(rawSourceUrl)
+    : null;
   const historyEmag = (wine.priceHistory ?? []).find(
     (entry) => isEmagUrl(entry.source) && extractEmagProductId(entry.source),
   );
-  const historyMerchantUrl = normalizeEmagProductUrl(historyEmag?.source ?? "");
+  const historyMerchantUrl =
+    normalizeEmagProductUrl(historyEmag?.source ?? "") ?? sourceEmag;
   const historyProductId = extractEmagProductId(historyMerchantUrl);
   if (producerUrl && sourceProfitshare && historyMerchantUrl && historyProductId) {
     offers.push({
@@ -291,8 +301,12 @@ export function recoverAffiliateOffers(wine: PriceAuditWine): RecoveredOffer[] {
 
   for (const link of wine.affiliateLinks ?? []) {
     const merchantUrl =
-      normalizeEmagProductUrl(link.merchantUrl ?? (isEmagUrl(link.url) ? link.url : "")) ??
-      null;
+      normalizeEmagProductUrl(
+        link.merchantUrl ||
+          (isEmagUrl(link.url) ? link.url : null) ||
+          sourceEmag ||
+          "",
+      ) ?? null;
     const merchantProductId =
       link.merchantProductId?.trim().toUpperCase() ||
       extractEmagProductId(merchantUrl);

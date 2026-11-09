@@ -240,13 +240,13 @@ function deslugify(slug: string): string {
 }
 
 function byValueScore(a: WineWithRelations, b: WineWithRelations): number {
-  return (b.valueScore ?? 0) - (a.valueScore ?? 0);
+  return (b.valueScore ?? 0) - (a.valueScore ?? 0) || a.id - b.id;
 }
 
 function byQualityScore(a: WineWithRelations, b: WineWithRelations): number {
   return (
     (resolvePublicQualityScore(b).score ?? 0) -
-    (resolvePublicQualityScore(a).score ?? 0)
+      (resolvePublicQualityScore(a).score ?? 0) || a.id - b.id
   );
 }
 
@@ -279,6 +279,7 @@ export function filterWinesByBudget(
     (w) =>
       w.priceAvg !== null &&
       w.priceAvg !== undefined &&
+      w.priceAvg > 0 &&
       w.priceAvg <= budget,
   );
 }
@@ -423,7 +424,12 @@ export function resolveTopList(
 
   if (slug === "vinuri-bune-din-supermarket") {
     const wines = getTopWinesByValue(
-      allWines.filter(isSupermarketWine),
+      allWines.filter(
+        (wine) =>
+          isSupermarketWine(wine) &&
+          wine.priceAvg != null &&
+          wine.valueScore != null,
+      ),
       12,
     );
     return {
@@ -549,6 +555,7 @@ export function resolveTopList(
     const isSub50 = budget === 50;
 
     const wines = filterWinesByBudget(allWines, budget)
+      .filter((wine) => wine.valueScore != null)
       .sort(byValueScore)
       .slice(0, 12);
 
@@ -637,6 +644,12 @@ function contextualRankingExplanation(budget?: number): string {
     : `${budgetPrefix}Ordonarea folosește potrivirea publică existentă pentru buget și context.`;
 }
 
+function pricePhrase(price: number | null | undefined): string {
+  return price == null
+    ? "fără un preț public verificat"
+    : `la ${formatRon(price)}`;
+}
+
 function buildGenericFaq(
   topic: string,
   wines: WineWithRelations[],
@@ -662,8 +675,8 @@ function buildGenericFaq(
       question: `Care sunt cele mai bune ${topic}?`,
       answer: top
         ? scoreValue == null
-          ? `In acest moment, ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""} conduce clasamentul la un pret de ${formatRon(top.priceAvg)}. Nu afisam un ${scoreLabel} numeric fara suficiente date publice.`
-          : `In acest moment, ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""} conduce clasamentul, cu ${scoreLabel} ${scoreValue}/100 la un pret de ${formatRon(top.priceAvg)}.`
+          ? `In acest moment, ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""} conduce clasamentul ${pricePhrase(top.priceAvg)}. Nu afisam un ${scoreLabel} numeric fara suficiente date publice.`
+          : `In acest moment, ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""} conduce clasamentul, cu ${scoreLabel} ${scoreValue}/100 ${pricePhrase(top.priceAvg)}.`
         : `Lista este actualizata periodic in functie de preturi si evaluari.`,
     },
     {
@@ -691,13 +704,13 @@ function buildCheapWineFaq(wines: WineWithRelations[]): FaqEntry[] {
     {
       question: "Care este cel mai bun vin ieftin si bun sub 50 lei?",
       answer: top
-        ? `${top.name} ofera cel mai bun raport calitate-pret sub 50 lei, cu Value Score ${top.valueScore ?? "N/A"}/100 la ${formatRon(top.priceAvg)}.`
+        ? `${top.name} ofera cel mai bun raport calitate-pret sub 50 lei, cu Value Score ${top.valueScore ?? "N/A"}/100 ${pricePhrase(top.priceAvg)}.`
         : "Actualizam constant selectia de vinuri ieftine si bune sub 50 lei.",
     },
     {
       question: "Merita vinurile ieftine romanesti?",
       answer:
-        "Da. Multe vinuri romanesti sub 50 lei au Value Score peste 75. Le comparam dupa pret, medalii si disponibilitate, nu doar dupa eticheta.",
+        "Da. Le comparam dupa Value Score, pretul verificat, medalii si disponibilitate, nu doar dupa eticheta sau dupa un numar generic de produse.",
     },
     {
       question: "Ce trebuie evitat la un vin foarte ieftin?",
@@ -716,12 +729,12 @@ function buildBudgetFaq(
     {
       question: `Care este cel mai bun vin romanesc sub ${budget} lei?`,
       answer: top
-        ? `${top.name} ofera cel mai bun raport calitate-pret sub ${budget} lei, cu Value Score ${top.valueScore ?? "N/A"}/100 la ${formatRon(top.priceAvg)}.`
+        ? `${top.name} ofera cel mai bun raport calitate-pret sub ${budget} lei, cu Value Score ${top.valueScore ?? "N/A"}/100 ${pricePhrase(top.priceAvg)}.`
         : `Actualizam constant selectia de vinuri sub ${budget} lei.`,
     },
     {
       question: `Merita vinurile sub ${budget} lei?`,
-      answer: `Da. Multe vinuri romanesti sub ${budget} lei au un raport calitate-pret excelent. Le ordonam dupa Value Score ca sa gasesti rapid cele mai bune optiuni.`,
+      answer: `Da. Le ordonam dupa Value Score si pretul verificat, ca sa gasesti rapid optiunile care respecta bugetul de ${budget} lei.`,
     },
     {
       question: "Preturile sunt actualizate?",
@@ -745,8 +758,8 @@ function buildComboFaq(
       question: `Ce vin sub ${budget} lei se potriveste pentru ${occasionLabel}?`,
       answer: top
         ? topMatch == null
-          ? `Recomandam ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""}, la ${formatRon(top.priceAvg)}. Nu afisam un scor numeric de potrivire fara suficiente date publice.`
-          : `Recomandam ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""}, la ${formatRon(top.priceAvg)}. Scorul de potrivire pentru ${occasionLabel} este ${topMatch}/100.`
+          ? `Recomandam ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""}, ${pricePhrase(top.priceAvg)}. Nu afisam un scor numeric de potrivire fara suficiente date publice.`
+          : `Recomandam ${top.name}${top.winery?.name ? ` de la ${top.winery.name}` : ""}, ${pricePhrase(top.priceAvg)}. Scorul de potrivire pentru ${occasionLabel} este ${topMatch}/100.`
         : `Actualizam selectia pentru ${occasionLabel} in functie de disponibilitate.`,
     },
     {
