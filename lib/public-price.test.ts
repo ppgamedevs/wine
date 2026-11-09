@@ -458,6 +458,64 @@ describe("public projection and structured data", () => {
     expect(publicWine.affiliateLinks[0]?.url).toBe(PROFITSHARE);
   });
 
+
+  it("keeps a fresh verified eMAG Profitshare price through the entire public projection", () => {
+    const slug = "cramele-recas-explicit-sauvignon-blanc-2025";
+    const wine = makeWine({
+      slug,
+      name: "EXPLICIT Sauvignon Blanc",
+      vintage: 2025,
+      currentPrice: null,
+      affiliateLinks: [{
+        retailer: "eMAG.ro",
+        url: PROFITSHARE,
+        merchantUrl: "https://www.emag.ro/vin-explicit-sauvignon-blanc-0-75l/pd/DLBLPY2BM/",
+        merchantProductId: "DLBLPY2BM",
+        wineSlug: slug,
+        productKey: slug,
+        bottleSizeMl: undefined,
+        vintage: 2025,
+        priceRon: 34,
+        checkedAt: FRESH,
+        verificationStatus: "verified",
+        inStock: false,
+        stockEvidence: undefined,
+      }],
+    });
+
+    expect(resolvePublicPrice(wine, { now: NOW }).displayPrice).toBe(34);
+    const publicWine = sanitizeWineForPublic(wine, NOW);
+    expect(publicWine.affiliateLinks).toHaveLength(1);
+    expect(publicWine.affiliateLinks[0]).toMatchObject({
+      merchantProductId: "DLBLPY2BM",
+      verificationStatus: "verified",
+      url: PROFITSHARE,
+    });
+    expect(resolvePublicPrice(publicWine, { now: NOW }).displayPrice).toBe(34);
+    expect(buildWinePriceViewModel(publicWine, NOW).displayPrice).toBe(34);
+    expect(buildWinePriceViewModel(publicWine, NOW).purchaseLink?.url).toBe(PROFITSHARE);
+  });
+
+  it("never promotes an unverified merchant mapping during projection", () => {
+    const wine = makeWine({
+      name: "Unnamed wine",
+      affiliateLinks: [{
+        retailer: "eMAG.ro",
+        url: PROFITSHARE,
+        merchantUrl: "https://www.emag.ro/wine/pd/DLBLPY2BM/",
+        merchantProductId: "DLBLPY2BM",
+        wineSlug: "test-wine-2022",
+        priceRon: 34,
+        checkedAt: FRESH,
+        vintage: 2022,
+        verificationStatus: "unverified",
+      }],
+    });
+    const publicWine = sanitizeWineForPublic(wine, NOW);
+    expect(publicWine.affiliateLinks).toEqual([]);
+    expect(buildWinePriceViewModel(publicWine, NOW).displayPrice).toBeNull();
+  });
+
   it("marks a missing market price as insufficient for Value Score", () => {
     const input = valueScoreInputFromWine(
       makeWine({ currentPrice: null, priceAvg: null }),

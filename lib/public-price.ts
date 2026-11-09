@@ -24,6 +24,8 @@ export interface PublicPriceOffer {
   productKey?: string;
   merchantProductId?: string;
   merchantUrl?: string;
+  /** Preserve qualified offer provenance for downstream price components. */
+  verificationStatus?: AffiliateLink["verificationStatus"];
   bottleSizeMl?: number;
   vintage?: number | null;
 }
@@ -203,6 +205,9 @@ function observationForLink(
       ? { merchantProductId: link.merchantProductId.trim() }
       : {}),
     ...(link.merchantUrl?.trim() ? { merchantUrl: link.merchantUrl.trim() } : {}),
+    ...(link.verificationStatus === "verified"
+      ? { verificationStatus: "verified" as const }
+      : {}),
     ...(link.bottleSizeMl != null
       ? { bottleSizeMl: Math.round(link.bottleSizeMl) }
       : {}),
@@ -272,6 +277,15 @@ export function sanitizeWineForPublic(
     inStock: true,
     offerId: offer.offerId,
     ...(offer.productKey ? { productKey: offer.productKey } : {}),
+    // Revalidated components (cards, hero, price CTA, JSON-LD) need the same
+    // verified SKU identity used by the initial public price gate.
+    ...(offer.merchantUrl ? { merchantUrl: offer.merchantUrl } : {}),
+    ...(offer.merchantProductId
+      ? { merchantProductId: offer.merchantProductId }
+      : {}),
+    ...(offer.verificationStatus
+      ? { verificationStatus: offer.verificationStatus }
+      : {}),
     ...(offer.bottleSizeMl != null
       ? { bottleSizeMl: offer.bottleSizeMl }
       : {}),
