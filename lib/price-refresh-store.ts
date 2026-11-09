@@ -14,9 +14,11 @@ import {
 } from "@/lib/schema";
 import {
   extractEmagProductId,
+  recoverAffiliateOffer,
   recoverAffiliateOffers,
   type PriceAuditWine,
 } from "@/lib/affiliate-pricing";
+import { resolvePublicPrice } from "@/lib/public-price";
 import type {
   AffiliatePriceTarget,
   PriceRefreshFetcher,
@@ -394,6 +396,64 @@ export const dbPriceRefreshFetcher: PriceRefreshFetcher = {
     };
   },
 };
+
+export async function readPriceRefreshStats() {
+  try {
+    const rows = await db.query.wines.findMany({
+      columns: {
+        id: true,
+        slug: true,
+        name: true,
+        status: true,
+        sourceUrl: true,
+        producerPageUrl: true,
+        currentPrice: true,
+        priceAvg: true,
+        priceHistory: true,
+        affiliateLinks: true,
+        vintage: true,
+      },
+    });
+    let withProducer = 0;
+    let withEmag = 0;
+    let withAffiliate = 0;
+    let current = 0;
+    let stale = 0;
+    for (const row of rows) {
+      const audit = recoverAffiliateOffer({
+        ...row,
+        priceHistory: row.priceHistory ?? [],
+        affiliateLinks: row.affiliateLinks ?? [],
+      });
+      if (audit.producerUrl) withProducer += 1;
+      if (audit.emagUrl) withEmag += 1;
+      if (audit.profitshareUrl) withAffiliate += 1;
+      if (audit.cases.includes("stale_observation")) stale += 1;
+      if (
+        resolvePublicPrice({
+          slug: row.slug,
+          name: row.name,
+          vintage: (row as { vintage?: number | null }).vintage ?? null,
+          affiliateLinks: row.affiliateLinks ?? [],
+          priceHistory: row.priceHistory ?? [],
+        }).displayPrice != null
+      ) {
+        current += 1;
+      }
+    }
+    return {
+      totalWines: rows.length,
+      withProducer,
+      withEmag,
+      withAffiliate,
+      current,
+      unavailable: rows.length - current,
+      stale,
+    };
+  } catch {
+    return null;
+  }
+}
 
 export async function readPriceRefreshStatus() {
   try {

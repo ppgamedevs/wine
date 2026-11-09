@@ -39,13 +39,8 @@ interface VinPentruPageProps {
 }
 
 export async function generateStaticParams() {
-  const allWines = await getWinesForSommelier();
   return getAllDishPairingSlugs()
-    .filter((slug) => {
-      const config = getDishPairingPage(slug);
-      if (!config) return false;
-      return rankWinesForDish(allWines, config).length >= MIN_INDEXABLE_TOP_LIST_WINES;
-    })
+    .filter((slug) => getDishPairingPage(slug) != null)
     .map((dish) => ({ dish }));
 }
 
@@ -55,12 +50,16 @@ export async function generateMetadata({ params }: VinPentruPageProps): Promise<
   const config = getDishPairingPage(dish);
   if (!config) return { title: getPseoMessages(locale).common.notFound };
 
+  const allWines = await getWinesForSommelier();
+  const wines = rankWinesForDish(allWines, config);
+  const indexable = wines.length >= MIN_INDEXABLE_TOP_LIST_WINES;
   const presentation = buildLocalizedDishPresentation(config, locale);
   const path = localizedHref(locale, "wineFor", { dish });
   const url = absoluteUrl(path);
   return {
     title: presentation.metaTitle,
     description: presentation.metaDescription,
+    ...(indexable ? {} : { robots: { index: false, follow: true } }),
     alternates: buildLocalizedAlternates(
       locale,
       localizedHref("ro", "wineFor", { dish }),
@@ -92,8 +91,6 @@ export default async function VinPentruPage({ params }: VinPentruPageProps) {
 
   const allWines = await getWinesForSommelier();
   const wines = rankWinesForDish(allWines, config);
-
-  if (wines.length < MIN_INDEXABLE_TOP_LIST_WINES) notFound();
 
   const faq = buildLocalizedDishFaq(presentation, wines, locale);
   const path = localizedHref(locale, "wineFor", { dish });
@@ -160,11 +157,19 @@ export default async function VinPentruPage({ params }: VinPentruPageProps) {
             >
               {messages.common.recommendations}
             </h2>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {wines.map((wine) => (
-                <WineCard key={wine.id} wine={wine} minValueScore={null} />
-              ))}
-            </div>
+            {wines.length === 0 ? (
+              <p className="mt-4 max-w-2xl text-muted-foreground">
+                {locale === "en"
+                  ? "We do not invent wines or prices. This pairing page will fill when a fresh verified offer exists."
+                  : "Nu inventăm vinuri sau prețuri. Pagina se completează când există o ofertă verificată proaspătă."}
+              </p>
+            ) : (
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {wines.map((wine) => (
+                  <WineCard key={wine.id} wine={wine} minValueScore={null} />
+                ))}
+              </div>
+            )}
           </section>
 
           <section aria-labelledby="faq-heading">

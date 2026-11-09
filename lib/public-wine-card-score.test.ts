@@ -65,6 +65,16 @@ describe("public wine card score semantics", () => {
     expect(card.displayedRankScore).toBeNull();
   });
 
+  it("labels and tones a quality ranking as Quality, not Value", () => {
+    const card = buildPublicWineCardViewModel(wine(), {
+      highlightScore: "quality",
+      locale: "ro",
+    });
+    expect(card.displayedRankMetric).toBe("quality");
+    expect(card.displayedRankLabel).toBe("Quality Score");
+    expect(card.displayedRankScore).toBe(78);
+  });
+
   it("shows both scores with an exact fresh offer", () => {
     const card = buildPublicWineCardViewModel(
       wine({ affiliateLinks: [freshOffer()] }),

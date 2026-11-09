@@ -283,6 +283,7 @@ export async function WineDualScores({ wine }: { wine: WineWithRelations }) {
                   <VinScoreBadge
                     score={quality.score}
                     size="lg"
+                    metric="quality"
                     showLabel={false}
                   />
                   <span className="text-xs text-muted-foreground">

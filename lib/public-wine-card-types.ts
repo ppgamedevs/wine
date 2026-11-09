@@ -1,4 +1,5 @@
 import type { WineSweetness, WineType } from "@/types";
+import type { TopListRankMetric } from "@/lib/top-lists";
 
 export const WINE_CATALOG_PAGE_SIZE = 24;
 export const WINERY_DIRECTORY_PAGE_SIZE = 18;
@@ -188,6 +189,7 @@ export interface PublicWineCardViewModel {
   valueScoreStatus: "known" | "unavailable";
   displayedRankScore: number | null;
   displayedRankLabel: string;
+  displayedRankMetric: TopListRankMetric;
   image: {
     url: string | null;
     source: string | null;

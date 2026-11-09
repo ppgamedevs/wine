@@ -37,7 +37,7 @@ export const REGION_HUB_LINKS = [
 export const TOP_LIST_INDEX_LINKS: TopListLink[] = [
   {
     title: "Cele mai bune vinuri romanesti",
-    description: "Top general dupa Value Score",
+    description: "Top general dupa Quality Score",
     slug: "cele-mai-bune-vinuri-romanesti",
   },
   {
@@ -71,6 +71,10 @@ export const TOP_LIST_INDEX_LINKS: TopListLink[] = [
     slug: "vinuri-sub-100-lei-pentru-cina-romantica",
   },
 ];
+
+export const PRIMARY_TOP_LIST_SLUGS = TOP_LIST_INDEX_LINKS.map(
+  (link) => link.slug,
+);
 
 export function topListHref(slug: string): string {
   return `/topuri/${slug}`;

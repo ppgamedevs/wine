@@ -15,7 +15,10 @@ import {
 import { getAllJournalArticles } from "@/lib/journal";
 import { absoluteUrl } from "@/lib/seo";
 import { flattenSitemapRouteFamilies } from "@/lib/sitemap-validation";
-import { getResolvableTopListSlugs, MIN_INDEXABLE_TOP_LIST_WINES } from "@/lib/top-lists";
+import {
+  getIndexableTopListSlugs,
+  MIN_INDEXABLE_TOP_LIST_WINES,
+} from "@/lib/top-lists";
 import { isEnglishIndexingEnabled } from "@/lib/i18n/indexing";
 import { mapRomanianTopListSlugToEnglish } from "@/lib/i18n/top-list-routes";
 
@@ -199,7 +202,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getGrapeVarietyCatalogEntries(),
   ]);
   const grapeSlugs = grapeCatalog.map((grape) => grape.slug);
-  const topListSlugs = getResolvableTopListSlugs(allWines, grapeSlugs);
+  const topListSlugs = getIndexableTopListSlugs(allWines, grapeSlugs);
   const topListRoutes: MetadataRoute.Sitemap = topListSlugs.map((slug) => ({
     url: absoluteUrl(`/topuri/${slug}`),
     lastModified: now,

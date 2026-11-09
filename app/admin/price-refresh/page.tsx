@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readPriceRefreshStatus } from "@/lib/price-refresh-store";
+import {
+  readPriceRefreshStats,
+  readPriceRefreshStatus,
+} from "@/lib/price-refresh-store";
 
 export const metadata: Metadata = {
   title: "Admin price refresh",
@@ -18,7 +21,10 @@ function fmt(value: string | null | undefined): string {
 
 export default async function PriceRefreshAdminPage() {
   await requireAdmin();
-  const { state, runs, unavailable } = await readPriceRefreshStatus();
+  const [{ state, runs, unavailable }, stats] = await Promise.all([
+    readPriceRefreshStatus(),
+    readPriceRefreshStats(),
+  ]);
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-6 py-10">
@@ -41,6 +47,25 @@ export default async function PriceRefreshAdminPage() {
           de a activa cron-ul.
         </p>
       ) : null}
+
+      <section className="grid gap-4 sm:grid-cols-4 lg:grid-cols-7">
+        {[
+          ["Vinuri", stats?.totalWines ?? "-"],
+          ["Cu URL producător", stats?.withProducer ?? "-"],
+          ["Cu referință eMAG", stats?.withEmag ?? "-"],
+          ["Cu link afiliat", stats?.withAffiliate ?? "-"],
+          ["Cu preț curent", stats?.current ?? "-"],
+          ["Preț indisponibil", stats?.unavailable ?? "-"],
+          ["Observații vechi", stats?.stale ?? "-"],
+        ].map(([label, value]) => (
+          <div key={String(label)} className="rounded-xl border p-4">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              {label}
+            </div>
+            <div className="mt-1 text-lg font-semibold">{value}</div>
+          </div>
+        ))}
+      </section>
 
       <section className="grid gap-4 sm:grid-cols-4">
         {[

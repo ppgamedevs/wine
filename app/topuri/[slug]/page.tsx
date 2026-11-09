@@ -20,7 +20,7 @@ import { formatRon } from "@/lib/format";
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
 import {
-  getLocalizedResolvableTopListRoutes,
+  buildLocalizedTopListRoutes,
   resolveLocalizedTopListRoute,
 } from "@/lib/i18n/top-list-routes";
 import {
@@ -44,7 +44,7 @@ import {
 } from "@/lib/seo";
 import {
   TOP_LIST_SLUGS,
-  MIN_INDEXABLE_TOP_LIST_WINES,
+  isIndexableTopList,
   topListRankScore,
 } from "@/lib/top-lists";
 import RomanianBestWinesPage, {
@@ -52,6 +52,8 @@ import RomanianBestWinesPage, {
 } from "@/app/topuri/cele-mai-bune-vinuri-romanesti/page";
 
 export const revalidate = 3600;
+// Every known ranking definition is generated, including empty/reduced lists.
+// Unknown slugs are rejected by the router before a loading shell can stream.
 export const dynamicParams = false;
 
 interface TopListPageProps {
@@ -61,12 +63,9 @@ interface TopListPageProps {
 export async function generateTopListStaticParams(
   locale: AppLocale,
 ): Promise<Array<{ slug: string }>> {
-  const [allWines, grapeSlugs] = await Promise.all([
-    getWinesForSommelier(),
-    getGrapeVarietySlugs(),
-  ]);
+  const grapeSlugs = await getGrapeVarietySlugs();
 
-  return getLocalizedResolvableTopListRoutes(allWines, grapeSlugs).map(
+  return buildLocalizedTopListRoutes(grapeSlugs).map(
     ({ roSlug, enSlug }) => ({ slug: locale === "en" ? enSlug : roSlug }),
   );
 }
@@ -106,9 +105,7 @@ export async function generateMetadata({
   );
   const path = localizedHref(locale, "topWine", { slug });
   const url = absoluteUrl(path);
-  const indexable =
-    route.canonicalId === "curated:best-romanian-wines" ||
-    list.wines.length >= MIN_INDEXABLE_TOP_LIST_WINES;
+  const indexable = isIndexableTopList(route.roSlug, list.wines.length);
 
   return {
     title: presentation.metaTitle,
@@ -156,13 +153,6 @@ export default async function TopListPage({ params }: TopListPageProps) {
 
   if (!route) notFound();
   const { list, definition } = route;
-
-  if (
-    route.canonicalId !== "curated:best-romanian-wines" &&
-    list.wines.length < MIN_INDEXABLE_TOP_LIST_WINES
-  ) {
-    notFound();
-  }
 
   const presentation = buildLocalizedTopListPresentation(
     definition,
@@ -254,6 +244,27 @@ export default async function TopListPage({ params }: TopListPageProps) {
         </section>
 
         <div className="mx-auto w-full min-w-0 max-w-5xl space-y-14 px-6 py-12">
+          {list.wines.length === 0 ? (
+            <section
+              aria-labelledby="empty-ranking-heading"
+              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8"
+            >
+              <h2
+                id="empty-ranking-heading"
+                className="font-serif text-2xl font-semibold text-foreground"
+              >
+                {locale === "en"
+                  ? "No verified offer for this ranking yet"
+                  : "Momentan nu există oferte verificate pentru acest top"}
+              </h2>
+              <p className="mt-3 max-w-2xl text-muted-foreground">
+                {locale === "en"
+                  ? "We do not invent wines or prices. This ranking will fill automatically when a fresh, exact-product Profitshare offer passes verification."
+                  : "Nu inventăm vinuri sau prețuri. Topul se va completa automat când o ofertă Profitshare proaspătă, pentru produsul exact, trece verificarea."}
+              </p>
+            </section>
+          ) : null}
+
           <section className="min-w-0" aria-labelledby="summary-heading">
             <h2
               id="summary-heading"

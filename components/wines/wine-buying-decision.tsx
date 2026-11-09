@@ -68,6 +68,7 @@ export async function WineBuyingDecision({ wine }: { wine: WineWithRelations }) 
                 <VinScoreBadge
                   score={quality.score}
                   size="lg"
+                  metric="quality"
                   label={locale === "ro" ? "Calitate" : "Quality"}
                 />
                 <p className="mt-1 text-xs font-medium text-muted-foreground">

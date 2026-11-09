@@ -3,6 +3,7 @@ import { WineImage } from "@/components/wines/wine-image";
 import type { AppLocale } from "@/i18n/locale";
 import { localizedHref } from "@/i18n/paths";
 import { formatRon, valueScoreTone } from "@/lib/format";
+import { qualityScoreTone } from "@/lib/public-quality-score";
 import { getPseoMessages } from "@/lib/i18n/pseo";
 import { buildWorthItAnalysis } from "@/lib/wine-analysis";
 import { buildWinePriceViewModel } from "@/lib/wine-price";
@@ -131,7 +132,7 @@ export function TopListWineVerdict({
           <span
             className={cn(
               "absolute right-3 top-3 z-10 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur",
-              valueScoreTone(resolvePublicQualityScore(wine).score!),
+              qualityScoreTone(resolvePublicQualityScore(wine).score!),
             )}
           >
             {resolvePublicQualityScore(wine).score}/100

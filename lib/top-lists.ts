@@ -16,6 +16,7 @@ import {
   type Recommendation,
 } from "@/lib/sommelier";
 import { sanitizeWinesForPublic } from "@/lib/public-price";
+import { PRIMARY_TOP_LIST_SLUGS } from "@/lib/top-list-links";
 import type { WineType, WineWithRelations } from "@/types";
 
 export type TopListRankMetric = "value" | "quality" | "gift" | "relevance";
@@ -71,6 +72,23 @@ const COMBO_OCCASIONS: OccasionId[] = OCCASIONS.map((o) => o.id).filter(
   (id): id is OccasionId => id !== "oricare",
 );
 
+/** `pentru-desert` must not become `pentru-pentru-desert` in a URL. */
+export function topListOccasionSlug(occasion: OccasionId): string {
+  return occasion === "pentru-desert" ? "desert" : occasion;
+}
+
+function topListOccasionLabel(occasion: OccasionId): string {
+  const label = occasion === "oricare" ? "" : getOccasion(occasion).label.toLowerCase();
+  return label.startsWith("pentru ") ? label.slice("pentru ".length) : label;
+}
+
+export function topListOccasionFromSlug(slug: string): OccasionId | null {
+  const normalized = slug === "desert" ? "pentru-desert" : slug;
+  return OCCASIONS.some((occasion) => occasion.id === normalized)
+    ? (normalized as OccasionId)
+    : null;
+}
+
 const SUPERMARKET_HOSTS = [
   "emag.ro",
   "kaufland.ro",
@@ -89,7 +107,9 @@ export function buildAllTopListSlugCandidates(grapeSlugs: string[] = []): string
   const typeSlugs = Object.keys(TYPE_SLUG_MAP).map((t) => `vinuri-${t}`);
   const budgetSlugs = BUDGETS.map((b) => `vinuri-sub-${b}-lei`);
   const comboSlugs = COMBO_BUDGETS.flatMap((b) =>
-    COMBO_OCCASIONS.map((o) => `vinuri-sub-${b}-lei-pentru-${o}`),
+    COMBO_OCCASIONS.map(
+      (o) => `vinuri-sub-${b}-lei-pentru-${topListOccasionSlug(o)}`,
+    ),
   );
   const grapeTopSlugs = grapeSlugs.map((g) => `cele-mai-bune-${g}`);
 
@@ -128,18 +148,62 @@ export function getResolvableTopListSlugs(
 }
 
 /**
+ * Sitemap policy: primary navigation rankings are indexable as soon as they
+ * have at least one honest result; other lists keep the 8-result threshold.
+ */
+const PRIMARY_TOP_LIST_SET = new Set<string>(PRIMARY_TOP_LIST_SLUGS);
+
+function isPrimaryTopList(slug: string): boolean {
+  return PRIMARY_TOP_LIST_SET.has(slug);
+}
+
+/**
+ * Non-primary budget and occasion combinations are intentionally noindex:
+ * their candidate sets are often identical to the parent budget list. They
+ * remain reachable and honest, but do not compete as duplicate SEO pages.
+ */
+function isDerivativeRanking(slug: string): boolean {
+  return (
+    /^vinuri-sub-\d+-lei$/.test(slug) ||
+    /^vinuri-sub-\d+-lei-pentru-/.test(slug)
+  );
+}
+
+export function isIndexableTopList(
+  slug: string,
+  wineCount: number,
+): boolean {
+  if (wineCount === 0) return false;
+  if (isPrimaryTopList(slug)) return true;
+  if (isDerivativeRanking(slug)) return false;
+  return wineCount >= MIN_INDEXABLE_TOP_LIST_WINES;
+}
+
+export function getIndexableTopListSlugs(
+  allWines: WineWithRelations[],
+  grapeSlugs: string[] = [],
+): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const slug of buildAllTopListSlugCandidates(grapeSlugs)) {
+    if (seen.has(slug)) continue;
+    seen.add(slug);
+    const list = resolveTopList(slug, allWines);
+    if (!list) continue;
+    if (isIndexableTopList(slug, list.wines.length)) result.push(slug);
+  }
+
+  return result;
+}
+
+/**
  * Featured subset for homepage cross-links. Always includes curated slugs
  * even if the full resolver list is larger.
  */
 export const TOP_LIST_SLUGS: string[] = [
-  "cele-mai-bune-vinuri-romanesti",
-  "vinuri-cadou",
-  "cele-mai-bune-feteasca-neagra",
+  ...PRIMARY_TOP_LIST_SLUGS,
   ...Object.keys(TYPE_SLUG_MAP).map((t) => `vinuri-${t}`),
-  ...BUDGETS.map((b) => `vinuri-sub-${b}-lei`),
-  ...COMBO_BUDGETS.flatMap((b) =>
-    COMBO_OCCASIONS.map((o) => `vinuri-sub-${b}-lei-pentru-${o}`),
-  ),
 ];
 
 /** Lightweight label for a slug without touching the database (cross-links). */
@@ -156,7 +220,7 @@ export function slugToLabel(slug: string): string {
   const comboMatch = slug.match(/^vinuri-sub-(\d+)-lei-pentru-(.+)$/);
   if (comboMatch) {
     const occasion = getOccasion(comboMatch[2] as OccasionId);
-    return `Vinuri sub ${comboMatch[1]} lei pentru ${occasion.label.toLowerCase()}`;
+    return `Vinuri sub ${comboMatch[1]} lei pentru ${topListOccasionLabel(occasion.id)}`;
   }
 
   const budgetMatch = slug.match(/^vinuri-sub-(\d+)-lei$/);
@@ -362,8 +426,6 @@ export function resolveTopList(
       allWines.filter(isSupermarketWine),
       12,
     );
-    if (wines.length < MIN_INDEXABLE_TOP_LIST_WINES) return null;
-
     return {
       slug,
       heading: "Vinuri bune din supermarket",
@@ -435,8 +497,6 @@ export function resolveTopList(
       .sort(byQualityScore)
       .slice(0, 12);
 
-    if (wines.length === 0) return null;
-
     return {
       slug,
       heading: `Cele mai bune vinuri ${grapeName}`,
@@ -455,18 +515,19 @@ export function resolveTopList(
   const comboMatch = slug.match(/^vinuri-sub-(\d+)-lei-pentru-(.+)$/);
   if (comboMatch) {
     const budget = Number(comboMatch[1]);
-    const occasionId = comboMatch[2] as OccasionId;
-    const occasion = OCCASIONS.find((o) => o.id === occasionId);
-    if (!occasion || occasionId === "oricare") return null;
+    const occasionId = topListOccasionFromSlug(comboMatch[2]);
+    const occasion = occasionId
+      ? OCCASIONS.find((o) => o.id === occasionId)
+      : null;
+    if (!occasion || !occasionId || occasionId === "oricare") return null;
 
     const recs = rankForOccasion(allWines, budget, occasionId, 10);
-    if (recs.length === 0) return null;
     const wines = recs.map((rec) => rec.wine);
     const rankScores = usesSecondaryV2Ranking() && usesPublicOccasionMatch()
       ? recs.map((rec) => rec.matchScore)
       : wines.map(legacyOccasionDisplayScore);
 
-    const occLabel = occasion.label.toLowerCase();
+    const occLabel = topListOccasionLabel(occasion.id);
     return {
       slug,
       heading: `Cele mai bune vinuri sub ${budget} lei pentru ${occLabel}`,
@@ -490,8 +551,6 @@ export function resolveTopList(
     const wines = filterWinesByBudget(allWines, budget)
       .sort(byValueScore)
       .slice(0, 12);
-
-    if (wines.length === 0) return null;
 
     return {
       slug,

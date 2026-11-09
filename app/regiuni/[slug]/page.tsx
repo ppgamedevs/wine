@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/site-header";
 import { WineCard } from "@/components/wine-card";
 import { WineryCard } from "@/components/wineries/winery-card";
 import {
-  getIndexableRegionSlugs,
+  getAllRegionSlugs,
   getRegionHubData,
 } from "@/lib/queries";
 import {
@@ -57,15 +57,15 @@ async function englishRegionDescription(
 }
 
 export const revalidate = 3600;
-export const dynamicParams = true;
+export const dynamicParams = false;
 
 interface RegionPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  const slugs = await getIndexableRegionSlugs(MIN_INDEXABLE_TOP_LIST_WINES);
-  return slugs.map((slug) => ({ slug }));
+  const slugs = await getAllRegionSlugs();
+  return slugs.map(({ slug }) => ({ slug }));
 }
 
 function interpolate(
@@ -119,12 +119,13 @@ export async function generateMetadata({ params }: RegionPageProps): Promise<Met
   const { slug } = await params;
   const locale = (await getLocale()) as AppLocale;
   const hub = await getRegionHubData(slug);
-  if (!hub || hub.wines.length < MIN_INDEXABLE_TOP_LIST_WINES) {
+  if (!hub) {
     return {
       title: getPseoMessages(locale).common.notFound,
       robots: { index: false, follow: true },
     };
   }
+  const indexable = hub.wines.length >= MIN_INDEXABLE_TOP_LIST_WINES;
   const copy = getPseoMessages(locale).region;
   const translatedDescription =
     locale === "en"
@@ -146,7 +147,7 @@ export async function generateMetadata({ params }: RegionPageProps): Promise<Met
   return {
     title,
     description,
-    ...(translatedDescription.ready
+    ...(translatedDescription.ready && indexable
       ? {}
       : { robots: { index: false, follow: true } }),
     alternates: buildLocalizedAlternates(
@@ -176,7 +177,7 @@ export default async function RegionPage({ params }: RegionPageProps) {
   const messages = getPseoMessages(locale);
   const hub = await getRegionHubData(slug);
 
-  if (!hub || hub.wines.length < MIN_INDEXABLE_TOP_LIST_WINES) {
+  if (!hub) {
     notFound();
   }
 

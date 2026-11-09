@@ -1,4 +1,5 @@
 import { getVinScoreMeta } from "@/lib/format";
+import { qualityScoreTone } from "@/lib/public-quality-score";
 import { cn } from "@/lib/utils";
 
 interface VinScoreBadgeProps {
@@ -7,6 +8,8 @@ interface VinScoreBadgeProps {
   showLabel?: boolean;
   label?: string;
   className?: string;
+  /** Use the price-independent Quality palette instead of the generic scale. */
+  metric?: "quality" | "value" | "community";
 }
 
 export function VinScoreBadge({
@@ -15,16 +18,20 @@ export function VinScoreBadge({
   showLabel = true,
   label,
   className,
+  metric = "value",
 }: VinScoreBadgeProps) {
   const meta = getVinScoreMeta(score);
+  const toneClass =
+    metric === "quality"
+      ? `${qualityScoreTone(score)} ring-2`
+      : `${meta.badgeClass} ring-2 ${meta.ringClass}`;
 
   return (
     <div className={cn("flex flex-col items-start gap-2", className)}>
       <span
         className={cn(
-          "inline-flex items-center rounded-2xl font-bold ring-2",
-          meta.badgeClass,
-          meta.ringClass,
+          "inline-flex items-center rounded-2xl font-bold",
+          toneClass,
           size === "lg" ? "px-5 py-3 text-3xl" : "px-3 py-1.5 text-lg",
         )}
       >
